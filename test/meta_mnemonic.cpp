@@ -133,7 +133,7 @@ int main() {
     std::numeric_limits<int64_t>::max()
   };
   
-  std::vector<uint64_t> v_uint64 = {
+  std::vector<uint64_t> v_uint64_t = {
     0,
     1, 2046, 2047, 2048, 2049,
     std::numeric_limits<uint64_t>::max() - 1,
@@ -143,12 +143,12 @@ int main() {
   test_add(v_int32);
   test_add(v_uint32);
   test_add(v_int64);
-  test_add(v_uint64);
+  test_add(v_uint64_t);
 
   test_sub(v_int32);
   test_sub(v_uint32);
   test_sub(v_int64);
-  test_sub(v_uint64);
+  test_sub(v_uint64_t);
 
 
   return 0;

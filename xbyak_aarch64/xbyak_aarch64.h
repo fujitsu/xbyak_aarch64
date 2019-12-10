@@ -54,21 +54,6 @@
 #endif
 
 namespace Xbyak {
-
-#ifndef MIE_INTEGER_TYPE_DEFINED
-#define MIE_INTEGER_TYPE_DEFINED
-#ifdef _MSC_VER
-typedef unsigned __int64 uint64;
-typedef __int64 sint64;
-#else
-typedef uint64_t uint64;
-typedef int64_t sint64;
-#endif
-typedef unsigned int uint32;
-typedef unsigned short uint16;
-typedef unsigned char uint8;
-#endif
-
 #include "xbyak_aarch64_gen.h"
 }
 
