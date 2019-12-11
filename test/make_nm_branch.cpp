@@ -36,216 +36,216 @@ enum AddressingType {
 		     TP_PostReg, /** Post-indexed register */
 		     TP_None };
 
-uint64 flagBit = 0;
-const uint64 WREG  = flagBit++; /** Test vector is {w0, w1, ..., w30 } */
-const uint64 XREG  = flagBit++; /** Test vector is {x0, x1, ..., x30 } */
-const uint64 XREG2  = flagBit++; /** Test vector is {x0, x1, ..., x30 } */
-const uint64 WSP   = flagBit++; /** Test vector is {wsp} */
-const uint64 XSP   = flagBit++; /** Test vector is {sp} */
-const uint64 XNSP  = flagBit++; 
-const uint64 XNSP2 = flagBit++; 
-const uint64 XNSP3 = flagBit++; 
+uint64_t flagBit = 0;
+const uint64_t WREG  = flagBit++; /** Test vector is {w0, w1, ..., w30 } */
+const uint64_t XREG  = flagBit++; /** Test vector is {x0, x1, ..., x30 } */
+const uint64_t XREG2  = flagBit++; /** Test vector is {x0, x1, ..., x30 } */
+const uint64_t WSP   = flagBit++; /** Test vector is {wsp} */
+const uint64_t XSP   = flagBit++; /** Test vector is {sp} */
+const uint64_t XNSP  = flagBit++;
+const uint64_t XNSP2 = flagBit++;
+const uint64_t XNSP3 = flagBit++;
 
-const uint64 WNZR  = flagBit++; /** Test vector is {w0, w1, ..., w30, wzr } */
-const uint64 XNZR  = flagBit++; /** Test vector is {x0, x1, ..., x30, xzr } */
+const uint64_t WNZR  = flagBit++; /** Test vector is {w0, w1, ..., w30, wzr } */
+const uint64_t XNZR  = flagBit++; /** Test vector is {x0, x1, ..., x30, xzr } */
 
-const uint64 IMM1BIT   = flagBit++; /** Test vector is {0, 1 } */
-const uint64 IMM2BIT   = flagBit++; /** Test vector is {0, 1, ..., 3 } */
-const uint64 IMM3BIT   = flagBit++; /** Test vector is {0, 1, ..., 7 } */
-const uint64 IMM4BIT   = flagBit++; /** Test vector is {0, 1, ..., 8, 15 } */
-const uint64 IMM5BIT   = flagBit++; /** Test vector is {0, 1, ..., 31 } */
-const uint64 IMM6BIT   = flagBit++; /** Test vector is {0, 1, ..., 63 } */
-const uint64 IMM7BIT   = flagBit++; /** Test vector is {0, 1, ..., 127 } */
-const uint64 IMM12BIT  = flagBit++; /** Test vector is {0, 1, ..., 2048, 4095 } */
-const uint64 IMM16BIT  = flagBit++; /** Test vector is {0, 1, ..., 4096, 1<<13, 1<<14, 1<<15, 1<<16-1 } */
-const uint64 IMM9BIT_PM = flagBit++; /** Test vector is {-256, -255, ..., 255 } */
-const uint64 IMM7BIT_MUL4 = flagBit++; /** Test vector is { 0, 4, 8, ..., 127*4 } */
-const uint64 IMM7BIT_MUL8 = flagBit++; /** Test vector is { 0, 8, 16, ..., 127*8 } */
-const uint64 IMM7BIT_MUL16 = flagBit++; /** Test vector is { -256, -252, ..., 252 } */
-const uint64 IMM7BIT_PM_MUL4 = flagBit++;
-const uint64 IMM7BIT_PM_MUL8 = flagBit++;
-const uint64 IMM7BIT_PM_MUL16 = flagBit++; /** Test vector is { 0, 16, 32, ..., 127*16 } */
-const uint64 IMM10BIT_PM_MUL8 = flagBit++;
-const uint64 IMM12BIT_MUL2 = flagBit++; /** Test vector is {0, 4, 8, ..., 8190 } */
-const uint64 IMM12BIT_MUL4 = flagBit++; /** Test vector is {0, 4, 8, ..., 16380 } */
-const uint64 IMM12BIT_MUL8 = flagBit++; /** Test vector is {0, 8, 16, ..., 32760 } */
-const uint64 IMM12BIT_MUL16 = flagBit++; /** Test vector is {0, 16, 32, ..., 65320 } */
-const uint64 IMM14BIT_MUL4 = flagBit++;
-const uint64 IMM19BIT_MUL4 = flagBit++; /** Test vector is {-2^19*4, ...., (2^19-1)*4 } */
-const uint64 IMM26BIT_MUL4 = flagBit++;
+const uint64_t IMM1BIT   = flagBit++; /** Test vector is {0, 1 } */
+const uint64_t IMM2BIT   = flagBit++; /** Test vector is {0, 1, ..., 3 } */
+const uint64_t IMM3BIT   = flagBit++; /** Test vector is {0, 1, ..., 7 } */
+const uint64_t IMM4BIT   = flagBit++; /** Test vector is {0, 1, ..., 8, 15 } */
+const uint64_t IMM5BIT   = flagBit++; /** Test vector is {0, 1, ..., 31 } */
+const uint64_t IMM6BIT   = flagBit++; /** Test vector is {0, 1, ..., 63 } */
+const uint64_t IMM7BIT   = flagBit++; /** Test vector is {0, 1, ..., 127 } */
+const uint64_t IMM12BIT  = flagBit++; /** Test vector is {0, 1, ..., 2048, 4095 } */
+const uint64_t IMM16BIT  = flagBit++; /** Test vector is {0, 1, ..., 4096, 1<<13, 1<<14, 1<<15, 1<<16-1 } */
+const uint64_t IMM9BIT_PM = flagBit++; /** Test vector is {-256, -255, ..., 255 } */
+const uint64_t IMM7BIT_MUL4 = flagBit++; /** Test vector is { 0, 4, 8, ..., 127*4 } */
+const uint64_t IMM7BIT_MUL8 = flagBit++; /** Test vector is { 0, 8, 16, ..., 127*8 } */
+const uint64_t IMM7BIT_MUL16 = flagBit++; /** Test vector is { -256, -252, ..., 252 } */
+const uint64_t IMM7BIT_PM_MUL4 = flagBit++;
+const uint64_t IMM7BIT_PM_MUL8 = flagBit++;
+const uint64_t IMM7BIT_PM_MUL16 = flagBit++; /** Test vector is { 0, 16, 32, ..., 127*16 } */
+const uint64_t IMM10BIT_PM_MUL8 = flagBit++;
+const uint64_t IMM12BIT_MUL2 = flagBit++; /** Test vector is {0, 4, 8, ..., 8190 } */
+const uint64_t IMM12BIT_MUL4 = flagBit++; /** Test vector is {0, 4, 8, ..., 16380 } */
+const uint64_t IMM12BIT_MUL8 = flagBit++; /** Test vector is {0, 8, 16, ..., 32760 } */
+const uint64_t IMM12BIT_MUL16 = flagBit++; /** Test vector is {0, 16, 32, ..., 65320 } */
+const uint64_t IMM14BIT_MUL4 = flagBit++;
+const uint64_t IMM19BIT_MUL4 = flagBit++; /** Test vector is {-2^19*4, ...., (2^19-1)*4 } */
+const uint64_t IMM26BIT_MUL4 = flagBit++;
 
-const uint64 BREG = flagBit++; /** Test vector is { b0, b1, ..., b31 } */
-const uint64 HREG = flagBit++; /** Test vector is { h0, h1, ..., h31 } */
-const uint64 SREG = flagBit++; /** Test vector is { s0, s1, ..., s31 } */
-const uint64 DREG = flagBit++; /** Test vector is { d0, d1, ..., d31 } */
-const uint64 QREG = flagBit++; /** Test vector is { q0, q1, ..., q31 } */
+const uint64_t BREG = flagBit++; /** Test vector is { b0, b1, ..., b31 } */
+const uint64_t HREG = flagBit++; /** Test vector is { h0, h1, ..., h31 } */
+const uint64_t SREG = flagBit++; /** Test vector is { s0, s1, ..., s31 } */
+const uint64_t DREG = flagBit++; /** Test vector is { d0, d1, ..., d31 } */
+const uint64_t QREG = flagBit++; /** Test vector is { q0, q1, ..., q31 } */
 
-const uint64 SPECIFIC32 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC64 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC32_1 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC64_1 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC32_2 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC64_2 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC32_3 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC64_3 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC0 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC1 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC2 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC3 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC4 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC5 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC6 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC7 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC8 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC9 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC10 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC11 = flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC12   = flagBit++;
-const uint64 SPECIFIC13   = flagBit++;
-const uint64 SPECIFIC14   = flagBit++;
-const uint64 SPECIFIC15   = flagBit++;
-const uint64 SPECIFIC16   = flagBit++;
-const uint64 SPECIFIC17   = flagBit++;
+const uint64_t SPECIFIC32 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC64 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC32_1 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC64_1 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC32_2 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC64_2 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC32_3 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC64_3 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC0 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC1 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC2 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC3 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC4 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC5 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC6 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC7 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC8 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC9 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC10 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC11 = flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC12   = flagBit++;
+const uint64_t SPECIFIC13   = flagBit++;
+const uint64_t SPECIFIC14   = flagBit++;
+const uint64_t SPECIFIC15   = flagBit++;
+const uint64_t SPECIFIC16   = flagBit++;
+const uint64_t SPECIFIC17   = flagBit++;
 
-const uint64 PTR_O    = flagBit++;
-const uint64 PTR_C    = flagBit++;
+const uint64_t PTR_O    = flagBit++;
+const uint64_t PTR_C    = flagBit++;
 
-const uint64 BRA_O    = flagBit++; /** Test vector is { "{" } */
-const uint64 BRA_C    = flagBit++; /** Test vector is { "}" } */
+const uint64_t BRA_O    = flagBit++; /** Test vector is { "{" } */
+const uint64_t BRA_C    = flagBit++; /** Test vector is { "}" } */
 
-const uint64 PAR_O    = flagBit++; /** Test vector is { "(" } */
-const uint64 PAR_C    = flagBit++; /** Test vector is { ">" } */
+const uint64_t PAR_O    = flagBit++; /** Test vector is { "(" } */
+const uint64_t PAR_C    = flagBit++; /** Test vector is { ">" } */
 
-const uint64 PRE_PTR_O    = flagBit++; /** Test vector is { "[" } or { "pre_ptr(" } */
-const uint64 PRE_PTR_C    = flagBit++; /** Test vector is { "]!" } or { ")" } */
+const uint64_t PRE_PTR_O    = flagBit++; /** Test vector is { "[" } or { "pre_ptr(" } */
+const uint64_t PRE_PTR_C    = flagBit++; /** Test vector is { "]!" } or { ")" } */
 
-//const uint64 POST_PTR  = flagBit++;
-
-
-const uint64 T_LSL      = flagBit++; /** Test vector is { "LSL" } */ 
-const uint64 T_UXTW     = flagBit++; /** Test vector is { "UXTW", "UXT" } */
-const uint64 T_SXTW     = flagBit++; /** Test vector is { "SXTW", "SXT" } */
-const uint64 T_SXTX     =  flagBit++; /** Test vector is { "SXTX", "SXT" } */
-
-const uint64 IMM_0      =  flagBit++; /** Test vector is { "0" } */
-const uint64 IMM_0_OR_1  =  flagBit++; /** Test vector is { "0", "1" } */
-const uint64 IMM_0_OR_2  =  flagBit++; /** Test vector is { "0", "2" } */
-const uint64 IMM_0_OR_3  =  flagBit++; /** Test vector is { "0", "3" } */
-const uint64 IMM_0_OR_4  =  flagBit++; /** Test vector is { "0", "4" } */
-const uint64 IMM_2       =  flagBit++;
-const uint64 IMM_4       =  flagBit++;
-const uint64 IMM_8       =  flagBit++;
-const uint64 IMM_16      =  flagBit++;
-const uint64 IMM_8_OR_16 =  flagBit++; /** Test vector is { "8", "16" } */
-const uint64 IMM_16_OR_32 =  flagBit++;
-const uint64 IMM_24_OR_48 =  flagBit++;
-const uint64 IMM_32_OR_64 =  flagBit++;
-
-const uint64 VREGB_1D    = flagBit++;
-const uint64 VREGH_1D    = flagBit++;
-const uint64 VREGS_1D    = flagBit++;
-const uint64 VREGD_1D    = flagBit++;
-const uint64 VREGB_2D    = flagBit++;
-const uint64 VREGH_2D    = flagBit++;
-const uint64 VREGS_2D    = flagBit++;
-const uint64 VREGD_2D    = flagBit++;
-const uint64 VREGB_3D    = flagBit++;
-const uint64 VREGH_3D    = flagBit++;
-const uint64 VREGS_3D    = flagBit++;
-const uint64 VREGD_3D    = flagBit++;
-const uint64 VREGB_4D    = flagBit++;
-const uint64 VREGH_4D    = flagBit++;
-const uint64 VREGS_4D    = flagBit++;
-const uint64 VREGD_4D    = flagBit++;
-
-const uint64 VREG16B_1D  = flagBit++;
-const uint64 VREG8B_1D   = flagBit++;
-const uint64 VREG8H_1D   = flagBit++;
-const uint64 VREG4H_1D   = flagBit++;
-const uint64 VREG4S_1D   = flagBit++;
-const uint64 VREG2S_1D   = flagBit++;
-const uint64 VREG2D_1D   = flagBit++;
-const uint64 VREG1D_1D   = flagBit++;
-const uint64 VREG16B_2D  = flagBit++;
-const uint64 VREG8B_2D   = flagBit++;
-const uint64 VREG8H_2D   = flagBit++;
-const uint64 VREG4H_2D   = flagBit++;
-const uint64 VREG4S_2D   = flagBit++;
-const uint64 VREG2S_2D   = flagBit++;
-const uint64 VREG2D_2D   = flagBit++;
-const uint64 VREG1D_2D   = flagBit++;
-const uint64 VREG16B_3D  = flagBit++;
-const uint64 VREG8B_3D   = flagBit++;
-const uint64 VREG8H_3D   = flagBit++;
-const uint64 VREG4H_3D   = flagBit++;
-const uint64 VREG4S_3D   = flagBit++;
-const uint64 VREG2S_3D   = flagBit++;
-const uint64 VREG2D_3D   = flagBit++;
-const uint64 VREG1D_3D   = flagBit++;
-const uint64 VREG16B_4D  = flagBit++;
-const uint64 VREG8B_4D   = flagBit++;
-const uint64 VREG8H_4D   = flagBit++;
-const uint64 VREG4H_4D   = flagBit++;
-const uint64 VREG4S_4D   = flagBit++;
-const uint64 VREG2S_4D   = flagBit++;
-const uint64 VREG2D_4D   = flagBit++;
-const uint64 VREG1D_4D   = flagBit++;
-
-const uint64 VREGB_1D_ELEM    = flagBit++;
-const uint64 VREGH_1D_ELEM    = flagBit++;
-const uint64 VREGS_1D_ELEM    = flagBit++;
-const uint64 VREGD_1D_ELEM    = flagBit++;
-const uint64 VREGB_2D_ELEM    = flagBit++;
-const uint64 VREGH_2D_ELEM    = flagBit++;
-const uint64 VREGS_2D_ELEM    = flagBit++;
-const uint64 VREGD_2D_ELEM    = flagBit++;
-const uint64 VREGB_3D_ELEM    = flagBit++;
-const uint64 VREGH_3D_ELEM    = flagBit++;
-const uint64 VREGS_3D_ELEM    = flagBit++;
-const uint64 VREGD_3D_ELEM    = flagBit++;
-const uint64 VREGB_4D_ELEM    = flagBit++;
-const uint64 VREGH_4D_ELEM    = flagBit++;
-const uint64 VREGS_4D_ELEM    = flagBit++;
-const uint64 VREGD_4D_ELEM    = flagBit++;
-
-const uint64 VREG16B_1D_ELEM  = flagBit++;
-const uint64 VREG8B_1D_ELEM   = flagBit++;
-const uint64 VREG8H_1D_ELEM   = flagBit++;
-const uint64 VREG4H_1D_ELEM   = flagBit++;
-const uint64 VREG4S_1D_ELEM   = flagBit++;
-const uint64 VREG2S_1D_ELEM   = flagBit++;
-const uint64 VREG2D_1D_ELEM   = flagBit++;
-const uint64 VREG1D_1D_ELEM   = flagBit++;
-const uint64 VREG16B_2D_ELEM  = flagBit++;
-const uint64 VREG8B_2D_ELEM   = flagBit++;
-const uint64 VREG8H_2D_ELEM   = flagBit++;
-const uint64 VREG4H_2D_ELEM   = flagBit++;
-const uint64 VREG4S_2D_ELEM   = flagBit++;
-const uint64 VREG2S_2D_ELEM   = flagBit++;
-const uint64 VREG2D_2D_ELEM   = flagBit++;
-const uint64 VREG1D_2D_ELEM   = flagBit++;
-const uint64 VREG16B_3D_ELEM  = flagBit++;
-const uint64 VREG8B_3D_ELEM   = flagBit++;
-const uint64 VREG8H_3D_ELEM   = flagBit++;
-const uint64 VREG4H_3D_ELEM   = flagBit++;
-const uint64 VREG4S_3D_ELEM   = flagBit++;
-const uint64 VREG2S_3D_ELEM   = flagBit++;
-const uint64 VREG2D_3D_ELEM   = flagBit++;
-const uint64 VREG1D_3D_ELEM   = flagBit++;
-const uint64 VREG16B_4D_ELEM  = flagBit++;
-const uint64 VREG8B_4D_ELEM   = flagBit++;
-const uint64 VREG8H_4D_ELEM   = flagBit++;
-const uint64 VREG4H_4D_ELEM   = flagBit++;
-const uint64 VREG4S_4D_ELEM   = flagBit++;
-const uint64 VREG2S_4D_ELEM   = flagBit++;
-const uint64 VREG2D_4D_ELEM   = flagBit++;
-const uint64 VREG1D_4D_ELEM   = flagBit++;
-
-const uint64 PRFOP            = flagBit++;
-const uint64 BARRIER              = flagBit++;
+//const uint64_t POST_PTR  = flagBit++;
 
 
-const uint64 NOPARA = 100000;
+const uint64_t T_LSL      = flagBit++; /** Test vector is { "LSL" } */
+const uint64_t T_UXTW     = flagBit++; /** Test vector is { "UXTW", "UXT" } */
+const uint64_t T_SXTW     = flagBit++; /** Test vector is { "SXTW", "SXT" } */
+const uint64_t T_SXTX     =  flagBit++; /** Test vector is { "SXTX", "SXT" } */
+
+const uint64_t IMM_0      =  flagBit++; /** Test vector is { "0" } */
+const uint64_t IMM_0_OR_1  =  flagBit++; /** Test vector is { "0", "1" } */
+const uint64_t IMM_0_OR_2  =  flagBit++; /** Test vector is { "0", "2" } */
+const uint64_t IMM_0_OR_3  =  flagBit++; /** Test vector is { "0", "3" } */
+const uint64_t IMM_0_OR_4  =  flagBit++; /** Test vector is { "0", "4" } */
+const uint64_t IMM_2       =  flagBit++;
+const uint64_t IMM_4       =  flagBit++;
+const uint64_t IMM_8       =  flagBit++;
+const uint64_t IMM_16      =  flagBit++;
+const uint64_t IMM_8_OR_16 =  flagBit++; /** Test vector is { "8", "16" } */
+const uint64_t IMM_16_OR_32 =  flagBit++;
+const uint64_t IMM_24_OR_48 =  flagBit++;
+const uint64_t IMM_32_OR_64 =  flagBit++;
+
+const uint64_t VREGB_1D    = flagBit++;
+const uint64_t VREGH_1D    = flagBit++;
+const uint64_t VREGS_1D    = flagBit++;
+const uint64_t VREGD_1D    = flagBit++;
+const uint64_t VREGB_2D    = flagBit++;
+const uint64_t VREGH_2D    = flagBit++;
+const uint64_t VREGS_2D    = flagBit++;
+const uint64_t VREGD_2D    = flagBit++;
+const uint64_t VREGB_3D    = flagBit++;
+const uint64_t VREGH_3D    = flagBit++;
+const uint64_t VREGS_3D    = flagBit++;
+const uint64_t VREGD_3D    = flagBit++;
+const uint64_t VREGB_4D    = flagBit++;
+const uint64_t VREGH_4D    = flagBit++;
+const uint64_t VREGS_4D    = flagBit++;
+const uint64_t VREGD_4D    = flagBit++;
+
+const uint64_t VREG16B_1D  = flagBit++;
+const uint64_t VREG8B_1D   = flagBit++;
+const uint64_t VREG8H_1D   = flagBit++;
+const uint64_t VREG4H_1D   = flagBit++;
+const uint64_t VREG4S_1D   = flagBit++;
+const uint64_t VREG2S_1D   = flagBit++;
+const uint64_t VREG2D_1D   = flagBit++;
+const uint64_t VREG1D_1D   = flagBit++;
+const uint64_t VREG16B_2D  = flagBit++;
+const uint64_t VREG8B_2D   = flagBit++;
+const uint64_t VREG8H_2D   = flagBit++;
+const uint64_t VREG4H_2D   = flagBit++;
+const uint64_t VREG4S_2D   = flagBit++;
+const uint64_t VREG2S_2D   = flagBit++;
+const uint64_t VREG2D_2D   = flagBit++;
+const uint64_t VREG1D_2D   = flagBit++;
+const uint64_t VREG16B_3D  = flagBit++;
+const uint64_t VREG8B_3D   = flagBit++;
+const uint64_t VREG8H_3D   = flagBit++;
+const uint64_t VREG4H_3D   = flagBit++;
+const uint64_t VREG4S_3D   = flagBit++;
+const uint64_t VREG2S_3D   = flagBit++;
+const uint64_t VREG2D_3D   = flagBit++;
+const uint64_t VREG1D_3D   = flagBit++;
+const uint64_t VREG16B_4D  = flagBit++;
+const uint64_t VREG8B_4D   = flagBit++;
+const uint64_t VREG8H_4D   = flagBit++;
+const uint64_t VREG4H_4D   = flagBit++;
+const uint64_t VREG4S_4D   = flagBit++;
+const uint64_t VREG2S_4D   = flagBit++;
+const uint64_t VREG2D_4D   = flagBit++;
+const uint64_t VREG1D_4D   = flagBit++;
+
+const uint64_t VREGB_1D_ELEM    = flagBit++;
+const uint64_t VREGH_1D_ELEM    = flagBit++;
+const uint64_t VREGS_1D_ELEM    = flagBit++;
+const uint64_t VREGD_1D_ELEM    = flagBit++;
+const uint64_t VREGB_2D_ELEM    = flagBit++;
+const uint64_t VREGH_2D_ELEM    = flagBit++;
+const uint64_t VREGS_2D_ELEM    = flagBit++;
+const uint64_t VREGD_2D_ELEM    = flagBit++;
+const uint64_t VREGB_3D_ELEM    = flagBit++;
+const uint64_t VREGH_3D_ELEM    = flagBit++;
+const uint64_t VREGS_3D_ELEM    = flagBit++;
+const uint64_t VREGD_3D_ELEM    = flagBit++;
+const uint64_t VREGB_4D_ELEM    = flagBit++;
+const uint64_t VREGH_4D_ELEM    = flagBit++;
+const uint64_t VREGS_4D_ELEM    = flagBit++;
+const uint64_t VREGD_4D_ELEM    = flagBit++;
+
+const uint64_t VREG16B_1D_ELEM  = flagBit++;
+const uint64_t VREG8B_1D_ELEM   = flagBit++;
+const uint64_t VREG8H_1D_ELEM   = flagBit++;
+const uint64_t VREG4H_1D_ELEM   = flagBit++;
+const uint64_t VREG4S_1D_ELEM   = flagBit++;
+const uint64_t VREG2S_1D_ELEM   = flagBit++;
+const uint64_t VREG2D_1D_ELEM   = flagBit++;
+const uint64_t VREG1D_1D_ELEM   = flagBit++;
+const uint64_t VREG16B_2D_ELEM  = flagBit++;
+const uint64_t VREG8B_2D_ELEM   = flagBit++;
+const uint64_t VREG8H_2D_ELEM   = flagBit++;
+const uint64_t VREG4H_2D_ELEM   = flagBit++;
+const uint64_t VREG4S_2D_ELEM   = flagBit++;
+const uint64_t VREG2S_2D_ELEM   = flagBit++;
+const uint64_t VREG2D_2D_ELEM   = flagBit++;
+const uint64_t VREG1D_2D_ELEM   = flagBit++;
+const uint64_t VREG16B_3D_ELEM  = flagBit++;
+const uint64_t VREG8B_3D_ELEM   = flagBit++;
+const uint64_t VREG8H_3D_ELEM   = flagBit++;
+const uint64_t VREG4H_3D_ELEM   = flagBit++;
+const uint64_t VREG4S_3D_ELEM   = flagBit++;
+const uint64_t VREG2S_3D_ELEM   = flagBit++;
+const uint64_t VREG2D_3D_ELEM   = flagBit++;
+const uint64_t VREG1D_3D_ELEM   = flagBit++;
+const uint64_t VREG16B_4D_ELEM  = flagBit++;
+const uint64_t VREG8B_4D_ELEM   = flagBit++;
+const uint64_t VREG8H_4D_ELEM   = flagBit++;
+const uint64_t VREG4H_4D_ELEM   = flagBit++;
+const uint64_t VREG4S_4D_ELEM   = flagBit++;
+const uint64_t VREG2S_4D_ELEM   = flagBit++;
+const uint64_t VREG2D_4D_ELEM   = flagBit++;
+const uint64_t VREG1D_4D_ELEM   = flagBit++;
+
+const uint64_t PRFOP            = flagBit++;
+const uint64_t BARRIER              = flagBit++;
+
+
+const uint64_t NOPARA = 100000;
 
 
 #define PUT0(name, nm)				\
@@ -259,7 +259,7 @@ const uint64 NOPARA = 100000;
   void put##name() const			\
   {						\
     std::vector<std::string> nemonic(nm);	\
-    std::vector<uint64> op1(op_1);		\
+    std::vector<uint64_t> op1(op_1);		\
     put(nemonic, op1, #name, 0);			\
   }						\
 
@@ -267,8 +267,8 @@ const uint64 NOPARA = 100000;
   void put##name() const			\
   {						\
     std::vector<std::string> nemonic(nm);	\
-    std::vector<uint64> op1(op_1);		\
-    std::vector<uint64> op2(op_2);		\
+    std::vector<uint64_t> op1(op_1);		\
+    std::vector<uint64_t> op2(op_2);		\
     put(nemonic, op1, #name, 0);			\
     put(nemonic, op2, #name, 1);				\
   }						\
@@ -277,9 +277,9 @@ const uint64 NOPARA = 100000;
   void put##name() const			\
   {						\
     std::vector<std::string> nemonic(nm);	\
-    std::vector<uint64> op1(op_1);		\
-    std::vector<uint64> op2(op_2);		\
-    std::vector<uint64> op3(op_3);		\
+    std::vector<uint64_t> op1(op_1);		\
+    std::vector<uint64_t> op2(op_2);		\
+    std::vector<uint64_t> op3(op_3);		\
     put(nemonic, op1, #name, 0);			\
     put(nemonic, op2, #name, 1);				\
     put(nemonic, op3, #name, 2);					\
@@ -289,10 +289,10 @@ const uint64 NOPARA = 100000;
   void put##name() const			\
   {						\
     std::vector<std::string> nemonic(nm);	\
-    std::vector<uint64> op1(op_1);		\
-    std::vector<uint64> op2(op_2);		\
-    std::vector<uint64> op3(op_3);		\
-    std::vector<uint64> op4(op_4);		\
+    std::vector<uint64_t> op1(op_1);		\
+    std::vector<uint64_t> op2(op_2);		\
+    std::vector<uint64_t> op3(op_3);		\
+    std::vector<uint64_t> op4(op_4);		\
     put(nemonic, op1, #name, 0);					\
     put(nemonic, op2, #name, 1);					\
     put(nemonic, op3, #name, 2);					\
@@ -303,11 +303,11 @@ const uint64 NOPARA = 100000;
   void put##name() const				\
   {							\
     std::vector<std::string> nemonic(nm);		\
-    std::vector<uint64> op1(op_1);			\
-    std::vector<uint64> op2(op_2);			\
-    std::vector<uint64> op3(op_3);			\
-    std::vector<uint64> op4(op_4);			\
-    std::vector<uint64> op5(op_5);			\
+    std::vector<uint64_t> op1(op_1);			\
+    std::vector<uint64_t> op2(op_2);			\
+    std::vector<uint64_t> op3(op_3);			\
+    std::vector<uint64_t> op4(op_4);			\
+    std::vector<uint64_t> op5(op_5);			\
     put(nemonic, op1, #name, 0);				\
     put(nemonic, op2, #name, 1);					\
     put(nemonic, op3, #name, 2);						\
@@ -319,12 +319,12 @@ const uint64 NOPARA = 100000;
   void put##name() const					\
   {								\
     std::vector<std::string> nemonic(nm);			\
-    std::vector<uint64> op1(op_1);				\
-    std::vector<uint64> op2(op_2);				\
-    std::vector<uint64> op3(op_3);				\
-    std::vector<uint64> op4(op_4);				\
-    std::vector<uint64> op5(op_5);				\
-    std::vector<uint64> op6(op_6);				\
+    std::vector<uint64_t> op1(op_1);				\
+    std::vector<uint64_t> op2(op_2);				\
+    std::vector<uint64_t> op3(op_3);				\
+    std::vector<uint64_t> op4(op_4);				\
+    std::vector<uint64_t> op5(op_5);				\
+    std::vector<uint64_t> op6(op_6);				\
     put(nemonic, op1, #name, 0);					\
     put(nemonic, op2, #name, 1);					\
     put(nemonic, op3, #name, 2);					\
@@ -337,13 +337,13 @@ const uint64 NOPARA = 100000;
   void put##name() const						\
   {									\
     std::vector<std::string> nemonic(nm);				\
-    std::vector<uint64> op1(op_1);					\
-    std::vector<uint64> op2(op_2);					\
-    std::vector<uint64> op3(op_3);					\
-    std::vector<uint64> op4(op_4);					\
-    std::vector<uint64> op5(op_5);					\
-    std::vector<uint64> op6(op_6);					\
-    std::vector<uint64> op7(op_7);					\
+    std::vector<uint64_t> op1(op_1);					\
+    std::vector<uint64_t> op2(op_2);					\
+    std::vector<uint64_t> op3(op_3);					\
+    std::vector<uint64_t> op4(op_4);					\
+    std::vector<uint64_t> op5(op_5);					\
+    std::vector<uint64_t> op6(op_6);					\
+    std::vector<uint64_t> op7(op_7);					\
     put(nemonic, op1, #name, 0);						\
     put(nemonic, op2, #name, 1);						\
     put(nemonic, op3, #name, 2);						\
@@ -357,14 +357,14 @@ const uint64 NOPARA = 100000;
   void put##name() const						\
   {									\
     std::vector<std::string> nemonic(nm);				\
-    std::vector<uint64> op1(op_1);					\
-    std::vector<uint64> op2(op_2);					\
-    std::vector<uint64> op3(op_3);					\
-    std::vector<uint64> op4(op_4);					\
-    std::vector<uint64> op5(op_5);					\
-    std::vector<uint64> op6(op_6);					\
-    std::vector<uint64> op7(op_7);					\
-    std::vector<uint64> op8(op_8);					\
+    std::vector<uint64_t> op1(op_1);					\
+    std::vector<uint64_t> op2(op_2);					\
+    std::vector<uint64_t> op3(op_3);					\
+    std::vector<uint64_t> op4(op_4);					\
+    std::vector<uint64_t> op5(op_5);					\
+    std::vector<uint64_t> op6(op_6);					\
+    std::vector<uint64_t> op7(op_7);					\
+    std::vector<uint64_t> op8(op_8);					\
     put(nemonic, op1, #name, 0);						\
     put(nemonic, op2, #name, 1);						\
     put(nemonic, op3, #name, 2);						\
@@ -379,15 +379,15 @@ const uint64 NOPARA = 100000;
   void put##name() const						\
   {									\
     std::vector<std::string> nemonic(nm);				\
-    std::vector<uint64> op1(op_1);					\
-    std::vector<uint64> op2(op_2);					\
-    std::vector<uint64> op3(op_3);					\
-    std::vector<uint64> op4(op_4);					\
-    std::vector<uint64> op5(op_5);					\
-    std::vector<uint64> op6(op_6);					\
-    std::vector<uint64> op7(op_7);					\
-    std::vector<uint64> op8(op_8);					\
-    std::vector<uint64> op9(op_9);					\
+    std::vector<uint64_t> op1(op_1);					\
+    std::vector<uint64_t> op2(op_2);					\
+    std::vector<uint64_t> op3(op_3);					\
+    std::vector<uint64_t> op4(op_4);					\
+    std::vector<uint64_t> op5(op_5);					\
+    std::vector<uint64_t> op6(op_6);					\
+    std::vector<uint64_t> op7(op_7);					\
+    std::vector<uint64_t> op8(op_8);					\
+    std::vector<uint64_t> op9(op_9);					\
     put(nemonic, op1, #name, 0);						\
     put(nemonic, op2, #name, 1);						\
     put(nemonic, op3, #name, 2);						\
@@ -403,16 +403,16 @@ const uint64 NOPARA = 100000;
   void put##name() const						\
   {									\
     std::vector<std::string> nemonic(nm);				\
-    std::vector<uint64> op1(op_1);					\
-    std::vector<uint64> op2(op_2);					\
-    std::vector<uint64> op3(op_3);					\
-    std::vector<uint64> op4(op_4);					\
-    std::vector<uint64> op5(op_5);					\
-    std::vector<uint64> op6(op_6);					\
-    std::vector<uint64> op7(op_7);					\
-    std::vector<uint64> op8(op_8);					\
-    std::vector<uint64> op9(op_9);					\
-    std::vector<uint64> op10(op_10);					\
+    std::vector<uint64_t> op1(op_1);					\
+    std::vector<uint64_t> op2(op_2);					\
+    std::vector<uint64_t> op3(op_3);					\
+    std::vector<uint64_t> op4(op_4);					\
+    std::vector<uint64_t> op5(op_5);					\
+    std::vector<uint64_t> op6(op_6);					\
+    std::vector<uint64_t> op7(op_7);					\
+    std::vector<uint64_t> op8(op_8);					\
+    std::vector<uint64_t> op9(op_9);					\
+    std::vector<uint64_t> op10(op_10);					\
     put(nemonic, op1, #name, 0);						\
     put(nemonic, op2, #name, 1);						\
     put(nemonic, op3, #name, 2);						\
@@ -429,22 +429,22 @@ const uint64 NOPARA = 100000;
   void put##name() const						\
   {									\
     std::vector<std::string> nemonic(nm);				\
-    std::vector<uint64> op1(op_1);					\
-    std::vector<uint64> op2(op_2);					\
-    std::vector<uint64> op3(op_3);					\
-    std::vector<uint64> op4(op_4);					\
-    std::vector<uint64> op5(op_5);					\
-    std::vector<uint64> op6(op_6);					\
-    std::vector<uint64> op7(op_7);					\
-    std::vector<uint64> op8(op_8);					\
-    std::vector<uint64> op9(op_9);					\
-    std::vector<uint64> op10(op_10);					\
-    std::vector<uint64> op11(op_11);					\
-    std::vector<uint64> op12(op_12);					\
-    std::vector<uint64> op13(op_13);					\
-    std::vector<uint64> op14(op_14);					\
-    std::vector<uint64> op15(op_15);					\
-    std::vector<uint64> op16(op_16);					\
+    std::vector<uint64_t> op1(op_1);					\
+    std::vector<uint64_t> op2(op_2);					\
+    std::vector<uint64_t> op3(op_3);					\
+    std::vector<uint64_t> op4(op_4);					\
+    std::vector<uint64_t> op5(op_5);					\
+    std::vector<uint64_t> op6(op_6);					\
+    std::vector<uint64_t> op7(op_7);					\
+    std::vector<uint64_t> op8(op_8);					\
+    std::vector<uint64_t> op9(op_9);					\
+    std::vector<uint64_t> op10(op_10);					\
+    std::vector<uint64_t> op11(op_11);					\
+    std::vector<uint64_t> op12(op_12);					\
+    std::vector<uint64_t> op13(op_13);					\
+    std::vector<uint64_t> op14(op_14);					\
+    std::vector<uint64_t> op15(op_15);					\
+    std::vector<uint64_t> op16(op_16);					\
     put(nemonic, op1, #name, 0);						\
     put(nemonic, op2, #name, 1);						\
     put(nemonic, op3, #name, 2);						\
@@ -772,7 +772,7 @@ class Test {
     }
   }
 
-  void put(std::vector<std::string> &n, std::vector<uint64> &opSet, std::string name, int serial=0) const
+  void put(std::vector<std::string> &n, std::vector<uint64_t> &opSet, std::string name, int serial=0) const
   {
     std::cout << "//" << name << ":" << serial << std::endl; /** For easy debug */
     
@@ -782,14 +782,14 @@ class Test {
     }
   }
 
-  //  char* getBaseStr(uint64 op1)
-  const char* getBaseStr(uint64 op1) const
+  //  char* getBaseStr(uint64_t op1)
+  const char* getBaseStr(uint64_t op1) const
   {
-    return get(op1, (uint64) 0);
+    return get(op1, (uint64_t) 0);
   }
   
   /** check all op1, op2, op3, op4, op5, op6, op7, op8 */
-  void put(const char *nm, std::vector<uint64>& ops) const
+  void put(const char *nm, std::vector<uint64_t>& ops) const
   {
     std::vector<std::string> strBase;
     std::string hoge;
@@ -897,7 +897,7 @@ class Test {
     }
   }
 
-  uint64 getNum(uint64 type) const
+  uint64_t getNum(uint64_t type) const
   {
     if(type==NOPARA) {
       return 0;
@@ -906,7 +906,7 @@ class Test {
     return tv_Vectors[type]->size();
   }
 
-  const char *get(uint64 type, uint64 index) const
+  const char *get(uint64_t type, uint64_t index) const
   {
     if(type==NOPARA) {
       std::cerr << std::endl << __FILE__ << ":" << __LINE__ << ", Something wrong. type=" << type << " index=" << index << std::endl;

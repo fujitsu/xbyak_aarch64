@@ -38,70 +38,70 @@ enum TpPredType {
 };
 
 /** Begin:Really used in this file. */
-uint64 flagBit = 0;
-const uint64 WREG  = 1ULL << flagBit++; /** Test vector is {w0, w1, ..., w30 } */
-const uint64 XREG  = 1ULL << flagBit++; /** Test vector is {x0, x1, ..., x30 } */
-const uint64 VREG  = 1ULL << flagBit++; /** Test vector is {v0, v1, ..., v31 } */
-const uint64 IMM0BIT   = 1ULL << flagBit++; /** Test vector is {0} */
-const uint64 IMM1BIT   = 1ULL << flagBit++; /** Test vector is {0, 1} */
-const uint64 IMM2BIT   = 1ULL << flagBit++; /** Test vector is {0, 1, 2, 3 } */
-const uint64 IMM3BIT   = 1ULL << flagBit++; /** Test vector is {0, 1, 2, 4, 7 } */
-const uint64 IMM4BIT   = 1ULL << flagBit++; /** Test vector is {0, 1, ..., 8, 15 } */
-const uint64 IMM5BIT   = 1ULL << flagBit++; /** Test vector is {0, 1, ..., 16, 31 } */
-const uint64 IMM6BIT   = 1ULL << flagBit++; /** Test vector is {0, 1, ..., 32, 63 } */
-const uint64 IMM8BIT   = 1ULL << flagBit++; /** Test vector is {0, 1, ..., 128, 255 } */
-const uint64 IMM12BIT  = 1ULL << flagBit++; /** Test vector is {0, 1, ..., 2048, 4095 } */
-const uint64 IMM13BIT  = 1ULL << flagBit++; /** Test vector is {0, 1, ..., 4096, 8191 } */
-const uint64 IMM16BIT  = 1ULL << flagBit++; /** Test vector is {0, 1, ..., 4096, 1<<13, 1<<14, 1<<15, 1<<16-1 } */
-const uint64 IMM3BIT_N = 1ULL << flagBit++; /** Test vector is {1, 2, .., 8 } */
-const uint64 IMM4BIT_N = 1ULL << flagBit++; /** Test vector is {1, 2, .., 16 } */
-const uint64 IMM5BIT_N = 1ULL << flagBit++; /** Test vector is {1, 2, .., 32 } */
-const uint64 IMM6BIT_N = 1ULL << flagBit++; /** Test vector is {1, 2, .., 64 } */
-const uint64 FLOAT8BIT = 1ULL << flagBit++; /** Test vector is Table C-2- Floating-point constant values */
+uint64_t flagBit = 0;
+const uint64_t WREG  = 1ULL << flagBit++; /** Test vector is {w0, w1, ..., w30 } */
+const uint64_t XREG  = 1ULL << flagBit++; /** Test vector is {x0, x1, ..., x30 } */
+const uint64_t VREG  = 1ULL << flagBit++; /** Test vector is {v0, v1, ..., v31 } */
+const uint64_t IMM0BIT   = 1ULL << flagBit++; /** Test vector is {0} */
+const uint64_t IMM1BIT   = 1ULL << flagBit++; /** Test vector is {0, 1} */
+const uint64_t IMM2BIT   = 1ULL << flagBit++; /** Test vector is {0, 1, 2, 3 } */
+const uint64_t IMM3BIT   = 1ULL << flagBit++; /** Test vector is {0, 1, 2, 4, 7 } */
+const uint64_t IMM4BIT   = 1ULL << flagBit++; /** Test vector is {0, 1, ..., 8, 15 } */
+const uint64_t IMM5BIT   = 1ULL << flagBit++; /** Test vector is {0, 1, ..., 16, 31 } */
+const uint64_t IMM6BIT   = 1ULL << flagBit++; /** Test vector is {0, 1, ..., 32, 63 } */
+const uint64_t IMM8BIT   = 1ULL << flagBit++; /** Test vector is {0, 1, ..., 128, 255 } */
+const uint64_t IMM12BIT  = 1ULL << flagBit++; /** Test vector is {0, 1, ..., 2048, 4095 } */
+const uint64_t IMM13BIT  = 1ULL << flagBit++; /** Test vector is {0, 1, ..., 4096, 8191 } */
+const uint64_t IMM16BIT  = 1ULL << flagBit++; /** Test vector is {0, 1, ..., 4096, 1<<13, 1<<14, 1<<15, 1<<16-1 } */
+const uint64_t IMM3BIT_N = 1ULL << flagBit++; /** Test vector is {1, 2, .., 8 } */
+const uint64_t IMM4BIT_N = 1ULL << flagBit++; /** Test vector is {1, 2, .., 16 } */
+const uint64_t IMM5BIT_N = 1ULL << flagBit++; /** Test vector is {1, 2, .., 32 } */
+const uint64_t IMM6BIT_N = 1ULL << flagBit++; /** Test vector is {1, 2, .., 64 } */
+const uint64_t FLOAT8BIT = 1ULL << flagBit++; /** Test vector is Table C-2- Floating-point constant values */
 
-const uint64 BREG = 1ULL << flagBit++; /** Test vector is { b0, b1, ..., b31 } */
-const uint64 HREG = 1ULL << flagBit++; /** Test vector is { h0, h1, ..., h31 } */
-const uint64 SREG = 1ULL << flagBit++; /** Test vector is { s0, s1, ..., s31 } */
-const uint64 DREG = 1ULL << flagBit++; /** Test vector is { d0, d1, ..., d31 } */
-const uint64 QREG = 1ULL << flagBit++; /** Test vector is { q0, q1, ..., q31 } */
-const uint64 ZREG = 1ULL << flagBit++; /** Test vector is { z0, z1, ..., z31 } */
+const uint64_t BREG = 1ULL << flagBit++; /** Test vector is { b0, b1, ..., b31 } */
+const uint64_t HREG = 1ULL << flagBit++; /** Test vector is { h0, h1, ..., h31 } */
+const uint64_t SREG = 1ULL << flagBit++; /** Test vector is { s0, s1, ..., s31 } */
+const uint64_t DREG = 1ULL << flagBit++; /** Test vector is { d0, d1, ..., d31 } */
+const uint64_t QREG = 1ULL << flagBit++; /** Test vector is { q0, q1, ..., q31 } */
+const uint64_t ZREG = 1ULL << flagBit++; /** Test vector is { z0, z1, ..., z31 } */
 
-const uint64 SPECIFIC32 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC64 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC32_1 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC64_1 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC32_2 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC64_2 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC32_3 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC64_3 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC32_4 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
-const uint64 SPECIFIC64_4 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC32 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC64 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC32_1 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC64_1 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC32_2 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC64_2 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC32_3 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC64_3 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC32_4 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
+const uint64_t SPECIFIC64_4 = 1ULL << flagBit++; /** Test vector is generated on the fly. */
 
-const uint64 ZREG_B   = 1ULL << flagBit++;
-const uint64 ZREG_H   = 1ULL << flagBit++;
-const uint64 ZREG_S   = 1ULL << flagBit++;
-const uint64 ZREG_D   = 1ULL << flagBit++;
-const uint64 ZREG_Q   = 1ULL << flagBit++;
+const uint64_t ZREG_B   = 1ULL << flagBit++;
+const uint64_t ZREG_H   = 1ULL << flagBit++;
+const uint64_t ZREG_S   = 1ULL << flagBit++;
+const uint64_t ZREG_D   = 1ULL << flagBit++;
+const uint64_t ZREG_Q   = 1ULL << flagBit++;
 
-const uint64 ZREG_B_ELEM = 1ULL << flagBit++;
-const uint64 ZREG_H_ELEM = 1ULL << flagBit++;
-const uint64 ZREG_S_ELEM = 1ULL << flagBit++;
-const uint64 ZREG_D_ELEM = 1ULL << flagBit++;
+const uint64_t ZREG_B_ELEM = 1ULL << flagBit++;
+const uint64_t ZREG_H_ELEM = 1ULL << flagBit++;
+const uint64_t ZREG_S_ELEM = 1ULL << flagBit++;
+const uint64_t ZREG_D_ELEM = 1ULL << flagBit++;
 
-const uint64 PREG_B   = 1ULL << flagBit++;
-const uint64 PREG_H   = 1ULL << flagBit++;
-const uint64 PREG_S   = 1ULL << flagBit++;
-const uint64 PREG_D   = 1ULL << flagBit++;
+const uint64_t PREG_B   = 1ULL << flagBit++;
+const uint64_t PREG_H   = 1ULL << flagBit++;
+const uint64_t PREG_S   = 1ULL << flagBit++;
+const uint64_t PREG_D   = 1ULL << flagBit++;
 
-const uint64 PG_M     = 1ULL << flagBit++;
-const uint64 PG_Z     = 1ULL << flagBit++;
-const uint64 PG       = 1ULL << flagBit++;
-const uint64 PG_ZM    = PG_M | PG_Z;
+const uint64_t PG_M     = 1ULL << flagBit++;
+const uint64_t PG_Z     = 1ULL << flagBit++;
+const uint64_t PG       = 1ULL << flagBit++;
+const uint64_t PG_ZM    = PG_M | PG_Z;
 
-const uint64 PATTERN  = 1ULL << flagBit++;
-const uint64 SFLOAT8BIT = 1ULL << flagBit++;
+const uint64_t PATTERN  = 1ULL << flagBit++;
+const uint64_t SFLOAT8BIT = 1ULL << flagBit++;
 
-const uint64 NOPARA = 1ULL << (bitEnd - 1);
+const uint64_t NOPARA = 1ULL << (bitEnd - 1);
 
 
 
@@ -116,7 +116,7 @@ const uint64 NOPARA = 1ULL << (bitEnd - 1);
   void put##name() const			\
   {						\
     std::vector<std::string> nemonic(nm);	\
-    std::vector<uint64> op1(op_1);		\
+    std::vector<uint64_t> op1(op_1);		\
     put(nemonic, op1, #name);					\
   }						\
 
@@ -124,8 +124,8 @@ const uint64 NOPARA = 1ULL << (bitEnd - 1);
   void put##name() const			\
   {						\
     std::vector<std::string> nemonic(nm);	\
-    std::vector<uint64> op1(op_1);		\
-    std::vector<uint64> op2(op_2);		\
+    std::vector<uint64_t> op1(op_1);		\
+    std::vector<uint64_t> op2(op_2);		\
     put(nemonic, op1, #name);					\
     put(nemonic, op2, #name);					\
   }						\
@@ -134,9 +134,9 @@ const uint64 NOPARA = 1ULL << (bitEnd - 1);
   void put##name() const			\
   {						\
     std::vector<std::string> nemonic(nm);	\
-    std::vector<uint64> op1(op_1);		\
-    std::vector<uint64> op2(op_2);		\
-    std::vector<uint64> op3(op_3);		\
+    std::vector<uint64_t> op1(op_1);		\
+    std::vector<uint64_t> op2(op_2);		\
+    std::vector<uint64_t> op3(op_3);		\
     put(nemonic, op1, #name);					\
     put(nemonic, op2, #name);					\
     put(nemonic, op3, #name);					\
@@ -146,10 +146,10 @@ const uint64 NOPARA = 1ULL << (bitEnd - 1);
   void put##name() const			\
   {						\
     std::vector<std::string> nemonic(nm);	\
-    std::vector<uint64> op1(op_1);		\
-    std::vector<uint64> op2(op_2);		\
-    std::vector<uint64> op3(op_3);		\
-    std::vector<uint64> op4(op_4);		\
+    std::vector<uint64_t> op1(op_1);		\
+    std::vector<uint64_t> op2(op_2);		\
+    std::vector<uint64_t> op3(op_3);		\
+    std::vector<uint64_t> op4(op_4);		\
     put(nemonic, op1, #name);					\
     put(nemonic, op2, #name);					\
     put(nemonic, op3, #name);					\
@@ -160,11 +160,11 @@ const uint64 NOPARA = 1ULL << (bitEnd - 1);
   void put##name() const				\
   {							\
     std::vector<std::string> nemonic(nm);		\
-    std::vector<uint64> op1(op_1);			\
-    std::vector<uint64> op2(op_2);			\
-    std::vector<uint64> op3(op_3);			\
-    std::vector<uint64> op4(op_4);			\
-    std::vector<uint64> op5(op_5);			\
+    std::vector<uint64_t> op1(op_1);			\
+    std::vector<uint64_t> op2(op_2);			\
+    std::vector<uint64_t> op3(op_3);			\
+    std::vector<uint64_t> op4(op_4);			\
+    std::vector<uint64_t> op5(op_5);			\
     put(nemonic, op1, #name);					\
     put(nemonic, op2, #name);					\
     put(nemonic, op3, #name);					\
@@ -176,12 +176,12 @@ const uint64 NOPARA = 1ULL << (bitEnd - 1);
   void put##name() const					\
   {								\
     std::vector<std::string> nemonic(nm);			\
-    std::vector<uint64> op1(op_1);				\
-    std::vector<uint64> op2(op_2);				\
-    std::vector<uint64> op3(op_3);				\
-    std::vector<uint64> op4(op_4);				\
-    std::vector<uint64> op5(op_5);				\
-    std::vector<uint64> op6(op_6);				\
+    std::vector<uint64_t> op1(op_1);				\
+    std::vector<uint64_t> op2(op_2);				\
+    std::vector<uint64_t> op3(op_3);				\
+    std::vector<uint64_t> op4(op_4);				\
+    std::vector<uint64_t> op5(op_5);				\
+    std::vector<uint64_t> op6(op_6);				\
     put(nemonic, op1, #name);						\
     put(nemonic, op2, #name);						\
     put(nemonic, op3, #name);						\
@@ -194,13 +194,13 @@ const uint64 NOPARA = 1ULL << (bitEnd - 1);
   void put##name() const						\
   {									\
     std::vector<std::string> nemonic(nm);				\
-    std::vector<uint64> op1(op_1);					\
-    std::vector<uint64> op2(op_2);					\
-    std::vector<uint64> op3(op_3);					\
-    std::vector<uint64> op4(op_4);					\
-    std::vector<uint64> op5(op_5);					\
-    std::vector<uint64> op6(op_6);					\
-    std::vector<uint64> op7(op_7);					\
+    std::vector<uint64_t> op1(op_1);					\
+    std::vector<uint64_t> op2(op_2);					\
+    std::vector<uint64_t> op3(op_3);					\
+    std::vector<uint64_t> op4(op_4);					\
+    std::vector<uint64_t> op5(op_5);					\
+    std::vector<uint64_t> op6(op_6);					\
+    std::vector<uint64_t> op7(op_7);					\
     put(nemonic, op1, #name);							\
     put(nemonic, op2, #name);							\
     put(nemonic, op3, #name);							\
@@ -214,14 +214,14 @@ const uint64 NOPARA = 1ULL << (bitEnd - 1);
   void put##name() const						\
   {									\
     std::vector<std::string> nemonic(nm);				\
-    std::vector<uint64> op1(op_1);					\
-    std::vector<uint64> op2(op_2);					\
-    std::vector<uint64> op3(op_3);					\
-    std::vector<uint64> op4(op_4);					\
-    std::vector<uint64> op5(op_5);					\
-    std::vector<uint64> op6(op_6);					\
-    std::vector<uint64> op7(op_7);					\
-    std::vector<uint64> op8(op_8);					\
+    std::vector<uint64_t> op1(op_1);					\
+    std::vector<uint64_t> op2(op_2);					\
+    std::vector<uint64_t> op3(op_3);					\
+    std::vector<uint64_t> op4(op_4);					\
+    std::vector<uint64_t> op5(op_5);					\
+    std::vector<uint64_t> op6(op_6);					\
+    std::vector<uint64_t> op7(op_7);					\
+    std::vector<uint64_t> op8(op_8);					\
     put(nemonic, op1, #name);							\
     put(nemonic, op2, #name);							\
     put(nemonic, op3, #name);							\
@@ -413,7 +413,7 @@ class Test {
     }
   }
 
-  void put(std::vector<std::string> &n, std::vector<uint64> &opSet, std::string name) const
+  void put(std::vector<std::string> &n, std::vector<uint64_t> &opSet, std::string name) const
   {
     std::cout << "//" << name << std::endl; /** For easy debug */
     
@@ -423,8 +423,8 @@ class Test {
     }
   }
 
-  //  char* getBaseStr(uint64 op1)
-  const char* getBaseStr(uint64 op1) const
+  //  char* getBaseStr(uint64_t op1)
+  const char* getBaseStr(uint64_t op1) const
   {
     for (int i = 0; i < bitEnd; i++) {
       if (op1 & (1ULL << i)) {
@@ -438,7 +438,7 @@ class Test {
   }
   
   /** check all op1, op2, op3, op4, op5, op6, op7, op8 */
-  void put(const char *nm, std::vector<uint64>& ops) const
+  void put(const char *nm, std::vector<uint64_t>& ops) const
   {
     std::vector<std::string> strBase;
     std::string hoge;
@@ -519,7 +519,7 @@ class Test {
     */
     for(i = 0; i < num_ops; i++) {
       for(j = 0; j < bitEnd; j++) {
-	uint64 bitpos = 1ULL << j;
+	uint64_t bitpos = 1ULL << j;
 	
 	if(!(ops[i] & bitpos)) continue;
 
@@ -559,7 +559,7 @@ class Test {
     }
   }
     
-  uint64 getNum(uint64 type) const
+  uint64_t getNum(uint64_t type) const
   {
     if(type==NOPARA) {
       return 0;
@@ -576,7 +576,7 @@ class Test {
     return 0;
   }
 
-  const char *get(uint64 type, uint64 index) const
+  const char *get(uint64_t type, uint64_t index) const
   {
     if(type==NOPARA) {
       std::cerr << std::endl << __FILE__ << ":" << __LINE__ << ", Something wrong. type=" << type << " index=" << index << std::endl;
@@ -738,8 +738,8 @@ public:
 
   
   void setRotatedOnes(std::vector<std::string>& tv, std::vector<std::string>& jtv, int dataSize) {
-    uint64 mask = 0;
-    std::vector<uint64> base = { 1, 3, 7, 15 };
+    uint64_t mask = 0;
+    std::vector<uint64_t> base = { 1, 3, 7, 15 };
 
     tv.clear();
     jtv.clear();
@@ -758,8 +758,8 @@ public:
       
     
     for(int len=0; len< dataSize/4; len++) {
-      for(const uint64 i : base) {
-	uint64 hoge = i;
+      for(const uint64_t i : base) {
+	uint64_t hoge = i;
 
 	for(int j=1; j<=len; j++) {
 	  hoge = (hoge << 4) + 0xf;
