@@ -23,6 +23,10 @@ do
     echo "########################################################"
     echo "Start test senario=${i}"
     ./test_nm.sh ${i}
+    if [ $? != 0 ] ;then
+        echo "err"
+        exit 1
+    fi
     mv nm.cpp nm.${i}.cpp
     
     echo "Finish test senario=${i}"
