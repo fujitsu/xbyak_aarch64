@@ -1,3 +1,4 @@
+#pragma once
 /*******************************************************************************
  * Copyright 2019 FUJITSU LIMITED
  *
@@ -13,10 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-#pragma once
-
-#ifndef _XBYAK_AARCH64_REG_
-#define _XBYAK_AARCH64_REG_
 
 #ifdef _WIN32
 //#include <assert.h>
@@ -24,10 +21,10 @@
 #include <cassert>
 #endif
 
-#define VL 4
 
 class Operand {
  public:
+  static const int VL = 4;
   enum Kind { NONE, RREG, VREG_SC, VREG_VEC, ZREG, PREG_Z, PREG_M, OPMASK };
 
   enum Code {
@@ -134,14 +131,10 @@ class RReg : public Reg {
   explicit RReg(uint32_t index, uint32_t bit) : Reg(index, RREG, bit) {}
 };
 
-#define DEF_RREG(size, bits)                                  \
-  class size##Reg : public RReg {                             \
-   public:                                                    \
-    explicit size##Reg(uint32_t index) : RReg(index, bits) {} \
-  };
-
-// DEF_RREG(W, 32) // class WReg
-DEF_RREG(X, 64)  // class XReg
+class XReg : public RReg {
+ public:
+  explicit XReg(uint32_t index) : RReg(index, 64) {}
+};
 
 class WReg : public RReg {
  public:
@@ -150,27 +143,32 @@ class WReg : public RReg {
 
 typedef XReg Reg64;
 
-#undef DEF_RREG
-
 // SIMD & FP scalar regisetr
 class VRegSc : public Reg {
  public:
   explicit VRegSc(uint32_t index, uint32_t bit) : Reg(index, VREG_SC, bit) {}
 };
 
-#define DEF_VREG_SC(size, bits)                                 \
-  class size##Reg : public VRegSc {                             \
-   public:                                                      \
-    explicit size##Reg(uint32_t index) : VRegSc(index, bits) {} \
-  };
-
-DEF_VREG_SC(B, 8)    // class BReg
-DEF_VREG_SC(H, 16)   // class HReg
-DEF_VREG_SC(S, 32)   // class SReg
-DEF_VREG_SC(D, 64)   // class DReg
-DEF_VREG_SC(Q, 128)  // class QReg
-
-#undef DEF_VREG_SC
+class BReg : public VRegSc {
+ public:
+  explicit BReg(uint32_t index) : VRegSc(index, 8) {}
+};
+class HReg : public VRegSc {
+ public:
+  explicit HReg(uint32_t index) : VRegSc(index, 16) {}
+};
+class SReg : public VRegSc {
+ public:
+  explicit SReg(uint32_t index) : VRegSc(index, 32) {}
+};
+class DReg : public VRegSc {
+ public:
+  explicit DReg(uint32_t index) : VRegSc(index, 64) {}
+};
+class QReg : public VRegSc {
+ public:
+  explicit QReg(uint32_t index) : VRegSc(index, 128) {}
+};
 
 // base for SIMD vector regisetr
 class VRegVec : public Reg {
@@ -523,4 +521,3 @@ struct RegRip {
   }
 };
 
-#endif

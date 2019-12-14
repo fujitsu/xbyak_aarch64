@@ -1,3 +1,4 @@
+#pragma once
 /*******************************************************************************
  * Copyright 2019 FUJITSU LIMITED
  *
@@ -13,10 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-#pragma once
-
-#ifndef _XBYAK_AARCH64_CODE_ARRAY_
-#define _XBYAK_AARCH64_CODE_ARRAY_
 
 #include "xbyak_aarch64_err.h"
 #include "xbyak_aarch64_inner.h"
@@ -320,4 +317,3 @@ class CodeArray {
         ~(alignedSize - static_cast<size_t>(1)));
   }
 };
-#endif

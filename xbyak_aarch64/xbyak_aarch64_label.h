@@ -1,3 +1,4 @@
+#pragma once
 /*******************************************************************************
  * Copyright 2019 FUJITSU LIMITED
  *
@@ -13,10 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-#pragma once
-
-#ifndef _XBYAK_AARCH64_LABEL_
-#define _XBYAK_AARCH64_LABEL_
 
 #include "xbyak_aarch64_code_array.h"
 #include "xbyak_aarch64_err.h"
@@ -201,4 +198,3 @@ inline const uint32_t* Label::getAddress() const {
   return mgr->getCode() + offset * CSIZE;
 }
 
-#endif

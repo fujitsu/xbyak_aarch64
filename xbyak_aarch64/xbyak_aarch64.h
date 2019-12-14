@@ -1,3 +1,4 @@
+#pragma once
 /*******************************************************************************
  * Copyright 2019 FUJITSU LIMITED
  *
@@ -13,9 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-#pragma once
-#ifndef _XBYAK_AARCH64_
-#define _XBYAK_AARCH64_
 
 #include <algorithm>
 #include <deque>
@@ -54,7 +52,7 @@
 #endif
 
 namespace Xbyak {
+const uint64_t SP_IDX = 31;
 #include "xbyak_aarch64_gen.h"
 }
 
-#endif

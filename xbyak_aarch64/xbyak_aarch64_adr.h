@@ -1,3 +1,4 @@
+#pragma once
 /*******************************************************************************
  * Copyright 2019 FUJITSU LIMITED
  *
@@ -13,10 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-#pragma once
-
-#ifndef _XBYAK_AARCH64_ADR_
-#define _XBYAK_AARCH64_ADR_
 
 #include "xbyak_aarch64_err.h"
 #include "xbyak_aarch64_reg.h"
@@ -537,4 +534,3 @@ AdrVecU ptr(const ZRegD &zn, const ZRegD &zm, ExtMod mod, uint32_t sh) {
   return AdrVecU(zn, zm, mod, sh);
 }
 #endif  // #ifdef XBYAK_AARCH64_OBJ
-#endif

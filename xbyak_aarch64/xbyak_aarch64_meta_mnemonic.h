@@ -27,12 +27,11 @@ void add_imm(const XReg &dst, const XReg &src, T imm,
   bool flag = false;
 
   /* ADD(immediate) supports unsigned imm12 */
-#define IMM12_MASK 0xFFFFFFFFFFFFF000
+  const uint64_t IMM12_MASK = ~uint64_t(0xfff);
   if((bit_ptn & IMM12_MASK) == 0) {// <= 4095
     add(dst, src, static_cast<uint32_t>(imm & 0xfff));
     return;
   }
-#undef IMM12_MASK
   
   /* MOVZ allows shift amount = 0, 16, 32, 48 */
   for(int i=0; i<64; i+=16) {
@@ -67,12 +66,11 @@ void sub_imm(const XReg &dst, const XReg &src, T imm,
   bool flag = false;
 
   /* SUB(immediate) supports unsigned imm12 */
-#define IMM12_MASK 0xFFFFFFFFFFFFF000
+  const uint64_t IMM12_MASK = ~uint64_t(0xfff);
   if((bit_ptn & IMM12_MASK) == 0) {// <= 4095
     sub(dst, src, static_cast<uint32_t>(imm & 0xfff));
     return;
   }
-#undef IMM12_MASK
   
   /* MOVZ allows shift amount = 0, 16, 32, 48 */
   for(int i=0; i<64; i+=16) {

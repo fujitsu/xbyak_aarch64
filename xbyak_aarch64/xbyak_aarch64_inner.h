@@ -1,3 +1,4 @@
+#pragma once
 /*******************************************************************************
  * Copyright 2019 FUJITSU LIMITED
  *
@@ -13,10 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-#pragma once
-
-#ifndef _XBYAK_AARCH64_INNER_
-#define _XBYAK_AARCH64_INNER_
 
 enum {
   DEFAULT_MAX_CODE_SIZE = 4096,
@@ -46,4 +43,3 @@ constexpr uint32_t genSysInstOp(uint32_t op1, uint32_t CRn, uint32_t CRm,
 
 }  // inner
 
-#endif

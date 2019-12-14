@@ -1,3 +1,4 @@
+#pragma once
 /*******************************************************************************
  * Copyright 2019 FUJITSU LIMITED
  *
@@ -13,10 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-#pragma once
-
-#ifndef _XBYAK_AARCH64_ERR_
-#define _XBYAK_AARCH64_ERR_
 
 enum {
   ERR_NONE = 0,
@@ -104,4 +101,3 @@ const std::initializer_list<const char *> Error::errTbl = {
 
 inline const char *ConvertErrorToString(const Error &err) { return err.what(); }
 
-#endif
