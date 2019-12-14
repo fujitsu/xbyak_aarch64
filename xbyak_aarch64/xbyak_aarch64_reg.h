@@ -204,19 +204,6 @@ class VRegList : public VRegVec {
   uint32_t getLen() const { return len_; }
 };
 
-#define DEF_VREG(size, bits, lane)                                            \
-  class VReg##lane##size : public VRegVec {                                   \
-   public:                                                                    \
-    explicit VReg##lane##size(uint32_t index) : VRegVec(index, bits, lane) {} \
-    VReg##size##Elem operator[](uint32_t i) const {                           \
-      assert(getLane() > i);                                                  \
-      return VReg##size##Elem(getIdx(), i, getLane());                        \
-    }                                                                         \
-    VReg##lane##size##List operator-(const VReg##lane##size &other) const {   \
-      return VReg##lane##size##List(*this, other);                            \
-    }                                                                         \
-  };
-
 #define DEF_VREG_ELEM(size, bits)                                           \
   class VReg##size##Elem : public VRegElem {                                \
    public:                                                                  \
@@ -270,19 +257,127 @@ DEF_VREG_LIST(Q, 128, 1);  // class VReg1QList
 
 #undef DEF_VREG_LIST
 
-DEF_VREG(B, 8, 4)    // class VReg4B
-DEF_VREG(B, 8, 8)    // class VReg8B
-DEF_VREG(B, 8, 16)   // class VReg16B
-DEF_VREG(H, 16, 2)   // class VReg2H
-DEF_VREG(H, 16, 4)   // class VReg4H
-DEF_VREG(H, 16, 8)   // class VReg8H
-DEF_VREG(S, 32, 2)   // class VReg2S
-DEF_VREG(S, 32, 4)   // class VReg4S
-DEF_VREG(D, 64, 1)   // class VReg1D
-DEF_VREG(D, 64, 2)   // class VReg2D
-DEF_VREG(Q, 128, 1)  // class VReg1Q
-
-#undef DEF_VREG
+class VReg4B : public VRegVec {
+ public:
+  explicit VReg4B(uint32_t index) : VRegVec(index, 8, 4) {}
+  VRegBElem operator[](uint32_t i) const {
+    assert(getLane() > i);
+    return VRegBElem(getIdx(), i, getLane());
+  }
+  VReg4BList operator-(const VReg4B &other) const {
+    return VReg4BList(*this, other);
+  }
+};
+class VReg8B : public VRegVec {
+ public:
+  explicit VReg8B(uint32_t index) : VRegVec(index, 8, 8) {}
+  VRegBElem operator[](uint32_t i) const {
+    assert(getLane() > i);
+    return VRegBElem(getIdx(), i, getLane());
+  }
+  VReg8BList operator-(const VReg8B &other) const {
+    return VReg8BList(*this, other);
+  }
+};
+class VReg16B : public VRegVec {
+ public:
+  explicit VReg16B(uint32_t index) : VRegVec(index, 8, 16) {}
+  VRegBElem operator[](uint32_t i) const {
+    assert(getLane() > i);
+    return VRegBElem(getIdx(), i, getLane());
+  }
+  VReg16BList operator-(const VReg16B &other) const {
+    return VReg16BList(*this, other);
+  }
+};
+class VReg2H : public VRegVec {
+ public:
+  explicit VReg2H(uint32_t index) : VRegVec(index, 16, 2) {}
+  VRegHElem operator[](uint32_t i) const {
+    assert(getLane() > i);
+    return VRegHElem(getIdx(), i, getLane());
+  }
+  VReg2HList operator-(const VReg2H &other) const {
+    return VReg2HList(*this, other);
+  }
+};
+class VReg4H : public VRegVec {
+ public:
+  explicit VReg4H(uint32_t index) : VRegVec(index, 16, 4) {}
+  VRegHElem operator[](uint32_t i) const {
+    assert(getLane() > i);
+    return VRegHElem(getIdx(), i, getLane());
+  }
+  VReg4HList operator-(const VReg4H &other) const {
+    return VReg4HList(*this, other);
+  }
+};
+class VReg8H : public VRegVec {
+ public:
+  explicit VReg8H(uint32_t index) : VRegVec(index, 16, 8) {}
+  VRegHElem operator[](uint32_t i) const {
+    assert(getLane() > i);
+    return VRegHElem(getIdx(), i, getLane());
+  }
+  VReg8HList operator-(const VReg8H &other) const {
+    return VReg8HList(*this, other);
+  }
+};
+class VReg2S : public VRegVec {
+ public:
+  explicit VReg2S(uint32_t index) : VRegVec(index, 32, 2) {}
+  VRegSElem operator[](uint32_t i) const {
+    assert(getLane() > i);
+    return VRegSElem(getIdx(), i, getLane());
+  }
+  VReg2SList operator-(const VReg2S &other) const {
+    return VReg2SList(*this, other);
+  }
+};
+class VReg4S : public VRegVec {
+ public:
+  explicit VReg4S(uint32_t index) : VRegVec(index, 32, 4) {}
+  VRegSElem operator[](uint32_t i) const {
+    assert(getLane() > i);
+    return VRegSElem(getIdx(), i, getLane());
+  }
+  VReg4SList operator-(const VReg4S &other) const {
+    return VReg4SList(*this, other);
+  }
+};
+class VReg1D : public VRegVec {
+ public:
+  explicit VReg1D(uint32_t index) : VRegVec(index, 64, 1) {}
+  VRegDElem operator[](uint32_t i) const {
+    assert(getLane() > i);
+    return VRegDElem(getIdx(), i, getLane());
+  }
+  VReg1DList operator-(const VReg1D &other) const {
+    return VReg1DList(*this, other);
+  }
+};
+class VReg2D : public VRegVec {
+ public:
+  explicit VReg2D(uint32_t index) : VRegVec(index, 64, 2) {}
+  VRegDElem operator[](uint32_t i) const {
+    assert(getLane() > i);
+    return VRegDElem(getIdx(), i, getLane());
+  }
+  VReg2DList operator-(const VReg2D &other) const {
+    return VReg2DList(*this, other);
+  }
+};
+class VReg1Q : public VRegVec {
+ public:
+  explicit VReg1Q(uint32_t index) : VRegVec(index, 128, 1) {}
+  VRegQElem operator[](uint32_t i) const {
+    assert(getLane() > i);
+    return VRegQElem(getIdx(), i, getLane());
+  }
+  VReg1QList operator-(const VReg1Q &other) const {
+    return VReg1QList(*this, other);
+  }
+};
 
 #ifdef XBYAK_AARCH64_OBJ
 VReg8BList::VReg8BList(const VReg8B &s) : VRegList(s, s){};
