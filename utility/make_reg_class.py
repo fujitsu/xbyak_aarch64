@@ -29,3 +29,15 @@ for (size, bits, lane) in [
 ]:
   print(DEF_VREG(size, bits, lane))
 print()
+
+def DEF_VREG_ELEM(size, bits):
+  return """class VReg%(size)sElem : public VRegElem {
+ public:
+   explicit VReg%(size)sElem(uint32_t index, uint32_t eidx, uint32_t lane)
+     : VRegElem(index, eidx, %(bits)s, lane) {}
+};""" % {'size':size, 'bits':bits}
+
+for (size, bits) in [('B', 8), ('H', 16), ('S', 32), ('D', 64), ('Q', 128)]:
+  print(DEF_VREG_ELEM(size, bits))
+print()
+

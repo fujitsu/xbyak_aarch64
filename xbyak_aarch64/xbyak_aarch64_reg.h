@@ -204,13 +204,6 @@ class VRegList : public VRegVec {
   uint32_t getLen() const { return len_; }
 };
 
-#define DEF_VREG_ELEM(size, bits)                                           \
-  class VReg##size##Elem : public VRegElem {                                \
-   public:                                                                  \
-    explicit VReg##size##Elem(uint32_t index, uint32_t eidx, uint32_t lane) \
-        : VRegElem(index, eidx, bits, lane) {}                              \
-  };
-
 class VReg4B;
 class VReg8B;
 class VReg16B;
@@ -235,13 +228,31 @@ class VReg1Q;
     }                                                                   \
   };
 
-DEF_VREG_ELEM(B, 8)    // class VRegBElem
-DEF_VREG_ELEM(H, 16)   // class VRegHElem
-DEF_VREG_ELEM(S, 32)   // class VRegSElem
-DEF_VREG_ELEM(D, 64)   // class VRegDElem
-DEF_VREG_ELEM(Q, 128)  // class VRegQElem
-
-#undef DEF_VREG_ELEM
+class VRegBElem : public VRegElem {
+ public:
+   explicit VRegBElem(uint32_t index, uint32_t eidx, uint32_t lane)
+     : VRegElem(index, eidx, 8, lane) {}
+};
+class VRegHElem : public VRegElem {
+ public:
+   explicit VRegHElem(uint32_t index, uint32_t eidx, uint32_t lane)
+     : VRegElem(index, eidx, 16, lane) {}
+};
+class VRegSElem : public VRegElem {
+ public:
+   explicit VRegSElem(uint32_t index, uint32_t eidx, uint32_t lane)
+     : VRegElem(index, eidx, 32, lane) {}
+};
+class VRegDElem : public VRegElem {
+ public:
+   explicit VRegDElem(uint32_t index, uint32_t eidx, uint32_t lane)
+     : VRegElem(index, eidx, 64, lane) {}
+};
+class VRegQElem : public VRegElem {
+ public:
+   explicit VRegQElem(uint32_t index, uint32_t eidx, uint32_t lane)
+     : VRegElem(index, eidx, 128, lane) {}
+};
 
 DEF_VREG_LIST(B, 8, 4);    // class VReg4BList
 DEF_VREG_LIST(B, 8, 8);    // class VReg8BList
