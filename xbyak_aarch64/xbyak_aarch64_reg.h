@@ -738,37 +738,3 @@ class PReg : public _PReg {
   PRegD d;
 };
 
-struct Opmask : public Reg {
-  explicit Opmask(int idx = 0) : Reg(idx, Operand::OPMASK, 64) {}
-};
-
-class Label;
-
-struct RegRip {
-  int64_t disp_;
-  const Label *label_;
-  bool isAddr_;
-  explicit RegRip(int64_t disp = 0, const Label *label = 0, bool isAddr = false)
-      : disp_(disp), label_(label), isAddr_(isAddr) {}
-  friend const RegRip operator+(const RegRip &r, int disp) {
-    return RegRip(r.disp_ + disp, r.label_, r.isAddr_);
-  }
-  friend const RegRip operator-(const RegRip &r, int disp) {
-    return RegRip(r.disp_ - disp, r.label_, r.isAddr_);
-  }
-  friend const RegRip operator+(const RegRip &r, int64_t disp) {
-    return RegRip(r.disp_ + disp, r.label_, r.isAddr_);
-  }
-  friend const RegRip operator-(const RegRip &r, int64_t disp) {
-    return RegRip(r.disp_ - disp, r.label_, r.isAddr_);
-  }
-  friend const RegRip operator+(const RegRip &r, const Label &label) {
-    if (r.label_ || r.isAddr_) throw Error(ERR_BAD_ADDRESSING);
-    return RegRip(r.disp_, &label);
-  }
-  friend const RegRip operator+(const RegRip &r, const void *addr) {
-    if (r.label_ || r.isAddr_) throw Error(ERR_BAD_ADDRESSING);
-    return RegRip(r.disp_ + (int64_t)addr, 0, true);
-  }
-};
-

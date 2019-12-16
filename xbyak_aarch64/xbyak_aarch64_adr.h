@@ -414,29 +414,6 @@ class AdrVecU : public Adr {
   uint32_t getSh() const { return sh_; }
 };
 
-#if 0
-class AddressFrame {
-	void operator=(const AddressFrame&);
-	AddressFrame(const AddressFrame&);
-public:
-	const uint32 bit_;
-	const bool broadcast_;
-	explicit AddressFrame(uint32 bit, bool broadcast = false) : bit_(bit), broadcast_(broadcast) { }
-	Address operator[](const RegExp& e) const
-	{
-		return Address(bit_, broadcast_, e);
-	}
-	Address operator[](const void *disp) const
-	{
-		return Address(bit_, broadcast_, RegExp(reinterpret_cast<size_t>(disp)));
-	}
-#ifdef XBYAK64
-	Address operator[](uint64 disp) const { return Address(disp); }
-	Address operator[](const RegRip& addr) const { return Address(bit_, broadcast_, addr); }
-#endif
-};
-#endif
-
 AdrNoOfs ptr(const XReg &xn);
 AdrImm ptr(const XReg &xn, int32_t imm);
 AdrUimm ptr(const XReg &xn, uint32_t uimm);
