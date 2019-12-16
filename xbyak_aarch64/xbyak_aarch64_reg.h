@@ -702,18 +702,22 @@ class _PReg : public Reg {
   bool isZ() const { return isPRegZ(); }
 };
 
-#define DEF_PREG(size, bits)                                           \
-  class PReg##size : public _PReg {                                    \
-   public:                                                             \
-    explicit PReg##size(uint32_t index) : _PReg(index, false, bits) {} \
-  };
-
-DEF_PREG(B, 8)   // class PRegB
-DEF_PREG(H, 16)  // class PRegH
-DEF_PREG(S, 32)  // class PRegS
-DEF_PREG(D, 64)  // class PRegD
-
-#undef DEF_PREG
+class PRegB : public _PReg {
+ public:
+  explicit PRegB(uint32_t index) : _PReg(index, false, 8) {}
+};
+class PRegH : public _PReg {
+ public:
+  explicit PRegH(uint32_t index) : _PReg(index, false, 16) {}
+};
+class PRegS : public _PReg {
+ public:
+  explicit PRegS(uint32_t index) : _PReg(index, false, 32) {}
+};
+class PRegD : public _PReg {
+ public:
+  explicit PRegD(uint32_t index) : _PReg(index, false, 64) {}
+};
 
 enum PredType {
   T_z,  // Zeroing predication

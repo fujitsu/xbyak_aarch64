@@ -4,6 +4,17 @@ S = 'S'
 D = 'D'
 Q = 'Q'
 
+def DEF_PREG(size, bits):
+  return """class PReg%(size)s : public _PReg {
+ public:
+  explicit PReg%(size)s(uint32_t index) : _PReg(index, false, %(bits)s) {}
+};""" % {'size':size, 'bits':bits}
+
+for (size, bits) in [(B, 8), (H, 16), (S, 32), (D, 64)]:
+  print(DEF_PREG(size, bits))
+print()
+
+
 def DEF_ZREG_ELEM(size, bits):
   return """class ZReg%(size)sElem : public ZRegElem {
  public:
