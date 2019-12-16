@@ -353,9 +353,6 @@ class VReg1QList : public VRegList {
   }
 };
 
-
-#undef DEF_VREG_LIST
-
 class VReg4B : public VRegVec {
  public:
   explicit VReg4B(uint32_t index) : VRegVec(index, 8, 4) {}
@@ -573,17 +570,6 @@ class ZRegS;
 class ZRegD;
 class ZRegQ;
 
-#define DEF_ZREG_LIST(size, bits)                             \
-  class ZReg##size##List : public ZRegList {                  \
-   public:                                                    \
-    ZReg##size##List(const ZReg##size &s);                    \
-    explicit ZReg##size##List(const _ZReg &s, const _ZReg &e) \
-        : ZRegList(s, e) {}                                   \
-    ZReg##size##Elem operator[](uint32_t i) const {           \
-      return ZReg##size##Elem(getIdx(), i);                   \
-    }                                                         \
-  };
-
 DEF_ZREG_ELEM(B, 8)    // class ZRegBElem
 DEF_ZREG_ELEM(H, 16)   // class ZRegHElem
 DEF_ZREG_ELEM(S, 32)   // class ZRegSElem
@@ -591,14 +577,46 @@ DEF_ZREG_ELEM(D, 64)   // class ZRegDElem
 DEF_ZREG_ELEM(Q, 128)  // class ZRegQElem
 
 #undef DEF_ZREG_ELEM
-
-DEF_ZREG_LIST(B, 8);    // class ZRegBList
-DEF_ZREG_LIST(H, 16);   // class ZRegHList
-DEF_ZREG_LIST(S, 32);   // class ZRegSList
-DEF_ZREG_LIST(D, 64);   // class ZRegDList
-DEF_ZREG_LIST(Q, 128);  // class ZRegQList
-
-#undef DEF_ZREG_LIST
+class ZRegBList : public ZRegList {
+ public:
+  ZRegBList(const ZRegB &s);
+  explicit ZRegBList(const _ZReg &s, const _ZReg &e)    : ZRegList(s, e) {}
+  ZRegBElem operator[](uint32_t i) const {
+   return ZRegBElem(getIdx(), i);
+  }
+};
+class ZRegHList : public ZRegList {
+ public:
+  ZRegHList(const ZRegH &s);
+  explicit ZRegHList(const _ZReg &s, const _ZReg &e)    : ZRegList(s, e) {}
+  ZRegHElem operator[](uint32_t i) const {
+   return ZRegHElem(getIdx(), i);
+  }
+};
+class ZRegSList : public ZRegList {
+ public:
+  ZRegSList(const ZRegS &s);
+  explicit ZRegSList(const _ZReg &s, const _ZReg &e)    : ZRegList(s, e) {}
+  ZRegSElem operator[](uint32_t i) const {
+   return ZRegSElem(getIdx(), i);
+  }
+};
+class ZRegDList : public ZRegList {
+ public:
+  ZRegDList(const ZRegD &s);
+  explicit ZRegDList(const _ZReg &s, const _ZReg &e)    : ZRegList(s, e) {}
+  ZRegDElem operator[](uint32_t i) const {
+   return ZRegDElem(getIdx(), i);
+  }
+};
+class ZRegQList : public ZRegList {
+ public:
+  ZRegQList(const ZRegQ &s);
+  explicit ZRegQList(const _ZReg &s, const _ZReg &e)    : ZRegList(s, e) {}
+  ZRegQElem operator[](uint32_t i) const {
+   return ZRegQElem(getIdx(), i);
+  }
+};
 
 class ZRegB : public _ZReg {
  public:

@@ -1,3 +1,24 @@
+B = 'B'
+H = 'H'
+S = 'S'
+D = 'D'
+Q = 'Q'
+
+def DEF_ZREG_LIST(size, bits):
+  return """class ZReg%(size)sList : public ZRegList {
+ public:
+  ZReg%(size)sList(const ZReg%(size)s &s);
+  explicit ZReg%(size)sList(const _ZReg &s, const _ZReg &e) \
+   : ZRegList(s, e) {}
+  ZReg%(size)sElem operator[](uint32_t i) const {
+   return ZReg%(size)sElem(getIdx(), i);
+  }
+};""" % {'size':size, 'bits':bits}
+
+for (size, bits) in [(B, 8), (H, 16), (S, 32), (D, 64), (Q, 128)]:
+  print(DEF_ZREG_LIST(size, bits))
+print()
+
 def DEF_ZREG(size, bits):
   return """class ZReg%(size)s : public _ZReg {
  public:
@@ -10,7 +31,7 @@ def DEF_ZREG(size, bits):
   }
 };""" % {'size':size, 'bits':bits}
 
-for (size, bits) in [('B', 8), ('H', 16), ('S', 32), ('D', 64), ('Q', 128)]:
+for (size, bits) in [(B, 8), (H, 16), (S, 32), (D, 64), (Q, 128)]:
   print(DEF_ZREG(size, bits))
 print()
 
@@ -20,7 +41,7 @@ def DEF_VREG_SC(size, bits):
   explicit %(size)sReg(uint32_t index) : VRegSc(index, %(bits)s) {}
 };""" % {'size':size, 'bits':bits}
 
-for (size, bits) in [('B', 8), ('H', 16), ('S', 32), ('D', 64), ('Q', 128)]:
+for (size, bits) in [(B, 8), (H, 16), (S, 32), (D, 64), (Q, 128)]:
   print(DEF_VREG_SC(size, bits))
 print()
 
@@ -39,9 +60,9 @@ def DEF_VREG(size, bits, lane):
 };""" % {'size':size, 'bits':bits, 'lane':lane}
 
 for (size, bits, lane) in [
-  ('B', 8, 4), ('B', 8, 8), ('B', 8, 16), ('H', 16, 2),
-  ('H', 16, 4), ('H', 16, 8), ('S', 32, 2), ('S', 32, 4),
-  ('D', 64, 1), ('D', 64, 2), ('Q', 128, 1)
+  (B, 8, 4), (B, 8, 8), (B, 8, 16), (H, 16, 2),
+  (H, 16, 4), (H, 16, 8), (S, 32, 2), (S, 32, 4),
+  (D, 64, 1), (D, 64, 2), (Q, 128, 1)
 ]:
   print(DEF_VREG(size, bits, lane))
 print()
@@ -53,7 +74,7 @@ def DEF_VREG_ELEM(size, bits):
      : VRegElem(index, eidx, %(bits)s, lane) {}
 };""" % {'size':size, 'bits':bits}
 
-for (size, bits) in [('B', 8), ('H', 16), ('S', 32), ('D', 64), ('Q', 128)]:
+for (size, bits) in [(B, 8), (H, 16), (S, 32), (D, 64), (Q, 128)]:
   print(DEF_VREG_ELEM(size, bits))
 print()
 
@@ -71,9 +92,9 @@ def DEF_VREG_LIST(size, bits, lane):
 };""" % {'size':size, 'bits':bits, 'lane':lane}
 
 for (size, bits, lane) in [
-  ('B', 8, 4), ('B', 8, 8), ('B', 8, 16), ('H', 16, 2),
-  ('H', 16, 4), ('H', 16, 8), ('S', 32, 2), ('S', 32, 4),
-  ('D', 64, 1), ('D', 64, 2), ('Q', 128, 1)
+  (B, 8, 4), (B, 8, 8), (B, 8, 16), (H, 16, 2),
+  (H, 16, 4), (H, 16, 8), (S, 32, 2), (S, 32, 4),
+  (D, 64, 1), (D, 64, 2), (Q, 128, 1)
 ]:
   print(DEF_VREG_LIST(size, bits, lane))
 print()
