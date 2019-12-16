@@ -557,26 +557,38 @@ class ZRegList : public _ZReg {
   uint32_t getLen() const { return len_; }
 };
 
-#define DEF_ZREG_ELEM(size, bits)                            \
-  class ZReg##size##Elem : public ZRegElem {                 \
-   public:                                                   \
-    explicit ZReg##size##Elem(uint32_t index, uint32_t eidx) \
-        : ZRegElem(index, eidx, bits) {}                     \
-  };
-
 class ZRegB;
 class ZRegH;
 class ZRegS;
 class ZRegD;
 class ZRegQ;
 
-DEF_ZREG_ELEM(B, 8)    // class ZRegBElem
-DEF_ZREG_ELEM(H, 16)   // class ZRegHElem
-DEF_ZREG_ELEM(S, 32)   // class ZRegSElem
-DEF_ZREG_ELEM(D, 64)   // class ZRegDElem
-DEF_ZREG_ELEM(Q, 128)  // class ZRegQElem
+class ZRegBElem : public ZRegElem {
+ public:
+  explicit ZRegBElem(uint32_t index, uint32_t eidx)
+   : ZRegElem(index, eidx, 8) {}
+};
+class ZRegHElem : public ZRegElem {
+ public:
+  explicit ZRegHElem(uint32_t index, uint32_t eidx)
+   : ZRegElem(index, eidx, 16) {}
+};
+class ZRegSElem : public ZRegElem {
+ public:
+  explicit ZRegSElem(uint32_t index, uint32_t eidx)
+   : ZRegElem(index, eidx, 32) {}
+};
+class ZRegDElem : public ZRegElem {
+ public:
+  explicit ZRegDElem(uint32_t index, uint32_t eidx)
+   : ZRegElem(index, eidx, 64) {}
+};
+class ZRegQElem : public ZRegElem {
+ public:
+  explicit ZRegQElem(uint32_t index, uint32_t eidx)
+   : ZRegElem(index, eidx, 128) {}
+};
 
-#undef DEF_ZREG_ELEM
 class ZRegBList : public ZRegList {
  public:
   ZRegBList(const ZRegB &s);

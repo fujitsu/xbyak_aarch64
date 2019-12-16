@@ -4,6 +4,17 @@ S = 'S'
 D = 'D'
 Q = 'Q'
 
+def DEF_ZREG_ELEM(size, bits):
+  return """class ZReg%(size)sElem : public ZRegElem {
+ public:
+  explicit ZReg%(size)sElem(uint32_t index, uint32_t eidx)
+   : ZRegElem(index, eidx, %(bits)s) {}
+};""" % {'size':size, 'bits':bits}
+
+for (size, bits) in [(B, 8), (H, 16), (S, 32), (D, 64), (Q, 128)]:
+  print(DEF_ZREG_ELEM(size, bits))
+print()
+
 def DEF_ZREG_LIST(size, bits):
   return """class ZReg%(size)sList : public ZRegList {
  public:
