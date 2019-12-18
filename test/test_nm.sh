@@ -52,7 +52,7 @@ if [ $? != 0 ] ;then
     dumpNG "Running binary to generate test source file."
     exit 1
 fi
-rm a.lst
+rm -f a.lst
 
 # Generate data expected
 ${AS} -march=${AARCH64_TYPE} -mcpu=all -acdnl=a.lst a.asm

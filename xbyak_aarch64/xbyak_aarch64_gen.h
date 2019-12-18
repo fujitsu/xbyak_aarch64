@@ -1,3 +1,4 @@
+#pragma once
 /*******************************************************************************
  * Copyright 2019 FUJITSU LIMITED
  *
@@ -13,18 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-#pragma once
-
-#ifndef _XBYAK_AARCH64_GEN_
-#define _XBYAK_AARCH64_GEN_
 
 #include "xbyak_aarch64_adr.h"
 #include "xbyak_aarch64_code_array.h"
 #include "xbyak_aarch64_err.h"
 #include "xbyak_aarch64_label.h"
 #include "xbyak_aarch64_reg.h"
-
-#define SP_IDX 31
 
 enum BarOpt {
   SY = 0xf,
@@ -5657,4 +5652,3 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
   }
 };
 
-#endif

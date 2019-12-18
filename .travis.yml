@@ -1,0 +1,28 @@
+sudo: true
+dist: bionic
+language: cpp
+compiler:
+  - gcc
+addons:
+  apt:
+    packages:
+      - binutils-aarch64-linux-gnu
+      - cpp-8-aarch64-linux-gnu
+      - cpp-aarch64-linux-gnu
+      - g++-8-aarch64-linux-gnu
+      - g++-aarch64-linux-gnu
+      - gcc-8-aarch64-linux-gnu
+      - gcc-8-aarch64-linux-gnu-base:amd64
+      - gcc-aarch64-linux-gnu
+      - pkg-config-aarch64-linux-gnu
+#      - qemu
+#      - qemu-block-extra:amd64
+#      - qemu-system-arm
+#      - qemu-system-common
+#      - qemu-system-data
+#      - qemu-system-gui
+#      - qemu-user
+#      - qemu-user-static
+#      - qemu-utils
+script:
+  - make -C test test
