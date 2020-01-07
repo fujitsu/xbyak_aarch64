@@ -51,13 +51,13 @@ class Error : public std::exception {
   int err_;
   std::string msg_;
   std::string opt_msg_;
-  static const std::initializer_list<const char *> errTbl;
 
  public:
-  explicit Error(int err, std::string opt_msg = "")
+  explicit Error(int err, const std::string& opt_msg = "")
       : err_(err), msg_(""), opt_msg_(opt_msg) {
     if (err_ > 0) {
       fprintf(stderr, "bad err=%d in Xbyak::Error\n", err_);
+      const std::initializer_list<const char *>& errTbl = getErrTbl();
       assert((size_t)err_ < errTbl.size());
       msg_ = "";
       msg_ += *(errTbl.begin() + err_);
@@ -68,36 +68,38 @@ class Error : public std::exception {
   }
   operator int() const { return err_; }
   const char *what() const throw() { return msg_.c_str(); }
+ private:
+  static const std::initializer_list<const char *>& getErrTbl() {
+    static const std::initializer_list<const char *> tbl = {
+      "none",
+      "code is too big",
+      "label is redefined",
+      "label is too far",
+      "label is not found",
+      "bad parameter",
+      "can't protect",
+      "offset is too big",
+      "can't alloc",
+      "label is not set by L()",
+      "label is already set by L()",
+      "internal error",
+      "illegal register index (can not encoding register index)",
+      "illegal register element index (can not encoding element index)",
+      "illegal predicate register type",
+      "illegal immediate parameter (range error)",
+      "illegal immediate parameter (unavailable value error)",
+      "illegal immediate parameter (condition error)",
+      "illegal shift-mode paramater",
+      "illegal extend-mode parameter",
+      "illegal condition parameter",
+      "illegal barrier option",
+      "illegal const parameter (range error)",
+      "illegal const parameter (unavailable error)",
+      "illegal const parameter (condition error)",
+    };
+    return tbl;
+  };
 };
-
-#ifdef XBYAK_AARCH64_OBJ
-const std::initializer_list<const char *> Error::errTbl = {
-    "none",
-    "code is too big",
-    "label is redefined",
-    "label is too far",
-    "label is not found",
-    "bad parameter",
-    "can't protect",
-    "offset is too big",
-    "can't alloc",
-    "label is not set by L()",
-    "label is already set by L()",
-    "internal error",
-    "illegal register index (can not encoding register index)",
-    "illegal register element index (can not encoding element index)",
-    "illegal predicate register type",
-    "illegal immediate parameter (range error)",
-    "illegal immediate parameter (unavailable value error)",
-    "illegal immediate parameter (condition error)",
-    "illegal shift-mode paramater",
-    "illegal extend-mode parameter",
-    "illegal condition parameter",
-    "illegal barrier option",
-    "illegal const parameter (range error)",
-    "illegal const parameter (unavailable error)",
-    "illegal const parameter (condition error)"};
-#endif  // #ifdef XBYAK_AARCH64_OBJ
 
 inline const char *ConvertErrorToString(const Error &err) { return err.what(); }
 
