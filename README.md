@@ -65,9 +65,8 @@ The following dpkgs are required.
 Then execute the following commands.
 ```
 cd xbyak_aarch64/sample
-export LD_LIBRARY_PATH=/usr/aarch64-linux-gnu/lib
 aarch64-linux-gnu-g++ add.cpp
-qemu-aarch64 ./a.out
+env QEMU_LD_PREFIX=/usr/aarch64-linux-gnu ./a.out
 ```
 
 ## How to use Xbyak_aarch64
