@@ -38,7 +38,7 @@ dumpNG () {
 }    
 
 # Make binary
-${GPP} -g -std=c++11 -fomit-frame-pointer -Wall -fno-operator-names -I../xbyak_aarch64 -I./ -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith -DXBYAK_AARCH64_OBJ -o ${TEST_FILE} ${TEST_FILE}.cpp
+${GPP} -g -std=c++11 -fomit-frame-pointer -Wall -fno-operator-names -I../xbyak_aarch64 -I./ -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith -o ${TEST_FILE} ${TEST_FILE}.cpp
 
 if [ $? != 0 ] ; then
     dumpNG "Compiling binary for generating test source file."
@@ -79,7 +79,7 @@ if [ $? != 0 ] ;then
     dumpNG "Generating source file using xbyak"
     exit 1
 fi
-${GPP} -g -I../xbyak_aarch64 -DXBYAK_TEST -DXBYAK_AARCH64_OBJ -o nm_frame nm_frame.cpp 
+${GPP} -g -I../xbyak_aarch64 -DXBYAK_TEST -o nm_frame nm_frame.cpp
 if [ $? != 0 ] ;then
     dumpNG "Compiling source file using xbyak"
     exit 1

@@ -14,7 +14,6 @@
  * limitations under the License.
  *******************************************************************************/
 #define TEST_NUM 1
-#define XBYAK_AARCH64_OBJ
 
 #include <cstring>
 #include "../xbyak_aarch64/xbyak_aarch64.h"
