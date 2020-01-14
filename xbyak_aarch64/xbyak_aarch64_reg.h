@@ -245,7 +245,7 @@ class VRegQElem : public VRegElem {
 class VReg4BList : public VRegList {
  public:
   VReg4BList(const VReg4B &s);
-  explicit VReg4BList(const VRegVec &s, const VRegVec &e)
+  VReg4BList(const VRegVec &s, const VRegVec &e)
     : VRegList(s, e) {}
   VRegBElem operator[](uint32_t i) const {
     assert(getLane() > i);
@@ -255,7 +255,7 @@ class VReg4BList : public VRegList {
 class VReg8BList : public VRegList {
  public:
   VReg8BList(const VReg8B &s);
-  explicit VReg8BList(const VRegVec &s, const VRegVec &e)
+  VReg8BList(const VRegVec &s, const VRegVec &e)
     : VRegList(s, e) {}
   VRegBElem operator[](uint32_t i) const {
     assert(getLane() > i);
@@ -265,7 +265,7 @@ class VReg8BList : public VRegList {
 class VReg16BList : public VRegList {
  public:
   VReg16BList(const VReg16B &s);
-  explicit VReg16BList(const VRegVec &s, const VRegVec &e)
+  VReg16BList(const VRegVec &s, const VRegVec &e)
     : VRegList(s, e) {}
   VRegBElem operator[](uint32_t i) const {
     assert(getLane() > i);
@@ -275,7 +275,7 @@ class VReg16BList : public VRegList {
 class VReg2HList : public VRegList {
  public:
   VReg2HList(const VReg2H &s);
-  explicit VReg2HList(const VRegVec &s, const VRegVec &e)
+  VReg2HList(const VRegVec &s, const VRegVec &e)
     : VRegList(s, e) {}
   VRegHElem operator[](uint32_t i) const {
     assert(getLane() > i);
@@ -285,7 +285,7 @@ class VReg2HList : public VRegList {
 class VReg4HList : public VRegList {
  public:
   VReg4HList(const VReg4H &s);
-  explicit VReg4HList(const VRegVec &s, const VRegVec &e)
+  VReg4HList(const VRegVec &s, const VRegVec &e)
     : VRegList(s, e) {}
   VRegHElem operator[](uint32_t i) const {
     assert(getLane() > i);
@@ -295,7 +295,7 @@ class VReg4HList : public VRegList {
 class VReg8HList : public VRegList {
  public:
   VReg8HList(const VReg8H &s);
-  explicit VReg8HList(const VRegVec &s, const VRegVec &e)
+  VReg8HList(const VRegVec &s, const VRegVec &e)
     : VRegList(s, e) {}
   VRegHElem operator[](uint32_t i) const {
     assert(getLane() > i);
@@ -305,7 +305,7 @@ class VReg8HList : public VRegList {
 class VReg2SList : public VRegList {
  public:
   VReg2SList(const VReg2S &s);
-  explicit VReg2SList(const VRegVec &s, const VRegVec &e)
+  VReg2SList(const VRegVec &s, const VRegVec &e)
     : VRegList(s, e) {}
   VRegSElem operator[](uint32_t i) const {
     assert(getLane() > i);
@@ -315,7 +315,7 @@ class VReg2SList : public VRegList {
 class VReg4SList : public VRegList {
  public:
   VReg4SList(const VReg4S &s);
-  explicit VReg4SList(const VRegVec &s, const VRegVec &e)
+  VReg4SList(const VRegVec &s, const VRegVec &e)
     : VRegList(s, e) {}
   VRegSElem operator[](uint32_t i) const {
     assert(getLane() > i);
@@ -325,7 +325,7 @@ class VReg4SList : public VRegList {
 class VReg1DList : public VRegList {
  public:
   VReg1DList(const VReg1D &s);
-  explicit VReg1DList(const VRegVec &s, const VRegVec &e)
+  VReg1DList(const VRegVec &s, const VRegVec &e)
     : VRegList(s, e) {}
   VRegDElem operator[](uint32_t i) const {
     assert(getLane() > i);
@@ -335,7 +335,7 @@ class VReg1DList : public VRegList {
 class VReg2DList : public VRegList {
  public:
   VReg2DList(const VReg2D &s);
-  explicit VReg2DList(const VRegVec &s, const VRegVec &e)
+  VReg2DList(const VRegVec &s, const VRegVec &e)
     : VRegList(s, e) {}
   VRegDElem operator[](uint32_t i) const {
     assert(getLane() > i);
@@ -345,7 +345,7 @@ class VReg2DList : public VRegList {
 class VReg1QList : public VRegList {
  public:
   VReg1QList(const VReg1Q &s);
-  explicit VReg1QList(const VRegVec &s, const VRegVec &e)
+  VReg1QList(const VRegVec &s, const VRegVec &e)
     : VRegList(s, e) {}
   VRegQElem operator[](uint32_t i) const {
     assert(getLane() > i);
@@ -475,18 +475,17 @@ class VReg1Q : public VRegVec {
   }
 };
 
-#ifdef XBYAK_AARCH64_OBJ
-VReg8BList::VReg8BList(const VReg8B &s) : VRegList(s, s){};
-VReg16BList::VReg16BList(const VReg16B &s) : VRegList(s, s){};
-VReg2HList::VReg2HList(const VReg2H &s) : VRegList(s, s){};
-VReg4HList::VReg4HList(const VReg4H &s) : VRegList(s, s){};
-VReg8HList::VReg8HList(const VReg8H &s) : VRegList(s, s){};
-VReg2SList::VReg2SList(const VReg2S &s) : VRegList(s, s){};
-VReg4SList::VReg4SList(const VReg4S &s) : VRegList(s, s){};
-VReg1DList::VReg1DList(const VReg1D &s) : VRegList(s, s){};
-VReg2DList::VReg2DList(const VReg2D &s) : VRegList(s, s){};
-VReg1QList::VReg1QList(const VReg1Q &s) : VRegList(s, s){};
-#endif  // #ifdef XBYAK_AARCH64_OBJ
+inline VReg4BList::VReg4BList(const VReg4B &s) : VRegList(s, s) {}
+inline VReg8BList::VReg8BList(const VReg8B &s) : VRegList(s, s) {}
+inline VReg16BList::VReg16BList(const VReg16B &s) : VRegList(s, s) {}
+inline VReg2HList::VReg2HList(const VReg2H &s) : VRegList(s, s) {}
+inline VReg4HList::VReg4HList(const VReg4H &s) : VRegList(s, s) {}
+inline VReg8HList::VReg8HList(const VReg8H &s) : VRegList(s, s) {}
+inline VReg2SList::VReg2SList(const VReg2S &s) : VRegList(s, s) {}
+inline VReg4SList::VReg4SList(const VReg4S &s) : VRegList(s, s) {}
+inline VReg1DList::VReg1DList(const VReg1D &s) : VRegList(s, s) {}
+inline VReg2DList::VReg2DList(const VReg2D &s) : VRegList(s, s) {}
+inline VReg1QList::VReg1QList(const VReg1Q &s) : VRegList(s, s) {}
 
 // SIMD vector regisetr
 class VReg : public VRegVec {

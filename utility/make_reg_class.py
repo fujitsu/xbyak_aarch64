@@ -105,7 +105,7 @@ def DEF_VREG_LIST(size, bits, lane):
   return """class VReg%(lane)s%(size)sList : public VRegList {
  public:
   VReg%(lane)s%(size)sList(const VReg%(lane)s%(size)s &s);
-  explicit VReg%(lane)s%(size)sList(const VRegVec &s, const VRegVec &e)
+  VReg%(lane)s%(size)sList(const VRegVec &s, const VRegVec &e)
     : VRegList(s, e) {}
   VReg%(size)sElem operator[](uint32_t i) const {
     assert(getLane() > i);
@@ -113,10 +113,17 @@ def DEF_VREG_LIST(size, bits, lane):
   }
 };""" % {'size':size, 'bits':bits, 'lane':lane}
 
-for (size, bits, lane) in [
+def DEF_VREG_LIST_CSTR(size, bits, lane):
+  return "inline VReg%(lane)s%(size)sList::VReg%(lane)s%(size)sList(const VReg%(lane)s%(size)s &s) : VRegList(s, s) {}" % {'size':size, 'bits':bits, 'lane':lane}
+
+tblList = [
   (B, 8, 4), (B, 8, 8), (B, 8, 16), (H, 16, 2),
   (H, 16, 4), (H, 16, 8), (S, 32, 2), (S, 32, 4),
   (D, 64, 1), (D, 64, 2), (Q, 128, 1)
-]:
+]
+for (size, bits, lane) in tblList:
   print(DEF_VREG_LIST(size, bits, lane))
+print()
+for (size, bits, lane) in tblList:
+  print(DEF_VREG_LIST_CSTR(size, bits, lane))
 print()

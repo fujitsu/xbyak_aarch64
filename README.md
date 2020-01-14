@@ -65,9 +65,8 @@ The following dpkgs are required.
 Then execute the following commands.
 ```
 cd xbyak_aarch64/sample
-export LD_LIBRARY_PATH=/usr/aarch64-linux-gnu/lib
 aarch64-linux-gnu-g++ add.cpp
-qemu-aarch64 ./a.out
+env QEMU_LD_PREFIX=/usr/aarch64-linux-gnu qemu-aarch64 ./a.out
 ```
 
 ## How to use Xbyak_aarch64
@@ -80,7 +79,6 @@ and 2) call the function. This example outputs "7" to STDOUT.
 
 
 ```
-#define XBYAK_AARCH64_OBJ
 #include <xbyak_aarch64/xbyak_aarch64.h>
 using namespace Xbyak;
 class Generator : public CodeGenerator {

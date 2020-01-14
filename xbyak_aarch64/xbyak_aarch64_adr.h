@@ -438,76 +438,74 @@ AdrVec ptr(const ZRegS &zn, const ZRegS &zm, ShMod mod = NONE, uint32_t sh = 0);
 AdrVec ptr(const ZRegD &zn, const ZRegD &zm, ShMod mod = NONE, uint32_t sh = 0);
 AdrVecU ptr(const ZRegD &zn, const ZRegD &zm, ExtMod mod, uint32_t sh = 0);
 
-#ifdef XBYAK_AARCH64_OBJ
-AdrNoOfs ptr(const XReg &xn) { return AdrNoOfs(xn); }
+inline AdrNoOfs ptr(const XReg &xn) { return AdrNoOfs(xn); }
 
-AdrImm ptr(const XReg &xn, int32_t imm) { return AdrImm(xn, imm); }
+inline AdrImm ptr(const XReg &xn, int32_t imm) { return AdrImm(xn, imm); }
 
-AdrUimm ptr(const XReg &xn, uint32_t uimm) { return AdrUimm(xn, uimm); }
+inline AdrUimm ptr(const XReg &xn, uint32_t uimm) { return AdrUimm(xn, uimm); }
 
-AdrReg ptr(const XReg &xn, const XReg &xm) { return AdrReg(xn, xm); }
+inline AdrReg ptr(const XReg &xn, const XReg &xm) { return AdrReg(xn, xm); }
 
-AdrReg ptr(const XReg &xn, const XReg &xm, ShMod mod, uint32_t sh) {
+inline AdrReg ptr(const XReg &xn, const XReg &xm, ShMod mod, uint32_t sh) {
   return AdrReg(xn, xm, mod, sh);
 }
 
-AdrReg ptr(const XReg &xn, const XReg &xm, ShMod mod) {
+inline AdrReg ptr(const XReg &xn, const XReg &xm, ShMod mod) {
   return AdrReg(xn, xm, mod);
 }
 
-AdrExt ptr(const XReg &xn, const RReg &rm, ExtMod mod, uint32_t sh) {
+inline AdrExt ptr(const XReg &xn, const RReg &rm, ExtMod mod, uint32_t sh) {
   return AdrExt(xn, rm, mod, sh);
 }
 
-AdrExt ptr(const XReg &xn, const RReg &rm, ExtMod mod) {
+inline AdrExt ptr(const XReg &xn, const RReg &rm, ExtMod mod) {
   return AdrExt(xn, rm, mod);
 }
 
-AdrPreImm pre_ptr(const XReg &xn, int32_t imm) { return AdrPreImm(xn, imm); }
+inline AdrPreImm pre_ptr(const XReg &xn, int32_t imm) { return AdrPreImm(xn, imm); }
 
-AdrPostImm post_ptr(const XReg &xn, int32_t imm) { return AdrPostImm(xn, imm); }
+inline AdrPostImm post_ptr(const XReg &xn, int32_t imm) { return AdrPostImm(xn, imm); }
 
-AdrPostReg post_ptr(const XReg &xn, XReg xm) { return AdrPostReg(xn, xm); }
+inline AdrPostReg post_ptr(const XReg &xn, XReg xm) { return AdrPostReg(xn, xm); }
 
-AdrScImm ptr(const XReg &xn, int32_t simm, ExtMod mod) {
+inline AdrScImm ptr(const XReg &xn, int32_t simm, ExtMod mod) {
   return AdrScImm(xn, simm, mod);
 }
 
-AdrSc64U ptr(const XReg &xn, const ZRegD &zm) { return AdrSc64U(xn, zm); }
+inline AdrSc64U ptr(const XReg &xn, const ZRegD &zm) { return AdrSc64U(xn, zm); }
 
-AdrSc64S ptr(const XReg &xn, const ZRegD &zm, ShMod mod, uint32_t sh) {
+inline AdrSc64S ptr(const XReg &xn, const ZRegD &zm, ShMod mod, uint32_t sh) {
   return AdrSc64S(xn, zm, mod, sh);
 }
 
-AdrSc32U ptr(const XReg &xn, const ZRegS &zm, ExtMod mod) {
+inline AdrSc32U ptr(const XReg &xn, const ZRegS &zm, ExtMod mod) {
   return AdrSc32U(xn, zm, mod);
 }
 
-AdrSc32S ptr(const XReg &xn, const ZRegS &zm, ExtMod mod, uint32_t sh) {
+inline AdrSc32S ptr(const XReg &xn, const ZRegS &zm, ExtMod mod, uint32_t sh) {
   return AdrSc32S(xn, zm, mod, sh);
 }
 
-AdrSc32UU ptr(const XReg &xn, const ZRegD &zm, ExtMod mod) {
+inline AdrSc32UU ptr(const XReg &xn, const ZRegD &zm, ExtMod mod) {
   return AdrSc32UU(xn, zm, mod);
 }
 
-AdrSc32US ptr(const XReg &xn, const ZRegD &zm, ExtMod mod, uint32_t sh) {
+inline AdrSc32US ptr(const XReg &xn, const ZRegD &zm, ExtMod mod, uint32_t sh) {
   return AdrSc32US(xn, zm, mod, sh);
 }
 
-AdrVecImm64 ptr(const ZRegD &zn, uint32_t imm) { return AdrVecImm64(zn, imm); }
+inline AdrVecImm64 ptr(const ZRegD &zn, uint32_t imm) { return AdrVecImm64(zn, imm); }
 
-AdrVecImm32 ptr(const ZRegS &zn, uint32_t imm) { return AdrVecImm32(zn, imm); }
+inline AdrVecImm32 ptr(const ZRegS &zn, uint32_t imm) { return AdrVecImm32(zn, imm); }
 
-AdrVec ptr(const ZRegS &zn, const ZRegS &zm, ShMod mod, uint32_t sh) {
+inline AdrVec ptr(const ZRegS &zn, const ZRegS &zm, ShMod mod, uint32_t sh) {
   return AdrVec(zn, zm, mod, sh);
 }
 
-AdrVec ptr(const ZRegD &zn, const ZRegD &zm, ShMod mod, uint32_t sh) {
+inline AdrVec ptr(const ZRegD &zn, const ZRegD &zm, ShMod mod, uint32_t sh) {
   return AdrVec(zn, zm, mod, sh);
 }
 
-AdrVecU ptr(const ZRegD &zn, const ZRegD &zm, ExtMod mod, uint32_t sh) {
+inline AdrVecU ptr(const ZRegD &zn, const ZRegD &zm, ExtMod mod, uint32_t sh) {
   return AdrVecU(zn, zm, mod, sh);
 }
-#endif  // #ifdef XBYAK_AARCH64_OBJ
