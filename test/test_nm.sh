@@ -14,9 +14,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #******************************************************************************/
+ARCH=$(uname -m)
 GPP=g++
-AARCH64_GPP=aarch64-linux-gnu-g++
-AS=aarch64-linux-gnu-as
+TOOL_PREFIX=""
+if [ ${ARCH} != aarch64 ] ; then
+  TOOL_PREFIX=aarch64-linux-gnu-
+fi
+AS=${TOOL_PREFIX}as
 AWK=awk
 SED=sed
 TEST_FILE=${1}
