@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/herumi/xbyak_aarch64.png)](https://travis-ci.org/herumi/xbyak_aarch64)
+
 # Xbyak_aarch64 ; JIT assembler for AArch64 CPUs by C++
 
 ## Abstract
