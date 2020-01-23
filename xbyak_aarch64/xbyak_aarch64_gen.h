@@ -325,7 +325,7 @@ class CodeGenUtil {
     uint32_t sign = (imm < 0) ? 1 : 0;
 
     imm = std::abs(imm);
-    int32_t max_digit = static_cast<uint32_t>(std::floor(std::log2(imm)));
+    int32_t max_digit = static_cast<int32_t>(std::floor(std::log2(imm)));
 
     int32_t n = (size == 16) ? 7 : (size == 32) ? 10 : 13;
     int32_t exp = (max_digit - 1) + (1 << n);
