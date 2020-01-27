@@ -1,5 +1,10 @@
 #include <xbyak_aarch64/xbyak_aarch64.h>
 #include <xbyak_aarch64/xbyak_aarch64_util.h>
+/*
+	How to use Profiler class
+	sudo perf record ./a.out 1
+	sudo perf report
+*/
 
 struct Code : Xbyak::CodeGenerator {
 	Code(int step)
