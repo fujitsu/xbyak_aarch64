@@ -116,7 +116,7 @@ enum Pattern {
 };
 
 enum IcOp {
-  ALLUIS = inner::genSysInstOp(0, 7, 1, 0),  // op1=0, CRn=7, CRm=1, op2=0
+  ALLUIS = Xbyak::Xbyak_aarch64::inner::genSysInstOp(0, 7, 1, 0),  // op1=0, CRn=7, CRm=1, op2=0
   ALLU = inner::genSysInstOp(0, 7, 5, 0),    // op1=0, CRn=7, CRm=5, op2=0
   VAU = inner::genSysInstOp(3, 7, 5, 0)      // op1=3, CRn=7, CRm=5, op2=1
 };
@@ -519,7 +519,7 @@ class CodeGenUtil {
   }
 };
 
-class CodeGenerator : public CodeGenUtil, public CodeArray {
+class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
   struct CodeInfo {
     size_t code_idx;
     std::string file;
@@ -547,7 +547,7 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
   CodeInfo cinfo_;
   std::deque<CodeInfo> codeInfoHist_;
 
-  LabelManager labelMgr_;
+  LabelManagerAArch64 labelMgr_;
 
   // set infomation of instruction code
   void setCodeInfo(const std::string &file, size_t line,
@@ -682,7 +682,7 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
   }
 
   // generate relative address for label offset
-  uint64_t genLabelOffset(const Label &label, const JmpLabel &jmpL) {
+  uint64_t genLabelOffset(const LabelAArch64 &label, const JmpLabelAArch64&jmpL) {
     size_t offset = 0;
     int64_t labelOffset = 0;
     if (labelMgr_.getOffset(&offset, label)) {
@@ -706,11 +706,15 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
         {F(op, 31), F(immlo, 29), F(0x10, 24), F(immhi, 5), F(rd.getIdx(), 0)});
   }
 
-  void PCrelAddr(uint32_t op, const XReg &rd, const Label &label) {
+#ifdef XBYAK_TRANSLATE_AARCH64
+#define dw dw_aarch64  
+#endif
+
+  void PCrelAddr(uint32_t op, const XReg &rd, const LabelAArch64&label) {
     auto encFunc = [&, op, rd](int64_t labelOffset) {
       return PCrelAddrEnc(op, rd, labelOffset);
     };
-    JmpLabel jmpL = JmpLabel(encFunc, getSize());
+    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
     uint32_t code = PCrelAddrEnc(op, rd, genLabelOffset(label, jmpL));
     dw(code);
   }
@@ -835,11 +839,11 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
     return concat({F(0x2a, 25), F(imm19, 5), F(cond, 0)});
   }
 
-  void CondBrImm(Cond cond, const Label &label) {
+  void CondBrImm(Cond cond, const LabelAArch64&label) {
     auto encFunc = [&, cond](int64_t labelOffset) {
       return CondBrImmEnc(cond, labelOffset);
     };
-    JmpLabel jmpL = JmpLabel(encFunc, getSize());
+    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
     uint32_t code = CondBrImmEnc(cond, genLabelOffset(label, jmpL));
     dw(code);
   }
@@ -972,11 +976,11 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
     return concat({F(op, 31), F(5, 26), F(imm26, 0)});
   }
 
-  void UncondBrImm(uint32_t op, const Label &label) {
+  void UncondBrImm(uint32_t op, const LabelAArch64&label) {
     auto encFunc = [&, op](int64_t labelOffset) {
       return UncondBrImmEnc(op, labelOffset);
     };
-    JmpLabel jmpL = JmpLabel(encFunc, getSize());
+    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
     uint32_t code = UncondBrImmEnc(op, genLabelOffset(label, jmpL));
     dw(code);
   }
@@ -997,11 +1001,11 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
         {F(sf, 31), F(0x1a, 25), F(op, 24), F(imm19, 5), F(rt.getIdx(), 0)});
   }
 
-  void CompareBr(uint32_t op, const RReg &rt, const Label &label) {
+  void CompareBr(uint32_t op, const RReg &rt, const LabelAArch64&label) {
     auto encFunc = [&, op](int64_t labelOffset) {
       return CompareBrEnc(op, rt, labelOffset);
     };
-    JmpLabel jmpL = JmpLabel(encFunc, getSize());
+    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
     uint32_t code = CompareBrEnc(op, rt, genLabelOffset(label, jmpL));
     dw(code);
   }
@@ -1028,11 +1032,11 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
                    F(rt.getIdx(), 0)});
   }
 
-  void TestBr(uint32_t op, const RReg &rt, uint32_t imm, const Label &label) {
+  void TestBr(uint32_t op, const RReg &rt, uint32_t imm, const LabelAArch64&label) {
     auto encFunc = [&, op, rt, imm](int64_t labelOffset) {
       return TestBrEnc(op, rt, imm, labelOffset);
     };
-    JmpLabel jmpL = JmpLabel(encFunc, getSize());
+    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
     uint32_t code = TestBrEnc(op, rt, imm, genLabelOffset(label, jmpL));
     dw(code);
   }
@@ -1374,11 +1378,11 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
   }
 
   void LdRegLiteral(uint32_t opc, uint32_t V, const RReg &rt,
-                    const Label &label) {
+                    const LabelAArch64&label) {
     auto encFunc = [&, opc, V, rt](int64_t labelOffset) {
       return LdRegLiteralEnc(opc, V, rt, labelOffset);
     };
-    JmpLabel jmpL = JmpLabel(encFunc, getSize());
+    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
     uint32_t code = LdRegLiteralEnc(opc, V, rt, genLabelOffset(label, jmpL));
     dw(code);
   }
@@ -1400,11 +1404,11 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
         {F(opc, 30), F(0x3, 27), F(V, 26), F(imm19, 5), F(vt.getIdx(), 0)});
   }
 
-  void LdRegSimdFpLiteral(const VRegSc &vt, const Label &label) {
+  void LdRegSimdFpLiteral(const VRegSc &vt, const LabelAArch64&label) {
     auto encFunc = [&, vt](int64_t labelOffset) {
       return LdRegSimdFpLiteralEnc(vt, labelOffset);
     };
-    JmpLabel jmpL = JmpLabel(encFunc, getSize());
+    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
     uint32_t code = LdRegSimdFpLiteralEnc(vt, genLabelOffset(label, jmpL));
     dw(code);
   }
@@ -1425,11 +1429,11 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
     return concat({F(opc, 30), F(0x3, 27), F(V, 26), F(imm19, 5), F(prfop, 0)});
   }
 
-  void PfLiteral(Prfop prfop, const Label &label) {
+  void PfLiteral(Prfop prfop, const LabelAArch64&label) {
     auto encFunc = [&, prfop](int64_t labelOffset) {
       return PfLiteralEnc(prfop, labelOffset);
     };
-    JmpLabel jmpL = JmpLabel(encFunc, getSize());
+    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
     uint32_t code = PfLiteralEnc(prfop, genLabelOffset(label, jmpL));
     dw(code);
   }
@@ -5192,6 +5196,10 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
     dw(code);
   }
 
+#ifdef XBYAK_TRANSLATE_AARCH64
+#undef dw
+#endif
+
   template <class T>
   void putL_inner(T &label) {
     if (isAutoGrow() && size_ >= maxSize_) growMemory();
@@ -5204,7 +5212,7 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
   const WReg w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12;
   const WReg w13, w14, w15, w16, w17, w18, w19, w20, w21, w22, w23;
   const WReg w24, w25, w26, w27, w28, w29, w30, wzr, wsp;
-
+  
   const XReg x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12;
   const XReg x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23;
   const XReg x24, x25, x26, x27, x28, x29, x30, xzr, sp;
@@ -5244,9 +5252,9 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
   const PReg p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12;
   const PReg p13, p14, p15;
 
-  CodeGenerator(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0,
-                Allocator *allocator = 0)
-      : CodeArray(maxSize, userPtr, allocator)
+  CodeGeneratorAArch64(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0,
+                AllocatorAArch64 *allocator = 0)
+      : CodeArrayAArch64(maxSize, userPtr, allocator)
 #if 1
         ,
         w0(0),
@@ -5395,11 +5403,7 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
         s5(5),
         s6(6),
         s7(7),
-#ifdef XBYAK_AARCH64_FOR_DNNL
-        s8_(8),
-#else
         s8(8),
-#endif
         s9(9),
         s10(10),
         s11(11),
@@ -5582,24 +5586,26 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
     labelMgr_.set(this);
   }
 
-  void L(Label &label) { labelMgr_.defineClabel(label); }
-  Label L() {
-    Label label;
-    L(label);
+  void L_aarch64(LabelAArch64 &label) { labelMgr_.defineClabel(label); }
+  LabelAArch64 L_aarch64() {
+      LabelAArch64 label;
+    L_aarch64(label);
     return label;
   }
+  void inLocalLabel() { assert(NULL); }
+  void outLocalLabel() { assert(NULL); }
   /*
           assign src to dst
           require
           dst : does not used by L()
           src : used by L()
   */
-  void assignL(Label &dst, const Label &src) { labelMgr_.assign(dst, src); }
+  void assignL(LabelAArch64&dst, const LabelAArch64&src) { labelMgr_.assign(dst, src); }
   /*
           put address of label to buffer
           @note the put size is 4(32-bit), 8(64-bit)
   */
-  void putL(const Label &label) { putL_inner(label); }
+  void putL(const LabelAArch64&label) { putL_inner(label); }
 
   void reset() {
     resetSize();
@@ -5607,9 +5613,6 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
     labelMgr_.set(this);
   }
   bool hasUndefinedLabel() const { return labelMgr_.hasUndefClabel(); }
-  void clearCache(void *begin, void *end) {
-    __builtin___clear_cache(begin, end);
-  }
   /*
           MUST call ready() to complete generating code if you use AutoGrow
      mode.
@@ -5621,7 +5624,6 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
       calcJmpAddress();
       if (useProtect()) setProtectMode(mode);
     }
-    clearCache(const_cast<uint32_t*>(getCode()), const_cast<uint32_t*>(getCurr()));
   }
   // set read/exec
   void readyRE() { return ready(PROTECT_RE); }
@@ -5632,6 +5634,26 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
   }
 #endif
 
+  WReg getTmpWReg() {
+    return w29;
+  }
+
+  XReg getTmpXReg() {
+    return x29;
+  }
+
+  VReg getTmpVReg() {
+    return v31;
+  }
+
+  ZReg getTmpZReg() {
+    return z31;
+  }
+
+  PReg getTmpPReg() {
+    return p7;
+  }
+  
 #include "xbyak_aarch64_mnemonic.h"
 #include "xbyak_aarch64_meta_mnemonic.h"
 

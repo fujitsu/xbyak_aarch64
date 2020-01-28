@@ -43,19 +43,19 @@ inline const To CastTo(From p) throw() {
   return (const To)(size_t)(p);
 }
 
-struct Allocator {
+struct AllocatorAArch64 {
   virtual uint32_t *alloc(size_t size) {
     return reinterpret_cast<uint32_t *>(
         AlignedMalloc(size, inner::ALIGN_PAGE_SIZE));
   }
   virtual void free(uint32_t *p) { AlignedFree(p); }
-  virtual ~Allocator() {}
+  virtual ~AllocatorAArch64() {}
   /* override to return false if you call protect() manually */
   virtual bool useProtect() const { return true; }
 };
 
 #ifdef XBYAK_USE_MMAP_ALLOCATOR
-class MmapAllocator : Allocator {
+class MmapAllocatorAArch64 : AllocatorAArch64 {
   typedef std::unordered_map<uintptr_t, size_t> SizeList;
   SizeList sizeList_;
 
@@ -86,18 +86,18 @@ class MmapAllocator : Allocator {
 };
 #endif
 
-// 2nd parameter for constructor of CodeArray(maxSize, userPtr, alloc)
+// 2nd parameter for constructor of CodeArrayAArch64(maxSize, userPtr, alloc)
 void *const AutoGrow = (void *)1;           //-V566
 void *const DontSetProtectRWE = (void *)2;  //-V566
 
-class CodeArray {
+class CodeArrayAArch64 {
   enum Type {
     USER_BUF = 1,  // use userPtr(non alignment, non protect)
     ALLOC_BUF,     // use new(alignment, protect)
     AUTO_GROW      // automatically move and grow memory if necessary
   };
-  CodeArray(const CodeArray &rhs);
-  void operator=(const CodeArray &);
+  CodeArrayAArch64(const CodeArrayAArch64 &rhs);
+  void operator=(const CodeArrayAArch64 &);
   bool isAllocType() const { return type_ == ALLOC_BUF || type_ == AUTO_GROW; }
 
   // type of partially applied function for encoding
@@ -118,11 +118,11 @@ class CodeArray {
   AddrInfoList addrInfoList_;
   const Type type_;
 #ifdef XBYAK_USE_MMAP_ALLOCATOR
-  MmapAllocator defaultAllocator_;
+  MmapAllocatorAArch64 defaultAllocator_;
 #else
-  Allocator defaultAllocator_;
+  AllocatorAArch64 defaultAllocator_;
 #endif
-  Allocator *alloc_;
+  AllocatorAArch64 *alloc_;
 
  protected:
   size_t maxSize_;  // max size of code size
@@ -164,13 +164,13 @@ class CodeArray {
     PROTECT_RWE = 1,  // read/write/exec
     PROTECT_RE = 2    // read/exec
   };
-  explicit CodeArray(size_t maxSize, void *userPtr = 0,
-                     Allocator *allocator = 0)
+  explicit CodeArrayAArch64(size_t maxSize, void *userPtr = 0,
+                     AllocatorAArch64 *allocator = 0)
       : type_(userPtr == AutoGrow
                   ? AUTO_GROW
                   : (userPtr == 0 || userPtr == DontSetProtectRWE) ? ALLOC_BUF
                                                                    : USER_BUF),
-        alloc_(allocator ? allocator : (Allocator *)&defaultAllocator_),
+        alloc_(allocator ? allocator : (AllocatorAArch64 *)&defaultAllocator_),
         maxSize_(maxSize),
         top_(type_ == USER_BUF ? reinterpret_cast<uint32_t *>(userPtr)
                                : alloc_->alloc((std::max<size_t>)(maxSize, 1))),
@@ -183,7 +183,7 @@ class CodeArray {
       throw Error(ERR_CANT_PROTECT);
     }
   }
-  virtual ~CodeArray() {
+  virtual ~CodeArrayAArch64() {
     if (isAllocType()) {
       if (useProtect()) setProtectModeRW(false);
       alloc_->free(top_);
@@ -206,7 +206,12 @@ class CodeArray {
     addrInfoList_.clear();
     isCalledCalcJmpAddress_ = false;
   }
+
+#ifdef XBYAK_TRANSLATE_AARCH64
+  void dw_aarch64(uint32_t code) {
+#else
   void dw(uint32_t code) {
+#endif
     if (size_ >= maxSize_) {
       if (type_ == AUTO_GROW) {
         growMemory();
@@ -216,12 +221,22 @@ class CodeArray {
     }
     top_[size_++] = code;
   }
+#ifdef XBYAK_TRANSLATE_AARCH64
+  const uint8_t *getCode() const { return reinterpret_cast<uint8_t *>(top_); }
+  const uint32_t *getCode32() const { return top_; }
+#else
   const uint32_t *getCode() const { return top_; }
+#endif
   template <class F>
   const F getCode() const {
     return reinterpret_cast<F>(top_);
   }
+#ifdef XBYAK_TRANSLATE_AARCH64
+  const uint8_t *getCurr() const { return reinterpret_cast<uint8_t *>(&top_[size_]); }
+  const uint32_t *getCurr32() const { return &top_[size_]; }
+#else
   const uint32_t *getCurr() const { return &top_[size_]; }
+#endif
   template <class F>
   const F getCurr() const {
     return reinterpret_cast<F>(&top_[size_]);
@@ -232,7 +247,11 @@ class CodeArray {
     size_ = size;
   }
   void dump() const {
+#ifdef XBYAK_TRANSLATE_AARCH64
+    const uint8_t *p = getCode();
+#else
     const uint32_t *p = getCode();
+#endif
     size_t bufSize = getSize();
     size_t remain = bufSize;
     for (size_t i = 0; i < remain; ++i) {
