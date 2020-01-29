@@ -68,7 +68,7 @@ void add_imm(const XReg &dst, const XReg &src, T imm,
   /* ADD(immediate) supports unsigned imm12 */
   const uint64_t IMM12_MASK = ~uint64_t(0xfff);
   if((bit_ptn & IMM12_MASK) == 0) {// <= 4095
-    add__(dst, src, static_cast<uint32_t>(imm & 0xfff));
+    add(dst, src, static_cast<uint32_t>(imm & 0xfff));
     return;
   }
   
@@ -86,7 +86,7 @@ void add_imm(const XReg &dst, const XReg &src, T imm,
     }
   }
 
-  add__(dst, src, dst);
+  add(dst, src, dst);
 
   return;
 }
