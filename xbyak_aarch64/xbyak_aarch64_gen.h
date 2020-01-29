@@ -5403,7 +5403,11 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         s5(5),
         s6(6),
         s7(7),
+#ifdef XBYAK_AARCH64_FOR_DNNL
+        s8_(8),
+#else
         s8(8),
+#endif
         s9(9),
         s10(10),
         s11(11),
