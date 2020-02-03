@@ -182,3 +182,22 @@ void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp,
 
   return;
 }
+
+template <typename T> void mov_imm(const XReg &dst, T imm, const XReg &tmp) {
+  bool flag = false;
+  uint64_t bit_ptn = static_cast<uint64_t>(imm);
+
+  for (int i = 0; i < 4; i++) {
+    if (bit_ptn & (0xFFFF << 16 * i)) {
+      if (flag == false) {
+        movz(dst, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
+        flag = true;
+      } else {
+        movz(tmp, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
+        orr(dst, dst, tmp);
+      }
+    }
+  }
+
+  return;
+}
