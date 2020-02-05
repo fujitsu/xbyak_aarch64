@@ -141,8 +141,6 @@ class WReg : public RReg {
   explicit WReg(uint32_t index) : RReg(index, 32) {}
 };
 
-typedef XReg Reg64;
-
 // SIMD & FP scalar regisetr
 class VRegSc : public Reg {
  public:
