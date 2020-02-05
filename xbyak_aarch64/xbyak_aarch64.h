@@ -20,9 +20,11 @@
 #include <initializer_list>
 #include <iostream>
 #include <list>
+#include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+
 
 //#define XBYAK_USE_MMAP_ALLOCATOR
 #if !defined(__GNUC__) || defined(__MINGW32__)
@@ -30,7 +32,6 @@
 #endif
 
 #include <functional>
-
 #include <cmath>
 
 #ifdef _WIN32
@@ -47,11 +48,12 @@
 
 #include <iomanip>
 #include <sstream>
+
 #ifndef NDEBUG
 #include <iostream>
 #endif
 
-namespace Xbyak {
+namespace Xbyak_aarch64 {
 const uint64_t SP_IDX = 31;
 #include "xbyak_aarch64_gen.h"
 }
