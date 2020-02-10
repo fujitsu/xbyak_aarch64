@@ -19564,3 +19564,32 @@ void str(const ZReg &zt, const AdrNoOfs &adr) {
   SveStorePredVec(zt, adr);
 }
 #undef XBYAK_SET_CODE_INFO
+
+void beq(const Label &label) { b(EQ, label); }
+void beq(int64_t label) { b(EQ, label); }
+void bne(const Label &label) { b(NE, label); }
+void bne(int64_t label) { b(NE, label); }
+void bcs(const Label &label) { b(CS, label); }
+void bcs(int64_t label) { b(CS, label); }
+void bcc(const Label &label) { b(CC, label); }
+void bcc(int64_t label) { b(CC, label); }
+void bmi(const Label &label) { b(MI, label); }
+void bmi(int64_t label) { b(MI, label); }
+void bpl(const Label &label) { b(PL, label); }
+void bpl(int64_t label) { b(PL, label); }
+void bvs(const Label &label) { b(VS, label); }
+void bvs(int64_t label) { b(VS, label); }
+void bvc(const Label &label) { b(VC, label); }
+void bvc(int64_t label) { b(VC, label); }
+void bhi(const Label &label) { b(HI, label); }
+void bhi(int64_t label) { b(HI, label); }
+void bls(const Label &label) { b(LS, label); }
+void bls(int64_t label) { b(LS, label); }
+void bge(const Label &label) { b(GE, label); }
+void bge(int64_t label) { b(GE, label); }
+void blt(const Label &label) { b(LT, label); }
+void blt(int64_t label) { b(LT, label); }
+void bgt(const Label &label) { b(GT, label); }
+void bgt(int64_t label) { b(GT, label); }
+void ble(const Label &label) { b(LE, label); }
+void ble(int64_t label) { b(LE, label); }
