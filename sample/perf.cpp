@@ -21,7 +21,7 @@ struct Code : Xbyak::CodeGenerator {
 			add(x1, x1, step);
 		}
 		cmp(x2, x1);
-		b(GE, lp);
+		bge(lp);
 	L(exit);
 		ret();
 	}
