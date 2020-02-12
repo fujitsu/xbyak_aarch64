@@ -201,3 +201,53 @@ template <typename T> void mov_imm(const XReg &dst, T imm, const XReg &tmp) {
 
   return;
 }
+
+template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
+                                              std::nullptr_t>::type = nullptr>
+void mov_imm(const WReg &dst, T imm, const WReg &tmp) {
+  bool flag = false;
+  uint64_t bit_ptn = static_cast<uint64_t>(imm);
+
+  if(imm > std::numeric_limits<uint32_t>::max()) {
+    throw Error(ERR_ILLEGAL_IMM_RANGE, genErrMsg());
+  }
+
+  for (int i = 0; i < 2; i++) {
+    if (bit_ptn & (0xFFFF << 16 * i)) {
+      if (flag == false) {
+        movz(dst, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
+        flag = true;
+      } else {
+        movz(tmp, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
+        orr(dst, dst, tmp);
+      }
+    }
+  }
+
+  return;
+}
+
+template <typename T, typename std::enable_if<std::is_signed<T>::value,
+                                              std::nullptr_t>::type = nullptr>
+void mov_imm(const WReg &dst, T imm, const WReg &tmp) {
+  bool flag = false;
+  uint64_t bit_ptn = static_cast<uint64_t>(imm);
+
+  if(imm < std::numeric_limits<int32_t>::min()) {
+    throw Error(ERR_ILLEGAL_IMM_RANGE, genErrMsg());
+  }
+
+  for (int i = 0; i < 2; i++) {
+    if (bit_ptn & (0xFFFF << 16 * i)) {
+      if (flag == false) {
+        movz(dst, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
+        flag = true;
+      } else {
+        movz(tmp, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
+        orr(dst, dst, tmp);
+      }
+    }
+  }
+
+  return;
+}
