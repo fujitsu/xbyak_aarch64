@@ -98,7 +98,101 @@ void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp,
   return;
 }
 
+  
 template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
+                                              std::nullptr_t>::type = nullptr>
+void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp,
+             const WReg &tmp1) {
+
+  if(sizeof(T) > 4) {
+    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
+  }
+  
+  /* This add_imm function allows dst == src,
+     but tmp and tmp1 must be different from src */
+  assert(src.getIdx() != tmp.getIdx());
+  assert(dst.getIdx() != tmp.getIdx());
+  assert(tmp1.getIdx() != tmp.getIdx());
+
+  uint32_t bit_ptn = static_cast<uint32_t>(imm);
+  uint32_t mask = 0xFFFF;
+  bool flag = false;
+
+  /* ADD(immediate) supports unsigned imm12 */
+  const uint32_t IMM12_MASK = ~uint32_t(0xfff);
+  if ((bit_ptn & IMM12_MASK) == 0) { // <= 4095
+    add(dst, src, static_cast<uint32_t>(imm & 0xfff));
+    return;
+  }
+
+  /* MOVZ allows shift amount = 0, 16, 32, 48 */
+  for (int i = 0; i < 32; i += 16) {
+    uint64_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
+    if (tmp_ptn) {
+      if (!flag) {
+        movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
+        flag = true;
+      } else {
+        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
+        add(tmp1, tmp1, tmp);
+      }
+    }
+  }
+
+  add(dst, src, tmp1);
+
+  return;
+}
+
+template <typename T, typename std::enable_if<std::is_signed<T>::value,
+                                              std::nullptr_t>::type = nullptr>
+void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp,
+             const WReg &tmp1) {
+
+  if(sizeof(T) > 4) {
+    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
+  }
+
+  /* This add_imm function allows dst == src,
+     but tmp and tmp1 must be different from src */
+  assert(src.getIdx() != tmp.getIdx());
+  assert(dst.getIdx() != tmp.getIdx());
+  assert(tmp1.getIdx() != tmp.getIdx());
+
+  /* Sign bit must be extended. */
+  int32_t bit_ptn = static_cast<int32_t>(imm);
+  uint32_t mask = 0xFFFF;
+  bool flag = false;
+
+  /* ADD(immediate) supports unsigned imm12 */
+  if (imm >= 0) {
+    const uint32_t IMM12_MASK = ~uint32_t(0xfff);
+    if ((bit_ptn & IMM12_MASK) == 0) { // <= 4095
+      add(dst, src, static_cast<uint32_t>(imm & 0xfff));
+      return;
+    }
+  }
+
+  /* MOVZ allows shift amount = 0, 16, 32, 48 */
+  for (int i = 0; i < 32; i += 16) {
+    uint32_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
+    if (tmp_ptn) {
+      if (!flag) {
+        movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
+        flag = true;
+      } else {
+        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
+        add(tmp1, tmp1, tmp);
+      }
+    }
+  }
+
+  add(dst, src, tmp1);
+
+  return;
+}
+
+  template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp,
              const XReg &tmp1) {
