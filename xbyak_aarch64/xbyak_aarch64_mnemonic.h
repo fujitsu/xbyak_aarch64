@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-#define XBYAK_SET_CODE_INFO() setCodeInfo(__FILE__, __LINE__, __func__)
+#ifdef XBYAK_USE_FILE_LINE
+  #define XBYAK_SET_CODE_INFO() setCodeInfo(__FILE__, __LINE__, __func__)
+#else
+  #define XBYAK_SET_CODE_INFO()
+#endif
 void adr(const XReg &xd, const Label &label) {
   XBYAK_SET_CODE_INFO();
   PCrelAddr(0, xd, label);
