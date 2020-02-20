@@ -373,6 +373,11 @@ template <typename T> void mov_imm(const XReg &dst, T imm, const XReg &tmp) {
   bool flag = false;
   uint64_t bit_ptn = static_cast<uint64_t>(imm);
 
+  if (imm == 0) {
+    mov(dst, 0);
+    return;
+  }
+
   for (int i = 0; i < 4; i++) {
     if (bit_ptn & (0xFFFF << 16 * i)) {
       if (flag == false) {
@@ -393,6 +398,11 @@ template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
 void mov_imm(const WReg &dst, T imm, const WReg &tmp) {
   bool flag = false;
   uint64_t bit_ptn = static_cast<uint64_t>(imm);
+
+  if (imm == 0) {
+    mov(dst, 0);
+    return;
+  }
 
   if (imm > std::numeric_limits<uint32_t>::max()) {
     throw Error(ERR_ILLEGAL_IMM_RANGE, genErrMsg());
@@ -418,6 +428,11 @@ template <typename T, typename std::enable_if<std::is_signed<T>::value,
 void mov_imm(const WReg &dst, T imm, const WReg &tmp) {
   bool flag = false;
   uint64_t bit_ptn = static_cast<uint64_t>(imm);
+
+  if (imm == 0) {
+    mov(dst, 0);
+    return;
+  }
 
   if (imm < std::numeric_limits<int32_t>::min()) {
     throw Error(ERR_ILLEGAL_IMM_RANGE, genErrMsg());
