@@ -39,6 +39,7 @@ pipeline {
         stage('test'){
             steps {
                 echo "TEST"
+                sh 'make -C test test'
             }
         }
 
