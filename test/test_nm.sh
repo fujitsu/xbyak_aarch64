@@ -83,7 +83,7 @@ if [ $? != 0 ] ;then
     dumpNG "Generating source file using xbyak"
     exit 1
 fi
-${GPP} -g -I../xbyak_aarch64 -DXBYAK_TEST -o nm_frame nm_frame.cpp
+${GPP} -g -std=c++11 -I../xbyak_aarch64 -DXBYAK_TEST -o nm_frame nm_frame.cpp
 if [ $? != 0 ] ;then
     dumpNG "Compiling source file using xbyak"
     exit 1
