@@ -26,9 +26,6 @@ SED=sed
 TEST_FILE=${1}
 AARCH64_TYPE="armv8.4-a"
 
-echo "ARCH=${ARCH}"
-echo "TOOL_PREFIX=${TOOL_PREFIX}"
-
 dumpOK () {
     echo "##########################################"
     echo "# Test OK :-)"
