@@ -697,4 +697,4 @@ We are grateful to MITSUNARI-san (Cybozu Labs, Inc.) for release Xbyak as an ope
 
 ## Copyright
 
-Copyright FUJITSU LIMITED 2019
+Copyright FUJITSU LIMITED 2019-2020
