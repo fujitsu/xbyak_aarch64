@@ -19597,3 +19597,23 @@ void bgt(const Label &label) { b(GT, label); }
 void bgt(int64_t label) { b(GT, label); }
 void ble(const Label &label) { b(LE, label); }
 void ble(int64_t label) { b(LE, label); }
+void b_none(const Label& label) { beq(label); }
+void b_none(int64_t label) { beq(label); }
+void b_any(const Label& label) { bne(label); }
+void b_any(int64_t label) { bne(label); }
+void b_nlast(const Label& label) { bcs(label); }
+void b_nlast(int64_t label) { bcs(label); }
+void b_last(const Label& label) { bcc(label); }
+void b_last(int64_t label) { bcc(label); }
+void b_first(const Label& label) { bmi(label); }
+void b_first(int64_t label) { bmi(label); }
+void b_nfrst(const Label& label) { bpl(label); }
+void b_nfrst(int64_t label) { bpl(label); }
+void b_pmore(const Label& label) { bhi(label); }
+void b_pmore(int64_t label) { bhi(label); }
+void b_plast(const Label& label) { bls(label); }
+void b_plast(int64_t label) { bls(label); }
+void b_tcont(const Label& label) { bge(label); }
+void b_tcont(int64_t label) { bge(label); }
+void b_tstop(const Label& label) { blt(label); }
+void b_tstop(int64_t label) { blt(label); }
