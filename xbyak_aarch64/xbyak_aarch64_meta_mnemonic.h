@@ -368,7 +368,9 @@ void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp,
 
   return;
 }
-
+  
+template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
+                                              std::nullptr_t>::type = nullptr>
 void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp,
              const XReg &tmp1) {
 
