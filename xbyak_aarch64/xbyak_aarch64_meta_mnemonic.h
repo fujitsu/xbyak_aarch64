@@ -760,10 +760,10 @@ void mov_imm(const WReg &dst, T imm, const WReg &tmp) {
     return;
   }
 
-  if (imm > std::numeric_limits<uint32_t>::max()) {
+  if(uint64_t(0xFFFFFFFF) < imm  && imm < uint64_t(0xFFFFFFFF80000000)) {
     throw Error(ERR_ILLEGAL_IMM_RANGE, genErrMsg());
-  }
-
+  }    
+  
   for (int i = 0; i < 2; i++) {
     if (bit_ptn & (0xFFFF << 16 * i)) {
       if (flag == false) {
