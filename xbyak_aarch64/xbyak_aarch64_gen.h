@@ -5198,6 +5198,10 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
 #ifdef XBYAK_TRANSLATE_AARCH64
 #undef dw
+
+  void mov(const XReg &rd, const LabelAArch64 &label) {
+    adr(rd, label);
+  }
 #endif
 
   template <class T>
