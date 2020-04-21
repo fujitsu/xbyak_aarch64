@@ -5677,7 +5677,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     size_t remain = size_t(getCurr()) % x;
     while (remain) {
       nop();
-      remain--;
+      remain -= 4;
     }
   }
 };
