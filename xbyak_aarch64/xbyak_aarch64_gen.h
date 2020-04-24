@@ -5608,7 +5608,7 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
   }
   bool hasUndefinedLabel() const { return labelMgr_.hasUndefClabel(); }
   void clearCache(void *begin, void *end) {
-    __builtin___clear_cache(begin, end);
+    __builtin___clear_cache((char*)begin, (char*)end);
   }
   /*
           MUST call ready() to complete generating code if you use AutoGrow
