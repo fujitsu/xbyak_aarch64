@@ -5600,8 +5600,8 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     L_aarch64(label);
     return label;
   }
-  void inLocalLabel() { assert(NULL); }
-  void outLocalLabel() { assert(NULL); }
+  void inLocalLabel() { /*assert(NULL);*/ }
+  void outLocalLabel() { /*assert(NULL);*/ }
   /*
           assign src to dst
           require
@@ -5674,7 +5674,10 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
       fprintf(stderr, "warning:autoGrow mode does not support %d align\n",
               (int)x);
 
-    size_t remain = size_t(getCurr()) % x;
+    size_t remain = size_t(getCurr());
+    if (remain % 4) throw Error(ERR_BAD_ALIGN);
+    remain = x - (remain % x);
+
     while (remain) {
       nop();
       remain -= 4;
