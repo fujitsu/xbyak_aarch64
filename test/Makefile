@@ -20,18 +20,22 @@ XBYAK_INC=../xbyak_aarch64/xbyak_aarch64.h
 all: $(TARGET)
 
 #CXX=aarch64-linux-gnu-g++
-CXX=g++
+CXX?=g++
 CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith -Wunused-function
 
-CFLAGS=-O2 -fomit-frame-pointer -Wall -fno-operator-names -I../ -I./ $(CFLAGS_WARN) #-std=c++0x
+CFLAGS=-Wall -I../ -I./ $(CFLAGS_WARN) #-std=c++0x
 make_nm: make_nm.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) make_nm.cpp -o $@
 make_nm_load_store: make_nm_load_store.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) make_nm_load_store.cpp -o $@
 
-test:
+misc: misc.cpp $(XBYAK_INC)
+	$(CXX) $(CFLAGS) -o $@ $<
+
+test: ./misc
 	./test_all.sh
+	./misc
 
 clean:
-	rm -rf *.o $(TARGET) nm.cpp nm_frame
+	rm -rf *.o $(TARGET) nm.cpp nm_frame misc
 

@@ -5637,17 +5637,11 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
 
   
   void align(size_t x) {
-    if (x == 4) return;  // ARMv8 instructions are always 4 bytes.
-    if (x < 4 || (x % 4)) throw Error(ERR_BAD_ALIGN);
-
-    if (isAutoGrow() && x > inner::ALIGN_PAGE_SIZE)
-      fprintf(stderr, "warning:autoGrow mode does not support %d align\n",
-              (int)x);
-
+    if (x < 4 || (x & (x - 1))) throw Error(ERR_BAD_ALIGN);
     size_t remain = size_t(getCurr()) % x;
-    while (remain) {
+    if (remain == 0) return;
+    for (size_t i = 0; i < x - remain; i += 4) {
       nop();
-      remain--;
     }
   }
 };
