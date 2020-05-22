@@ -735,13 +735,13 @@ template <typename T> void mov_imm(const XReg &dst, T imm, const XReg &tmp) {
   }
 
   for (int i = 0; i < 4; i++) {
-    if (bit_ptn & (0xFFFF << 16 * i)) {
+    uint64_t tag_bit = (bit_ptn >> (16 * i)) & 0xFFFF;
+    if (tag_bit) {
       if (flag == false) {
-        movz(dst, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
+        movz(dst, tag_bit, 16 * i);
         flag = true;
       } else {
-        movz(tmp, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
-        orr(dst, dst, tmp);
+        movk(dst, tag_bit, 16 * i);
       }
     }
   }
