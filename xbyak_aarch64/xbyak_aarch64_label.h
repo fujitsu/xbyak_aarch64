@@ -51,7 +51,12 @@ class LabelAArch64 {
   const uint32_t* getAddress() const;
 };
 
+#ifdef XBYAK_TRANSLATE_AARCH64
+  using namespace Xbyak::Xbyak_aarch64;
+#endif
+
 class LabelManagerAArch64 {
+
   // for Label class
   struct ClabelValAArch64 {
     ClabelValAArch64(size_t offset = 0) : offset(offset), refCount(1) {}
@@ -151,23 +156,23 @@ class LabelManagerAArch64 {
 
   void set(CodeArrayAArch64* base) { base_ = base; }
 
-  void defineClabel(Xbyak::Xbyak_aarch64::LabelAArch64& label) {
+  void defineClabel(LabelAArch64& label) {
     define_inner(clabelDefListAArch64_, clabelUndefListAArch64_, getId(label),
                  base_->getSize());
     label.mgr = this;
     labelPtrListAArch64_.insert(&label);
   }
-  void assign(Xbyak::Xbyak_aarch64::LabelAArch64& dst, const Xbyak::Xbyak_aarch64::LabelAArch64& src) {
+  void assign(LabelAArch64& dst, const LabelAArch64& src) {
     ClabelDefListAArch64::const_iterator i = clabelDefListAArch64_.find(src.id);
     if (i == clabelDefListAArch64_.end()) throw Error(ERR_LABEL_ISNOT_SET_BY_L);
     define_inner(clabelDefListAArch64_, clabelUndefListAArch64_, dst.id, i->second.offset);
     dst.mgr = this;
     labelPtrListAArch64_.insert(&dst);
   }
-  bool getOffset(size_t* offset, const Xbyak::Xbyak_aarch64::LabelAArch64& label) const {
+  bool getOffset(size_t* offset, const LabelAArch64& label) const {
     return getOffset_inner(clabelDefListAArch64_, offset, getId(label));
   }
-  void addUndefinedLabel(const Xbyak::Xbyak_aarch64::LabelAArch64& label, const Xbyak::Xbyak_aarch64::JmpLabelAArch64& jmp) {
+  void addUndefinedLabel(const LabelAArch64& label, const JmpLabelAArch64& jmp) {
     clabelUndefListAArch64_.insert(ClabelUndefListAArch64::value_type(label.id, jmp));
   }
   bool hasUndefClabel() const {
@@ -184,22 +189,22 @@ class LabelManagerAArch64 {
   }
 };
 
-inline Xbyak::Xbyak_aarch64::LabelAArch64::LabelAArch64(const Xbyak::Xbyak_aarch64::LabelAArch64& rhs) {
+inline LabelAArch64::LabelAArch64(const LabelAArch64& rhs) {
   id = rhs.id;
   mgr = rhs.mgr;
   if (mgr) mgr->incRefCount(id, this);
 }
-inline Xbyak::Xbyak_aarch64::LabelAArch64& LabelAArch64::operator=(const Xbyak::Xbyak_aarch64::LabelAArch64& rhs) {
+inline LabelAArch64& LabelAArch64::operator=(const LabelAArch64& rhs) {
   if (id) throw Error(ERR_LABEL_IS_ALREADY_SET_BY_L);
   id = rhs.id;
   mgr = rhs.mgr;
   if (mgr) mgr->incRefCount(id, this);
   return *this;
 }
-inline Xbyak::Xbyak_aarch64::LabelAArch64::~LabelAArch64() {
+inline LabelAArch64::~LabelAArch64() {
   if (id && mgr) mgr->decRefCount(id, this);
 }
-inline const uint32_t* Xbyak::Xbyak_aarch64::LabelAArch64::getAddress() const {
+inline const uint32_t* LabelAArch64::getAddress() const {
   if (mgr == 0 || !mgr->isReady()) return 0;
   size_t offset;
   if (!mgr->getOffset(&offset, *this)) return 0;
