@@ -116,7 +116,11 @@ enum Pattern {
 };
 
 enum IcOp {
+#ifdef XBYAK_TRANSLATE_AARCH64
   ALLUIS = Xbyak::Xbyak_aarch64::inner::genSysInstOp(0, 7, 1, 0),  // op1=0, CRn=7, CRm=1, op2=0
+#else
+  ALLUIS = inner::genSysInstOp(0, 7, 1, 0),  // op1=0, CRn=7, CRm=1, op2=0
+#endif
   ALLU = inner::genSysInstOp(0, 7, 5, 0),    // op1=0, CRn=7, CRm=5, op2=0
   VAU = inner::genSysInstOp(3, 7, 5, 0)      // op1=3, CRn=7, CRm=5, op2=1
 };
@@ -5637,7 +5641,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
   void readyRE() { return ready(PROTECT_RE); }
 #ifdef XBYAK_TEST
   void dump(bool doClear = true) {
-    CodeArray::dump();
+    CodeArrayAArch64::dump();
     if (doClear) size_ = 0;
   }
 #endif
