@@ -26,7 +26,7 @@
 
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
 
-using namespace Xbyak;
+using namespace Xbyak_aarch64;
 
 const int bitEnd = 64;
 /** Begin:Really used in this file. */

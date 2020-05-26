@@ -116,7 +116,11 @@ enum Pattern {
 };
 
 enum IcOp {
+#ifdef XBYAK_TRANSLATE_AARCH64
   ALLUIS = Xbyak::Xbyak_aarch64::inner::genSysInstOp(0, 7, 1, 0),  // op1=0, CRn=7, CRm=1, op2=0
+#else
+  ALLUIS = inner::genSysInstOp(0, 7, 1, 0),  // op1=0, CRn=7, CRm=1, op2=0
+#endif
   ALLU = inner::genSysInstOp(0, 7, 5, 0),    // op1=0, CRn=7, CRm=5, op2=0
   VAU = inner::genSysInstOp(3, 7, 5, 0)      // op1=3, CRn=7, CRm=5, op2=1
 };
@@ -5198,6 +5202,10 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
 #ifdef XBYAK_TRANSLATE_AARCH64
 #undef dw
+
+  void mov(const XReg &rd, const LabelAArch64 &label) {
+    adr(rd, label);
+  }
 #endif
 
   template <class T>
@@ -5596,8 +5604,8 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     L_aarch64(label);
     return label;
   }
-  void inLocalLabel() { assert(NULL); }
-  void outLocalLabel() { assert(NULL); }
+  void inLocalLabel() { /*assert(NULL);*/ }
+  void outLocalLabel() { /*assert(NULL);*/ }
   /*
           assign src to dst
           require
@@ -5633,7 +5641,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
   void readyRE() { return ready(PROTECT_RE); }
 #ifdef XBYAK_TEST
   void dump(bool doClear = true) {
-    CodeArray::dump();
+    CodeArrayAArch64::dump();
     if (doClear) size_ = 0;
   }
 #endif
@@ -5670,10 +5678,13 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
       fprintf(stderr, "warning:autoGrow mode does not support %d align\n",
               (int)x);
 
-    size_t remain = size_t(getCurr()) % x;
+    size_t remain = size_t(getCurr());
+    if (remain % 4) throw Error(ERR_BAD_ALIGN);
+    remain = x - (remain % x);
+
     while (remain) {
       nop();
-      remain--;
+      remain -= 4;
     }
   }
 };

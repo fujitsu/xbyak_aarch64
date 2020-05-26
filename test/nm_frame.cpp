@@ -18,13 +18,13 @@
 #define XBYAK_ENABLE_OMITTED_OPERAND
 #include "xbyak_aarch64.h"
 
-using namespace Xbyak;
+using namespace Xbyak_aarch64;
 
 #ifdef _MSC_VER
 	#pragma warning(disable : 4245)
 	#pragma warning(disable : 4312)
 #endif
-class Sample : public CodeGenerator {
+class Sample : public CodeGeneratorAArch64 {
 	void operator=(const Sample&);
 public:
 #include "nm.cpp"
@@ -33,7 +33,7 @@ public:
 #define _STR(x) #x
 #define TEST(syntax) err = true; try { syntax; err = false; } catch (Xbyak::Error) { } catch (...) { } if (!err) printf("should be err:%s;\n", _STR(syntax))
 
-class ErrorSample : public CodeGenerator {
+class ErrorSample : public CodeGeneratorAArch64 {
 	void operator=(const ErrorSample&);
 public:
 	void gen()
@@ -48,7 +48,7 @@ public:
 int main()
 	try
 {
-	size_t size = sizeof(Xbyak::Operand);
+	size_t size = sizeof(Xbyak_aarch64::Operand);
 	//	if (size != 4) {
 	//		printf("sizeof Operand %d\n", (int)size);
 	//	}

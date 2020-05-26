@@ -18,7 +18,7 @@
 #include <cstring>
 #include "../xbyak_aarch64/xbyak_aarch64.h"
 
-using namespace Xbyak;
+using namespace Xbyak_aarch64;
 
 class GeneratorAdd : public CodeGenerator {
 

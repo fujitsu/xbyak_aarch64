@@ -55,6 +55,8 @@
 
 namespace Xbyak_aarch64 {
 const uint64_t SP_IDX = 31;
+const uint64_t NUM_VREG_BYTES = 16;
+const uint64_t NUM_ZREG_BYTES = 64;
 #include "xbyak_aarch64_gen.h"
 }
 
