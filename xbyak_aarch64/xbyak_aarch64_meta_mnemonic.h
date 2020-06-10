@@ -725,9 +725,12 @@ void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp,
   return;
 }
 
+#define UNUSED_PARAM(x) ((void)(x))
 template <typename T> void mov_imm(const XReg &dst, T imm, const XReg &tmp) {
   bool flag = false;
   uint64_t bit_ptn = static_cast<uint64_t>(imm);
+
+  UNUSED_PARAM(tmp);
 
   if (imm == 0) {
     mov(dst, 0);

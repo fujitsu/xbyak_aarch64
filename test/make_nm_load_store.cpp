@@ -28,7 +28,7 @@
 
 using namespace Xbyak_aarch64;
 
-const int bitEnd = 64;
+//const int bitEnd = 64;
 
 enum AddressingType {
 		     TP_PreImm,  /** pre-indexded immediate */

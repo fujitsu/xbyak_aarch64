@@ -38,7 +38,7 @@ class ErrorSample : public CodeGeneratorAArch64 {
 public:
 	void gen()
 	{
-		bool err;
+	        //bool err;
 		//		TEST(mov(ptr[w0],1));
 		//		TEST(test(ptr[w0],1));
 		//		TEST(adc(ptr[w0],1));
@@ -48,7 +48,7 @@ public:
 int main()
 	try
 {
-	size_t size = sizeof(Xbyak_aarch64::Operand);
+        //size_t size = sizeof(Xbyak_aarch64::Operand);
 	//	if (size != 4) {
 	//		printf("sizeof Operand %d\n", (int)size);
 	//	}
