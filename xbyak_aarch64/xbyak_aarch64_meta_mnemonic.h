@@ -43,8 +43,7 @@ void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp,
         movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
         flag = true;
       } else {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        add(tmp1, tmp1, tmp);
+        movk(tmp1, static_cast<uint32_t>(tmp_ptn), i);
       }
     }
   }
@@ -87,8 +86,7 @@ void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp,
         movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
         flag = true;
       } else {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        add(tmp1, tmp1, tmp);
+        movk(tmp1, static_cast<uint32_t>(tmp_ptn), i);
       }
     }
   }
@@ -132,8 +130,7 @@ void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp,
         movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
         flag = true;
       } else {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        add(tmp1, tmp1, tmp);
+        movk(tmp1, static_cast<uint32_t>(tmp_ptn), i);
       }
     }
   }
@@ -180,8 +177,7 @@ void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp,
         movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
         flag = true;
       } else {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        add(tmp1, tmp1, tmp);
+        movk(tmp1, static_cast<uint32_t>(tmp_ptn), i);
       }
     }
   }
@@ -221,8 +217,7 @@ void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp,
         movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
         flag = true;
       } else {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        add(tmp1, tmp1, tmp);
+        movk(tmp1, static_cast<uint32_t>(tmp_ptn), i);
       }
     }
   }
@@ -265,8 +260,7 @@ void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp,
         movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
         flag = true;
       } else {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        add(tmp1, tmp1, tmp);
+        movk(tmp1, static_cast<uint32_t>(tmp_ptn), i);
       }
     }
   }
@@ -310,8 +304,7 @@ void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp,
         movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
         flag = true;
       } else {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        add(tmp1, tmp1, tmp);
+        movk(tmp1, static_cast<uint32_t>(tmp_ptn), i);
       }
     }
   }
@@ -358,8 +351,7 @@ void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp,
         movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
         flag = true;
       } else {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        add(tmp1, tmp1, tmp);
+        movk(tmp1, static_cast<uint32_t>(tmp_ptn), i);
       }
     }
   }
@@ -399,8 +391,7 @@ void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp,
         movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
         flag = true;
       } else {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        add(tmp1, tmp1, tmp);
+        movk(tmp1, static_cast<uint32_t>(tmp_ptn), i);
       }
     }
   }
@@ -443,8 +434,7 @@ void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp,
         movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
         flag = true;
       } else {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        add(tmp1, tmp1, tmp);
+        movk(tmp1, static_cast<uint32_t>(tmp_ptn), i);
       }
     }
   }
@@ -488,8 +478,7 @@ void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp,
         movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
         flag = true;
       } else {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        add(tmp1, tmp1, tmp);
+        movk(tmp1, static_cast<uint32_t>(tmp_ptn), i);
       }
     }
   }
@@ -536,8 +525,7 @@ void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp,
         movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
         flag = true;
       } else {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        add(tmp1, tmp1, tmp);
+        movk(tmp1, static_cast<uint32_t>(tmp_ptn), i);
       }
     }
   }
@@ -577,8 +565,7 @@ void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp,
         movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
         flag = true;
       } else {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        add(tmp1, tmp1, tmp);
+        movk(tmp1, static_cast<uint32_t>(tmp_ptn), i);
       }
     }
   }
@@ -621,8 +608,7 @@ void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp,
         movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
         flag = true;
       } else {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        add(tmp1, tmp1, tmp);
+        movk(tmp1, static_cast<uint32_t>(tmp_ptn), i);
       }
     }
   }
@@ -666,8 +652,7 @@ void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp,
         movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
         flag = true;
       } else {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        add(tmp1, tmp1, tmp);
+        movk(tmp1, static_cast<uint32_t>(tmp_ptn), i);
       }
     }
   }
@@ -714,8 +699,7 @@ void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp,
         movz(tmp1, static_cast<uint32_t>(tmp_ptn), i);
         flag = true;
       } else {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        add(tmp1, tmp1, tmp);
+        movk(tmp1, static_cast<uint32_t>(tmp_ptn), i);
       }
     }
   }
@@ -773,8 +757,7 @@ void mov_imm(const WReg &dst, T imm, const WReg &tmp) {
         movz(dst, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
         flag = true;
       } else {
-        movz(tmp, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
-        orr(dst, dst, tmp);
+        movk(dst, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
       }
     }
   }
@@ -803,8 +786,7 @@ void mov_imm(const WReg &dst, T imm, const WReg &tmp) {
         movz(dst, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
         flag = true;
       } else {
-        movz(tmp, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
-        orr(dst, dst, tmp);
+        movz(dst, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
       }
     }
   }
