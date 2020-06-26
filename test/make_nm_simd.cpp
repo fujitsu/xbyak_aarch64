@@ -26,7 +26,7 @@
 
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
 
-using namespace Xbyak;
+using namespace Xbyak_aarch64;
 
 const int bitEnd = 64;
 /** Begin:Really used in this file. */
@@ -892,13 +892,13 @@ public:
   }
 
   void declareAllVregElem() {
-    declareVregElem("b", 8,  tmpV, idx8B);
+    //declareVregElem("b", 8,  tmpV, idx8B);
     declareVregElem("b", 16, tmpV, idx16B);
-    declareVregElem("h", 4,  tmpV, idx4H);
+    //declareVregElem("h", 4,  tmpV, idx4H);
     declareVregElem("h", 8,  tmpV, idx8H);
-    declareVregElem("s", 2,  tmpV, idx2S);
+    //declareVregElem("s", 2,  tmpV, idx2S);
     declareVregElem("s", 4,  tmpV, idx4S);
-    declareVregElem("d", 1,  tmpV, idx1D);
+    //declareVregElem("d", 1,  tmpV, idx1D);
     declareVregElem("d", 2,  tmpV, idx2D);
   }    
   

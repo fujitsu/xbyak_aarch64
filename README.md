@@ -520,12 +520,12 @@ You can use "label" to direct where branch instruction jump to.
 The following example shows how to use "label".
 
 ```
-Label L1;           // (1), instance of Label class
+LabelAArch64 L1;           // (1), instance of LabelAArch64 class
  
 mov(w4, w0); 
 mov(w3, 0); 
 mov(w0, 0); 
-L(L1);              // (2), "L" function registers JIT code address of this position to label L1.
+L_aarch64(L1);              // (2), "L" function registers JIT code address of this position to label L1.
 add(w0, w0, w4); 
 add(w3, w3, 1); 
 cmp(w2, w3); 
@@ -540,11 +540,11 @@ bgt(L1);            // (3), set destination of branch instruction to the address
 You can copy the address stored in "Label" instance by using assignL function.
 
 ```
-Label L1,L2,L3; 
+LabelAArch64 L1,L2,L3; 
 ....
-L(L1);               // JIT code address of this position is stored to L1.
+L_aarch64(L1);               // JIT code address of this position is stored to L1.
 ....
-L(L2);               // JIT code address of this position is stored to L1.
+L_aarch64(L2);               // JIT code address of this position is stored to L1.
 ....
 if (flag) { 
 assignL(L3,L1);      // The address stored in L1 is copied to L3.

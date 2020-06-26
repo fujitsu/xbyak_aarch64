@@ -1,4 +1,3 @@
-#pragma once
 /*******************************************************************************
  * Copyright 2019 FUJITSU LIMITED
  *
@@ -14,32 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
+#pragma once
+
+#ifndef _XBYAK_AARCH64_LABEL_
+#define _XBYAK_AARCH64_LABEL_
 
 #include "xbyak_aarch64_code_array.h"
 #include "xbyak_aarch64_err.h"
 #include "xbyak_aarch64_inner.h"
 
-struct JmpLabel {
+struct JmpLabelAArch64 {
   // type of partially applied function for encoding
   typedef std::function<uint32_t(int64_t)> EncFunc;
   size_t endOfJmp; /* offset from top to the end address of jmp */
   EncFunc encFunc;
-  explicit JmpLabel(const EncFunc& encFunc, size_t endOfJmp = 0)
+  explicit JmpLabelAArch64(const EncFunc& encFunc, size_t endOfJmp = 0)
       : endOfJmp(endOfJmp), encFunc(encFunc) {}
 };
 
-class LabelManager;
+class LabelManagerAArch64;
 
-class Label {
-  mutable LabelManager* mgr;
+class LabelAArch64 {
+  mutable LabelManagerAArch64* mgr;
   mutable int id;
-  friend class LabelManager;
+  friend class LabelManagerAArch64;
 
  public:
-  Label() : mgr(nullptr), id(0) {}
-  Label(const Label& rhs);
-  Label& operator=(const Label& rhs);
-  ~Label();
+     LabelAArch64() : mgr(nullptr), id(0) {}
+     LabelAArch64(const LabelAArch64& rhs);
+     LabelAArch64& operator=(const LabelAArch64& rhs);
+  ~LabelAArch64();
   void clear() {
     mgr = nullptr;
     id = 0;
@@ -48,25 +51,30 @@ class Label {
   const uint32_t* getAddress() const;
 };
 
-class LabelManager {
+#ifdef XBYAK_TRANSLATE_AARCH64
+  using namespace Xbyak::Xbyak_aarch64;
+#endif
+
+class LabelManagerAArch64 {
+
   // for Label class
-  struct ClabelVal {
-    ClabelVal(size_t offset = 0) : offset(offset), refCount(1) {}
+  struct ClabelValAArch64 {
+    ClabelValAArch64(size_t offset = 0) : offset(offset), refCount(1) {}
     size_t offset;
     int refCount;
   };
-  typedef std::unordered_map<int, ClabelVal> ClabelDefList;
-  typedef std::unordered_multimap<int, const JmpLabel> ClabelUndefList;
-  typedef std::unordered_set<Label*> LabelPtrList;
+  typedef std::unordered_map<int, ClabelValAArch64> ClabelDefListAArch64;
+  typedef std::unordered_multimap<int, const JmpLabelAArch64> ClabelUndefListAArch64;
+  typedef std::unordered_set<LabelAArch64*> LabelPtrListAArch64;
 
-  CodeArray* base_;
+  CodeArrayAArch64* base_;
   // global : stateList_.front(), local : stateList_.back()
   mutable int labelId_;
-  ClabelDefList clabelDefList_;
-  ClabelUndefList clabelUndefList_;
-  LabelPtrList labelPtrList_;
+  ClabelDefListAArch64 clabelDefListAArch64_;
+  ClabelUndefListAArch64 clabelUndefListAArch64_;
+  LabelPtrListAArch64 labelPtrListAArch64_;
 
-  int getId(const Label& label) const {
+  int getId(const LabelAArch64& label) const {
     if (label.id == 0) label.id = labelId_++;
     return label.id;
   }
@@ -81,7 +89,7 @@ class LabelManager {
     for (;;) {
       typename UndefList::iterator itr = undefList.find(labelId);
       if (itr == undefList.end()) break;
-      const JmpLabel* jmp = &itr->second;
+      const JmpLabelAArch64* jmp = &itr->second;
       const size_t offset = jmp->endOfJmp;
       int64_t labelOffset = (addrOffset - offset) * CSIZE;
       uint32_t disp = jmp->encFunc(labelOffset);
@@ -101,17 +109,17 @@ class LabelManager {
     *offset = i->second.offset;
     return true;
   }
-  friend class Label;
-  void incRefCount(int id, Label* label) {
-    clabelDefList_[id].refCount++;
-    labelPtrList_.insert(label);
+  friend class LabelAArch64;
+  void incRefCount(int id, LabelAArch64* label) {
+    clabelDefListAArch64_[id].refCount++;
+    labelPtrListAArch64_.insert(label);
   }
-  void decRefCount(int id, Label* label) {
-    labelPtrList_.erase(label);
-    ClabelDefList::iterator i = clabelDefList_.find(id);
-    if (i == clabelDefList_.end()) return;
+  void decRefCount(int id, LabelAArch64* label) {
+    labelPtrListAArch64_.erase(label);
+    ClabelDefListAArch64::iterator i = clabelDefListAArch64_.find(id);
+    if (i == clabelDefListAArch64_.end()) return;
     if (i->second.refCount == 1) {
-      clabelDefList_.erase(id);
+      clabelDefListAArch64_.erase(id);
     } else {
       --i->second.refCount;
     }
@@ -127,74 +135,84 @@ class LabelManager {
   }
   // detach all labels linked to LabelManager
   void resetLabelPtrList() {
-    for (LabelPtrList::iterator i = labelPtrList_.begin(),
-                                ie = labelPtrList_.end();
+    for (LabelPtrListAArch64::iterator i = labelPtrListAArch64_.begin(),
+                                ie = labelPtrListAArch64_.end();
          i != ie; ++i) {
       (*i)->clear();
     }
-    labelPtrList_.clear();
+    labelPtrListAArch64_.clear();
   }
 
  public:
-  LabelManager() { reset(); }
-  ~LabelManager() { resetLabelPtrList(); }
+  LabelManagerAArch64() { reset(); }
+  ~LabelManagerAArch64() { resetLabelPtrList(); }
   void reset() {
     base_ = 0;
     labelId_ = 1;
-    clabelDefList_.clear();
-    clabelUndefList_.clear();
+    clabelDefListAArch64_.clear();
+    clabelUndefListAArch64_.clear();
     resetLabelPtrList();
   }
 
-  void set(CodeArray* base) { base_ = base; }
+  void set(CodeArrayAArch64* base) { base_ = base; }
 
-  void defineClabel(Label& label) {
-    define_inner(clabelDefList_, clabelUndefList_, getId(label),
+  void defineClabel(LabelAArch64& label) {
+    define_inner(clabelDefListAArch64_, clabelUndefListAArch64_, getId(label),
                  base_->getSize());
     label.mgr = this;
-    labelPtrList_.insert(&label);
+    labelPtrListAArch64_.insert(&label);
   }
-  void assign(Label& dst, const Label& src) {
-    ClabelDefList::const_iterator i = clabelDefList_.find(src.id);
-    if (i == clabelDefList_.end()) throw Error(ERR_LABEL_ISNOT_SET_BY_L);
-    define_inner(clabelDefList_, clabelUndefList_, dst.id, i->second.offset);
+  void assign(LabelAArch64& dst, const LabelAArch64& src) {
+    ClabelDefListAArch64::const_iterator i = clabelDefListAArch64_.find(src.id);
+    if (i == clabelDefListAArch64_.end()) throw Error(ERR_LABEL_ISNOT_SET_BY_L);
+    define_inner(clabelDefListAArch64_, clabelUndefListAArch64_, dst.id, i->second.offset);
     dst.mgr = this;
-    labelPtrList_.insert(&dst);
+    labelPtrListAArch64_.insert(&dst);
   }
-  bool getOffset(size_t* offset, const Label& label) const {
-    return getOffset_inner(clabelDefList_, offset, getId(label));
+  bool getOffset(size_t* offset, const LabelAArch64& label) const {
+    return getOffset_inner(clabelDefListAArch64_, offset, getId(label));
   }
-  void addUndefinedLabel(const Label& label, const JmpLabel& jmp) {
-    clabelUndefList_.insert(ClabelUndefList::value_type(label.id, jmp));
+  void addUndefinedLabel(const LabelAArch64& label, const JmpLabelAArch64& jmp) {
+    clabelUndefListAArch64_.insert(ClabelUndefListAArch64::value_type(label.id, jmp));
   }
   bool hasUndefClabel() const {
-    return hasUndefinedLabel_inner(clabelUndefList_);
+    return hasUndefinedLabel_inner(clabelUndefListAArch64_);
   }
+#ifdef XBYAK_TRANSLATE_AARCH64
+  const uint8_t* getCode() const { return base_->getCode(); }
+  const uint32_t* getCode32() const { return base_->getCode32(); }
+#else
   const uint32_t* getCode() const { return base_->getCode(); }
+#endif
   bool isReady() const {
     return !base_->isAutoGrow() || base_->isCalledCalcJmpAddress();
   }
 };
 
-inline Label::Label(const Label& rhs) {
+inline LabelAArch64::LabelAArch64(const LabelAArch64& rhs) {
   id = rhs.id;
   mgr = rhs.mgr;
   if (mgr) mgr->incRefCount(id, this);
 }
-inline Label& Label::operator=(const Label& rhs) {
+inline LabelAArch64& LabelAArch64::operator=(const LabelAArch64& rhs) {
   if (id) throw Error(ERR_LABEL_IS_ALREADY_SET_BY_L);
   id = rhs.id;
   mgr = rhs.mgr;
   if (mgr) mgr->incRefCount(id, this);
   return *this;
 }
-inline Label::~Label() {
+inline LabelAArch64::~LabelAArch64() {
   if (id && mgr) mgr->decRefCount(id, this);
 }
-inline const uint32_t* Label::getAddress() const {
+inline const uint32_t* LabelAArch64::getAddress() const {
   if (mgr == 0 || !mgr->isReady()) return 0;
   size_t offset;
   if (!mgr->getOffset(&offset, *this)) return 0;
+#ifdef XBYAK_TRANSLATE_AARCH64
+  return mgr->getCode32() + offset * CSIZE;
+#else
   return mgr->getCode() + offset * CSIZE;
+#endif
 }
 
+#endif

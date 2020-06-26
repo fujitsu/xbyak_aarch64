@@ -1,0 +1,20 @@
+variables:
+    GIT_STRATEGY: clone
+
+stages:
+    - test
+
+before_script:
+    - git submodule sync --recursive
+    - git submodule update --init --recursive
+
+job_1:
+  stage: test
+  image: eab00f929e35
+  script:
+#    - pwd
+#    - ls
+    - cd test/
+    - ./test_all.sh
+#  tags: 
+#    - instruction_unit 

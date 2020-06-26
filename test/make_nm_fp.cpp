@@ -26,7 +26,7 @@
 
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
 
-using namespace Xbyak;
+using namespace Xbyak_aarch64;
 
 const int bitEnd = 64;
 /** Begin:Really used in this file. */
@@ -35,8 +35,8 @@ const uint64_t WREG  = 1ULL << flagBit++; /** Test vector is {w0, w1, ..., w30 }
 const uint64_t XREG  = 1ULL << flagBit++; /** Test vector is {x0, x1, ..., x30 } */
 const uint64_t WSP   = 1ULL << flagBit++; /** Test vector is {wsp} */
 const uint64_t XSP   = 1ULL << flagBit++; /** Test vector is {sp} */
-const uint64_t WREG_WSP = WREG | WSP;
-const uint64_t XREG_XSP = XREG | XSP;
+//const uint64_t WREG_WSP = WREG | WSP;
+//const uint64_t XREG_XSP = XREG | XSP;
 const uint64_t IMM4BIT   = 1ULL << flagBit++; /** Test vector is {0, 1, ..., 8, 15 } */
 const uint64_t IMM5BIT   = 1ULL << flagBit++; /** Test vector is {0, 1, ..., 16, 31 } */
 const uint64_t IMM6BIT   = 1ULL << flagBit++; /** Test vector is {0, 1, ..., 32, 63 } */

@@ -26,9 +26,9 @@
 
 #define NUM_OF_ARRAY(x) (sizeof(x) / sizeof(x[0]))
 
-using namespace Xbyak;
+using namespace Xbyak_aarch64;
 
-const int bitEnd = 64;
+//const int bitEnd = 64;
 
 enum AddressingType {
 		     TP_PreImm,  /** pre-indexded immediate */

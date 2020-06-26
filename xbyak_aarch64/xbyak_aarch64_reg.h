@@ -134,14 +134,12 @@ class RReg : public Reg {
 class XReg : public RReg {
  public:
   explicit XReg(uint32_t index) : RReg(index, 64) {}
-};
+  };
 
 class WReg : public RReg {
  public:
   explicit WReg(uint32_t index) : RReg(index, 32) {}
 };
-
-typedef XReg Reg64;
 
 // SIMD & FP scalar regisetr
 class VRegSc : public Reg {
@@ -168,7 +166,7 @@ class DReg : public VRegSc {
 class QReg : public VRegSc {
  public:
   explicit QReg(uint32_t index) : VRegSc(index, 128) {}
-};
+  };
 
 // base for SIMD vector regisetr
 class VRegVec : public Reg {
@@ -716,7 +714,7 @@ class PRegS : public _PReg {
 class PRegD : public _PReg {
  public:
   explicit PRegD(uint32_t index) : _PReg(index, false, 64) {}
-};
+  };
 
 enum PredType {
   T_z,  // Zeroing predication

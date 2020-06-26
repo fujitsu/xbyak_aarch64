@@ -41,6 +41,7 @@ enum {
   ERR_ILLEGAL_CONST_RANGE,        // use at CodeGenerator
   ERR_ILLEGAL_CONST_VALUE,        // use at CodeGenerator
   ERR_ILLEGAL_CONST_COND,         // use at CodeGenerator
+  ERR_ILLEGAL_TYPE,
   ERR_BAD_ALIGN,
   ERR_BAD_ADDRESSING,
   ERR_BAD_SCALE,
@@ -92,6 +93,7 @@ class Error : public std::exception {
       "illegal shift-mode paramater",
       "illegal extend-mode parameter",
       "illegal condition parameter",
+      "illegal type",
       "illegal barrier option",
       "illegal const parameter (range error)",
       "illegal const parameter (unavailable error)",
