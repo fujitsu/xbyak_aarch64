@@ -20,8 +20,6 @@ void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
-  assert(dst.getIdx() != tmp.getIdx());
-  assert(tmp.getIdx() != tmp.getIdx());
 
   uint64_t bit_ptn = static_cast<uint64_t>(imm);
   uint64_t mask = 0xFFFF;
@@ -59,8 +57,6 @@ void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
-  assert(dst.getIdx() != tmp.getIdx());
-  assert(tmp.getIdx() != tmp.getIdx());
 
   /* Sign bit must be extended. */
   int64_t bit_ptn = static_cast<int64_t>(imm);
@@ -105,8 +101,6 @@ void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
-  assert(dst.getIdx() != tmp.getIdx());
-  assert(tmp.getIdx() != tmp.getIdx());
 
   uint32_t bit_ptn = static_cast<uint32_t>(imm);
   uint32_t mask = 0xFFFF;
@@ -148,8 +142,6 @@ void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
-  assert(dst.getIdx() != tmp.getIdx());
-  assert(tmp.getIdx() != tmp.getIdx());
 
   /* Sign bit must be extended. */
   int32_t bit_ptn = static_cast<int32_t>(imm);
@@ -190,8 +182,6 @@ void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   /* This sub_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
-  assert(dst.getIdx() != tmp.getIdx());
-  assert(tmp.getIdx() != tmp.getIdx());
 
   uint64_t bit_ptn = static_cast<uint64_t>(imm);
   uint64_t mask = 0xFFFF;
@@ -229,8 +219,6 @@ void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   /* This sub_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
-  assert(dst.getIdx() != tmp.getIdx());
-  assert(tmp.getIdx() != tmp.getIdx());
 
   /* Sign bit must be extended. */
   int64_t bit_ptn = static_cast<int64_t>(imm);
@@ -275,8 +263,6 @@ void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
-  assert(dst.getIdx() != tmp.getIdx());
-  assert(tmp.getIdx() != tmp.getIdx());
 
   uint32_t bit_ptn = static_cast<uint32_t>(imm);
   uint32_t mask = 0xFFFF;
@@ -318,8 +304,6 @@ void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
-  assert(dst.getIdx() != tmp.getIdx());
-  assert(tmp.getIdx() != tmp.getIdx());
 
   /* Sign bit must be extended. */
   int32_t bit_ptn = static_cast<int32_t>(imm);
@@ -360,8 +344,6 @@ void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
-  assert(dst.getIdx() != tmp.getIdx());
-  assert(tmp.getIdx() != tmp.getIdx());
 
   uint64_t bit_ptn = static_cast<uint64_t>(imm);
   uint64_t mask = 0xFFFF;
@@ -399,8 +381,6 @@ void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
-  assert(dst.getIdx() != tmp.getIdx());
-  assert(tmp.getIdx() != tmp.getIdx());
 
   /* Sign bit must be extended. */
   int64_t bit_ptn = static_cast<int64_t>(imm);
@@ -445,8 +425,6 @@ void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
-  assert(dst.getIdx() != tmp.getIdx());
-  assert(tmp.getIdx() != tmp.getIdx());
 
   uint32_t bit_ptn = static_cast<uint32_t>(imm);
   uint32_t mask = 0xFFFF;
@@ -488,8 +466,6 @@ void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
-  assert(dst.getIdx() != tmp.getIdx());
-  assert(tmp.getIdx() != tmp.getIdx());
 
   /* Sign bit must be extended. */
   int32_t bit_ptn = static_cast<int32_t>(imm);
@@ -530,8 +506,6 @@ void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   /* This sub_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
-  assert(dst.getIdx() != tmp.getIdx());
-  assert(tmp.getIdx() != tmp.getIdx());
 
   uint64_t bit_ptn = static_cast<uint64_t>(imm);
   uint64_t mask = 0xFFFF;
@@ -569,8 +543,6 @@ void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   /* This sub_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
-  assert(dst.getIdx() != tmp.getIdx());
-  assert(tmp.getIdx() != tmp.getIdx());
 
   /* Sign bit must be extended. */
   int64_t bit_ptn = static_cast<int64_t>(imm);
@@ -615,8 +587,6 @@ void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
-  assert(dst.getIdx() != tmp.getIdx());
-  assert(tmp.getIdx() != tmp.getIdx());
 
   uint32_t bit_ptn = static_cast<uint32_t>(imm);
   uint32_t mask = 0xFFFF;
@@ -658,8 +628,6 @@ void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
-  assert(dst.getIdx() != tmp.getIdx());
-  assert(tmp.getIdx() != tmp.getIdx());
 
   /* Sign bit must be extended. */
   int32_t bit_ptn = static_cast<int32_t>(imm);
