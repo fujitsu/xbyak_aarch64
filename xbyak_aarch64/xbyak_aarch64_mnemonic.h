@@ -14,11 +14,11 @@
  * limitations under the License.
  *******************************************************************************/
 #ifdef XBYAK_USE_FILE_LINE
-  #define XBYAK_SET_CODE_INFO() setCodeInfo(__FILE__, __LINE__, __func__)
+#define XBYAK_SET_CODE_INFO() setCodeInfo(__FILE__, __LINE__, __func__)
 #else
-  #define XBYAK_SET_CODE_INFO()
+#define XBYAK_SET_CODE_INFO()
 #endif
-void adr(const XReg &xd, const LabelAArch64&label) {
+void adr(const XReg &xd, const LabelAArch64 &label) {
   XBYAK_SET_CODE_INFO();
   PCrelAddr(0, xd, label);
 }
@@ -26,7 +26,7 @@ void adr(const XReg &xd, const int64_t label) {
   XBYAK_SET_CODE_INFO();
   PCrelAddr(0, xd, label);
 }
-void adrp(const XReg &xd, const LabelAArch64&label) {
+void adrp(const XReg &xd, const LabelAArch64 &label) {
   XBYAK_SET_CODE_INFO();
   PCrelAddr(1, xd, label);
 }
@@ -616,11 +616,11 @@ void bl(const int64_t label) {
   XBYAK_SET_CODE_INFO();
   UncondBrImm(1, label);
 }
-void cbz(const WReg &rt, const LabelAArch64& label) {
+void cbz(const WReg &rt, const LabelAArch64 &label) {
   XBYAK_SET_CODE_INFO();
   CompareBr(0, rt, label);
 }
-void cbz(const XReg &rt, const LabelAArch64& label) {
+void cbz(const XReg &rt, const LabelAArch64 &label) {
   XBYAK_SET_CODE_INFO();
   CompareBr(0, rt, label);
 }

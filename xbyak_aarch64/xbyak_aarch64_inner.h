@@ -31,7 +31,8 @@ inline bool IsInInt32(uint64_t x) {
 
 inline uint32_t VerifyInInt32(uint64_t x) {
 #ifdef XBYAK64
-  if (!IsInInt32(x)) throw Error(ERR_OFFSET_IS_TOO_BIG);
+  if (!IsInInt32(x))
+    throw Error(ERR_OFFSET_IS_TOO_BIG);
 #endif
   return static_cast<uint32_t>(x);
 }
@@ -41,5 +42,4 @@ constexpr uint32_t genSysInstOp(uint32_t op1, uint32_t CRn, uint32_t CRm,
   return (op1 << 11) | (CRn << 7) | (CRm << 3) | op2;
 }
 
-}  // inner
-
+} // namespace inner

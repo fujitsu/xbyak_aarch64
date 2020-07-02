@@ -336,7 +336,7 @@ void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 
   return;
 }
-  
+
 template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
@@ -697,10 +697,10 @@ void mov_imm(const WReg &dst, T imm) {
     return;
   }
 
-  if(uint64_t(0xFFFFFFFF) < imm  && imm < uint64_t(0xFFFFFFFF80000000)) {
+  if (uint64_t(0xFFFFFFFF) < imm && imm < uint64_t(0xFFFFFFFF80000000)) {
     throw Error(ERR_ILLEGAL_IMM_RANGE, genErrMsg());
-  }    
-  
+  }
+
   for (int i = 0; i < 2; i++) {
     if (bit_ptn & (0xFFFF << 16 * i)) {
       if (flag == false) {

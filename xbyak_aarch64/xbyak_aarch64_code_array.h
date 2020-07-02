@@ -33,13 +33,12 @@ inline void *AlignedMalloc(size_t size, size_t alignment) {
 }
 
 #if defined(_WIN32)
-inline void AlignedFree(void* p) { _aligned_free(p); }
+inline void AlignedFree(void *p) { _aligned_free(p); }
 #else
-inline void AlignedFree(void* p) { free(p); }
+inline void AlignedFree(void *p) { free(p); }
 #endif
 
-template <class To, class From>
-inline const To CastTo(From p) throw() {
+template <class To, class From> inline const To CastTo(From p) throw() {
   return (const To)(size_t)(p);
 }
 
@@ -59,7 +58,7 @@ class MmapAllocatorAArch64 : AllocatorAArch64 {
   typedef std::unordered_map<uintptr_t, size_t> SizeList;
   SizeList sizeList_;
 
- public:
+public:
   uint32_t *alloc(size_t size) {
     const size_t alignedSizeM1 = inner::ALIGN_PAGE_SIZE - 1;
     size = (size + alignedSizeM1) & ~alignedSizeM1;
@@ -71,30 +70,34 @@ class MmapAllocatorAArch64 : AllocatorAArch64 {
 #error "not supported"
 #endif
     void *p = mmap(NULL, size * CSIZE, PROT_READ | PROT_WRITE, mode, -1, 0);
-    if (p == MAP_FAILED) throw Error(ERR_CANT_ALLOC);
+    if (p == MAP_FAILED)
+      throw Error(ERR_CANT_ALLOC);
     assert(p);
     sizeList_[(uintptr_t)p] = size;
     return (uint32_t *)p;
   }
   void free(uint32_t *p) {
-    if (p == 0) return;
+    if (p == 0)
+      return;
     SizeList::iterator i = sizeList_.find((uintptr_t)p);
-    if (i == sizeList_.end()) throw Error(ERR_BAD_PARAMETER);
-    if (munmap((void *)i->first, i->second) < 0) throw Error(ERR_MUNMAP);
+    if (i == sizeList_.end())
+      throw Error(ERR_BAD_PARAMETER);
+    if (munmap((void *)i->first, i->second) < 0)
+      throw Error(ERR_MUNMAP);
     sizeList_.erase(i);
   }
 };
 #endif
 
 // 2nd parameter for constructor of CodeArrayAArch64(maxSize, userPtr, alloc)
-void *const AutoGrow = (void *)1;           //-V566
-void *const DontSetProtectRWE = (void *)2;  //-V566
+void *const AutoGrow = (void *)1;          //-V566
+void *const DontSetProtectRWE = (void *)2; //-V566
 
 class CodeArrayAArch64 {
   enum Type {
-    USER_BUF = 1,  // use userPtr(non alignment, non protect)
-    ALLOC_BUF,     // use new(alignment, protect)
-    AUTO_GROW      // automatically move and grow memory if necessary
+    USER_BUF = 1, // use userPtr(non alignment, non protect)
+    ALLOC_BUF,    // use new(alignment, protect)
+    AUTO_GROW     // automatically move and grow memory if necessary
   };
   CodeArrayAArch64(const CodeArrayAArch64 &rhs);
   void operator=(const CodeArrayAArch64 &);
@@ -104,9 +107,9 @@ class CodeArrayAArch64 {
   typedef std::function<uint32_t(int64_t)> EncFunc;
 
   struct AddrInfo {
-    size_t codeOffset;  // position to write
-    size_t jmpAddr;     // value to write
-    EncFunc encFunc;    // encoding function
+    size_t codeOffset; // position to write
+    size_t jmpAddr;    // value to write
+    EncFunc encFunc;   // encoding function
     AddrInfo(size_t _codeOffset, size_t _jmpAddr, EncFunc encFunc)
         : codeOffset(_codeOffset), jmpAddr(_jmpAddr), encFunc(encFunc) {}
     uint32_t getVal() const {
@@ -124,10 +127,10 @@ class CodeArrayAArch64 {
 #endif
   AllocatorAArch64 *alloc_;
 
- protected:
-  size_t maxSize_;  // max size of code size
+protected:
+  size_t maxSize_; // max size of code size
   uint32_t *top_;
-  size_t size_;  // code size
+  size_t size_; // code size
   bool isCalledCalcJmpAddress_;
 
   bool useProtect() const { return alloc_->useProtect(); }
@@ -138,8 +141,10 @@ class CodeArrayAArch64 {
     const size_t newSize =
         (std::max<size_t>)(DEFAULT_MAX_CODE_SIZE, maxSize_ * 2);
     uint32_t *newTop = alloc_->alloc(newSize);
-    if (newTop == 0) throw Error(ERR_CANT_ALLOC);
-    for (size_t i = 0; i < size_; i++) newTop[i] = top_[i];
+    if (newTop == 0)
+      throw Error(ERR_CANT_ALLOC);
+    for (size_t i = 0; i < size_; i++)
+      newTop[i] = top_[i];
     alloc_->free(top_);
     top_ = newTop;
     maxSize_ = newSize;
@@ -148,7 +153,8 @@ class CodeArrayAArch64 {
     calc jmp address for AutoGrow mode
   */
   void calcJmpAddress() {
-    if (isCalledCalcJmpAddress_) return;
+    if (isCalledCalcJmpAddress_)
+      return;
     for (AddrInfoList::const_iterator i = addrInfoList_.begin(),
                                       ie = addrInfoList_.end();
          i != ie; ++i) {
@@ -158,14 +164,14 @@ class CodeArrayAArch64 {
     isCalledCalcJmpAddress_ = true;
   }
 
- public:
+public:
   enum ProtectMode {
-    PROTECT_RW = 0,   // read/write
-    PROTECT_RWE = 1,  // read/write/exec
-    PROTECT_RE = 2    // read/exec
+    PROTECT_RW = 0,  // read/write
+    PROTECT_RWE = 1, // read/write/exec
+    PROTECT_RE = 2   // read/exec
   };
   explicit CodeArrayAArch64(size_t maxSize, void *userPtr = 0,
-                     AllocatorAArch64 *allocator = 0)
+                            AllocatorAArch64 *allocator = 0)
       : type_(userPtr == AutoGrow
                   ? AUTO_GROW
                   : (userPtr == 0 || userPtr == DontSetProtectRWE) ? ALLOC_BUF
@@ -174,9 +180,9 @@ class CodeArrayAArch64 {
         maxSize_(maxSize),
         top_(type_ == USER_BUF ? reinterpret_cast<uint32_t *>(userPtr)
                                : alloc_->alloc((std::max<size_t>)(maxSize, 1))),
-        size_(0),
-        isCalledCalcJmpAddress_(false) {
-    if (maxSize_ > 0 && top_ == 0) throw Error(ERR_CANT_ALLOC);
+        size_(0), isCalledCalcJmpAddress_(false) {
+    if (maxSize_ > 0 && top_ == 0)
+      throw Error(ERR_CANT_ALLOC);
     if ((type_ == ALLOC_BUF && userPtr != DontSetProtectRWE && useProtect()) &&
         !setProtectMode(PROTECT_RWE, false)) {
       alloc_->free(top_);
@@ -185,14 +191,17 @@ class CodeArrayAArch64 {
   }
   virtual ~CodeArrayAArch64() {
     if (isAllocType()) {
-      if (useProtect()) setProtectModeRW(false);
+      if (useProtect())
+        setProtectModeRW(false);
       alloc_->free(top_);
     }
   }
   bool setProtectMode(ProtectMode mode, bool throwException = true) {
     bool isOK = protect(top_, maxSize_, mode);
-    if (isOK) return true;
-    if (throwException) throw Error(ERR_CANT_PROTECT);
+    if (isOK)
+      return true;
+    if (throwException)
+      throw Error(ERR_CANT_PROTECT);
     return false;
   }
   bool setProtectModeRE(bool throwException = true) {
@@ -208,106 +217,104 @@ class CodeArrayAArch64 {
   }
 
 #ifdef XBYAK_TRANSLATE_AARCH64
-  void dw_aarch64(uint32_t code) {
+  void dw_aarch64(uint32_t code){
 #else
   void dw(uint32_t code) {
 #endif
-    if (size_ >= maxSize_) {
-      if (type_ == AUTO_GROW) {
-        growMemory();
-      } else {
-        throw Error(ERR_CODE_IS_TOO_BIG);
-      }
-    }
-    top_[size_++] = code;
-  }
+      if (size_ >= maxSize_) {
+        if (type_ == AUTO_GROW) {
+          growMemory();
+} else {
+  throw Error(ERR_CODE_IS_TOO_BIG);
+}
+}
+top_[size_++] = code;
+}
 #ifdef XBYAK_TRANSLATE_AARCH64
-  const uint8_t *getCode() const { return reinterpret_cast<uint8_t *>(top_); }
-  const uint32_t *getCode32() const { return top_; }
+const uint8_t *getCode() const { return reinterpret_cast<uint8_t *>(top_); }
+const uint32_t *getCode32() const { return top_; }
 #else
   const uint32_t *getCode() const { return top_; }
 #endif
-  template <class F>
-  const F getCode() const {
-    return reinterpret_cast<F>(top_);
-  }
+template <class F> const F getCode() const { return reinterpret_cast<F>(top_); }
 #ifdef XBYAK_TRANSLATE_AARCH64
-  const uint8_t *getCurr() const { return reinterpret_cast<uint8_t *>(&top_[size_]); }
-  const uint32_t *getCurr32() const { return &top_[size_]; }
+const uint8_t *getCurr() const {
+  return reinterpret_cast<uint8_t *>(&top_[size_]);
+}
+const uint32_t *getCurr32() const { return &top_[size_]; }
 #else
   const uint32_t *getCurr() const { return &top_[size_]; }
 #endif
-  template <class F>
-  const F getCurr() const {
-    return reinterpret_cast<F>(&top_[size_]);
-  }
-  size_t getSize() const { return size_; }
-  void setSize(size_t size) {
-    if (size > maxSize_) throw Error(ERR_OFFSET_IS_TOO_BIG);
-    size_ = size;
-  }
-  void dump() const {
+template <class F> const F getCurr() const {
+  return reinterpret_cast<F>(&top_[size_]);
+}
+size_t getSize() const { return size_; }
+void setSize(size_t size) {
+  if (size > maxSize_)
+    throw Error(ERR_OFFSET_IS_TOO_BIG);
+  size_ = size;
+}
+void dump() const {
 #ifdef XBYAK_TRANSLATE_AARCH64
-    const uint8_t *p = getCode();
+  const uint8_t *p = getCode();
 #else
     const uint32_t *p = getCode();
 #endif
-    size_t bufSize = getSize();
-    size_t remain = bufSize;
-    for (size_t i = 0; i < remain; ++i) {
-      printf("%08X\n", p[i]);
-    }
+  size_t bufSize = getSize();
+  size_t remain = bufSize;
+  for (size_t i = 0; i < remain; ++i) {
+    printf("%08X\n", p[i]);
   }
-  /*
-    @param offset [in] offset from top
-    @param disp [in] offset from the next of jmp
-  */
-  void rewrite(size_t offset, uint32_t disp) {
-    assert(offset < maxSize_);
-    uint32_t *const data = top_ + offset;
-    *data = disp;
-  }
-  void save(size_t offset, uint32_t val, const EncFunc &encFunc) {
-    addrInfoList_.push_back(AddrInfo(offset, val, encFunc));
-  }
-  bool isAutoGrow() const { return type_ == AUTO_GROW; }
-  bool isCalledCalcJmpAddress() const { return isCalledCalcJmpAddress_; }
-  /**
-     change exec permission of memory
-     @param addr [in] buffer address
-     @param size [in] buffer size
-     @param protectMode [in] mode(RW/RWE/RE)
-     @return true(success), false(failure)
-  */
-  static inline bool protect(const void *addr, size_t size, int protectMode) {
+}
+/*
+  @param offset [in] offset from top
+  @param disp [in] offset from the next of jmp
+*/
+void rewrite(size_t offset, uint32_t disp) {
+  assert(offset < maxSize_);
+  uint32_t *const data = top_ + offset;
+  *data = disp;
+}
+void save(size_t offset, uint32_t val, const EncFunc &encFunc) {
+  addrInfoList_.push_back(AddrInfo(offset, val, encFunc));
+}
+bool isAutoGrow() const { return type_ == AUTO_GROW; }
+bool isCalledCalcJmpAddress() const { return isCalledCalcJmpAddress_; }
+/**
+   change exec permission of memory
+   @param addr [in] buffer address
+   @param size [in] buffer size
+   @param protectMode [in] mode(RW/RWE/RE)
+   @return true(success), false(failure)
+*/
+static inline bool protect(const void *addr, size_t size, int protectMode) {
 #if defined(_WIN32)
-    const DWORD c_rw = PAGE_READWRITE;
-    const DWORD c_rwe = PAGE_EXECUTE_READWRITE;
-    const DWORD c_re = PAGE_EXECUTE_READ;
-    DWORD mode;
+  const DWORD c_rw = PAGE_READWRITE;
+  const DWORD c_rwe = PAGE_EXECUTE_READWRITE;
+  const DWORD c_re = PAGE_EXECUTE_READ;
+  DWORD mode;
 #else
     const int c_rw = PROT_READ | PROT_WRITE;
     const int c_rwe = PROT_READ | PROT_WRITE | PROT_EXEC;
     const int c_re = PROT_READ | PROT_EXEC;
     int mode;
 #endif
-    switch (protectMode) {
-      case PROTECT_RW:
-        mode = c_rw;
-        break;
-      case PROTECT_RWE:
-        mode = c_rwe;
-        break;
-      case PROTECT_RE:
-        mode = c_re;
-        break;
-      default:
-        return false;
-    }
+  switch (protectMode) {
+  case PROTECT_RW:
+    mode = c_rw;
+    break;
+  case PROTECT_RWE:
+    mode = c_rwe;
+    break;
+  case PROTECT_RE:
+    mode = c_re;
+    break;
+  default:
+    return false;
+  }
 #if defined(_WIN32)
-    DWORD oldProtect;
-    return VirtualProtect(const_cast<void *>(addr), size, mode, &oldProtect) !=
-           0;
+  DWORD oldProtect;
+  return VirtualProtect(const_cast<void *>(addr), size, mode, &oldProtect) != 0;
 #elif defined(__GNUC__)
     size_t pageSize = sysconf(_SC_PAGESIZE);
     size_t iaddr = reinterpret_cast<size_t>(addr);
@@ -316,19 +323,20 @@ class CodeArrayAArch64 {
     return mprotect(reinterpret_cast<void *>(roundAddr),
                     size + (iaddr - roundAddr), mode) == 0;
 #else
-    return true;
+  return true;
 #endif
-  }
-  /**
-     get aligned memory pointer
-     @param addr [in] address
-     @param alignedSize [in] power of two
-     @return aligned addr by alingedSize
-  */
-  static inline uint32_t *getAlignedAddress(uint32_t *addr,
-                                            size_t alignedSize = 16) {
-    return reinterpret_cast<uint32_t *>(
-        (reinterpret_cast<size_t>(addr) + alignedSize - 1) &
-        ~(alignedSize - static_cast<size_t>(1)));
-  }
-};
+}
+/**
+   get aligned memory pointer
+   @param addr [in] address
+   @param alignedSize [in] power of two
+   @return aligned addr by alingedSize
+*/
+static inline uint32_t *getAlignedAddress(uint32_t *addr,
+                                          size_t alignedSize = 16) {
+  return reinterpret_cast<uint32_t *>(
+      (reinterpret_cast<size_t>(addr) + alignedSize - 1) &
+      ~(alignedSize - static_cast<size_t>(1)));
+}
+}
+;

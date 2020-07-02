@@ -117,62 +117,63 @@ enum Pattern {
 
 enum IcOp {
 #ifdef XBYAK_TRANSLATE_AARCH64
-  ALLUIS = Xbyak::Xbyak_aarch64::inner::genSysInstOp(0, 7, 1, 0),  // op1=0, CRn=7, CRm=1, op2=0
+  ALLUIS = Xbyak::Xbyak_aarch64::inner::genSysInstOp(
+      0, 7, 1, 0), // op1=0, CRn=7, CRm=1, op2=0
 #else
-  ALLUIS = inner::genSysInstOp(0, 7, 1, 0),  // op1=0, CRn=7, CRm=1, op2=0
+  ALLUIS = inner::genSysInstOp(0, 7, 1, 0), // op1=0, CRn=7, CRm=1, op2=0
 #endif
-  ALLU = inner::genSysInstOp(0, 7, 5, 0),    // op1=0, CRn=7, CRm=5, op2=0
-  VAU = inner::genSysInstOp(3, 7, 5, 0)      // op1=3, CRn=7, CRm=5, op2=1
+  ALLU = inner::genSysInstOp(0, 7, 5, 0), // op1=0, CRn=7, CRm=5, op2=0
+  VAU = inner::genSysInstOp(3, 7, 5, 0)   // op1=3, CRn=7, CRm=5, op2=1
 };
 
 enum DcOp {
-  IVAC = inner::genSysInstOp(0, 7, 0x6, 1),   // op1=0, CRn=7, CRm=0x6, op2=1
-  ISW = inner::genSysInstOp(0, 7, 0x6, 2),    // op1=0, CRn=7, CRm=0x6, op2=2
-  CSW = inner::genSysInstOp(0, 7, 0xA, 2),    // op1=0, CRn=7, CRm=0xA, op2=2
-  CISW = inner::genSysInstOp(0, 7, 0xE, 2),   // op1=0, CRn=7, CRm=0xE, op2=2
-  ZVA = inner::genSysInstOp(3, 7, 0x4, 1),    // op1=3, CRn=7, CRm=0x4, op2=1
-  CVAC = inner::genSysInstOp(3, 7, 0xA, 1),   // op1=3, CRn=7, CRm=0xA, op2=1
-  CVAU = inner::genSysInstOp(3, 7, 0xB, 1),   // op1=3, CRn=7, CRm=0xB, op2=1
-  CIVAC = inner::genSysInstOp(3, 7, 0xE, 1),  // op1=3, CRn=7, CRm=0xE, op2=1
-  CVAP = inner::genSysInstOp(3, 7, 0xC, 1)    // op1=3, CRn=7, CRm=0xC, op2=1
+  IVAC = inner::genSysInstOp(0, 7, 0x6, 1),  // op1=0, CRn=7, CRm=0x6, op2=1
+  ISW = inner::genSysInstOp(0, 7, 0x6, 2),   // op1=0, CRn=7, CRm=0x6, op2=2
+  CSW = inner::genSysInstOp(0, 7, 0xA, 2),   // op1=0, CRn=7, CRm=0xA, op2=2
+  CISW = inner::genSysInstOp(0, 7, 0xE, 2),  // op1=0, CRn=7, CRm=0xE, op2=2
+  ZVA = inner::genSysInstOp(3, 7, 0x4, 1),   // op1=3, CRn=7, CRm=0x4, op2=1
+  CVAC = inner::genSysInstOp(3, 7, 0xA, 1),  // op1=3, CRn=7, CRm=0xA, op2=1
+  CVAU = inner::genSysInstOp(3, 7, 0xB, 1),  // op1=3, CRn=7, CRm=0xB, op2=1
+  CIVAC = inner::genSysInstOp(3, 7, 0xE, 1), // op1=3, CRn=7, CRm=0xE, op2=1
+  CVAP = inner::genSysInstOp(3, 7, 0xC, 1)   // op1=3, CRn=7, CRm=0xC, op2=1
 };
 
 enum AtOp {
-  S1E1R = inner::genSysInstOp(0, 7, 0x8, 0),   // op1=0, CRn=7, CRm=0x8, op2=0
-  S1E1W = inner::genSysInstOp(0, 7, 0x8, 1),   // op1=0, CRn=7, CRm=0x8, op2=1
-  S1E0R = inner::genSysInstOp(0, 7, 0x8, 2),   // op1=0, CRn=7, CRm=0x8, op2=2
-  S1E0W = inner::genSysInstOp(0, 7, 0x8, 3),   // op1=0, CRn=7, CRm=0x8, op2=3
-  S1E2R = inner::genSysInstOp(4, 7, 0x8, 0),   // op1=4, CRn=7, CRm=0x8, op2=0
-  S1E2W = inner::genSysInstOp(4, 7, 0x8, 1),   // op1=4, CRn=7, CRm=0x8, op2=1
-  S12E1R = inner::genSysInstOp(4, 7, 0x8, 4),  // op1=4, CRn=7, CRm=0x8, op2=4
-  S12E1W = inner::genSysInstOp(4, 7, 0x8, 5),  // op1=4, CRn=7, CRm=0x8, op2=5
-  S12E0R = inner::genSysInstOp(4, 7, 0x8, 6),  // op1=4, CRn=7, CRm=0x8, op2=6
-  S12E0W = inner::genSysInstOp(4, 7, 0x8, 7),  // op1=4, CRn=7, CRm=0x8, op2=7
-  S1E3R = inner::genSysInstOp(6, 7, 0x8, 0),   // op1=6, CRn=7, CRm=0x8, op2=0
-  S1E3W = inner::genSysInstOp(6, 7, 0x8, 1),   // op1=6, CRn=7, CRm=0x8, op2=1
-  S1E1RP = inner::genSysInstOp(0, 7, 0x9, 0),  // op1=0, CRn=7, CRm=0x9, op2=0
-  S1E1WP = inner::genSysInstOp(0, 7, 0x9, 1),  // op1=0, CRn=7, CRm=0x9, op2=1
+  S1E1R = inner::genSysInstOp(0, 7, 0x8, 0),  // op1=0, CRn=7, CRm=0x8, op2=0
+  S1E1W = inner::genSysInstOp(0, 7, 0x8, 1),  // op1=0, CRn=7, CRm=0x8, op2=1
+  S1E0R = inner::genSysInstOp(0, 7, 0x8, 2),  // op1=0, CRn=7, CRm=0x8, op2=2
+  S1E0W = inner::genSysInstOp(0, 7, 0x8, 3),  // op1=0, CRn=7, CRm=0x8, op2=3
+  S1E2R = inner::genSysInstOp(4, 7, 0x8, 0),  // op1=4, CRn=7, CRm=0x8, op2=0
+  S1E2W = inner::genSysInstOp(4, 7, 0x8, 1),  // op1=4, CRn=7, CRm=0x8, op2=1
+  S12E1R = inner::genSysInstOp(4, 7, 0x8, 4), // op1=4, CRn=7, CRm=0x8, op2=4
+  S12E1W = inner::genSysInstOp(4, 7, 0x8, 5), // op1=4, CRn=7, CRm=0x8, op2=5
+  S12E0R = inner::genSysInstOp(4, 7, 0x8, 6), // op1=4, CRn=7, CRm=0x8, op2=6
+  S12E0W = inner::genSysInstOp(4, 7, 0x8, 7), // op1=4, CRn=7, CRm=0x8, op2=7
+  S1E3R = inner::genSysInstOp(6, 7, 0x8, 0),  // op1=6, CRn=7, CRm=0x8, op2=0
+  S1E3W = inner::genSysInstOp(6, 7, 0x8, 1),  // op1=6, CRn=7, CRm=0x8, op2=1
+  S1E1RP = inner::genSysInstOp(0, 7, 0x9, 0), // op1=0, CRn=7, CRm=0x9, op2=0
+  S1E1WP = inner::genSysInstOp(0, 7, 0x9, 1), // op1=0, CRn=7, CRm=0x9, op2=1
 };
 
 enum TlbiOp {
-  VMALLE1IS = inner::genSysInstOp(0, 7, 3, 0),   // op1=0, CRn=7, CRm=0x3, op2=0
-  VAE1IS = inner::genSysInstOp(0, 7, 3, 1),      // op1=0, CRn=7, CRm=0x3, op2=1
-  ASIDE1IS = inner::genSysInstOp(0, 7, 3, 2),    // op1=0, CRn=7, CRm=0x3, op2=2
-  VAAE1IS = inner::genSysInstOp(0, 7, 3, 3),     // op1=0, CRn=7, CRm=0x3, op2=3
-  VALE1IS = inner::genSysInstOp(0, 7, 3, 5),     // op1=0, CRn=7, CRm=0x3, op2=5
-  VAALE1IS = inner::genSysInstOp(0, 7, 3, 7),    // op1=0, CRn=7, CRm=0x3, op2=7
-  VMALLE1 = inner::genSysInstOp(0, 7, 7, 0),     // op1=0, CRn=7, CRm=0x7, op2=0
-  VAE1 = inner::genSysInstOp(0, 7, 7, 1),        // op1=0, CRn=7, CRm=0x7, op2=1
-  ASIDE1 = inner::genSysInstOp(0, 7, 7, 2),      // op1=0, CRn=7, CRm=0x7, op2=2
-  VAAE1 = inner::genSysInstOp(0, 7, 7, 3),       // op1=0, CRn=7, CRm=0x7, op2=3
-  VALE1 = inner::genSysInstOp(0, 7, 7, 5),       // op1=0, CRn=7, CRm=0x7, op2=5
-  VAALE1 = inner::genSysInstOp(0, 7, 7, 7),      // op1=0, CRn=7, CRm=0x7, op2=7
-  IPAS2E1IS = inner::genSysInstOp(4, 7, 0, 1),   // op1=4, CRn=7, CRm=0x0, op2=1
-  IPAS2LE1IS = inner::genSysInstOp(4, 7, 0, 5),  // op1=4, CRn=7, CRm=0x0, op2=5
-  ALLE2IS = inner::genSysInstOp(4, 7, 3, 0),     // op1=4, CRn=7, CRm=0x3, op2=0
-  VAE2IS = inner::genSysInstOp(4, 7, 3, 1),      // op1=4, CRn=7, CRm=0x3, op2=1
-  ALLE1IS = inner::genSysInstOp(4, 7, 3, 4),     // op1=4, CRn=7, CRm=0x3, op2=4
-  VALE2IS = inner::genSysInstOp(4, 7, 3, 5),     // op1=4, CRn=7, CRm=0x3, op2=5
+  VMALLE1IS = inner::genSysInstOp(0, 7, 3, 0),  // op1=0, CRn=7, CRm=0x3, op2=0
+  VAE1IS = inner::genSysInstOp(0, 7, 3, 1),     // op1=0, CRn=7, CRm=0x3, op2=1
+  ASIDE1IS = inner::genSysInstOp(0, 7, 3, 2),   // op1=0, CRn=7, CRm=0x3, op2=2
+  VAAE1IS = inner::genSysInstOp(0, 7, 3, 3),    // op1=0, CRn=7, CRm=0x3, op2=3
+  VALE1IS = inner::genSysInstOp(0, 7, 3, 5),    // op1=0, CRn=7, CRm=0x3, op2=5
+  VAALE1IS = inner::genSysInstOp(0, 7, 3, 7),   // op1=0, CRn=7, CRm=0x3, op2=7
+  VMALLE1 = inner::genSysInstOp(0, 7, 7, 0),    // op1=0, CRn=7, CRm=0x7, op2=0
+  VAE1 = inner::genSysInstOp(0, 7, 7, 1),       // op1=0, CRn=7, CRm=0x7, op2=1
+  ASIDE1 = inner::genSysInstOp(0, 7, 7, 2),     // op1=0, CRn=7, CRm=0x7, op2=2
+  VAAE1 = inner::genSysInstOp(0, 7, 7, 3),      // op1=0, CRn=7, CRm=0x7, op2=3
+  VALE1 = inner::genSysInstOp(0, 7, 7, 5),      // op1=0, CRn=7, CRm=0x7, op2=5
+  VAALE1 = inner::genSysInstOp(0, 7, 7, 7),     // op1=0, CRn=7, CRm=0x7, op2=7
+  IPAS2E1IS = inner::genSysInstOp(4, 7, 0, 1),  // op1=4, CRn=7, CRm=0x0, op2=1
+  IPAS2LE1IS = inner::genSysInstOp(4, 7, 0, 5), // op1=4, CRn=7, CRm=0x0, op2=5
+  ALLE2IS = inner::genSysInstOp(4, 7, 3, 0),    // op1=4, CRn=7, CRm=0x3, op2=0
+  VAE2IS = inner::genSysInstOp(4, 7, 3, 1),     // op1=4, CRn=7, CRm=0x3, op2=1
+  ALLE1IS = inner::genSysInstOp(4, 7, 3, 4),    // op1=4, CRn=7, CRm=0x3, op2=4
+  VALE2IS = inner::genSysInstOp(4, 7, 3, 5),    // op1=4, CRn=7, CRm=0x3, op2=5
   VMALLS12E1IS =
       inner::genSysInstOp(4, 7, 3, 6),           // op1=4, CRn=7, CRm=0x3, op2=6
   IPAS2E1 = inner::genSysInstOp(4, 7, 4, 1),     // op1=4, CRn=7, CRm=0x4, op2=1
@@ -207,12 +208,11 @@ enum TlbiOp {
   RVALE1 = inner::genSysInstOp(0, 7, 6, 5),      // op1=0, CRn=7, CRm=0x6, op2=5
   RVAALE1 = inner::genSysInstOp(0, 7, 6, 7),     // op1=0, CRn=7, CRm=0x6, op2=7
   RIPAS2E1IS = inner::genSysInstOp(4, 7, 0, 2),  // op1=4, CRn=7, CRm=0x0, op2=2
-  RIPAS2LE1IS =
-      inner::genSysInstOp(4, 7, 0, 6),        // op1=4, CRn=7, CRm=0x0, op2=6
-  ALLE2OS = inner::genSysInstOp(4, 7, 1, 0),  // op1=4, CRn=7, CRm=0x1, op2=0
-  VAE2OS = inner::genSysInstOp(4, 7, 1, 1),   // op1=4, CRn=7, CRm=0x1, op2=1
-  ALLE1OS = inner::genSysInstOp(4, 7, 1, 4),  // op1=4, CRn=7, CRm=0x1, op2=4
-  VALE2OS = inner::genSysInstOp(4, 7, 1, 5),  // op1=4, CRn=7, CRm=0x1, op2=5
+  RIPAS2LE1IS = inner::genSysInstOp(4, 7, 0, 6), // op1=4, CRn=7, CRm=0x0, op2=6
+  ALLE2OS = inner::genSysInstOp(4, 7, 1, 0),     // op1=4, CRn=7, CRm=0x1, op2=0
+  VAE2OS = inner::genSysInstOp(4, 7, 1, 1),      // op1=4, CRn=7, CRm=0x1, op2=1
+  ALLE1OS = inner::genSysInstOp(4, 7, 1, 4),     // op1=4, CRn=7, CRm=0x1, op2=4
+  VALE2OS = inner::genSysInstOp(4, 7, 1, 5),     // op1=4, CRn=7, CRm=0x1, op2=5
   VMALLS12E1OS =
       inner::genSysInstOp(4, 7, 1, 6),           // op1=4, CRn=7, CRm=0x1, op2=6
   RVAE2IS = inner::genSysInstOp(4, 7, 2, 1),     // op1=4, CRn=7, CRm=0x2, op2=1
@@ -222,28 +222,27 @@ enum TlbiOp {
   RIPAS2E1OS = inner::genSysInstOp(4, 7, 4, 3),  // op1=4, CRn=7, CRm=0x4, op2=3
   IPAS2LE1OS = inner::genSysInstOp(4, 7, 4, 4),  // op1=4, CRn=7, CRm=0x4, op2=4
   RIPAS2LE1 = inner::genSysInstOp(4, 7, 4, 6),   // op1=4, CRn=7, CRm=0x4, op2=6
-  RIPAS2LE1OS =
-      inner::genSysInstOp(4, 7, 4, 7),         // op1=4, CRn=7, CRm=0x4, op2=7
-  RVAE2OS = inner::genSysInstOp(4, 7, 5, 1),   // op1=4, CRn=7, CRm=0x5, op2=1
-  RVALE2OS = inner::genSysInstOp(4, 7, 5, 5),  // op1=4, CRn=7, CRm=0x5, op2=5
-  RVAE2 = inner::genSysInstOp(4, 7, 6, 1),     // op1=4, CRn=7, CRm=0x6, op2=1
-  RVALE2 = inner::genSysInstOp(4, 7, 6, 5),    // op1=4, CRn=7, CRm=0x6, op2=5
-  ALLE3OS = inner::genSysInstOp(6, 7, 1, 0),   // op1=6, CRn=7, CRm=0x1, op2=0
-  VAE3OS = inner::genSysInstOp(6, 7, 1, 1),    // op1=6, CRn=7, CRm=0x1, op2=1
-  VALE3OS = inner::genSysInstOp(6, 7, 1, 5),   // op1=6, CRn=7, CRm=0x1, op2=5
-  RVAE3IS = inner::genSysInstOp(6, 7, 2, 1),   // op1=6, CRn=7, CRm=0x2, op2=1
-  RVALE3IS = inner::genSysInstOp(6, 7, 2, 5),  // op1=6, CRn=7, CRm=0x1, op2=5
-  RVAE3OS = inner::genSysInstOp(6, 7, 5, 1),   // op1=6, CRn=7, CRm=0x5, op2=1
-  RVALE3OS = inner::genSysInstOp(6, 7, 5, 5),  // op1=6, CRn=7, CRm=0x5, op2=5
-  RVAE3 = inner::genSysInstOp(6, 7, 6, 1),     // op1=6, CRn=7, CRm=0x6, op2=1
-  RVALE3 = inner::genSysInstOp(6, 7, 6, 5)     // op1=6, CRn=7, CRm=0x6, op2=5
+  RIPAS2LE1OS = inner::genSysInstOp(4, 7, 4, 7), // op1=4, CRn=7, CRm=0x4, op2=7
+  RVAE2OS = inner::genSysInstOp(4, 7, 5, 1),     // op1=4, CRn=7, CRm=0x5, op2=1
+  RVALE2OS = inner::genSysInstOp(4, 7, 5, 5),    // op1=4, CRn=7, CRm=0x5, op2=5
+  RVAE2 = inner::genSysInstOp(4, 7, 6, 1),       // op1=4, CRn=7, CRm=0x6, op2=1
+  RVALE2 = inner::genSysInstOp(4, 7, 6, 5),      // op1=4, CRn=7, CRm=0x6, op2=5
+  ALLE3OS = inner::genSysInstOp(6, 7, 1, 0),     // op1=6, CRn=7, CRm=0x1, op2=0
+  VAE3OS = inner::genSysInstOp(6, 7, 1, 1),      // op1=6, CRn=7, CRm=0x1, op2=1
+  VALE3OS = inner::genSysInstOp(6, 7, 1, 5),     // op1=6, CRn=7, CRm=0x1, op2=5
+  RVAE3IS = inner::genSysInstOp(6, 7, 2, 1),     // op1=6, CRn=7, CRm=0x2, op2=1
+  RVALE3IS = inner::genSysInstOp(6, 7, 2, 5),    // op1=6, CRn=7, CRm=0x1, op2=5
+  RVAE3OS = inner::genSysInstOp(6, 7, 5, 1),     // op1=6, CRn=7, CRm=0x5, op2=1
+  RVALE3OS = inner::genSysInstOp(6, 7, 5, 5),    // op1=6, CRn=7, CRm=0x5, op2=5
+  RVAE3 = inner::genSysInstOp(6, 7, 6, 1),       // op1=6, CRn=7, CRm=0x6, op2=1
+  RVALE3 = inner::genSysInstOp(6, 7, 6, 5)       // op1=6, CRn=7, CRm=0x6, op2=5
 };
 
 /////////////////////////////////////////////////////////////
 //            encoding helper class
 /////////////////////////////////////////////////////////////
 class CodeGenUtil {
- public:
+public:
   /////////////// bit operation ////////////////////
   inline uint64_t lsb(uint64_t v) { return v & 0x1; }
 
@@ -294,7 +293,8 @@ class CodeGenUtil {
   uint32_t getPtnSize(uint64_t v, uint32_t size) {
     uint32_t esize;
     for (esize = 2; esize <= size; esize <<= 1) {
-      if (checkPtn(v, esize, size)) break;
+      if (checkPtn(v, esize, size))
+        break;
     }
     return esize;
   }
@@ -401,12 +401,14 @@ class CodeGenUtil {
   }
 
   uint32_t genHw(uint64_t imm, uint32_t size) {
-    if (imm == 0) return 0;
+    if (imm == 0)
+      return 0;
 
     uint32_t hw = 0;
     uint32_t times = (size == 32) ? 1 : 3;
     for (uint32_t i = 0; i < times; ++i) {
-      if (field(imm, 15, 0) != 0) break;
+      if (field(imm, 15, 0) != 0)
+        break;
       ++hw;
       imm >>= 16;
     }
@@ -433,20 +435,20 @@ class CodeGenUtil {
   uint32_t genQ(const VRegElem &Reg) {
     uint32_t pos = 0;
     switch (Reg.getBit()) {
-      case 8:
-        pos = 3;
-        break;
-      case 16:
-        pos = 2;
-        break;
-      case 32:
-        pos = 1;
-        break;
-      case 64:
-        pos = 0;
-        break;
-      default:
-        pos = 0;
+    case 8:
+      pos = 3;
+      break;
+    case 16:
+      pos = 2;
+      break;
+    case 32:
+      pos = 1;
+      break;
+    case 64:
+      pos = 0;
+      break;
+    default:
+      pos = 0;
     }
     return field(Reg.getElemIdx(), pos, pos);
   }
@@ -454,20 +456,20 @@ class CodeGenUtil {
   uint32_t genSize(const Reg &Reg) {
     uint32_t size = 0;
     switch (Reg.getBit()) {
-      case 8:
-        size = 0;
-        break;
-      case 16:
-        size = 1;
-        break;
-      case 32:
-        size = 2;
-        break;
-      case 64:
-        size = 3;
-        break;
-      default:
-        size = 0;
+    case 8:
+      size = 0;
+      break;
+    case 16:
+      size = 1;
+      break;
+    case 32:
+      size = 2;
+      break;
+    case 64:
+      size = 3;
+      break;
+    default:
+      size = 0;
     }
     return size;
   }
@@ -475,49 +477,50 @@ class CodeGenUtil {
   uint32_t genSizeEnc(const VRegElem &Reg) {
     uint32_t size = 0;
     switch (Reg.getBit()) {
-      case 8:
-        size = field(Reg.getElemIdx(), 1, 0);
-        break;
-      case 16:
-        size = field(Reg.getElemIdx(), 0, 0) << 1;
-        break;
-      case 32:
-        size = 0;
-        break;
-      case 64:
-        size = 1;
-        break;
-      default:
-        size = 0;
+    case 8:
+      size = field(Reg.getElemIdx(), 1, 0);
+      break;
+    case 16:
+      size = field(Reg.getElemIdx(), 0, 0) << 1;
+      break;
+    case 32:
+      size = 0;
+      break;
+    case 64:
+      size = 1;
+      break;
+    default:
+      size = 0;
     }
     return size;
   }
 
   uint32_t genSize(uint32_t dtype) {
-    uint32_t size =
-        (dtype == 0xf) ? 3 : (dtype == 0x4 || dtype == 0xa || dtype == 0xb)
-                                 ? 2
-                                 : (5 <= dtype && dtype <= 9) ? 1 : 0;
+    uint32_t size = (dtype == 0xf)
+                        ? 3
+                        : (dtype == 0x4 || dtype == 0xa || dtype == 0xb)
+                              ? 2
+                              : (5 <= dtype && dtype <= 9) ? 1 : 0;
     return size;
   }
 
   uint32_t genS(const VRegElem &Reg) {
     uint32_t s = 0;
     switch (Reg.getBit()) {
-      case 8:
-        s = field(Reg.getElemIdx(), 2, 2);
-        break;
-      case 16:
-        s = field(Reg.getElemIdx(), 1, 1);
-        break;
-      case 32:
-        s = field(Reg.getElemIdx(), 0, 0);
-        break;
-      case 64:
-        s = 0;
-        break;
-      default:
-        s = 0;
+    case 8:
+      s = field(Reg.getElemIdx(), 2, 2);
+      break;
+    case 16:
+      s = field(Reg.getElemIdx(), 1, 1);
+      break;
+    case 32:
+      s = field(Reg.getElemIdx(), 0, 0);
+      break;
+    case 64:
+      s = 0;
+      break;
+    default:
+      s = 0;
     }
     return s;
   }
@@ -586,14 +589,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
   }
 
   // check val (range)
-  template <typename T>
-  bool chkVal(T val, T min, T max) {
+  template <typename T> bool chkVal(T val, T min, T max) {
     return (min <= val && val <= max);
   }
 
   // check val (condtional func)
-  template <typename T>
-  bool chkVal(T val, const std::function<bool(T)> &func) {
+  template <typename T> bool chkVal(T val, const std::function<bool(T)> &func) {
     return func(val);
   }
 
@@ -686,7 +687,8 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
   }
 
   // generate relative address for label offset
-  uint64_t genLabelOffset(const LabelAArch64 &label, const JmpLabelAArch64&jmpL) {
+  uint64_t genLabelOffset(const LabelAArch64 &label,
+                          const JmpLabelAArch64 &jmpL) {
     size_t offset = 0;
     int64_t labelOffset = 0;
     if (labelMgr_.getOffset(&offset, label)) {
@@ -711,10 +713,10 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
   }
 
 #ifdef XBYAK_TRANSLATE_AARCH64
-#define dw dw_aarch64  
+#define dw dw_aarch64
 #endif
 
-  void PCrelAddr(uint32_t op, const XReg &rd, const LabelAArch64&label) {
+  void PCrelAddr(uint32_t op, const XReg &rd, const LabelAArch64 &label) {
     auto encFunc = [&, op, rd](int64_t labelOffset) {
       return PCrelAddrEnc(op, rd, labelOffset);
     };
@@ -808,7 +810,8 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t N = sf;
 
     verifyIncRange(rd.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    if (rn_chk) verifyIncRange(rn.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+    if (rn_chk)
+      verifyIncRange(rn.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
     verifyIncRange(immr, 0, rd.getBit() - 1, ERR_ILLEGAL_IMM_RANGE);
     verifyIncRange(imms, 0, rd.getBit() - 1, ERR_ILLEGAL_IMM_RANGE);
 
@@ -843,7 +846,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     return concat({F(0x2a, 25), F(imm19, 5), F(cond, 0)});
   }
 
-  void CondBrImm(Cond cond, const LabelAArch64&label) {
+  void CondBrImm(Cond cond, const LabelAArch64 &label) {
     auto encFunc = [&, cond](int64_t labelOffset) {
       return CondBrImmEnc(cond, labelOffset);
     };
@@ -876,7 +879,8 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
   // Barriers (option)
   void BarriersOpt(uint32_t op2, BarOpt opt, uint32_t rt) {
-    if (op2 == 6) verifyIncList(opt, {SY}, ERR_ILLEGAL_BARRIER_OPT);
+    if (op2 == 6)
+      verifyIncList(opt, {SY}, ERR_ILLEGAL_BARRIER_OPT);
     uint32_t code = concat({F(0xd5033, 12), F(opt, 8), F(op2, 5), F(rt, 0)});
     dw(code);
   }
@@ -893,33 +897,33 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t CRm = imm & ones(4);
     uint32_t op1, op2;
     switch (psfield) {
-      case SPSel:
-        op1 = 0;
-        op2 = 5;
-        break;
-      case DAIFSet:
-        op1 = 3;
-        op2 = 6;
-        break;
-      case DAIFClr:
-        op1 = 3;
-        op2 = 7;
-        break;
-      case UAO:
-        op1 = 0;
-        op2 = 3;
-        break;
-      case PAN:
-        op1 = 0;
-        op2 = 4;
-        break;
-      case DIT:
-        op1 = 3;
-        op2 = 2;
-        break;
-      default:
-        op1 = 0;
-        op2 = 0;
+    case SPSel:
+      op1 = 0;
+      op2 = 5;
+      break;
+    case DAIFSet:
+      op1 = 3;
+      op2 = 6;
+      break;
+    case DAIFClr:
+      op1 = 3;
+      op2 = 7;
+      break;
+    case UAO:
+      op1 = 0;
+      op2 = 3;
+      break;
+    case PAN:
+      op1 = 0;
+      op2 = 4;
+      break;
+    case DIT:
+      op1 = 3;
+      op2 = 2;
+      break;
+    default:
+      op1 = 0;
+      op2 = 0;
     }
     uint32_t code = concat({F(0xd5, 24), F(op1, 16), F(0x4, 12), F(CRm, 8),
                             F(op2, 5), F(0x1f, 0)});
@@ -980,7 +984,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     return concat({F(op, 31), F(5, 26), F(imm26, 0)});
   }
 
-  void UncondBrImm(uint32_t op, const LabelAArch64&label) {
+  void UncondBrImm(uint32_t op, const LabelAArch64 &label) {
     auto encFunc = [&, op](int64_t labelOffset) {
       return UncondBrImmEnc(op, labelOffset);
     };
@@ -1005,7 +1009,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         {F(sf, 31), F(0x1a, 25), F(op, 24), F(imm19, 5), F(rt.getIdx(), 0)});
   }
 
-  void CompareBr(uint32_t op, const RReg &rt, const LabelAArch64&label) {
+  void CompareBr(uint32_t op, const RReg &rt, const LabelAArch64 &label) {
     auto encFunc = [&, op](int64_t labelOffset) {
       return CompareBrEnc(op, rt, labelOffset);
     };
@@ -1030,13 +1034,15 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t b40 = field(imm, 4, 0);
     uint32_t imm14 = (static_cast<uint32_t>(labelOffset >> 2)) & ones(14);
 
-    if (b5 == 1) verifyIncList(rt.getBit(), {64}, ERR_ILLEGAL_IMM_VALUE);
+    if (b5 == 1)
+      verifyIncList(rt.getBit(), {64}, ERR_ILLEGAL_IMM_VALUE);
 
     return concat({F(b5, 31), F(0x1b, 25), F(op, 24), F(b40, 19), F(imm14, 5),
                    F(rt.getIdx(), 0)});
   }
 
-  void TestBr(uint32_t op, const RReg &rt, uint32_t imm, const LabelAArch64&label) {
+  void TestBr(uint32_t op, const RReg &rt, uint32_t imm,
+              const LabelAArch64 &label) {
     auto encFunc = [&, op, rt, imm](int64_t labelOffset) {
       return TestBrEnc(op, rt, imm, labelOffset);
     };
@@ -1060,10 +1066,10 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     verifyIncRange(len, 1, 4, ERR_ILLEGAL_REG_IDX);
 
-    opc = (opc == 0x2 && len == 1) ? 0x7 : (opc == 0x2 && len == 2)
-                                               ? 0xa
-                                               : (opc == 0x2 && len == 3) ? 0x6
-                                                                          : opc;
+    opc = (opc == 0x2 && len == 1)
+              ? 0x7
+              : (opc == 0x2 && len == 2) ? 0xa
+                                         : (opc == 0x2 && len == 3) ? 0x6 : opc;
     uint32_t code =
         concat({F(Q, 30), F(0x18, 23), F(L, 22), F(opc, 12), F(size, 10),
                 F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
@@ -1087,10 +1093,10 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     uint32_t len = vt.getLen();
     verifyIncRange(len, 1, 4, ERR_ILLEGAL_REG_IDX);
-    opc = (opc == 0x2 && len == 1) ? 0x7 : (opc == 0x2 && len == 2)
-                                               ? 0xa
-                                               : (opc == 0x2 && len == 3) ? 0x6
-                                                                          : opc;
+    opc = (opc == 0x2 && len == 1)
+              ? 0x7
+              : (opc == 0x2 && len == 2) ? 0xa
+                                         : (opc == 0x2 && len == 3) ? 0x6 : opc;
     uint32_t code =
         concat({F(Q, 30), F(0x19, 23), F(L, 22), F(adr.getXm().getIdx(), 16),
                 F(opc, 12), F(size, 10), F(adr.getXn().getIdx(), 5),
@@ -1115,10 +1121,10 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     verifyIncRange(adr.getImm(), 0, ((8 * len) << Q), ERR_ILLEGAL_IMM_RANGE);
     verifyIncRange(len, 1, 4, ERR_ILLEGAL_REG_IDX);
 
-    opc = (opc == 0x2 && len == 1) ? 0x7 : (opc == 0x2 && len == 2)
-                                               ? 0xa
-                                               : (opc == 0x2 && len == 3) ? 0x6
-                                                                          : opc;
+    opc = (opc == 0x2 && len == 1)
+              ? 0x7
+              : (opc == 0x2 && len == 2) ? 0xa
+                                         : (opc == 0x2 && len == 3) ? 0x6 : opc;
     uint32_t code =
         concat({F(Q, 30), F(0x19, 23), F(L, 22), F(0x1f, 16), F(opc, 12),
                 F(size, 10), F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
@@ -1382,7 +1388,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
   }
 
   void LdRegLiteral(uint32_t opc, uint32_t V, const RReg &rt,
-                    const LabelAArch64&label) {
+                    const LabelAArch64 &label) {
     auto encFunc = [&, opc, V, rt](int64_t labelOffset) {
       return LdRegLiteralEnc(opc, V, rt, labelOffset);
     };
@@ -1408,7 +1414,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         {F(opc, 30), F(0x3, 27), F(V, 26), F(imm19, 5), F(vt.getIdx(), 0)});
   }
 
-  void LdRegSimdFpLiteral(const VRegSc &vt, const LabelAArch64&label) {
+  void LdRegSimdFpLiteral(const VRegSc &vt, const LabelAArch64 &label) {
     auto encFunc = [&, vt](int64_t labelOffset) {
       return LdRegSimdFpLiteralEnc(vt, labelOffset);
     };
@@ -1433,7 +1439,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     return concat({F(opc, 30), F(0x3, 27), F(V, 26), F(imm19, 5), F(prfop, 0)});
   }
 
-  void PfLiteral(Prfop prfop, const LabelAArch64&label) {
+  void PfLiteral(Prfop prfop, const LabelAArch64 &label) {
     auto encFunc = [&, prfop](int64_t labelOffset) {
       return PfLiteralEnc(prfop, labelOffset);
     };
@@ -1455,8 +1461,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     verifyIncRange(imm, (-256 * times), (252 * times), ERR_ILLEGAL_IMM_RANGE,
                    true);
-    verifyCond(imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
+        ERR_ILLEGAL_IMM_COND);
 
     uint32_t opc = (rt1.getBit() == 32) ? 0 : 2;
     uint32_t imm7 = (imm >> (times + 1)) & ones(7);
@@ -1479,8 +1486,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     verifyIncRange(imm, (-256 * times), (252 * times), ERR_ILLEGAL_IMM_RANGE,
                    true);
-    verifyCond(imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
+        ERR_ILLEGAL_IMM_COND);
 
     uint32_t opc = (vt1.getBit() == 32) ? 0 : (vt1.getBit() == 64) ? 1 : 2;
     uint32_t sh = static_cast<uint32_t>(std::log2(4 * times));
@@ -1500,8 +1508,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     verifyIncRange(imm, (-256 * times), (252 * times), ERR_ILLEGAL_IMM_RANGE,
                    true);
-    verifyCond(imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
+        ERR_ILLEGAL_IMM_COND);
 
     uint32_t imm7 = (imm >> (times + 1)) & ones(7);
     uint32_t V = 0;
@@ -1523,8 +1532,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     verifyIncRange(imm, (-256 * times), (252 * times), ERR_ILLEGAL_IMM_RANGE,
                    true);
-    verifyCond(imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
+        ERR_ILLEGAL_IMM_COND);
 
     uint32_t opc = (vt1.getBit() == 32) ? 0 : (vt1.getBit() == 64) ? 1 : 2;
     uint32_t sh = static_cast<uint32_t>(std::log2(4 * times));
@@ -1544,8 +1554,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     verifyIncRange(imm, (-256 * times), (252 * times), ERR_ILLEGAL_IMM_RANGE,
                    true);
-    verifyCond(imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
+        ERR_ILLEGAL_IMM_COND);
 
     uint32_t imm7 = (imm >> (times + 1)) & ones(7);
     uint32_t V = 0;
@@ -1567,8 +1578,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     verifyIncRange(imm, (-256 * times), (252 * times), ERR_ILLEGAL_IMM_RANGE,
                    true);
-    verifyCond(imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
+        ERR_ILLEGAL_IMM_COND);
 
     uint32_t opc = (vt1.getBit() == 32) ? 0 : (vt1.getBit() == 64) ? 1 : 2;
     uint32_t sh = static_cast<uint32_t>(std::log2(4 * times));
@@ -1588,8 +1600,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     verifyIncRange(imm, (-256 * times), (252 * times), ERR_ILLEGAL_IMM_RANGE,
                    true);
-    verifyCond(imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
+        ERR_ILLEGAL_IMM_COND);
 
     uint32_t imm7 = (imm >> (times + 1)) & ones(7);
     uint32_t V = 0;
@@ -1611,8 +1624,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     verifyIncRange(imm, (-256 * times), (252 * times), ERR_ILLEGAL_IMM_RANGE,
                    true);
-    verifyCond(imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
+        ERR_ILLEGAL_IMM_COND);
 
     uint32_t opc = (vt1.getBit() == 32) ? 0 : (vt1.getBit() == 64) ? 1 : 2;
     uint32_t sh = static_cast<uint32_t>(std::log2(4 * times));
@@ -1642,9 +1656,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
   // Load/store register (SIMD&FP, unscaled immediate)
   void LdStSimdFpRegUnsImm(uint32_t opc, const VRegSc &vt, const AdrImm &adr) {
-    uint32_t size = (vt.getBit() == 16) ? 1 : (vt.getBit() == 32)
-                                                  ? 2
-                                                  : (vt.getBit() == 64) ? 3 : 0;
+    uint32_t size = (vt.getBit() == 16)
+                        ? 1
+                        : (vt.getBit() == 32) ? 2 : (vt.getBit() == 64) ? 3 : 0;
 
     int imm = adr.getImm();
     uint32_t imm9 = adr.getImm() & ones(9);
@@ -1694,9 +1708,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
   // Load/store register (SIMD&FP, immediate post-indexed)
   void LdStSimdFpRegPostImm(uint32_t opc, const VRegSc &vt,
                             const AdrPostImm &adr) {
-    uint32_t size = (vt.getBit() == 16) ? 1 : (vt.getBit() == 32)
-                                                  ? 2
-                                                  : (vt.getBit() == 64) ? 3 : 0;
+    uint32_t size = (vt.getBit() == 16)
+                        ? 1
+                        : (vt.getBit() == 32) ? 2 : (vt.getBit() == 64) ? 3 : 0;
 
     int imm = adr.getImm();
     uint32_t imm9 = imm & ones(9);
@@ -1744,9 +1758,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
   // Load/store register (SIMD&FP, immediate pre-indexed)
   void LdStSimdFpRegPre(uint32_t opc, const VRegSc &vt, const AdrPreImm &adr) {
-    uint32_t size = (vt.getBit() == 16) ? 1 : (vt.getBit() == 32)
-                                                  ? 2
-                                                  : (vt.getBit() == 64) ? 3 : 0;
+    uint32_t size = (vt.getBit() == 16)
+                        ? 1
+                        : (vt.getBit() == 32) ? 2 : (vt.getBit() == 64) ? 3 : 0;
 
     int imm = adr.getImm();
     uint32_t imm9 = imm & ones(9);
@@ -1921,8 +1935,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t imm9 = (imm >> 3) & ones(9);
 
     verifyIncRange(imm, -4096, 4088, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyCond(std::abs(imm), [](uint64_t x) { return ((x % 8) == 0); },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        std::abs(imm), [](uint64_t x) { return ((x % 8) == 0); },
+        ERR_ILLEGAL_IMM_COND);
     verifyIncRange(xt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
 
     uint32_t code = concat({F(size, 30), F(0x7, 27), F(V, 26), F(M, 23),
@@ -1942,8 +1957,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t imm9 = (imm >> 3) & ones(9);
 
     verifyIncRange(imm, -4096, 4088, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyCond(std::abs(imm), [](uint64_t x) { return ((x % 8) == 0); },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        std::abs(imm), [](uint64_t x) { return ((x % 8) == 0); },
+        ERR_ILLEGAL_IMM_COND);
     verifyIncRange(xt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
 
     uint32_t code = concat({F(size, 30), F(0x7, 27), F(V, 26), F(M, 23),
@@ -1960,8 +1976,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t imm12 = (imm >> size) & ones(12);
 
     verifyIncRange(imm, 0, 4095 * times, ERR_ILLEGAL_IMM_RANGE);
-    verifyCond(imm, [=](uint64_t x) { return ((x & ones(size)) == 0); },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        imm, [=](uint64_t x) { return ((x & ones(size)) == 0); },
+        ERR_ILLEGAL_IMM_COND);
     verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
 
     uint32_t V = 0;
@@ -1980,8 +1997,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t imm12 = (imm >> sh) & ones(12);
 
     verifyIncRange(imm, 0, 4095 * times, ERR_ILLEGAL_IMM_RANGE);
-    verifyCond(imm, [=](uint64_t x) { return ((x & ones(sh)) == 0); },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        imm, [=](uint64_t x) { return ((x & ones(sh)) == 0); },
+        ERR_ILLEGAL_IMM_COND);
 
     uint32_t V = 1;
     uint32_t size = genSize(vt);
@@ -1998,8 +2016,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t imm12 = (imm >> 3) & ones(12);
 
     verifyIncRange(imm, 0, 4095 * times, ERR_ILLEGAL_IMM_RANGE);
-    verifyCond(imm, [=](uint64_t x) { return ((x & ones(3)) == 0); },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        imm, [=](uint64_t x) { return ((x & ones(3)) == 0); },
+        ERR_ILLEGAL_IMM_COND);
 
     uint32_t size = 3;
     uint32_t opc = 2;
@@ -2016,11 +2035,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t sf = genSf(rm);
     uint32_t S = 0;
 
-    verifyCond(SP_IDX,
-               [=](uint64_t x) {
-                 return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x;
-               },
-               ERR_ILLEGAL_REG_IDX);
+    verifyCond(
+        SP_IDX,
+        [=](uint64_t x) {
+          return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x;
+        },
+        ERR_ILLEGAL_REG_IDX);
 
     uint32_t code =
         concat({F(sf, 31), F(S, 29), F(0xd6, 21), F(rm.getIdx(), 16),
@@ -2034,9 +2054,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t sf = genSf(rd);
     uint32_t S = 0;
 
-    verifyCond(SP_IDX,
-               [=](uint64_t x) { return rd.getIdx() < x || rn.getIdx() < x; },
-               ERR_ILLEGAL_REG_IDX);
+    verifyCond(
+        SP_IDX, [=](uint64_t x) { return rd.getIdx() < x || rn.getIdx() < x; },
+        ERR_ILLEGAL_REG_IDX);
 
     uint32_t code =
         concat({F(sf, 31), F(1, 30), F(S, 29), F(0xd6, 21), F(opcode2, 16),
@@ -2064,11 +2084,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t imm6 = sh & ones(6);
 
     verifyIncRange(sh, 0, (32 << sf) - 1, ERR_ILLEGAL_CONST_RANGE);
-    verifyCond(SP_IDX,
-               [=](uint64_t x) {
-                 return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x;
-               },
-               ERR_ILLEGAL_REG_IDX);
+    verifyCond(
+        SP_IDX,
+        [=](uint64_t x) {
+          return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x;
+        },
+        ERR_ILLEGAL_REG_IDX);
 
     uint32_t code = concat({F(sf, 31), F(opc, 29), F(0xa, 24), F(shmod, 22),
                             F(N, 21), F(rm.getIdx(), 16), F(imm6, 10),
@@ -2098,7 +2119,8 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
       return;
     }
 
-    if (shmod == NONE) shmod = LSL;
+    if (shmod == NONE)
+      shmod = LSL;
 
     uint32_t sf = genSf(rd);
     uint32_t imm6 = sh & ones(6);
@@ -2140,11 +2162,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
                    const RReg &rm) {
     uint32_t sf = genSf(rd);
 
-    verifyCond(SP_IDX,
-               [=](uint64_t x) {
-                 return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x;
-               },
-               ERR_ILLEGAL_REG_IDX);
+    verifyCond(
+        SP_IDX,
+        [=](uint64_t x) {
+          return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x;
+        },
+        ERR_ILLEGAL_REG_IDX);
 
     uint32_t code =
         concat({F(sf, 31), F(op, 30), F(S, 29), F(0xd, 25), F(rm.getIdx(), 16),
@@ -2187,9 +2210,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
                    const RReg &rn, const RReg &rm, uint32_t nczv, Cond cond) {
     uint32_t sf = genSf(rn);
 
-    verifyCond(SP_IDX,
-               [=](uint64_t x) { return rn.getIdx() < x || rm.getIdx() < x; },
-               ERR_ILLEGAL_REG_IDX);
+    verifyCond(
+        SP_IDX, [=](uint64_t x) { return rn.getIdx() < x || rm.getIdx() < x; },
+        ERR_ILLEGAL_REG_IDX);
     verifyIncRange(nczv, 0, 15, ERR_ILLEGAL_CONST_RANGE);
 
     uint32_t code = concat({F(sf, 31), F(op, 30), F(S, 29), F(0xd2, 21),
@@ -2219,11 +2242,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
                const RReg &rn, const RReg &rm, Cond cond) {
     uint32_t sf = genSf(rn);
 
-    verifyCond(SP_IDX,
-               [=](uint64_t x) {
-                 return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x;
-               },
-               ERR_ILLEGAL_REG_IDX);
+    verifyCond(
+        SP_IDX,
+        [=](uint64_t x) {
+          return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x;
+        },
+        ERR_ILLEGAL_REG_IDX);
 
     uint32_t code =
         concat({F(sf, 31), F(op, 30), F(S, 29), F(0xd4, 21), F(rm.getIdx(), 16),
@@ -2236,12 +2260,13 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
                     const RReg &rn, const RReg &rm, const RReg &ra) {
     uint32_t sf = genSf(rd);
 
-    verifyCond(SP_IDX,
-               [=](uint64_t x) {
-                 return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x ||
-                        ra.getIdx() < x;
-               },
-               ERR_ILLEGAL_REG_IDX);
+    verifyCond(
+        SP_IDX,
+        [=](uint64_t x) {
+          return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x ||
+                 ra.getIdx() < x;
+        },
+        ERR_ILLEGAL_REG_IDX);
 
     uint32_t code = concat({F(sf, 31), F(op54, 29), F(0x1b, 24), F(op31, 21),
                             F(rm.getIdx(), 16), F(o0, 15), F(ra.getIdx(), 10),
@@ -2254,11 +2279,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
                     const RReg &rn, const RReg &rm) {
     uint32_t sf = genSf(rd);
 
-    verifyCond(SP_IDX,
-               [=](uint64_t x) {
-                 return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x;
-               },
-               ERR_ILLEGAL_REG_IDX);
+    verifyCond(
+        SP_IDX,
+        [=](uint64_t x) {
+          return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x;
+        },
+        ERR_ILLEGAL_REG_IDX);
 
     uint32_t code = concat({F(sf, 31), F(op54, 29), F(0x1b, 24), F(op31, 21),
                             F(rm.getIdx(), 16), F(o0, 15), F(0x1f, 10),
@@ -2446,7 +2472,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
                       const VRegSc &vn, uint32_t sh) {
     uint32_t size = genSize(vd);
 
-    bool lsh = (opcode == 0xa || opcode == 0xc || opcode == 0xe);  // left shift
+    bool lsh = (opcode == 0xa || opcode == 0xc || opcode == 0xe); // left shift
     uint32_t base = vd.getBit();
     uint32_t imm = (lsh) ? (sh + base) : ((base << 1) - sh);
     uint32_t immh = 1 << size | field(imm, size + 2, 3);
@@ -2466,15 +2492,16 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
                            const VRegElem &vm) {
     uint32_t bits = vm.getBit();
     uint32_t eidx = vm.getElemIdx();
-    uint32_t H = (bits == 16) ? field(eidx, 2, 2) : (bits == 32)
-                                                        ? field(eidx, 1, 1)
-                                                        : field(eidx, 0, 0);
+    uint32_t H = (bits == 16)
+                     ? field(eidx, 2, 2)
+                     : (bits == 32) ? field(eidx, 1, 1) : field(eidx, 0, 0);
     uint32_t L =
         (bits == 16) ? field(eidx, 1, 1) : (bits == 32) ? field(eidx, 0, 0) : 0;
     uint32_t M = (bits == 16) ? field(eidx, 0, 0) : field(vm.getIdx(), 4, 4);
     uint32_t vmidx = vm.getIdx() & ones(4);
 
-    if (bits == 16) verifyIncRange(vm.getIdx(), 0, 15, ERR_ILLEGAL_REG_IDX);
+    if (bits == 16)
+      verifyIncRange(vm.getIdx(), 0, 15, ERR_ILLEGAL_REG_IDX);
 
     uint32_t code = concat({F(1, 30), F(U, 29), F(0x1f, 24), F(size, 22),
                             F(L, 21), F(M, 20), F(vmidx, 16), F(opcode, 12),
@@ -2528,8 +2555,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     verifyIncRange(index, 0, 15, ERR_ILLEGAL_CONST_RANGE);
     if (Q == 0)
-      verifyCond(imm4, [](int64_t x) { return (x >> 3) == 0; },
-                 ERR_ILLEGAL_CONST_COND);
+      verifyCond(
+          imm4, [](int64_t x) { return (x >> 3) == 0; },
+          ERR_ILLEGAL_CONST_COND);
 
     uint32_t code =
         concat({F(Q, 30), F(0x2e, 24), F(op2, 22), F(vm.getIdx(), 16),
@@ -2853,8 +2881,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t crmode = 0xe;
     uint32_t imm8 = compactImm(imm);
 
-    verifyCond(imm, [&](uint64_t x) { return isCompact(x, imm8); },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        imm, [&](uint64_t x) { return isCompact(x, imm8); },
+        ERR_ILLEGAL_IMM_COND);
 
     uint32_t abc = field(imm8, 7, 5);
     uint32_t defgh = field(imm8, 4, 0);
@@ -2918,7 +2947,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t size = (vd_sel) ? genSize(vd) : genSize(vn);
 
     bool lsh = (opcode == 0xa || opcode == 0xc || opcode == 0xe ||
-                opcode == 0x14);  // left shift
+                opcode == 0x14); // left shift
     uint32_t base = (vd_sel) ? vd.getBit() : vn.getBit();
     uint32_t imm = (lsh) ? (sh + base) : ((base << 1) - sh);
     uint32_t immh = 1 << size | field(imm, size + 2, 3);
@@ -2940,9 +2969,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t bits =
         (vm.getBit() == 8) ? 32 : (ucmla) ? vm.getBit() * 2 : vm.getBit();
     uint32_t eidx = vm.getElemIdx();
-    uint32_t H = (bits == 16) ? field(eidx, 2, 2) : (bits == 32)
-                                                        ? field(eidx, 1, 1)
-                                                        : field(eidx, 0, 0);
+    uint32_t H = (bits == 16)
+                     ? field(eidx, 2, 2)
+                     : (bits == 32) ? field(eidx, 1, 1) : field(eidx, 0, 0);
     uint32_t L =
         (bits == 16) ? field(eidx, 1, 1) : (bits == 32) ? field(eidx, 0, 0) : 0;
     uint32_t M = (bits == 16) ? field(eidx, 0, 0) : field(vm.getIdx(), 4, 4);
@@ -4578,11 +4607,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t imm6 = (uimm >> size) & ones(6);
 
     verifyIncRange(uimm, 0, 63 * (1 << size), ERR_ILLEGAL_IMM_RANGE);
-    verifyCond(uimm,
-               [=](uint64_t x) {
-                 return (x % ((static_cast<uint64_t>(1)) << size)) == 0;
-               },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        uimm,
+        [=](uint64_t x) {
+          return (x % ((static_cast<uint64_t>(1)) << size)) == 0;
+        },
+        ERR_ILLEGAL_IMM_COND);
     verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
 
     uint32_t code = concat({F(0x42, 25), F(dtypeh, 23), F(1, 22), F(imm6, 16),
@@ -4755,8 +4785,8 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     int32_t imm = adr.getSimm();
     uint32_t imm4 = (imm >> 4) & ones(4);
     verifyIncRange(imm, -128, 127, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyCond(imm, [](uint64_t x) { return (x % 16) == 0; },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        imm, [](uint64_t x) { return (x % 16) == 0; }, ERR_ILLEGAL_IMM_COND);
     verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
     uint32_t code = concat({F(0x52, 25), F(msz, 23), F(num, 21), F(imm4, 16),
                             F(1, 13), F(pg.getIdx(), 10),
@@ -4792,8 +4822,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     verifyIncRange(imm, -8 * ((int32_t)num + 1), 7 * ((int32_t)num + 1),
                    ERR_ILLEGAL_IMM_RANGE, true);
-    verifyCond(std::abs(imm), [=](uint64_t x) { return (x % (num + 1)) == 0; },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        std::abs(imm), [=](uint64_t x) { return (x % (num + 1)) == 0; },
+        ERR_ILLEGAL_IMM_COND);
     verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
 
     uint32_t code = concat({F(0x52, 25), F(msz, 23), F(num, 21), F(imm4, 16),
@@ -4883,11 +4914,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t imm5 = (imm >> msz) & ones(5);
 
     verifyIncRange(imm, 0, 31 * (1 << msz), ERR_ILLEGAL_IMM_RANGE);
-    verifyCond(imm,
-               [=](uint64_t x) {
-                 return (x % ((static_cast<uint64_t>(1)) << msz)) == 0;
-               },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        imm,
+        [=](uint64_t x) {
+          return (x % ((static_cast<uint64_t>(1)) << msz)) == 0;
+        },
+        ERR_ILLEGAL_IMM_COND);
     verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
 
     uint32_t code = concat({F(0x62, 25), F(msz, 23), F(1, 21), F(imm5, 16),
@@ -4927,11 +4959,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t imm5 = (imm >> msz) & ones(5);
 
     verifyIncRange(imm, 0, 31 * (1 << msz), ERR_ILLEGAL_IMM_RANGE);
-    verifyCond(imm,
-               [=](uint64_t x) {
-                 return (x % ((static_cast<uint64_t>(1)) << msz)) == 0;
-               },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        imm,
+        [=](uint64_t x) {
+          return (x % ((static_cast<uint64_t>(1)) << msz)) == 0;
+        },
+        ERR_ILLEGAL_IMM_COND);
     verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
 
     uint32_t code = concat({F(0x62, 25), F(msz, 23), F(imm5, 16), F(7, 13),
@@ -4972,11 +5005,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t imm5 = (imm >> msz) & ones(5);
 
     verifyIncRange(imm, 0, 31 * (1 << msz), ERR_ILLEGAL_IMM_RANGE);
-    verifyCond(imm,
-               [=](uint64_t x) {
-                 return (x % ((static_cast<uint64_t>(1)) << msz)) == 0;
-               },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        imm,
+        [=](uint64_t x) {
+          return (x % ((static_cast<uint64_t>(1)) << msz)) == 0;
+        },
+        ERR_ILLEGAL_IMM_COND);
     verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
 
     uint32_t code = concat({F(0x72, 25), F(msz, 23), F(3, 21), F(imm5, 16),
@@ -5039,11 +5073,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t imm5 = (imm >> msz) & ones(5);
 
     verifyIncRange(imm, 0, 31 * (1 << msz), ERR_ILLEGAL_IMM_RANGE);
-    verifyCond(imm,
-               [=](uint64_t x) {
-                 return (x % ((static_cast<uint64_t>(1)) << msz)) == 0;
-               },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        imm,
+        [=](uint64_t x) {
+          return (x % ((static_cast<uint64_t>(1)) << msz)) == 0;
+        },
+        ERR_ILLEGAL_IMM_COND);
     verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
 
     uint32_t code = concat({F(0x72, 25), F(msz, 23), F(2, 21), F(imm5, 16),
@@ -5130,8 +5165,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     verifyIncRange(imm, -8 * ((int32_t)num + 1), 7 * ((int32_t)num + 1),
                    ERR_ILLEGAL_IMM_RANGE, true);
-    verifyCond(std::abs(imm), [=](uint64_t x) { return (x % (num + 1)) == 0; },
-               ERR_ILLEGAL_IMM_COND);
+    verifyCond(
+        std::abs(imm), [=](uint64_t x) { return (x % (num + 1)) == 0; },
+        ERR_ILLEGAL_IMM_COND);
     verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
 
     uint32_t code = concat({F(0x72, 25), F(msz, 23), F(num, 21), F(1, 20),
@@ -5203,24 +5239,22 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 #ifdef XBYAK_TRANSLATE_AARCH64
 #undef dw
 
-  void mov(const XReg &rd, const LabelAArch64 &label) {
-    adr(rd, label);
-  }
+  void mov(const XReg &rd, const LabelAArch64 &label) { adr(rd, label); }
 #endif
 
-  template <class T>
-  void putL_inner(T &label) {
-    if (isAutoGrow() && size_ >= maxSize_) growMemory();
-    UncondBrImm(0, label);  // insert nemonic (B <label>)
+  template <class T> void putL_inner(T &label) {
+    if (isAutoGrow() && size_ >= maxSize_)
+      growMemory();
+    UncondBrImm(0, label); // insert nemonic (B <label>)
   }
 
- public:
+public:
   unsigned int getVersion() const { return VERSION; }
 
   const WReg w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12;
   const WReg w13, w14, w15, w16, w17, w18, w19, w20, w21, w22, w23;
   const WReg w24, w25, w26, w27, w28, w29, w30, wzr, wsp;
-  
+
   const XReg x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12;
   const XReg x13, x14, x15, x16, x17, x18, x19, x20, x21, x22, x23;
   const XReg x24, x25, x26, x27, x28, x29, x30, xzr, sp;
@@ -5260,339 +5294,72 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
   const PReg p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12;
   const PReg p13, p14, p15;
 
-  CodeGeneratorAArch64(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0,
-                AllocatorAArch64 *allocator = 0)
+  CodeGeneratorAArch64(size_t maxSize = DEFAULT_MAX_CODE_SIZE,
+                       void *userPtr = 0, AllocatorAArch64 *allocator = 0)
       : CodeArrayAArch64(maxSize, userPtr, allocator)
 #if 1
         ,
-        w0(0),
-        w1(1),
-        w2(2),
-        w3(3),
-        w4(4),
-        w5(5),
-        w6(6),
-        w7(7),
-        w8(8),
-        w9(9),
-        w10(10),
-        w11(11),
-        w12(12),
-        w13(13),
-        w14(14),
-        w15(15),
-        w16(16),
-        w17(17),
-        w18(18),
-        w19(19),
-        w20(20),
-        w21(21),
-        w22(22),
-        w23(23),
-        w24(24),
-        w25(25),
-        w26(26),
-        w27(27),
-        w28(28),
-        w29(29),
-        w30(30),
-        wzr(31),
-        wsp(31)
+        w0(0), w1(1), w2(2), w3(3), w4(4), w5(5), w6(6), w7(7), w8(8), w9(9),
+        w10(10), w11(11), w12(12), w13(13), w14(14), w15(15), w16(16), w17(17),
+        w18(18), w19(19), w20(20), w21(21), w22(22), w23(23), w24(24), w25(25),
+        w26(26), w27(27), w28(28), w29(29), w30(30), wzr(31), wsp(31)
 
         ,
-        x0(0),
-        x1(1),
-        x2(2),
-        x3(3),
-        x4(4),
-        x5(5),
-        x6(6),
-        x7(7),
-        x8(8),
-        x9(9),
-        x10(10),
-        x11(11),
-        x12(12),
-        x13(13),
-        x14(14),
-        x15(15),
-        x16(16),
-        x17(17),
-        x18(18),
-        x19(19),
-        x20(20),
-        x21(21),
-        x22(22),
-        x23(23),
-        x24(24),
-        x25(25),
-        x26(26),
-        x27(27),
-        x28(28),
-        x29(29),
-        x30(30),
-        xzr(31),
-        sp(31)
+        x0(0), x1(1), x2(2), x3(3), x4(4), x5(5), x6(6), x7(7), x8(8), x9(9),
+        x10(10), x11(11), x12(12), x13(13), x14(14), x15(15), x16(16), x17(17),
+        x18(18), x19(19), x20(20), x21(21), x22(22), x23(23), x24(24), x25(25),
+        x26(26), x27(27), x28(28), x29(29), x30(30), xzr(31), sp(31)
 
         ,
-        b0(0),
-        b1(1),
-        b2(2),
-        b3(3),
-        b4(4),
-        b5(5),
-        b6(6),
-        b7(7),
-        b8(8),
-        b9(9),
-        b10(10),
-        b11(11),
-        b12(12),
-        b13(13),
-        b14(14),
-        b15(15),
-        b16(16),
-        b17(17),
-        b18(18),
-        b19(19),
-        b20(20),
-        b21(21),
-        b22(22),
-        b23(23),
-        b24(24),
-        b25(25),
-        b26(26),
-        b27(27),
-        b28(28),
-        b29(29),
-        b30(30),
-        b31(31)
+        b0(0), b1(1), b2(2), b3(3), b4(4), b5(5), b6(6), b7(7), b8(8), b9(9),
+        b10(10), b11(11), b12(12), b13(13), b14(14), b15(15), b16(16), b17(17),
+        b18(18), b19(19), b20(20), b21(21), b22(22), b23(23), b24(24), b25(25),
+        b26(26), b27(27), b28(28), b29(29), b30(30), b31(31)
 
         ,
-        h0(0),
-        h1(1),
-        h2(2),
-        h3(3),
-        h4(4),
-        h5(5),
-        h6(6),
-        h7(7),
-        h8(8),
-        h9(9),
-        h10(10),
-        h11(11),
-        h12(12),
-        h13(13),
-        h14(14),
-        h15(15),
-        h16(16),
-        h17(17),
-        h18(18),
-        h19(19),
-        h20(20),
-        h21(21),
-        h22(22),
-        h23(23),
-        h24(24),
-        h25(25),
-        h26(26),
-        h27(27),
-        h28(28),
-        h29(29),
-        h30(30),
-        h31(31)
+        h0(0), h1(1), h2(2), h3(3), h4(4), h5(5), h6(6), h7(7), h8(8), h9(9),
+        h10(10), h11(11), h12(12), h13(13), h14(14), h15(15), h16(16), h17(17),
+        h18(18), h19(19), h20(20), h21(21), h22(22), h23(23), h24(24), h25(25),
+        h26(26), h27(27), h28(28), h29(29), h30(30), h31(31)
 
         ,
-        s0(0),
-        s1(1),
-        s2(2),
-        s3(3),
-        s4(4),
-        s5(5),
-        s6(6),
-        s7(7),
+        s0(0), s1(1), s2(2), s3(3), s4(4), s5(5), s6(6), s7(7),
 #ifdef XBYAK_AARCH64_FOR_DNNL
         s8_(8),
 #else
         s8(8),
 #endif
-        s9(9),
-        s10(10),
-        s11(11),
-        s12(12),
-        s13(13),
-        s14(14),
-        s15(15),
-        s16(16),
-        s17(17),
-        s18(18),
-        s19(19),
-        s20(20),
-        s21(21),
-        s22(22),
-        s23(23),
-        s24(24),
-        s25(25),
-        s26(26),
-        s27(27),
-        s28(28),
-        s29(29),
-        s30(30),
-        s31(31)
+        s9(9), s10(10), s11(11), s12(12), s13(13), s14(14), s15(15), s16(16),
+        s17(17), s18(18), s19(19), s20(20), s21(21), s22(22), s23(23), s24(24),
+        s25(25), s26(26), s27(27), s28(28), s29(29), s30(30), s31(31)
 
         ,
-        d0(0),
-        d1(1),
-        d2(2),
-        d3(3),
-        d4(4),
-        d5(5),
-        d6(6),
-        d7(7),
-        d8(8),
-        d9(9),
-        d10(10),
-        d11(11),
-        d12(12),
-        d13(13),
-        d14(14),
-        d15(15),
-        d16(16),
-        d17(17),
-        d18(18),
-        d19(19),
-        d20(20),
-        d21(21),
-        d22(22),
-        d23(23),
-        d24(24),
-        d25(25),
-        d26(26),
-        d27(27),
-        d28(28),
-        d29(29),
-        d30(30),
-        d31(31)
+        d0(0), d1(1), d2(2), d3(3), d4(4), d5(5), d6(6), d7(7), d8(8), d9(9),
+        d10(10), d11(11), d12(12), d13(13), d14(14), d15(15), d16(16), d17(17),
+        d18(18), d19(19), d20(20), d21(21), d22(22), d23(23), d24(24), d25(25),
+        d26(26), d27(27), d28(28), d29(29), d30(30), d31(31)
 
         ,
-        q0(0),
-        q1(1),
-        q2(2),
-        q3(3),
-        q4(4),
-        q5(5),
-        q6(6),
-        q7(7),
-        q8(8),
-        q9(9),
-        q10(10),
-        q11(11),
-        q12(12),
-        q13(13),
-        q14(14),
-        q15(15),
-        q16(16),
-        q17(17),
-        q18(18),
-        q19(19),
-        q20(20),
-        q21(21),
-        q22(22),
-        q23(23),
-        q24(24),
-        q25(25),
-        q26(26),
-        q27(27),
-        q28(28),
-        q29(29),
-        q30(30),
-        q31(31)
+        q0(0), q1(1), q2(2), q3(3), q4(4), q5(5), q6(6), q7(7), q8(8), q9(9),
+        q10(10), q11(11), q12(12), q13(13), q14(14), q15(15), q16(16), q17(17),
+        q18(18), q19(19), q20(20), q21(21), q22(22), q23(23), q24(24), q25(25),
+        q26(26), q27(27), q28(28), q29(29), q30(30), q31(31)
 
         ,
-        v0(0),
-        v1(1),
-        v2(2),
-        v3(3),
-        v4(4),
-        v5(5),
-        v6(6),
-        v7(7),
-        v8(8),
-        v9(9),
-        v10(10),
-        v11(11),
-        v12(12),
-        v13(13),
-        v14(14),
-        v15(15),
-        v16(16),
-        v17(17),
-        v18(18),
-        v19(19),
-        v20(20),
-        v21(21),
-        v22(22),
-        v23(23),
-        v24(24),
-        v25(25),
-        v26(26),
-        v27(27),
-        v28(28),
-        v29(29),
-        v30(30),
-        v31(31)
+        v0(0), v1(1), v2(2), v3(3), v4(4), v5(5), v6(6), v7(7), v8(8), v9(9),
+        v10(10), v11(11), v12(12), v13(13), v14(14), v15(15), v16(16), v17(17),
+        v18(18), v19(19), v20(20), v21(21), v22(22), v23(23), v24(24), v25(25),
+        v26(26), v27(27), v28(28), v29(29), v30(30), v31(31)
 
         ,
-        z0(0),
-        z1(1),
-        z2(2),
-        z3(3),
-        z4(4),
-        z5(5),
-        z6(6),
-        z7(7),
-        z8(8),
-        z9(9),
-        z10(10),
-        z11(11),
-        z12(12),
-        z13(13),
-        z14(14),
-        z15(15),
-        z16(16),
-        z17(17),
-        z18(18),
-        z19(19),
-        z20(20),
-        z21(21),
-        z22(22),
-        z23(23),
-        z24(24),
-        z25(25),
-        z26(26),
-        z27(27),
-        z28(28),
-        z29(29),
-        z30(30),
-        z31(31)
+        z0(0), z1(1), z2(2), z3(3), z4(4), z5(5), z6(6), z7(7), z8(8), z9(9),
+        z10(10), z11(11), z12(12), z13(13), z14(14), z15(15), z16(16), z17(17),
+        z18(18), z19(19), z20(20), z21(21), z22(22), z23(23), z24(24), z25(25),
+        z26(26), z27(27), z28(28), z29(29), z30(30), z31(31)
 
         ,
-        p0(0),
-        p1(1),
-        p2(2),
-        p3(3),
-        p4(4),
-        p5(5),
-        p6(6),
-        p7(7),
-        p8(8),
-        p9(9),
-        p10(10),
-        p11(11),
-        p12(12),
-        p13(13),
-        p14(14),
-        p15(15)
+        p0(0), p1(1), p2(2), p3(3), p4(4), p5(5), p6(6), p7(7), p8(8), p9(9),
+        p10(10), p11(11), p12(12), p13(13), p14(14), p15(15)
 #endif
   {
     labelMgr_.set(this);
@@ -5600,24 +5367,28 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
   void L_aarch64(LabelAArch64 &label) { labelMgr_.defineClabel(label); }
   LabelAArch64 L_aarch64() {
-      LabelAArch64 label;
+    LabelAArch64 label;
     L_aarch64(label);
     return label;
   }
-  void inLocalLabel() { /*assert(NULL);*/ }
-  void outLocalLabel() { /*assert(NULL);*/ }
+  void inLocalLabel() { /*assert(NULL);*/
+  }
+  void outLocalLabel() { /*assert(NULL);*/
+  }
   /*
           assign src to dst
           require
           dst : does not used by L()
           src : used by L()
   */
-  void assignL(LabelAArch64&dst, const LabelAArch64&src) { labelMgr_.assign(dst, src); }
+  void assignL(LabelAArch64 &dst, const LabelAArch64 &src) {
+    labelMgr_.assign(dst, src);
+  }
   /*
           put address of label to buffer
           @note the put size is 4(32-bit), 8(64-bit)
   */
-  void putL(const LabelAArch64&label) { putL_inner(label); }
+  void putL(const LabelAArch64 &label) { putL_inner(label); }
 
   void reset() {
     resetSize();
@@ -5631,10 +5402,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
           It is not necessary for the other mode if hasUndefinedLabel() is true.
   */
   void ready(ProtectMode mode = PROTECT_RWE) {
-    if (hasUndefinedLabel()) throw Error(ERR_LABEL_IS_NOT_FOUND);
+    if (hasUndefinedLabel())
+      throw Error(ERR_LABEL_IS_NOT_FOUND);
     if (isAutoGrow()) {
       calcJmpAddress();
-      if (useProtect()) setProtectMode(mode);
+      if (useProtect())
+        setProtectMode(mode);
     }
   }
   // set read/exec
@@ -5642,44 +5415,37 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 #ifdef XBYAK_TEST
   void dump(bool doClear = true) {
     CodeArrayAArch64::dump();
-    if (doClear) size_ = 0;
+    if (doClear)
+      size_ = 0;
   }
 #endif
 
-  WReg getTmpWReg() {
-    return w29;
-  }
+  WReg getTmpWReg() { return w29; }
 
-  XReg getTmpXReg() {
-    return x29;
-  }
+  XReg getTmpXReg() { return x29; }
 
-  VReg getTmpVReg() {
-    return v31;
-  }
+  VReg getTmpVReg() { return v31; }
 
-  ZReg getTmpZReg() {
-    return z31;
-  }
+  ZReg getTmpZReg() { return z31; }
 
-  PReg getTmpPReg() {
-    return p7;
-  }
-  
-#include "xbyak_aarch64_mnemonic.h"
+  PReg getTmpPReg() { return p7; }
+
 #include "xbyak_aarch64_meta_mnemonic.h"
+#include "xbyak_aarch64_mnemonic.h"
 
-  
   void align(size_t x) {
-    if (x == 4) return;  // ARMv8 instructions are always 4 bytes.
-    if (x < 4 || (x % 4)) throw Error(ERR_BAD_ALIGN);
+    if (x == 4)
+      return; // ARMv8 instructions are always 4 bytes.
+    if (x < 4 || (x % 4))
+      throw Error(ERR_BAD_ALIGN);
 
     if (isAutoGrow() && x > inner::ALIGN_PAGE_SIZE)
       fprintf(stderr, "warning:autoGrow mode does not support %d align\n",
               (int)x);
 
     size_t remain = size_t(getCurr());
-    if (remain % 4) throw Error(ERR_BAD_ALIGN);
+    if (remain % 4)
+      throw Error(ERR_BAD_ALIGN);
     remain = x - (remain % x);
 
     while (remain) {
@@ -5688,4 +5454,3 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     }
   }
 };
-

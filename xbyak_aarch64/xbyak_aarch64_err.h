@@ -17,30 +17,30 @@
 
 enum {
   ERR_NONE = 0,
-  ERR_CODE_IS_TOO_BIG,            // use at CodeArray
-  ERR_LABEL_IS_REDEFINED,         // use at LabelMgr
-  ERR_LABEL_IS_TOO_FAR,           // use at CodeGenerator
-  ERR_LABEL_IS_NOT_FOUND,         // use at LabelMgr
-  ERR_BAD_PARAMETER,              // use at CodeArray
-  ERR_CANT_PROTECT,               // use at CodeArray
-  ERR_OFFSET_IS_TOO_BIG,          // use at CodeArray
-  ERR_CANT_ALLOC,                 // use at CodeArray
-  ERR_LABEL_ISNOT_SET_BY_L,       // use at LabelMgr
-  ERR_LABEL_IS_ALREADY_SET_BY_L,  // use at LabelMgr
-  ERR_INTERNAL,                   // use at Error
-  ERR_ILLEGAL_REG_IDX,            // use at CodeGenerator
-  ERR_ILLEGAL_REG_ELEM_IDX,       // use at CodeGenerator
-  ERR_ILLEGAL_PREDICATE_TYPE,     // use at CodeGenerator
-  ERR_ILLEGAL_IMM_RANGE,          // use at CodeGenerator
-  ERR_ILLEGAL_IMM_VALUE,          // use at CodeGenerator
-  ERR_ILLEGAL_IMM_COND,           // use at CodeGenerator
-  ERR_ILLEGAL_SHMOD,              // use at CodeGenerator
-  ERR_ILLEGAL_EXTMOD,             // use at CodeGenerator
-  ERR_ILLEGAL_COND,               // use at CodeGenerator
-  ERR_ILLEGAL_BARRIER_OPT,        // use at CodeGenerator
-  ERR_ILLEGAL_CONST_RANGE,        // use at CodeGenerator
-  ERR_ILLEGAL_CONST_VALUE,        // use at CodeGenerator
-  ERR_ILLEGAL_CONST_COND,         // use at CodeGenerator
+  ERR_CODE_IS_TOO_BIG,           // use at CodeArray
+  ERR_LABEL_IS_REDEFINED,        // use at LabelMgr
+  ERR_LABEL_IS_TOO_FAR,          // use at CodeGenerator
+  ERR_LABEL_IS_NOT_FOUND,        // use at LabelMgr
+  ERR_BAD_PARAMETER,             // use at CodeArray
+  ERR_CANT_PROTECT,              // use at CodeArray
+  ERR_OFFSET_IS_TOO_BIG,         // use at CodeArray
+  ERR_CANT_ALLOC,                // use at CodeArray
+  ERR_LABEL_ISNOT_SET_BY_L,      // use at LabelMgr
+  ERR_LABEL_IS_ALREADY_SET_BY_L, // use at LabelMgr
+  ERR_INTERNAL,                  // use at Error
+  ERR_ILLEGAL_REG_IDX,           // use at CodeGenerator
+  ERR_ILLEGAL_REG_ELEM_IDX,      // use at CodeGenerator
+  ERR_ILLEGAL_PREDICATE_TYPE,    // use at CodeGenerator
+  ERR_ILLEGAL_IMM_RANGE,         // use at CodeGenerator
+  ERR_ILLEGAL_IMM_VALUE,         // use at CodeGenerator
+  ERR_ILLEGAL_IMM_COND,          // use at CodeGenerator
+  ERR_ILLEGAL_SHMOD,             // use at CodeGenerator
+  ERR_ILLEGAL_EXTMOD,            // use at CodeGenerator
+  ERR_ILLEGAL_COND,              // use at CodeGenerator
+  ERR_ILLEGAL_BARRIER_OPT,       // use at CodeGenerator
+  ERR_ILLEGAL_CONST_RANGE,       // use at CodeGenerator
+  ERR_ILLEGAL_CONST_VALUE,       // use at CodeGenerator
+  ERR_ILLEGAL_CONST_COND,        // use at CodeGenerator
   ERR_ILLEGAL_TYPE,
   ERR_BAD_ALIGN,
   ERR_BAD_ADDRESSING,
@@ -53,12 +53,12 @@ class Error : public std::exception {
   std::string msg_;
   std::string opt_msg_;
 
- public:
-  explicit Error(int err, const std::string& opt_msg = "")
+public:
+  explicit Error(int err, const std::string &opt_msg = "")
       : err_(err), msg_(""), opt_msg_(opt_msg) {
     if (err_ > 0) {
       fprintf(stderr, "bad err=%d in Xbyak::Error\n", err_);
-      const std::initializer_list<const char *>& errTbl = getErrTbl();
+      const std::initializer_list<const char *> &errTbl = getErrTbl();
       assert((size_t)err_ < errTbl.size());
       msg_ = "";
       msg_ += *(errTbl.begin() + err_);
@@ -69,39 +69,39 @@ class Error : public std::exception {
   }
   operator int() const { return err_; }
   const char *what() const throw() { return msg_.c_str(); }
- private:
-  static const std::initializer_list<const char *>& getErrTbl() {
+
+private:
+  static const std::initializer_list<const char *> &getErrTbl() {
     static const std::initializer_list<const char *> tbl = {
-      "none",
-      "code is too big",
-      "label is redefined",
-      "label is too far",
-      "label is not found",
-      "bad parameter",
-      "can't protect",
-      "offset is too big",
-      "can't alloc",
-      "label is not set by L()",
-      "label is already set by L()",
-      "internal error",
-      "illegal register index (can not encoding register index)",
-      "illegal register element index (can not encoding element index)",
-      "illegal predicate register type",
-      "illegal immediate parameter (range error)",
-      "illegal immediate parameter (unavailable value error)",
-      "illegal immediate parameter (condition error)",
-      "illegal shift-mode paramater",
-      "illegal extend-mode parameter",
-      "illegal condition parameter",
-      "illegal type",
-      "illegal barrier option",
-      "illegal const parameter (range error)",
-      "illegal const parameter (unavailable error)",
-      "illegal const parameter (condition error)",
+        "none",
+        "code is too big",
+        "label is redefined",
+        "label is too far",
+        "label is not found",
+        "bad parameter",
+        "can't protect",
+        "offset is too big",
+        "can't alloc",
+        "label is not set by L()",
+        "label is already set by L()",
+        "internal error",
+        "illegal register index (can not encoding register index)",
+        "illegal register element index (can not encoding element index)",
+        "illegal predicate register type",
+        "illegal immediate parameter (range error)",
+        "illegal immediate parameter (unavailable value error)",
+        "illegal immediate parameter (condition error)",
+        "illegal shift-mode paramater",
+        "illegal extend-mode parameter",
+        "illegal condition parameter",
+        "illegal type",
+        "illegal barrier option",
+        "illegal const parameter (range error)",
+        "illegal const parameter (unavailable error)",
+        "illegal const parameter (condition error)",
     };
     return tbl;
   };
 };
 
 inline const char *ConvertErrorToString(const Error &err) { return err.what(); }
-
