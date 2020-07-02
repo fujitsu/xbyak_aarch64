@@ -414,7 +414,7 @@ class CodeGenUtil {
   }
 
   /////////////// ARM8/SVE encoding helper function ////////////////
-  constexpr uint32_t F(uint32_t val, uint32_t pos) const { return val << pos; }
+  constexpr const uint32_t F(uint32_t val, uint32_t pos) const { return val << pos; }
 
   uint32_t concat(const std::initializer_list<uint32_t> list) {
     uint32_t result = 0;

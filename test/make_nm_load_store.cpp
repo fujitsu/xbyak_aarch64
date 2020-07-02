@@ -1641,8 +1641,8 @@ public:
   
   
   {
-    std::vector<std::string> tmpW = tv_WREG;
-    std::vector<std::string> tmpX = tv_XREG3;
+    std::vector<std::string> tmpW = { "w6", "w9", "w17" };
+    std::vector<std::string> tmpX = { "x6", "x9", "x17" };
     tmpW.push_back("wsp");
     tmpX.push_back("sp");  
     
@@ -1663,8 +1663,8 @@ public:
   }
 
 void putLoadStorePair() {
-    std::vector<std::string> tmpW = tv_WREG;
-    std::vector<std::string> tmpX = tv_XREG3;
+    std::vector<std::string> tmpW = { "w9", "w17" };
+    std::vector<std::string> tmpX = { "x9", "x17" };
     std::vector<int>    imm7bit_pm = { 31, -64, -32, -16, -8, -4, -2, -1, 0, 1, 2, 4, 8, 16, 32, 63 };
     std::vector<std::string>    imm7bit_pm_mul4;
     std::vector<std::string>    imm7bit_pm_mul8;
