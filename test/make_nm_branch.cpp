@@ -2103,7 +2103,7 @@ public:
     tv_SPECIFIC0.clear();
     jtv_SPECIFIC0.clear();
 
-    setTvAddressing(tv_SPECIFIC0, jtv_SPECIFIC0, tv_XNSP, tv_IMM10BIT_PM_MUL8, TP_PreImm);
+    setTvAddressing(tv_SPECIFIC0, jtv_SPECIFIC0, tv_XNSP3, tv_IMM10BIT_PM_MUL8, TP_PreImm);
     
     putPointer_authentication_instructions_core();
   }
