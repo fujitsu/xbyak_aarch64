@@ -25,14 +25,13 @@
 #include <unordered_set>
 #include <vector>
 
-
 //#define XBYAK_USE_MMAP_ALLOCATOR
 #if !defined(__GNUC__) || defined(__MINGW32__)
 #undef XBYAK_USE_MMAP_ALLOCATOR
 #endif
 
-#include <functional>
 #include <cmath>
+#include <functional>
 
 #ifdef _WIN32
 #include <assert.h>
@@ -40,10 +39,10 @@
 #include <windows.h>
 //#include <winsock2.h>
 #elif defined(__GNUC__)
+#include <cassert>
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <unistd.h>
-#include <cassert>
 #endif
 
 #include <iomanip>
@@ -58,5 +57,4 @@ const uint64_t SP_IDX = 31;
 const uint64_t NUM_VREG_BYTES = 16;
 const uint64_t NUM_ZREG_BYTES = 64;
 #include "xbyak_aarch64_gen.h"
-}
-
+} // namespace Xbyak_aarch64
