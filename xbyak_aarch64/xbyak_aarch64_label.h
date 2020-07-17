@@ -94,7 +94,7 @@ class LabelManagerAArch64 {
       int64_t labelOffset = (addrOffset - offset) * CSIZE;
       uint32_t disp = jmp->encFunc(labelOffset);
       if (base_->isAutoGrow()) {
-        base_->save(offset, disp, jmp->encFunc);
+        base_->save(offset, addrOffset, jmp->encFunc);
       } else {
         base_->rewrite(offset, disp);
       }

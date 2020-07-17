@@ -267,8 +267,8 @@ class CodeArrayAArch64 {
     uint32_t *const data = top_ + offset;
     *data = disp;
   }
-  void save(size_t offset, uint32_t val, const EncFunc &encFunc) {
-    addrInfoList_.push_back(AddrInfo(offset, val, encFunc));
+  void save(size_t offset, size_t jmpAddr, const EncFunc &encFunc) {
+    addrInfoList_.push_back(AddrInfo(offset, jmpAddr, encFunc));
   }
   bool isAutoGrow() const { return type_ == AUTO_GROW; }
   bool isCalledCalcJmpAddress() const { return isCalledCalcJmpAddress_; }
