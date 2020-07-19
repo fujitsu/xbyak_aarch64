@@ -266,7 +266,7 @@ Please refer constructor of "C++ class name" in Xbyak_aarch64 files.
 VReg16BList dstList(v0.b16, v3.b16);
 VReg16BList hoge(VReg16B(0), VReg16B(3));
 
-ld4((v0 - v3), ptr(x0)); <--- (1)
+ld4((v0.b16 - v3.b16), ptr(x0)); <--- (1)
 ld4(dstLsit, ptr(x0));   <--- Output is same JIT code of (1)
 ld4(hoge, ptr(x0));      <--- Output is same JIT code of (1)
 
