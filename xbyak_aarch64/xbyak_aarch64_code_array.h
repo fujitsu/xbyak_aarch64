@@ -137,7 +137,7 @@ class CodeArrayAArch64 {
   void growMemory() {
     const size_t newSize =
         (std::max<size_t>)(DEFAULT_MAX_CODE_SIZE, maxSize_ * 2);
-    uint32_t *newTop = alloc_->alloc(newSize);
+    uint32_t *newTop = alloc_->alloc(newSize * sizeof(uint32_t));
     if (newTop == 0) throw Error(ERR_CANT_ALLOC);
     for (size_t i = 0; i < size_; i++) newTop[i] = top_[i];
     alloc_->free(top_);
@@ -173,7 +173,7 @@ class CodeArrayAArch64 {
         alloc_(allocator ? allocator : (AllocatorAArch64 *)&defaultAllocator_),
         maxSize_(maxSize),
         top_(type_ == USER_BUF ? reinterpret_cast<uint32_t *>(userPtr)
-                               : alloc_->alloc((std::max<size_t>)(maxSize, 1))),
+             : alloc_->alloc((std::max<size_t>)(maxSize * sizeof(uint32_t), 1))),
         size_(0),
         isCalledCalcJmpAddress_(false) {
     if (maxSize_ > 0 && top_ == 0) throw Error(ERR_CANT_ALLOC);
