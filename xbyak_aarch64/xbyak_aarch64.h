@@ -1,4 +1,3 @@
-#include <string.h>
 #pragma once
 /*******************************************************************************
  * Copyright 2019 FUJITSU LIMITED
@@ -25,6 +24,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <memory.h>
 
 
 //#define XBYAK_USE_MMAP_ALLOCATOR
