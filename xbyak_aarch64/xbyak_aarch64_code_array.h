@@ -17,6 +17,7 @@
 
 #include "xbyak_aarch64_err.h"
 #include "xbyak_aarch64_inner.h"
+#include <string.h>
 
 static const size_t CSIZE = sizeof(uint32_t);
 
@@ -214,6 +215,10 @@ public:
     size_ = 0;
     addrInfoList_.clear();
     isCalledCalcJmpAddress_ = false;
+  }
+  void clearCodeArray() {
+    memset(top_, 0, size_);
+    size_ = 0;
   }
 
 #ifdef XBYAK_TRANSLATE_AARCH64
