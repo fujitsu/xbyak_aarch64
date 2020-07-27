@@ -1,4 +1,3 @@
-#include "string.h"
 #pragma once
 /*******************************************************************************
  * Copyright 2019 FUJITSU LIMITED
