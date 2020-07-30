@@ -25,4 +25,4 @@ addons:
 #      - qemu-user-static
 #      - qemu-utils
 script:
-  - make -C test test
+  - env TOOL_PREFIX=aarch64-linux-gnu- make -C test test
