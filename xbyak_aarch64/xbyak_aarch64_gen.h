@@ -5625,6 +5625,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     labelMgr_.set(this);
   }
   bool hasUndefinedLabel() const { return labelMgr_.hasUndefClabel(); }
+  void clearCache(void *begin, void *end) {
+    __builtin___clear_cache((char*)begin, (char*)end);
+  }
   /*
           MUST call ready() to complete generating code if you use AutoGrow
      mode.
@@ -5636,6 +5639,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
       calcJmpAddress();
       if (useProtect()) setProtectMode(mode);
     }
+    clearCache(const_cast<uint32_t*>(getCode()), const_cast<uint32_t*>(getCurr()));
   }
   // set read/exec
   void readyRE() { return ready(PROTECT_RE); }

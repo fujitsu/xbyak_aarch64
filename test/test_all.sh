@@ -42,6 +42,11 @@ do
     echo ""
 done
 
+which FCC
+if [ $? != 0 ] ;then
+  echo "FCC is not found"
+  exit 0
+fi
 echo "########################################################"
 echo "Test with FCC Compiler"
 echo "########################################################"

@@ -19,9 +19,9 @@
 #*******************************************************************************
 ARCH=$(uname -m)
 GPP=g++
-TOOL_PREFIX=""
+TOOL_PREFIX=${TOOL_PREFIX:-}
 if [ ${ARCH} != aarch64 ] ; then
-  TOOL_PREFIX=/home/kawakami/local_xbyak/bin/aarch64-linux-gnu-
+  TOOL_PREFIX=${TOOL_PREFIX:-/home/kawakami/local_xbyak/bin/aarch64-linux-gnu-}
 fi
 AS=${TOOL_PREFIX}as
 AWK=awk
