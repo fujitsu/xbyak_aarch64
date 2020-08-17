@@ -1,6 +1,6 @@
 #!/bin/sh
 #*******************************************************************************
-# Copyright 2019 FUJITSU LIMITED 
+# Copyright 2019-2020 FUJITSU LIMITED
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,22 +19,16 @@
 #*******************************************************************************
 ARCH=$(uname -m)
 GPP=g++
-#GPP=aarch64-linux-gnu-g++
-#GPP=/usr/bin/g++-9
 TOOL_PREFIX=""
 if [ ${ARCH} != aarch64 ] ; then
     TOOL_PREFIX=aarch64-linux-gnu-
-    #TOOL_PREFIX=./gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-
 fi
 AS=${TOOL_PREFIX}as
 AWK=awk
 SED=sed
 TEST_FILE=${1}
-#AARCH64_TYPE="armv8.4-a"
 AARCH64_TYPE="armv8.4-a"
 CXX_FLAGS1="-std=c++11 -fomit-frame-pointer -Wall -fno-operator-names -I../xbyak_aarch64 -I./ -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith -Wno-ignored-qualifiers"
-#CXX_FLAGS1="-std=gnu++11 -fomit-frame-pointer -Wall -fno-operator-names -I../xbyak_aarch64 -I./ -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith -Wno-ignored-qualifiers"
-#CXX_FLAGS2="-Wall -I../xbyak_aarch64 -DXBYAK_TEST -DXBYAK_USE_MMAP_ALLOCATOR"
 CXX_FLAGS2="-std=c++11 -Wall -I../xbyak_aarch64 -DXBYAK_TEST -DXBYAK_USE_MMAP_ALLOCATOR"
 
 #*******************************************************************************

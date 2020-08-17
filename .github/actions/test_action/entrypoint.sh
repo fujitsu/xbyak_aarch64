@@ -15,7 +15,4 @@
 # imitations under the License.
 # *******************************************************************************/
 cd test
-echo "******show test folder******"
-ls
-echo "******execution test******"
 ./test_all.sh

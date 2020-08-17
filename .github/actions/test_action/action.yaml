@@ -1,5 +1,5 @@
 name: 'CI'
-description: 'test for nmonic function'
+description: 'test for mnemonic function'
 runs:
   using: 'docker'
   image: 'Dockerfile'
