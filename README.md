@@ -67,8 +67,8 @@ The following dpkgs are required.
 Then execute the following commands.
 ```
 cd xbyak_aarch64/sample
-aarch64-linux-gnu-g++ add.cpp
-env QEMU_LD_PREFIX=/usr/aarch64-linux-gnu qemu-aarch64 ./a.out
+aarch64-linux-gnu-g++ add.cpp -include test/workaround.hpp
+env QEMU_LD_PREFIX=/usr/aarch64-linux-gnu qemu-aarch64 -cpu max,sve512=on ./a.out
 ```
 
 ## How to use Xbyak_aarch64
