@@ -28,6 +28,6 @@ COPY xbyak_aarch64_reg.h /xbyak_aarch64_reg.h
 RUN apt-get update
 RUN apt-get install -y build-essential
 #RUN apt-get install -y build-essential
-RUN apt-get install g++-aarch64-linux-gnu
+RUN apt-get install -y g++-aarch64-linux-gnu
 
 ENTRYPOINT ["/test_all.sh"]
