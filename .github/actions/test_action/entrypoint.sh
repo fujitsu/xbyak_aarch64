@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # imitations under the License.
 # *******************************************************************************/
-echo "show files"
-ls
-
 cd test
+echo "******show test folder******"
+ls
+echo "******execution test******"
 ./test_all.sh
