@@ -1,5 +1,6 @@
 FROM ubuntu:latest
 
+COPY entrypoint.sh /entrypoint.sh
 COPY test_all.sh /test_all.sh
 COPY test_nm.sh /test_nm.sh
 COPY make_nm.cpp /make_nm.cpp
@@ -30,4 +31,4 @@ RUN apt-get install -y build-essential
 #RUN apt-get install -y build-essential
 RUN apt-get install -y g++-aarch64-linux-gnu
 
-ENTRYPOINT ["/test_all.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
