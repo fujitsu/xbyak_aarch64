@@ -1,0 +1,5 @@
+name: 'CI'
+description: 'test for nmonic function'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
