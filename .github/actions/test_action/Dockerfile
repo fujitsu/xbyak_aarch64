@@ -25,9 +25,9 @@ COPY xbyak_aarch64_gen.h /xbyak_aarch64_gen.h
 COPY xbyak_aarch64_reg.h /xbyak_aarch64_reg.h
 #COPY gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu/ /gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu/
 
-#RUN apt-get install update
+RUN apt-get update
+RUN apt-get install -y build-essential
 #RUN apt-get install -y build-essential
-#RUN apt-get install -y build-essential
-#RUN apt-get install g++-aarch64-linux-gnu
+RUN apt-get install g++-aarch64-linux-gnu
 
 ENTRYPOINT ["/test_all.sh"]
