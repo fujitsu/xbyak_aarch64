@@ -8,4 +8,4 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Test action step
-      uses: .github/actions/test_action
+      uses: ./.github/actions/test_action
