@@ -25,6 +25,10 @@ do
     echo "########################################################"
     echo "########################################################"
     
+    echo "copy files"
+    ls
+    echo "directory path"
+    pwd
     echo "Start test senario=${i}"
     ./test_nm.sh ${i}
     if [ $? != 0 ] ;then
