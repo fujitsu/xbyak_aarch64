@@ -1,0 +1,11 @@
+on: [push]
+
+jobs:
+  ci_test_job:
+    runs-on: ubuntu-latest
+    name: Test for xbyak_aarch64 mnemonic
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Test action step
+      uses: ./.github/actions/test_action

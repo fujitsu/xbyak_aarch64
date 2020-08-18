@@ -1,6 +1,6 @@
 #!/bin/sh
 #*******************************************************************************
-# Copyright 2019-2020 FUJITSU LIMITED 
+# Copyright 2019-2020 FUJITSU LIMITED
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,17 +19,17 @@
 #*******************************************************************************
 ARCH=$(uname -m)
 GPP=g++
-TOOL_PREFIX=${TOOL_PREFIX:-}
+TOOL_PREFIX=""
 if [ ${ARCH} != aarch64 ] ; then
-  TOOL_PREFIX=${TOOL_PREFIX:-/home/kawakami/local_xbyak/bin/aarch64-linux-gnu-}
+    TOOL_PREFIX=aarch64-linux-gnu-
 fi
 AS=${TOOL_PREFIX}as
 AWK=awk
 SED=sed
 TEST_FILE=${1}
 AARCH64_TYPE="armv8.4-a"
-CXX_FLAGS1="-std=c++11 -fomit-frame-pointer -Wall -fno-operator-names -I../xbyak_aarch64 -I./ -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith"
-CXX_FLAGS2="-Wall -I../xbyak_aarch64 -DXBYAK_TEST -DXBYAK_USE_MMAP_ALLOCATOR"
+CXX_FLAGS1="-std=c++11 -fomit-frame-pointer -Wall -fno-operator-names -I../xbyak_aarch64 -I./ -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith -Wno-ignored-qualifiers"
+CXX_FLAGS2="-std=c++11 -Wall -I../xbyak_aarch64 -DXBYAK_TEST -DXBYAK_USE_MMAP_ALLOCATOR"
 
 #*******************************************************************************
 # Function definition
@@ -58,7 +58,7 @@ set_variables() {
 
   case $ENV_SELECT in
     f) GPP=FCC;
-       CXX_FLAGS1="-std=c++14 -fomit-frame-pointer -Wall -fno-operator-names -I../xbyak_aarch64 -I./ -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith -Nclang -Knolargepage";
+       CXX_FLAGS1="-std=c++11 -fomit-frame-pointer -Wall -fno-operator-names -I../xbyak_aarch64 -I./ -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith -Nclang -Knolargepage -Wno-ignored-qualifiers";
        CXX_FLAGS2="-Wall -I../xbyak_aarch64 -DXBYAK_TEST -DXBYAK_USE_MMAP_ALLOCATOR -Nclang -Knolargepage";
        echo "compiler is FCC"
       ;;
@@ -132,9 +132,7 @@ if [ $? != 0 ] ;then
     dumpNG "Generating source file using xbyak"
     exit 1
 fi
-
 ${GPP} ${CXX_FLAGS2} -o nm_frame nm_frame.cpp
-
 if [ $? != 0 ] ;then
     dumpNG "Compiling source file using xbyak"
     exit 1
