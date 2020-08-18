@@ -556,7 +556,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
   // set infomation of instruction code
   void setCodeInfo(const std::string &file, size_t line,
                    const std::string &func) {
-    cinfo_.set(getSize(), file, line, func);
+    cinfo_.set(size_, file, line, func);
     updateCodeInfoHist();
   }
 
@@ -690,7 +690,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     size_t offset = 0;
     int64_t labelOffset = 0;
     if (labelMgr_.getOffset(&offset, label)) {
-      labelOffset = (offset - getSize()) * CSIZE;
+      labelOffset = (offset - size_) * CSIZE;
     } else {
       labelMgr_.addUndefinedLabel(label, jmpL);
     }
@@ -718,7 +718,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     auto encFunc = [&, op, rd](int64_t labelOffset) {
       return PCrelAddrEnc(op, rd, labelOffset);
     };
-    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
+    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, size_);
     uint32_t code = PCrelAddrEnc(op, rd, genLabelOffset(label, jmpL));
     dw(code);
   }
@@ -847,7 +847,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     auto encFunc = [&, cond](int64_t labelOffset) {
       return CondBrImmEnc(cond, labelOffset);
     };
-    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
+    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, size_);
     uint32_t code = CondBrImmEnc(cond, genLabelOffset(label, jmpL));
     dw(code);
   }
@@ -984,7 +984,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     auto encFunc = [&, op](int64_t labelOffset) {
       return UncondBrImmEnc(op, labelOffset);
     };
-    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
+    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, size_);
     uint32_t code = UncondBrImmEnc(op, genLabelOffset(label, jmpL));
     dw(code);
   }
@@ -1009,7 +1009,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     auto encFunc = [&, op](int64_t labelOffset) {
       return CompareBrEnc(op, rt, labelOffset);
     };
-    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
+    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, size_);
     uint32_t code = CompareBrEnc(op, rt, genLabelOffset(label, jmpL));
     dw(code);
   }
@@ -1040,7 +1040,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     auto encFunc = [&, op, rt, imm](int64_t labelOffset) {
       return TestBrEnc(op, rt, imm, labelOffset);
     };
-    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
+    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, size_);
     uint32_t code = TestBrEnc(op, rt, imm, genLabelOffset(label, jmpL));
     dw(code);
   }
@@ -1386,7 +1386,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     auto encFunc = [&, opc, V, rt](int64_t labelOffset) {
       return LdRegLiteralEnc(opc, V, rt, labelOffset);
     };
-    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
+    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, size_);
     uint32_t code = LdRegLiteralEnc(opc, V, rt, genLabelOffset(label, jmpL));
     dw(code);
   }
@@ -1412,7 +1412,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     auto encFunc = [&, vt](int64_t labelOffset) {
       return LdRegSimdFpLiteralEnc(vt, labelOffset);
     };
-    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
+    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, size_);
     uint32_t code = LdRegSimdFpLiteralEnc(vt, genLabelOffset(label, jmpL));
     dw(code);
   }
@@ -1437,7 +1437,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     auto encFunc = [&, prfop](int64_t labelOffset) {
       return PfLiteralEnc(prfop, labelOffset);
     };
-    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
+    JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, size_);
     uint32_t code = PfLiteralEnc(prfop, genLabelOffset(label, jmpL));
     dw(code);
   }
@@ -5639,7 +5639,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
       calcJmpAddress();
       if (useProtect()) setProtectMode(mode);
     }
-    clearCache(const_cast<uint32_t*>(getCode()), const_cast<uint32_t*>(getCurr()));
+    clearCache(const_cast<uint8_t*>(getCode()), const_cast<uint8_t*>(getCurr()));
   }
   // set read/exec
   void readyRE() { return ready(PROTECT_RE); }

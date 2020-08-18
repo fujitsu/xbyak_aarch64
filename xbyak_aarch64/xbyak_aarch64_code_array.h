@@ -27,7 +27,7 @@ inline void *AlignedMalloc(size_t size, size_t alignment) {
   return _aligned_malloc(size, alignment);
 #else
   void *p;
-  int ret = posix_memalign(&p, alignment, size * CSIZE);
+  int ret = posix_memalign(&p, alignment, size);
   return (ret == 0) ? p : 0;
 #endif
 }
@@ -70,7 +70,7 @@ class MmapAllocatorAArch64 : AllocatorAArch64 {
 #else
 #error "not supported"
 #endif
-    void *p = mmap(NULL, size * CSIZE, PROT_READ | PROT_WRITE, mode, -1, 0);
+    void *p = mmap(NULL, size, PROT_READ | PROT_WRITE, mode, -1, 0);
     if (p == MAP_FAILED) throw Error(ERR_CANT_ALLOC);
     assert(p);
     sizeList_[(uintptr_t)p] = size;
@@ -125,7 +125,8 @@ class CodeArrayAArch64 {
   AllocatorAArch64 *alloc_;
 
  protected:
-  size_t maxSize_;  // max size of code size
+  friend class LabelManagerAArch64;
+  size_t maxSize_;  // max size of code size (per uint32_t)
   uint32_t *top_;
   size_t size_;  // code size
   bool isCalledCalcJmpAddress_;
@@ -136,13 +137,13 @@ class CodeArrayAArch64 {
   */
   void growMemory() {
     const size_t newSize =
-        (std::max<size_t>)(DEFAULT_MAX_CODE_SIZE, maxSize_ * 2);
+        (std::max<size_t>)(DEFAULT_MAX_CODE_SIZE, getMaxSize() * 2);
     uint32_t *newTop = alloc_->alloc(newSize);
     if (newTop == 0) throw Error(ERR_CANT_ALLOC);
     for (size_t i = 0; i < size_; i++) newTop[i] = top_[i];
     alloc_->free(top_);
     top_ = newTop;
-    maxSize_ = newSize;
+    maxSize_ = newSize / CSIZE;
   }
   /*
     calc jmp address for AutoGrow mode
@@ -171,9 +172,9 @@ class CodeArrayAArch64 {
                   : (userPtr == 0 || userPtr == DontSetProtectRWE) ? ALLOC_BUF
                                                                    : USER_BUF),
         alloc_(allocator ? allocator : (AllocatorAArch64 *)&defaultAllocator_),
-        maxSize_(maxSize),
+        maxSize_(maxSize / CSIZE),
         top_(type_ == USER_BUF ? reinterpret_cast<uint32_t *>(userPtr)
-                               : alloc_->alloc((std::max<size_t>)(maxSize, 1))),
+                               : alloc_->alloc((std::max<size_t>)(maxSize, 4))),
         size_(0),
         isCalledCalcJmpAddress_(false) {
     if (maxSize_ > 0 && top_ == 0) throw Error(ERR_CANT_ALLOC);
@@ -190,7 +191,7 @@ class CodeArrayAArch64 {
     }
   }
   bool setProtectMode(ProtectMode mode, bool throwException = true) {
-    bool isOK = protect(top_, maxSize_, mode);
+    bool isOK = protect(top_, getMaxSize(), mode);
     if (isOK) return true;
     if (throwException) throw Error(ERR_CANT_PROTECT);
     return false;
@@ -221,41 +222,27 @@ class CodeArrayAArch64 {
     }
     top_[size_++] = code;
   }
-#ifdef XBYAK_TRANSLATE_AARCH64
   const uint8_t *getCode() const { return reinterpret_cast<uint8_t *>(top_); }
-  const uint32_t *getCode32() const { return top_; }
-#else
-  const uint32_t *getCode() const { return top_; }
-#endif
   template <class F>
   const F getCode() const {
     return reinterpret_cast<F>(top_);
   }
-#ifdef XBYAK_TRANSLATE_AARCH64
   const uint8_t *getCurr() const { return reinterpret_cast<uint8_t *>(&top_[size_]); }
-  const uint32_t *getCurr32() const { return &top_[size_]; }
-#else
-  const uint32_t *getCurr() const { return &top_[size_]; }
-#endif
   template <class F>
   const F getCurr() const {
     return reinterpret_cast<F>(&top_[size_]);
   }
+  // return byte size
   size_t getSize() const { return size_; }
+  size_t getMaxSize() const { return maxSize_ * CSIZE; }
+  // set byte size
   void setSize(size_t size) {
-    if (size > maxSize_) throw Error(ERR_OFFSET_IS_TOO_BIG);
-    size_ = size;
+    if (size > getMaxSize()) throw Error(ERR_OFFSET_IS_TOO_BIG);
+    size_ = size / CSIZE;
   }
   void dump() const {
-#ifdef XBYAK_TRANSLATE_AARCH64
-    const uint8_t *p = getCode();
-#else
-    const uint32_t *p = getCode();
-#endif
-    size_t bufSize = getSize();
-    size_t remain = bufSize;
-    for (size_t i = 0; i < remain; ++i) {
-      printf("%08X\n", p[i]);
+    for (size_t i = 0; i < size_; ++i) {
+      printf("%08X\n", top_[i]);
     }
   }
   /*
