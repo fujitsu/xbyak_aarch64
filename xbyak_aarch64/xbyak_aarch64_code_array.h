@@ -125,6 +125,7 @@ class CodeArrayAArch64 {
   AllocatorAArch64 *alloc_;
 
  protected:
+  friend class LabelManagerAArch64;
   size_t maxSize_;  // max size of code size (per uint32_t)
   uint32_t *top_;
   size_t size_;  // code size
@@ -231,7 +232,6 @@ class CodeArrayAArch64 {
   const F getCurr() const {
     return reinterpret_cast<F>(&top_[size_]);
   }
-  size_t getUint32Num() const { return size_; }
   // return byte size
   size_t getSize() const { return size_; }
   size_t getMaxSize() const { return maxSize_ * CSIZE; }

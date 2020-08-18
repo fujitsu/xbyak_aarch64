@@ -158,7 +158,7 @@ class LabelManagerAArch64 {
 
   void defineClabel(LabelAArch64& label) {
     define_inner(clabelDefListAArch64_, clabelUndefListAArch64_, getId(label),
-                 base_->getUint32Num());
+                 base_->size_);
     label.mgr = this;
     labelPtrListAArch64_.insert(&label);
   }
