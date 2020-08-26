@@ -24,7 +24,7 @@ using namespace Xbyak_aarch64;
 	#pragma warning(disable : 4245)
 	#pragma warning(disable : 4312)
 #endif
-class Sample : public CodeGeneratorAArch64 {
+class Sample : public CodeGenerator {
 	void operator=(const Sample&);
 public:
 #include "nm.cpp"
@@ -33,7 +33,7 @@ public:
 #define _STR(x) #x
 #define TEST(syntax) err = true; try { syntax; err = false; } catch (Xbyak::Error) { } catch (...) { } if (!err) printf("should be err:%s;\n", _STR(syntax))
 
-class ErrorSample : public CodeGeneratorAArch64 {
+class ErrorSample : public CodeGenerator {
 	void operator=(const ErrorSample&);
 public:
 	void gen()

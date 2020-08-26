@@ -523,7 +523,7 @@ class CodeGenUtil {
   }
 };
 
-class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
+class CodeGenerator : public CodeGenUtil, public CodeArrayAArch64 {
   struct CodeInfo {
     size_t code_idx;
     std::string file;
@@ -5260,7 +5260,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
   const PReg p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12;
   const PReg p13, p14, p15;
 
-  CodeGeneratorAArch64(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0,
+  CodeGenerator(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0,
                 AllocatorAArch64 *allocator = 0)
       : CodeArrayAArch64(maxSize, userPtr, allocator)
 #if 1
