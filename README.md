@@ -67,7 +67,7 @@ The following dpkgs are required.
 Then execute the following commands.
 ```
 cd xbyak_aarch64/sample
-aarch64-linux-gnu-g++ add.cpp -include test/workaround.hpp
+aarch64-linux-gnu-g++ add.cpp
 env QEMU_LD_PREFIX=/usr/aarch64-linux-gnu qemu-aarch64 -cpu max,sve512=on ./a.out
 ```
 
@@ -525,7 +525,7 @@ LabelAArch64 L1;           // (1), instance of LabelAArch64 class
 mov(w4, w0); 
 mov(w3, 0); 
 mov(w0, 0); 
-L_aarch64(L1);              // (2), "L" function registers JIT code address of this position to label L1.
+L(L1);              // (2), "L" function registers JIT code address of this position to label L1.
 add(w0, w0, w4); 
 add(w3, w3, 1); 
 cmp(w2, w3); 
@@ -542,9 +542,9 @@ You can copy the address stored in "Label" instance by using assignL function.
 ```
 LabelAArch64 L1,L2,L3; 
 ....
-L_aarch64(L1);               // JIT code address of this position is stored to L1.
+L(L1);               // JIT code address of this position is stored to L1.
 ....
-L_aarch64(L2);               // JIT code address of this position is stored to L1.
+L(L2);               // JIT code address of this position is stored to L1.
 ....
 if (flag) { 
 assignL(L3,L1);      // The address stored in L1 is copied to L3.

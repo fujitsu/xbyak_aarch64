@@ -5598,10 +5598,10 @@ class CodeGenerator : public CodeGenUtil, public CodeArrayAArch64 {
     labelMgr_.set(this);
   }
 
-  void L_aarch64(Label &label) { labelMgr_.defineClabel(label); }
-  Label L_aarch64() {
+  void L(Label &label) { labelMgr_.defineClabel(label); }
+  Label L() {
       Label label;
-    L_aarch64(label);
+    L(label);
     return label;
   }
   void inLocalLabel() { /*assert(NULL);*/ }
