@@ -207,6 +207,12 @@ class CodeArrayAArch64 {
     addrInfoList_.clear();
     isCalledCalcJmpAddress_ = false;
   }
+  void clearCodeArray() {
+    for(size_t i = 0; i < size_; i++){
+      top_[i] = 0;
+    }
+    size_ = 0;
+  }
 
 #ifdef XBYAK_TRANSLATE_AARCH64
   void dw_aarch64(uint32_t code) {
