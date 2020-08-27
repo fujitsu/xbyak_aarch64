@@ -51,10 +51,6 @@ class Label {
   const uint32_t* getAddress() const;
 };
 
-#ifdef XBYAK_TRANSLATE_AARCH64
-  using namespace Xbyak::Xbyak_aarch64;
-#endif
-
 class LabelManagerAArch64 {
 
   // for Label class

@@ -117,7 +117,7 @@ enum Pattern {
 
 enum IcOp {
 #ifdef XBYAK_TRANSLATE_AARCH64
-  ALLUIS = Xbyak::Xbyak_aarch64::inner::genSysInstOp(0, 7, 1, 0),  // op1=0, CRn=7, CRm=1, op2=0
+  ALLUIS = Xbyak_aarch64::inner::genSysInstOp(0, 7, 1, 0),  // op1=0, CRn=7, CRm=1, op2=0
 #else
   ALLUIS = inner::genSysInstOp(0, 7, 1, 0),  // op1=0, CRn=7, CRm=1, op2=0
 #endif
