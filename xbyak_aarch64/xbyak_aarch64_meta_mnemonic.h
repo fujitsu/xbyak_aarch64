@@ -671,6 +671,16 @@ template <typename T> void mov_imm(const XReg &dst, T imm) {
     return;
   }
 
+  if (imm == ~uint64_t(0)) {
+    movn(dst, 0);
+    return;
+  }
+
+  if (isBitMask(imm)) {
+    mov(dst, imm);
+    return;
+  }
+
   for (int i = 0; i < 4; i++) {
     uint64_t tag_bit = (bit_ptn >> (16 * i)) & 0xFFFF;
     if (tag_bit) {
@@ -690,7 +700,11 @@ template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void mov_imm(const WReg &dst, T imm) {
   bool flag = false;
-  uint64_t bit_ptn = static_cast<uint64_t>(imm);
+  uint32_t bit_ptn = static_cast<uint32_t>(imm);
+
+  if (sizeof(T) > 4) {
+    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
+  }
 
   if (imm == 0) {
     mov(dst, 0);
@@ -699,6 +713,11 @@ void mov_imm(const WReg &dst, T imm) {
 
   if (uint64_t(0xFFFFFFFF) < imm && imm < uint64_t(0xFFFFFFFF80000000)) {
     throw Error(ERR_ILLEGAL_IMM_RANGE, genErrMsg());
+  }
+
+  if (isBitMask(imm)) {
+    mov(dst, imm);
+    return;
   }
 
   for (int i = 0; i < 2; i++) {
@@ -719,7 +738,11 @@ template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void mov_imm(const WReg &dst, T imm) {
   bool flag = false;
-  uint64_t bit_ptn = static_cast<uint64_t>(imm);
+  uint32_t bit_ptn = static_cast<uint32_t>(imm);
+
+  if (sizeof(T) > 4) {
+    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
+  }
 
   if (imm == 0) {
     mov(dst, 0);
@@ -730,13 +753,18 @@ void mov_imm(const WReg &dst, T imm) {
     throw Error(ERR_ILLEGAL_IMM_RANGE, genErrMsg());
   }
 
+  if (isBitMask(imm)) {
+    mov(dst, imm);
+    return;
+  }
+
   for (int i = 0; i < 2; i++) {
     if (bit_ptn & (0xFFFF << 16 * i)) {
       if (flag == false) {
         movz(dst, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
         flag = true;
       } else {
-        movz(dst, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
+        movk(dst, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
       }
     }
   }
