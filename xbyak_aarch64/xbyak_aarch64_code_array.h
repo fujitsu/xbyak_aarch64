@@ -216,7 +216,7 @@ public:
     isCalledCalcJmpAddress_ = false;
   }
   void clearCodeArray() {
-    for(size_t i = 0; i < size_; i++){
+    for (size_t i = 0; i < size_; i++) {
       top_[i] = 0;
     }
     size_ = 0;
