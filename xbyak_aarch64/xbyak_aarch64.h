@@ -25,7 +25,6 @@
 #include <unordered_set>
 #include <vector>
 
-
 //#define XBYAK_USE_MMAP_ALLOCATOR
 #if !defined(__GNUC__) || defined(__MINGW32__)
 #undef XBYAK_USE_MMAP_ALLOCATOR
