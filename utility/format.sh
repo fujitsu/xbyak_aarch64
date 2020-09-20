@@ -28,5 +28,5 @@ fi
 
 for i in ${list} ; do
     echo "formatting:${i}"
-    clang-format -style=LLVM -i ${i}
+    clang-format -style=file -i ${i}
 done
