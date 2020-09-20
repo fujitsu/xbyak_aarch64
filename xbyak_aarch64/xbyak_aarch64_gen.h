@@ -5251,8 +5251,6 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
   }
 
 public:
-  unsigned int getVersion() const { return VERSION; }
-
   const WReg w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12;
   const WReg w13, w14, w15, w16, w17, w18, w19, w20, w21, w22, w23;
   const WReg w24, w25, w26, w27, w28, w29, w30, wzr, wsp;
@@ -5366,6 +5364,8 @@ public:
   {
     labelMgr_.set(this);
   }
+
+  unsigned int getVersion() const { return VERSION; }
 
   void L_aarch64(LabelAArch64 &label) { labelMgr_.defineClabel(label); }
   LabelAArch64 L_aarch64() {
