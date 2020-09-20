@@ -17,6 +17,10 @@ template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
 
+  if (sizeof(T) != 8) {
+    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
+  }
+
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -32,19 +36,7 @@ void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
     return;
   }
 
-  /* MOVZ allows shift amount = 0, 16, 32, 48 */
-  for (int i = 0; i < 64; i += 16) {
-    uint64_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
-    if (tmp_ptn) {
-      if (!flag) {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        flag = true;
-      } else {
-        movk(tmp, static_cast<uint32_t>(tmp_ptn), i);
-      }
-    }
-  }
-
+  mov_imm(tmp, imm);
   add(dst, src, tmp);
 
   return;
@@ -54,6 +46,10 @@ template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
 
+  if (sizeof(T) != 8) {
+    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
+  }
+
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -72,19 +68,7 @@ void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
     }
   }
 
-  /* MOVZ allows shift amount = 0, 16, 32, 48 */
-  for (int i = 0; i < 64; i += 16) {
-    uint64_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
-    if (tmp_ptn) {
-      if (!flag) {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        flag = true;
-      } else {
-        movk(tmp, static_cast<uint32_t>(tmp_ptn), i);
-      }
-    }
-  }
-
+  mov_imm(tmp, imm);
   add(dst, src, tmp);
 
   return;
@@ -94,7 +78,7 @@ template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 
-  if (sizeof(T) > 4) {
+  if (sizeof(T) != 4) {
     throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
   }
 
@@ -113,19 +97,7 @@ void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
     return;
   }
 
-  /* MOVZ allows shift amount = 0, 16, 32, 48 */
-  for (int i = 0; i < 32; i += 16) {
-    uint64_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
-    if (tmp_ptn) {
-      if (!flag) {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        flag = true;
-      } else {
-        movk(tmp, static_cast<uint32_t>(tmp_ptn), i);
-      }
-    }
-  }
-
+  mov_imm(tmp, imm);
   add(dst, src, tmp);
 
   return;
@@ -135,7 +107,7 @@ template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 
-  if (sizeof(T) > 4) {
+  if (sizeof(T) != 4) {
     throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
   }
 
@@ -157,19 +129,7 @@ void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
     }
   }
 
-  /* MOVZ allows shift amount = 0, 16, 32, 48 */
-  for (int i = 0; i < 32; i += 16) {
-    uint32_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
-    if (tmp_ptn) {
-      if (!flag) {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        flag = true;
-      } else {
-        movk(tmp, static_cast<uint32_t>(tmp_ptn), i);
-      }
-    }
-  }
-
+  mov_imm(tmp, imm);
   add(dst, src, tmp);
 
   return;
@@ -179,6 +139,10 @@ template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
 
+  if (sizeof(T) != 8) {
+    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
+  }
+
   /* This sub_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -194,19 +158,7 @@ void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
     return;
   }
 
-  /* MOVZ allows shift amount = 0, 16, 32, 48 */
-  for (int i = 0; i < 64; i += 16) {
-    uint64_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
-    if (tmp_ptn) {
-      if (!flag) {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        flag = true;
-      } else {
-        movk(tmp, static_cast<uint32_t>(tmp_ptn), i);
-      }
-    }
-  }
-
+  mov_imm(tmp, imm);
   sub(dst, src, tmp);
 
   return;
@@ -216,6 +168,10 @@ template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
 
+  if (sizeof(T) != 8) {
+    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
+  }
+
   /* This sub_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -234,19 +190,7 @@ void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
     }
   }
 
-  /* MOVZ allows shift amount = 0, 16, 32, 48 */
-  for (int i = 0; i < 64; i += 16) {
-    uint64_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
-    if (tmp_ptn) {
-      if (!flag) {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        flag = true;
-      } else {
-        movk(tmp, static_cast<uint32_t>(tmp_ptn), i);
-      }
-    }
-  }
-
+  mov_imm(tmp, imm);
   sub(dst, src, tmp);
 
   return;
@@ -256,7 +200,7 @@ template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 
-  if (sizeof(T) > 4) {
+  if (sizeof(T) != 4) {
     throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
   }
 
@@ -275,19 +219,7 @@ void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
     return;
   }
 
-  /* MOVZ allows shift amount = 0, 16, 32, 48 */
-  for (int i = 0; i < 32; i += 16) {
-    uint64_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
-    if (tmp_ptn) {
-      if (!flag) {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        flag = true;
-      } else {
-        movk(tmp, static_cast<uint32_t>(tmp_ptn), i);
-      }
-    }
-  }
-
+  mov_imm(tmp, imm);
   sub(dst, src, tmp);
 
   return;
@@ -297,7 +229,7 @@ template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 
-  if (sizeof(T) > 4) {
+  if (sizeof(T) != 4) {
     throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
   }
 
@@ -319,19 +251,7 @@ void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
     }
   }
 
-  /* MOVZ allows shift amount = 0, 16, 32, 48 */
-  for (int i = 0; i < 32; i += 16) {
-    uint32_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
-    if (tmp_ptn) {
-      if (!flag) {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        flag = true;
-      } else {
-        movk(tmp, static_cast<uint32_t>(tmp_ptn), i);
-      }
-    }
-  }
-
+  mov_imm(tmp, imm);
   sub(dst, src, tmp);
 
   return;
@@ -341,6 +261,10 @@ template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
 
+  if (sizeof(T) != 8) {
+    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
+  }
+
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -356,19 +280,7 @@ void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
     return;
   }
 
-  /* MOVZ allows shift amount = 0, 16, 32, 48 */
-  for (int i = 0; i < 64; i += 16) {
-    uint64_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
-    if (tmp_ptn) {
-      if (!flag) {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        flag = true;
-      } else {
-        movk(tmp, static_cast<uint32_t>(tmp_ptn), i);
-      }
-    }
-  }
-
+  mov_imm(tmp, imm);
   adds(dst, src, tmp);
 
   return;
@@ -378,6 +290,10 @@ template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
 
+  if (sizeof(T) != 8) {
+    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
+  }
+
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -396,19 +312,7 @@ void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
     }
   }
 
-  /* MOVZ allows shift amount = 0, 16, 32, 48 */
-  for (int i = 0; i < 64; i += 16) {
-    uint64_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
-    if (tmp_ptn) {
-      if (!flag) {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        flag = true;
-      } else {
-        movk(tmp, static_cast<uint32_t>(tmp_ptn), i);
-      }
-    }
-  }
-
+  mov_imm(tmp, imm);
   adds(dst, src, tmp);
 
   return;
@@ -418,7 +322,7 @@ template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 
-  if (sizeof(T) > 4) {
+  if (sizeof(T) != 4) {
     throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
   }
 
@@ -437,19 +341,7 @@ void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
     return;
   }
 
-  /* MOVZ allows shift amount = 0, 16, 32, 48 */
-  for (int i = 0; i < 32; i += 16) {
-    uint64_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
-    if (tmp_ptn) {
-      if (!flag) {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        flag = true;
-      } else {
-        movk(tmp, static_cast<uint32_t>(tmp_ptn), i);
-      }
-    }
-  }
-
+  mov_imm(tmp, imm);
   adds(dst, src, tmp);
 
   return;
@@ -459,7 +351,7 @@ template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 
-  if (sizeof(T) > 4) {
+  if (sizeof(T) != 4) {
     throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
   }
 
@@ -481,19 +373,7 @@ void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
     }
   }
 
-  /* MOVZ allows shift amount = 0, 16, 32, 48 */
-  for (int i = 0; i < 32; i += 16) {
-    uint32_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
-    if (tmp_ptn) {
-      if (!flag) {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        flag = true;
-      } else {
-        movk(tmp, static_cast<uint32_t>(tmp_ptn), i);
-      }
-    }
-  }
-
+  mov_imm(tmp, imm);
   adds(dst, src, tmp);
 
   return;
@@ -502,6 +382,10 @@ void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
+
+  if (sizeof(T) != 8) {
+    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
+  }
 
   /* This sub_imm function allows dst == src,
      but tmp must be different from src */
@@ -518,19 +402,7 @@ void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
     return;
   }
 
-  /* MOVZ allows shift amount = 0, 16, 32, 48 */
-  for (int i = 0; i < 64; i += 16) {
-    uint64_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
-    if (tmp_ptn) {
-      if (!flag) {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        flag = true;
-      } else {
-        movk(tmp, static_cast<uint32_t>(tmp_ptn), i);
-      }
-    }
-  }
-
+  mov_imm(tmp, imm);
   subs(dst, src, tmp);
 
   return;
@@ -539,6 +411,10 @@ void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
 template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
+
+  if (sizeof(T) != 8) {
+    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
+  }
 
   /* This sub_imm function allows dst == src,
      but tmp must be different from src */
@@ -558,19 +434,7 @@ void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
     }
   }
 
-  /* MOVZ allows shift amount = 0, 16, 32, 48 */
-  for (int i = 0; i < 64; i += 16) {
-    uint64_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
-    if (tmp_ptn) {
-      if (!flag) {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        flag = true;
-      } else {
-        movk(tmp, static_cast<uint32_t>(tmp_ptn), i);
-      }
-    }
-  }
-
+  mov_imm(tmp, imm);
   subs(dst, src, tmp);
 
   return;
@@ -580,7 +444,7 @@ template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 
-  if (sizeof(T) > 4) {
+  if (sizeof(T) != 4) {
     throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
   }
 
@@ -599,19 +463,7 @@ void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
     return;
   }
 
-  /* MOVZ allows shift amount = 0, 16, 32, 48 */
-  for (int i = 0; i < 32; i += 16) {
-    uint64_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
-    if (tmp_ptn) {
-      if (!flag) {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        flag = true;
-      } else {
-        movk(tmp, static_cast<uint32_t>(tmp_ptn), i);
-      }
-    }
-  }
-
+  mov_imm(tmp, imm);
   subs(dst, src, tmp);
 
   return;
@@ -621,7 +473,7 @@ template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 
-  if (sizeof(T) > 4) {
+  if (sizeof(T) != 4) {
     throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
   }
 
@@ -643,19 +495,7 @@ void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
     }
   }
 
-  /* MOVZ allows shift amount = 0, 16, 32, 48 */
-  for (int i = 0; i < 32; i += 16) {
-    uint32_t tmp_ptn = (bit_ptn & (mask << i)) >> i;
-    if (tmp_ptn) {
-      if (!flag) {
-        movz(tmp, static_cast<uint32_t>(tmp_ptn), i);
-        flag = true;
-      } else {
-        movk(tmp, static_cast<uint32_t>(tmp_ptn), i);
-      }
-    }
-  }
-
+  mov_imm(tmp, imm);
   subs(dst, src, tmp);
 
   return;
@@ -668,6 +508,16 @@ template <typename T> void mov_imm(const XReg &dst, T imm) {
 
   if (imm == 0) {
     mov(dst, 0);
+    return;
+  }
+
+  if (imm == ~uint64_t(0)) {
+    movn(dst, 0);
+    return;
+  }
+
+  if (isBitMask(imm)) {
+    mov(dst, imm);
     return;
   }
 
@@ -690,7 +540,11 @@ template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void mov_imm(const WReg &dst, T imm) {
   bool flag = false;
-  uint64_t bit_ptn = static_cast<uint64_t>(imm);
+  uint32_t bit_ptn = static_cast<uint32_t>(imm);
+
+  if (sizeof(T) > 4) {
+    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
+  }
 
   if (imm == 0) {
     mov(dst, 0);
@@ -699,6 +553,11 @@ void mov_imm(const WReg &dst, T imm) {
 
   if (uint64_t(0xFFFFFFFF) < imm && imm < uint64_t(0xFFFFFFFF80000000)) {
     throw Error(ERR_ILLEGAL_IMM_RANGE, genErrMsg());
+  }
+
+  if (isBitMask(imm)) {
+    mov(dst, imm);
+    return;
   }
 
   for (int i = 0; i < 2; i++) {
@@ -719,7 +578,11 @@ template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void mov_imm(const WReg &dst, T imm) {
   bool flag = false;
-  uint64_t bit_ptn = static_cast<uint64_t>(imm);
+  uint32_t bit_ptn = static_cast<uint32_t>(imm);
+
+  if (sizeof(T) > 4) {
+    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
+  }
 
   if (imm == 0) {
     mov(dst, 0);
@@ -730,13 +593,18 @@ void mov_imm(const WReg &dst, T imm) {
     throw Error(ERR_ILLEGAL_IMM_RANGE, genErrMsg());
   }
 
+  if (isBitMask(imm)) {
+    mov(dst, imm);
+    return;
+  }
+
   for (int i = 0; i < 2; i++) {
     if (bit_ptn & (0xFFFF << 16 * i)) {
       if (flag == false) {
         movz(dst, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
         flag = true;
       } else {
-        movz(dst, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
+        movk(dst, (bit_ptn >> (16 * i)) & 0xFFFF, 16 * i);
       }
     }
   }
