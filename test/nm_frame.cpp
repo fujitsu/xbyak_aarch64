@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 FUJITSU LIMITED 
+ * Copyright 2019 FUJITSU LIMITED
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,48 +21,56 @@
 using namespace Xbyak_aarch64;
 
 #ifdef _MSC_VER
-	#pragma warning(disable : 4245)
-	#pragma warning(disable : 4312)
+#pragma warning(disable : 4245)
+#pragma warning(disable : 4312)
 #endif
 class Sample : public CodeGeneratorAArch64 {
-	void operator=(const Sample&);
+  void operator=(const Sample &);
+
 public:
 #include "nm.cpp"
 };
 
 #define _STR(x) #x
-#define TEST(syntax) err = true; try { syntax; err = false; } catch (Xbyak::Error) { } catch (...) { } if (!err) printf("should be err:%s;\n", _STR(syntax))
+#define TEST(syntax)                                                           \
+  err = true;                                                                  \
+  try {                                                                        \
+    syntax;                                                                    \
+    err = false;                                                               \
+  } catch (Xbyak::Error) {                                                     \
+  } catch (...) {                                                              \
+  }                                                                            \
+  if (!err)                                                                    \
+  printf("should be err:%s;\n", _STR(syntax))
 
 class ErrorSample : public CodeGeneratorAArch64 {
-	void operator=(const ErrorSample&);
+  void operator=(const ErrorSample &);
+
 public:
-	void gen()
-	{
-	        //bool err;
-		//		TEST(mov(ptr[w0],1));
-		//		TEST(test(ptr[w0],1));
-		//		TEST(adc(ptr[w0],1));
-		//		TEST(setz(w0));
-	}
+  void gen() {
+    // bool err;
+    //		TEST(mov(ptr[w0],1));
+    //		TEST(test(ptr[w0],1));
+    //		TEST(adc(ptr[w0],1));
+    //		TEST(setz(w0));
+  }
 };
-int main()
-	try
-{
-        //size_t size = sizeof(Xbyak_aarch64::Operand);
-	//	if (size != 4) {
-	//		printf("sizeof Operand %d\n", (int)size);
-	//	}
-	try {
-		Sample s;
-		s.gen();
-	} catch (std::exception& e) {
-		printf("ERR:%s\n", e.what());
-	} catch (...) {
-		printf("unknown error\n");
-	}
-	ErrorSample es;
-	es.gen();
-} catch (std::exception& e) {
-	printf("err %s\n", e.what());
-	return 1;
+int main() try {
+  // size_t size = sizeof(Xbyak_aarch64::Operand);
+  //	if (size != 4) {
+  //		printf("sizeof Operand %d\n", (int)size);
+  //	}
+  try {
+    Sample s;
+    s.gen();
+  } catch (std::exception &e) {
+    printf("ERR:%s\n", e.what());
+  } catch (...) {
+    printf("unknown error\n");
+  }
+  ErrorSample es;
+  es.gen();
+} catch (std::exception &e) {
+  printf("err %s\n", e.what());
+  return 1;
 }
