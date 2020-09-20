@@ -791,7 +791,10 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t imm16 = field(imm, 15 + 16 * hw, 16 * hw);
     uint32_t inv_imm16 = field(~imm, 15 + 16 * inv_hw, 16 * inv_hw);
 
-    if (!(imm16 == 0 && hw != 0)) {
+    if (isBitMask(imm)) {
+      // alias of ORR
+      LogicalImm(1, rd, RReg(31, rd.getBit()), imm, true);
+    } else if (!(imm16 == 0 && hw != 0)) {
       // alias of MOVZ
       MvWideImm(2, rd, imm16, hw << 4);
     } else if ((!(inv_imm16 == 0 && inv_hw != 0) && inv_imm16 != ones(16) &&
@@ -799,9 +802,6 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
                (!(inv_imm16 == 0 && inv_hw != 0) && rd_bit == 64)) {
       // alias of MOVN
       MvWideImm(0, rd, imm16, hw << 4);
-    } else {
-      // alias of ORR
-      LogicalImm(1, rd, RReg(31, rd.getBit()), imm, true);
     }
   }
 
@@ -5431,6 +5431,30 @@ public:
   ZReg getTmpZReg() { return z31; }
 
   PReg getTmpPReg() { return p7; }
+
+  /* If "imm" is "00..011..100..0" or "11..100..011..1",
+     this function returns TRUE, otherwise FALSE. */
+  template <typename T> bool isBitMask(T imm) {
+    uint64_t bit_ptn = static_cast<uint64_t>(imm);
+    int curr, prev = 0;
+    uint64_t invCount = 0;
+
+    prev = (bit_ptn & 0x1) ? 1 : 0;
+
+    for (size_t i = 1; i < 8 * sizeof(T); i++) {
+      curr = (bit_ptn & (uint64_t(1) << i)) ? 1 : 0;
+      if (prev != curr) {
+        invCount++;
+      }
+      prev = curr;
+    }
+
+    if (1 <= invCount && invCount <= 2) { // intCount == 0 means all 0 or all 1
+      return true;
+    }
+
+    return false;
+  }
 
 #include "xbyak_aarch64_meta_mnemonic.h"
 #include "xbyak_aarch64_mnemonic.h"
