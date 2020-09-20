@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 FUJITSU LIMITED 
+ * Copyright 2019 FUJITSU LIMITED
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,26 +17,26 @@
 using namespace Xbyak;
 class Generator : public CodeGenerator {
 public:
-    void genAddFunc() {
-        Label L1,L2;
-        L(L1);
-        add(w0,w1,w0);
-        cmp(w0,13);
-        b(EQ,L2);
-        sub(w1,w1,1);
-        b(L1);
-        L(L2);
-        ret();
-    }
-    const uint32_t *gen() {
-        genAddFunc();
-        ready();
-        return getCode();
-    }
+  void genAddFunc() {
+    Label L1, L2;
+    L(L1);
+    add(w0, w1, w0);
+    cmp(w0, 13);
+    b(EQ, L2);
+    sub(w1, w1, 1);
+    b(L1);
+    L(L2);
+    ret();
+  }
+  const uint32_t *gen() {
+    genAddFunc();
+    ready();
+    return getCode();
+  }
 };
 int main() {
-    Generator gen;
-    int (*f)(int a, int b) = (int (*)(int a, int b))gen.gen();
-    std::cout << f(3,4) << std::endl;
-    return 0;
+  Generator gen;
+  int (*f)(int a, int b) = (int (*)(int a, int b))gen.gen();
+  std::cout << f(3, 4) << std::endl;
+  return 0;
 }
