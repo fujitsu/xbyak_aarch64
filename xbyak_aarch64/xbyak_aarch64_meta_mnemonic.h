@@ -16,18 +16,11 @@
 template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
-
-  if (sizeof(T) != 8) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
-
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
   uint64_t bit_ptn = static_cast<uint64_t>(imm);
-  uint64_t mask = 0xFFFF;
-  bool flag = false;
 
   /* ADD(immediate) supports unsigned imm12 */
   const uint64_t IMM12_MASK = ~uint64_t(0xfff);
@@ -45,19 +38,12 @@ void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
 template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
-
-  if (sizeof(T) != 8) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
-
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
   /* Sign bit must be extended. */
   int64_t bit_ptn = static_cast<int64_t>(imm);
-  uint64_t mask = 0xFFFF;
-  bool flag = false;
 
   /* ADD(immediate) supports unsigned imm12 */
   if (imm >= 0) {
@@ -77,18 +63,11 @@ void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
 template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
-
-  if (sizeof(T) != 4) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
-
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
   uint32_t bit_ptn = static_cast<uint32_t>(imm);
-  uint32_t mask = 0xFFFF;
-  bool flag = false;
 
   /* ADD(immediate) supports unsigned imm12 */
   const uint32_t IMM12_MASK = ~uint32_t(0xfff);
@@ -106,19 +85,12 @@ void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
-
-  if (sizeof(T) != 4) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
-
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
   /* Sign bit must be extended. */
   int32_t bit_ptn = static_cast<int32_t>(imm);
-  uint32_t mask = 0xFFFF;
-  bool flag = false;
 
   /* ADD(immediate) supports unsigned imm12 */
   if (imm >= 0) {
@@ -138,18 +110,11 @@ void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
-
-  if (sizeof(T) != 8) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
-
   /* This sub_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
   uint64_t bit_ptn = static_cast<uint64_t>(imm);
-  uint64_t mask = 0xFFFF;
-  bool flag = false;
 
   /* ADD(immediate) supports unsigned imm12 */
   const uint64_t IMM12_MASK = ~uint64_t(0xfff);
@@ -167,19 +132,12 @@ void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
 template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
-
-  if (sizeof(T) != 8) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
-
   /* This sub_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
   /* Sign bit must be extended. */
   int64_t bit_ptn = static_cast<int64_t>(imm);
-  uint64_t mask = 0xFFFF;
-  bool flag = false;
 
   /* ADD(immediate) supports unsigned imm12 */
   if (imm >= 0) {
@@ -199,18 +157,11 @@ void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
 template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
-
-  if (sizeof(T) != 4) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
-
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
   uint32_t bit_ptn = static_cast<uint32_t>(imm);
-  uint32_t mask = 0xFFFF;
-  bool flag = false;
 
   /* ADD(immediate) supports unsigned imm12 */
   const uint32_t IMM12_MASK = ~uint32_t(0xfff);
@@ -228,19 +179,12 @@ void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
-
-  if (sizeof(T) != 4) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
-
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
   /* Sign bit must be extended. */
   int32_t bit_ptn = static_cast<int32_t>(imm);
-  uint32_t mask = 0xFFFF;
-  bool flag = false;
 
   /* ADD(immediate) supports unsigned imm12 */
   if (imm >= 0) {
@@ -260,18 +204,11 @@ void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
-
-  if (sizeof(T) != 8) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
-
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
   uint64_t bit_ptn = static_cast<uint64_t>(imm);
-  uint64_t mask = 0xFFFF;
-  bool flag = false;
 
   /* ADD(immediate) supports unsigned imm12 */
   const uint64_t IMM12_MASK = ~uint64_t(0xfff);
@@ -289,19 +226,12 @@ void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
 template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
-
-  if (sizeof(T) != 8) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
-
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
   /* Sign bit must be extended. */
   int64_t bit_ptn = static_cast<int64_t>(imm);
-  uint64_t mask = 0xFFFF;
-  bool flag = false;
 
   /* ADD(immediate) supports unsigned imm12 */
   if (imm >= 0) {
@@ -321,18 +251,11 @@ void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
 template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
-
-  if (sizeof(T) != 4) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
-
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
   uint32_t bit_ptn = static_cast<uint32_t>(imm);
-  uint32_t mask = 0xFFFF;
-  bool flag = false;
 
   /* ADD(immediate) supports unsigned imm12 */
   const uint32_t IMM12_MASK = ~uint32_t(0xfff);
@@ -350,19 +273,12 @@ void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
-
-  if (sizeof(T) != 4) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
-
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
   /* Sign bit must be extended. */
   int32_t bit_ptn = static_cast<int32_t>(imm);
-  uint32_t mask = 0xFFFF;
-  bool flag = false;
 
   /* ADD(immediate) supports unsigned imm12 */
   if (imm >= 0) {
@@ -382,18 +298,11 @@ void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
-
-  if (sizeof(T) != 8) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
-
   /* This sub_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
   uint64_t bit_ptn = static_cast<uint64_t>(imm);
-  uint64_t mask = 0xFFFF;
-  bool flag = false;
 
   /* ADD(immediate) supports unsigned imm12 */
   const uint64_t IMM12_MASK = ~uint64_t(0xfff);
@@ -411,19 +320,12 @@ void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
 template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
-
-  if (sizeof(T) != 8) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
-
   /* This sub_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
   /* Sign bit must be extended. */
   int64_t bit_ptn = static_cast<int64_t>(imm);
-  uint64_t mask = 0xFFFF;
-  bool flag = false;
 
   /* ADD(immediate) supports unsigned imm12 */
   if (imm >= 0) {
@@ -443,18 +345,11 @@ void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
 template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
-
-  if (sizeof(T) != 4) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
-
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
   uint32_t bit_ptn = static_cast<uint32_t>(imm);
-  uint32_t mask = 0xFFFF;
-  bool flag = false;
 
   /* ADD(immediate) supports unsigned imm12 */
   const uint32_t IMM12_MASK = ~uint32_t(0xfff);
@@ -472,19 +367,12 @@ void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
-
-  if (sizeof(T) != 4) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
-
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
   /* Sign bit must be extended. */
   int32_t bit_ptn = static_cast<int32_t>(imm);
-  uint32_t mask = 0xFFFF;
-  bool flag = false;
 
   /* ADD(immediate) supports unsigned imm12 */
   if (imm >= 0) {
@@ -511,12 +399,12 @@ template <typename T> void mov_imm(const XReg &dst, T imm) {
     return;
   }
 
-  if (imm == ~uint64_t(0)) {
+  if (bit_ptn == ~uint64_t(0)) {
     movn(dst, 0);
     return;
   }
 
-  if (isBitMask(imm)) {
+  if (isBitMask(bit_ptn)) {
     mov(dst, imm);
     return;
   }
@@ -541,10 +429,6 @@ template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
 void mov_imm(const WReg &dst, T imm) {
   bool flag = false;
   uint32_t bit_ptn = static_cast<uint32_t>(imm);
-
-  if (sizeof(T) > 4) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
 
   if (imm == 0) {
     mov(dst, 0);
@@ -578,11 +462,9 @@ template <typename T, typename std::enable_if<std::is_signed<T>::value,
                                               std::nullptr_t>::type = nullptr>
 void mov_imm(const WReg &dst, T imm) {
   bool flag = false;
-  uint32_t bit_ptn = static_cast<uint32_t>(imm);
 
-  if (sizeof(T) > 4) {
-    throw Error(ERR_ILLEGAL_TYPE, genErrMsg());
-  }
+  /* T may be int32_t or int64_t. */
+  uint32_t bit_ptn = static_cast<uint32_t>(imm);
 
   if (imm == 0) {
     mov(dst, 0);
@@ -593,8 +475,8 @@ void mov_imm(const WReg &dst, T imm) {
     throw Error(ERR_ILLEGAL_IMM_RANGE, genErrMsg());
   }
 
-  if (isBitMask(imm)) {
-    mov(dst, imm);
+  if (isBitMask(bit_ptn)) {
+    mov(dst, bit_ptn);
     return;
   }
 
