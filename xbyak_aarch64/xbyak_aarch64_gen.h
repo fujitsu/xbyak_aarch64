@@ -786,22 +786,87 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
   // Move (immediate) alias of ORR,MOVN,MOVZ
   void MvImm(const RReg &rd, uint64_t imm) {
     uint32_t rd_bit = rd.getBit();
-    uint32_t hw = genHw(imm, rd_bit);
-    uint32_t inv_hw = genHw(~imm, rd_bit);
-    uint32_t imm16 = field(imm, 15 + 16 * hw, 16 * hw);
-    uint32_t inv_imm16 = field(~imm, 15 + 16 * inv_hw, 16 * inv_hw);
+    uint32_t hw = 0;
+    uint32_t inv_hw = 0;
+    uint32_t validField[4] = {0};
+    uint32_t imm16 = 0;
+    uint32_t inv_imm16;
+    uint32_t fieldCount = 0;
+    uint32_t invFieldCount = 0;
 
-    if (isBitMask(imm)) {
+    if (imm == 0) {
+      MvWideImm(2, rd, 0, 0);
+      return;
+    }
+
+    if (imm == ~uint64_t(0)) {
+      MvWideImm(0, rd, 0, 0);
+      return;
+    }
+
+    /***** MOVZ *****/
+    /* Count how many valid 16-bit field exists. */
+    for (uint32_t i = 0; i < rd_bit / 16; ++i) {
+      if (field(imm, 15 + i * 16, i * 16)) {
+        ++fieldCount;
+        hw = i;
+        imm16 = field(imm, 15 + 16 * i, 16 * i);
+      }
+    }
+    if (fieldCount < 2) {
+      if (!(imm16 == 0 && hw != 0)) {
+        /* alias of MOVZ
+           which set 16-bit immediate, bit position is indicated by (hw * 4). */
+        MvWideImm(2, rd, imm16, hw << 4);
+        return;
+      }
+    }
+
+    /***** MOVN *****/
+    /* Count how many valid 16-bit field exists. */
+    for (uint32_t i = 0; i < rd_bit / 16; ++i) {
+      if (field(~imm, 15 + i * 16, i * 16)) {
+        ++invFieldCount;
+        inv_imm16 = field(~imm, 15 + 16 * i, 16 * i);
+        inv_hw = i;
+      }
+    }
+    if (invFieldCount == 1) {
+      if ((!(inv_imm16 == 0 && inv_hw != 0) && inv_imm16 != ones(16) &&
+           rd_bit == 32) ||
+          (!(inv_imm16 == 0 && inv_hw != 0) && rd_bit == 64)) {
+        /* alias of MOVN
+           which firstly, set 16-bit immediate, bit position is indicated by (hw
+           * 4) then, result is inverted (NOT). */
+        MvWideImm(0, rd, inv_imm16, inv_hw << 4);
+        return;
+      }
+    }
+
+    /***** ORR *****/
+    auto ptn_size = getPtnSize(imm, rd_bit);
+    auto ptn = imm & ones(ptn_size);
+    auto rotate_num = getPtnRotateNum(ptn, ptn_size);
+    auto rotate_ptn = lrotate(ptn, ptn_size, rotate_num);
+    auto one_bit_num = countOneBit(rotate_ptn, ptn_size);
+    auto seq_one_bit_num = countSeqOneBit(rotate_ptn, ptn_size);
+    if (one_bit_num == seq_one_bit_num) {
       // alias of ORR
-      LogicalImm(1, rd, RReg(31, rd.getBit()), imm, true);
-    } else if (!(imm16 == 0 && hw != 0)) {
-      // alias of MOVZ
-      MvWideImm(2, rd, imm16, hw << 4);
-    } else if ((!(inv_imm16 == 0 && inv_hw != 0) && inv_imm16 != ones(16) &&
-                rd_bit == 32) ||
-               (!(inv_imm16 == 0 && inv_hw != 0) && rd_bit == 64)) {
-      // alias of MOVN
-      MvWideImm(0, rd, imm16, hw << 4);
+      LogicalImm(1, rd, RReg(31, rd_bit), imm, true);
+      return;
+    }
+
+    /**** MOVZ followed by successive MOVK *****/
+    bool isFirst = true;
+    for (uint32_t i = 0; i < rd_bit / 16; ++i) {
+      if (validField[i]) {
+        if (isFirst) {
+          MvWideImm(2, rd, field(imm, 15 + 16 * i, 16 * i), 16 * i);
+          isFirst = false;
+        } else {
+          MvWideImm(3, rd, field(imm, 15 + 16 * i, 16 * i), 16 * i);
+        }
+      }
     }
   }
 
