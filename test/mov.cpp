@@ -24,24 +24,24 @@ public:
   GeneratorMovImm() {}
 
   void genMovFuncCore(const uint32_t imm) {
-    mov_imm(w0, imm);
+    mov(w0, imm);
     ret();
   }
   void genMovFuncCore(const int32_t imm) {
-    mov_imm(w0, imm);
+    mov(w0, imm);
     ret();
   }
   void genMovFuncCore(const uint64_t imm) {
-    mov_imm(x0, imm);
+    mov(x0, imm);
     ret();
   }
   void genMovFuncCore(const int64_t imm) {
-    mov_imm(x0, imm);
+    mov(x0, imm);
     ret();
   }
 };
 
-template <typename T> int test_mov_imm(std::vector<T> &v) {
+template <typename T> int test_mov(std::vector<T> &v) {
   int errCount = 0;
 
   for (const auto &e : v) {
@@ -146,10 +146,10 @@ int main() {
       ~uint64_t(0),
   };
 
-  errCount += test_mov_imm(v_int32);
-  errCount += test_mov_imm(v_int64);
-  errCount += test_mov_imm(v_uint32);
-  errCount += test_mov_imm(v_uint64);
+  errCount += test_mov(v_int32);
+  errCount += test_mov(v_int64);
+  errCount += test_mov(v_uint32);
+  errCount += test_mov(v_uint64);
 
   return errCount;
 }
