@@ -799,7 +799,9 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
       return;
     }
 
-    if (imm == ~uint64_t(0)) {
+    if ((rd_bit == 64 && imm == ~uint64_t(0)) ||
+        (rd_bit == 32 &&
+         ((imm & uint64_t(0xffffffff)) == uint64_t(0xffffffff)))) {
       MvWideImm(0, rd, 0, 0);
       return;
     }
@@ -808,6 +810,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     /* Count how many valid 16-bit field exists. */
     for (uint32_t i = 0; i < rd_bit / 16; ++i) {
       if (field(imm, 15 + i * 16, i * 16)) {
+        validField[i] = 1;
         ++fieldCount;
         hw = i;
         imm16 = field(imm, 15 + 16 * i, 16 * i);
