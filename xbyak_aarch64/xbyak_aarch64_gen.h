@@ -790,7 +790,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t inv_hw = 0;
     uint32_t validField[4] = {0};
     uint32_t imm16 = 0;
-    uint32_t inv_imm16;
+    uint32_t inv_imm16 = 0;
     uint32_t fieldCount = 0;
     uint32_t invFieldCount = 0;
 
