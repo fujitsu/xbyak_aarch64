@@ -1,7 +1,7 @@
                          Xbyak_aarch64
         Individual Contributor License Agreement ("Agreement")
 
-Thank you for your interest in COMEVIZZ (the "Community").
+Thank you for your interest in Xbyak_aarch64 (the "Community").
 In order to clarify the intellectual property license granted with
 Contributions from any person or entity, the Community must have a
 Contributor License Agreement ("CLA") on file that has been signed
