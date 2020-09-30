@@ -724,12 +724,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     };
     JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
     uint32_t code = PCrelAddrEnc(op, rd, genLabelOffset(label, jmpL));
-    dw(code);
+    dd(code);
   }
 
   void PCrelAddr(uint32_t op, const XReg &rd, int64_t label) {
     uint32_t code = PCrelAddrEnc(op, rd, label);
-    dw(code);
+    dd(code);
   }
 
   // Add/subtract (immediate)
@@ -745,7 +745,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(sf, 31), F(op, 30), F(S, 29), F(0x11, 24), F(sh_f, 22),
                 F(imm12, 10), F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Logical (immediate)
@@ -762,7 +762,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(sf, 31), F(opc, 29), F(0x24, 23), F(n_immr_imms, 10),
                 F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Move wide(immediate)
@@ -780,7 +780,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     uint32_t code = concat({F(sf, 31), F(opc, 29), F(0x25, 23), F(hw, 21),
                             F(imm16, 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Move (immediate) alias of ORR,MOVN,MOVZ
@@ -888,7 +888,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(sf, 31), F(opc, 29), F(0x26, 23), F(N, 22), F(immr, 16),
                 F(imms, 10), F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Extract
@@ -905,7 +905,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(sf, 31), F(op21, 29), F(0x27, 23), F(N, 22),
                             F(o0, 21), F(rm.getIdx(), 16), F(imm, 10),
                             F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Conditional branch (immediate)
@@ -922,12 +922,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     };
     JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
     uint32_t code = CondBrImmEnc(cond, genLabelOffset(label, jmpL));
-    dw(code);
+    dd(code);
   }
 
   void CondBrImm(Cond cond, int64_t label) {
     uint32_t code = CondBrImmEnc(cond, label);
-    dw(code);
+    dd(code);
   }
 
   // Exception generation
@@ -936,13 +936,13 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     verifyIncRange(imm, 0, ones(16), ERR_ILLEGAL_IMM_RANGE);
     uint32_t code =
         concat({F(0xd4, 24), F(opc, 21), F(imm16, 5), F(op2, 2), F(LL, 0)});
-    dw(code);
+    dd(code);
   }
 
   // Hints
   void Hints(uint32_t CRm, uint32_t op2) {
     uint32_t code = concat({F(0xd5032, 12), F(CRm, 8), F(op2, 5), F(0x1f, 0)});
-    dw(code);
+    dd(code);
   }
 
   void Hints(uint32_t imm) { Hints(field(imm, 6, 3), field(imm, 2, 0)); }
@@ -952,14 +952,14 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     if (op2 == 6)
       verifyIncList(opt, {SY}, ERR_ILLEGAL_BARRIER_OPT);
     uint32_t code = concat({F(0xd5033, 12), F(opt, 8), F(op2, 5), F(rt, 0)});
-    dw(code);
+    dd(code);
   }
 
   // Barriers (no option)
   void BarriersNoOpt(uint32_t CRm, uint32_t op2, uint32_t rt) {
     verifyIncRange(CRm, 0, ones(4), ERR_ILLEGAL_IMM_RANGE);
     uint32_t code = concat({F(0xd5033, 12), F(CRm, 8), F(op2, 5), F(rt, 0)});
-    dw(code);
+    dd(code);
   }
 
   // pstate
@@ -997,13 +997,13 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     }
     uint32_t code = concat({F(0xd5, 24), F(op1, 16), F(0x4, 12), F(CRm, 8),
                             F(op2, 5), F(0x1f, 0)});
-    dw(code);
+    dd(code);
   }
 
   void PState(uint32_t op1, uint32_t CRm, uint32_t op2) {
     uint32_t code = concat({F(0xd5, 24), F(op1, 16), F(0x4, 12), F(CRm, 8),
                             F(op2, 5), F(0x1f, 0)});
-    dw(code);
+    dd(code);
   }
 
   // Systtem instructions
@@ -1012,7 +1012,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0xd5, 24), F(L, 21), F(1, 19), F(op1, 16), F(CRn, 12),
                 F(CRm, 8), F(op2, 5), F(rt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // System register move
@@ -1021,7 +1021,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0xd5, 24), F(L, 21), F(1, 20), F(op0, 19), F(op1, 16),
                 F(CRn, 12), F(CRm, 8), F(op2, 5), F(rt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Unconditional branch
@@ -1029,21 +1029,21 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
                      uint32_t op4) {
     uint32_t code = concat(
         {F(0x6b, 25), F(opc, 21), F(op2, 16), F(op3, 10), F(rn, 5), F(op4, 0)});
-    dw(code);
+    dd(code);
   }
 
   void UncondBr1Reg(uint32_t opc, uint32_t op2, uint32_t op3, const RReg &rn,
                     uint32_t op4) {
     uint32_t code = concat({F(0x6b, 25), F(opc, 21), F(op2, 16), F(op3, 10),
                             F(rn.getIdx(), 5), F(op4, 0)});
-    dw(code);
+    dd(code);
   }
 
   void UncondBr2Reg(uint32_t opc, uint32_t op2, uint32_t op3, const RReg &rn,
                     const RReg &rm) {
     uint32_t code = concat({F(0x6b, 25), F(opc, 21), F(op2, 16), F(op3, 10),
                             F(rn.getIdx(), 5), F(rm.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Unconditional branch (immediate)
@@ -1060,12 +1060,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     };
     JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
     uint32_t code = UncondBrImmEnc(op, genLabelOffset(label, jmpL));
-    dw(code);
+    dd(code);
   }
 
   void UncondBrImm(uint32_t op, int64_t label) {
     uint32_t code = UncondBrImmEnc(op, label);
-    dw(code);
+    dd(code);
   }
 
   // Compare and branch (immediate)
@@ -1085,12 +1085,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     };
     JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
     uint32_t code = CompareBrEnc(op, rt, genLabelOffset(label, jmpL));
-    dw(code);
+    dd(code);
   }
 
   void CompareBr(uint32_t op, const RReg &rt, int64_t label) {
     uint32_t code = CompareBrEnc(op, rt, label);
-    dw(code);
+    dd(code);
   }
 
   // Test and branch (immediate)
@@ -1118,12 +1118,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     };
     JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
     uint32_t code = TestBrEnc(op, rt, imm, genLabelOffset(label, jmpL));
-    dw(code);
+    dd(code);
   }
 
   void TestBr(uint32_t op, const RReg &rt, uint32_t imm, int64_t label) {
     uint32_t code = TestBrEnc(op, rt, imm, label);
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD load/store multipule structure
@@ -1143,7 +1143,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(0x18, 23), F(L, 22), F(opc, 12), F(size, 10),
                 F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void AdvSimdLdStMultiStructForLd1St1(uint32_t L, uint32_t opc,
@@ -1171,7 +1171,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(Q, 30), F(0x19, 23), F(L, 22), F(adr.getXm().getIdx(), 16),
                 F(opc, 12), F(size, 10), F(adr.getXn().getIdx(), 5),
                 F(vt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void AdvSimdLdStMultiStructPostRegForLd1St1(uint32_t L, uint32_t opc,
@@ -1198,7 +1198,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(0x19, 23), F(L, 22), F(0x1f, 16), F(opc, 12),
                 F(size, 10), F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD load/store multple structures (post-indexed immediate offset)
@@ -1221,7 +1221,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(0x1a, 23), F(L, 22), F(R, 21), F(opc, 13), F(S, 12),
                 F(size, 10), F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD load replication single structures
@@ -1233,7 +1233,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(Q, 30), F(0x1a, 23), F(L, 22), F(R, 21),
                             F(opcode, 13), F(S, 12), F(size, 10),
                             F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD load/store single structures (post-indexed register)
@@ -1251,7 +1251,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(Q, 30), F(0x1b, 23), F(L, 22), F(R, 21),
                 F(adr.getXm().getIdx(), 16), F(opc, 13), F(S, 12), F(size, 10),
                 F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD load/store single structures (post-indexed register,
@@ -1266,7 +1266,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(Q, 30), F(0x1b, 23), F(L, 22), F(R, 21),
                 F(adr.getXm().getIdx(), 16), F(opcode, 13), F(S, 12),
                 F(size, 10), F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD load/store single structures (post-indexed immediate)
@@ -1286,7 +1286,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(Q, 30), F(0x1b, 23), F(L, 22), F(R, 21),
                             F(0x1f, 16), F(opc, 13), F(S, 12), F(size, 10),
                             F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD load replication single structures (post-indexed immediate)
@@ -1302,7 +1302,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(Q, 30), F(0x1b, 23), F(L, 22), F(R, 21),
                             F(0x1f, 16), F(opcode, 13), F(S, 12), F(size, 10),
                             F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // store exclusive
@@ -1320,7 +1320,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(size, 30), F(0x8, 24), F(o2, 23), F(L, 22), F(o1, 21),
                 F(ws.getIdx(), 16), F(o0, 15), F(0x1f, 10),
                 F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // load exclusive
@@ -1336,7 +1336,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(size, 30), F(0x8, 24), F(o2, 23), F(L, 22),
                             F(o1, 21), F(0x1f, 16), F(o0, 15), F(0x1f, 10),
                             F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // store LORelease
@@ -1352,7 +1352,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(size, 30), F(0x8, 24), F(o2, 23), F(L, 22),
                             F(o1, 21), F(0x1f, 16), F(o0, 15), F(0x1f, 10),
                             F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // load LOAcquire
@@ -1368,7 +1368,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(size, 30), F(0x8, 24), F(o2, 23), F(L, 22),
                             F(o1, 21), F(0x1f, 16), F(o0, 15), F(0x1f, 10),
                             F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // compare and swap
@@ -1381,7 +1381,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(size, 30), F(0x8, 24), F(o2, 23), F(L, 22), F(o1, 21),
                 F(rs.getIdx(), 16), F(o0, 15), F(0x1f, 10),
                 F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // load/store exclusive pair
@@ -1398,7 +1398,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(1, 31), F(sz, 30), F(0x8, 24), F(0, 23), F(L, 22), F(o1, 21),
                 F(ws.getIdx(), 16), F(o0, 15), F(rt2.getIdx(), 10),
                 F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // load/store exclusive pair
@@ -1414,7 +1414,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(1, 31), F(sz, 30), F(0x8, 24), F(0, 23), F(L, 22), F(o1, 21),
                 F(0x1f, 16), F(o0, 15), F(rt2.getIdx(), 10),
                 F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // compare and swap pair
@@ -1429,7 +1429,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(0, 31), F(sz, 30), F(0x8, 24), F(0, 23), F(L, 22), F(o1, 21),
                 F(rs.getIdx(), 16), F(o0, 15), F(0x1f, 10),
                 F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // LDAPR/STLR (unscaled immediate)
@@ -1443,7 +1443,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     uint32_t code = concat({F(size, 30), F(0x19, 24), F(opc, 22), F(imm9, 12),
                             F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // load register (literal)
@@ -1464,12 +1464,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     };
     JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
     uint32_t code = LdRegLiteralEnc(opc, V, rt, genLabelOffset(label, jmpL));
-    dw(code);
+    dd(code);
   }
 
   void LdRegLiteral(uint32_t opc, uint32_t V, const RReg &rt, int64_t label) {
     uint32_t code = LdRegLiteralEnc(opc, V, rt, label);
-    dw(code);
+    dd(code);
   }
 
   // load register (SIMD&FP, literal)
@@ -1490,12 +1490,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     };
     JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
     uint32_t code = LdRegSimdFpLiteralEnc(vt, genLabelOffset(label, jmpL));
-    dw(code);
+    dd(code);
   }
 
   void LdRegSimdFpLiteral(const VRegSc &vt, int64_t label) {
     uint32_t code = LdRegSimdFpLiteralEnc(vt, label);
-    dw(code);
+    dd(code);
   }
 
   // prefetch (literal)
@@ -1515,12 +1515,12 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     };
     JmpLabelAArch64 jmpL = JmpLabelAArch64(encFunc, getSize());
     uint32_t code = PfLiteralEnc(prfop, genLabelOffset(label, jmpL));
-    dw(code);
+    dd(code);
   }
 
   void PfLiteral(Prfop prfop, int64_t label) {
     uint32_t code = PfLiteralEnc(prfop, label);
-    dw(code);
+    dd(code);
   }
 
   // Load/store no-allocate pair (offset)
@@ -1545,7 +1545,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(L, 22),
                             F(imm7, 15), F(rt2.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Load/store no-allocate pair (offset)
@@ -1567,7 +1567,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(L, 22),
                             F(imm7, 15), F(vt2.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(vt1.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Load/store pair (post-indexed)
@@ -1591,7 +1591,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(1, 23),
                             F(L, 22), F(imm7, 15), F(rt2.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Load/store pair (post-indexed)
@@ -1613,7 +1613,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(1, 23),
                             F(L, 22), F(imm7, 15), F(vt2.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(vt1.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Load/store pair (offset)
@@ -1637,7 +1637,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(2, 23),
                             F(L, 22), F(imm7, 15), F(rt2.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Load/store pair (offset)
@@ -1659,7 +1659,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(2, 23),
                             F(L, 22), F(imm7, 15), F(vt2.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(vt1.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Load/store pair (pre-indexed)
@@ -1683,7 +1683,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(3, 23),
                             F(L, 22), F(imm7, 15), F(rt2.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Load/store pair (pre-indexed)
@@ -1705,7 +1705,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(3, 23),
                             F(L, 22), F(imm7, 15), F(vt2.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(vt1.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Load/store register (unscaled immediate)
@@ -1721,7 +1721,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12),
                 F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Load/store register (SIMD&FP, unscaled immediate)
@@ -1739,7 +1739,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12),
                 F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // prefetch register (unscaled immediate)
@@ -1756,7 +1756,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12),
                 F(adr.getXn().getIdx(), 5), F(prfop, 0)});
-    dw(code);
+    dd(code);
   }
 
   // Load/store register (immediate post-indexed)
@@ -1772,7 +1772,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12),
                 F(1, 10), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Load/store register (SIMD&FP, immediate post-indexed)
@@ -1791,7 +1791,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12),
                 F(1, 10), F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Load/store register (unprivileged)
@@ -1807,7 +1807,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12),
                 F(2, 10), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Load/store register (immediate pre-indexed)
@@ -1823,7 +1823,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12),
                 F(3, 10), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Load/store register (SIMD&FP, immediate pre-indexed)
@@ -1841,7 +1841,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12),
                 F(3, 10), F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Atomic memory oprations
@@ -1852,7 +1852,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(A, 23), F(R, 22), F(1, 21),
                 F(rs.getIdx(), 16), F(o3, 15), F(opc, 12),
                 F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void AtomicMemOp(uint32_t size, uint32_t V, uint32_t A, uint32_t R,
@@ -1863,7 +1863,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(A, 23), F(R, 22), F(1, 21),
                 F(rs.getIdx(), 16), F(o3, 15), F(opc, 12),
                 F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // load/store register (register offset)
@@ -1881,7 +1881,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(1, 21),
                 F(adr.getXm().getIdx(), 16), F(option, 13), F(S, 12), F(2, 10),
                 F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // load/store register (register offset)
@@ -1902,7 +1902,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(1, 21),
                 F(adr.getRm().getIdx(), 16), F(option, 13), F(S, 12), F(2, 10),
                 F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // load/store register (register offset)
@@ -1922,7 +1922,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(1, 21),
                 F(adr.getXm().getIdx(), 16), F(option, 13), F(S, 12), F(2, 10),
                 F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // load/store register (register offset)
@@ -1948,7 +1948,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(1, 21),
                 F(adr.getRm().getIdx(), 16), F(option, 13), F(S, 12), F(2, 10),
                 F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // load/store register (register offset)
@@ -1969,7 +1969,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(1, 21),
                 F(adr.getXm().getIdx(), 16), F(ext_opt, 13), F(S, 12), F(2, 10),
                 F(adr.getXn().getIdx(), 5), F(prfop, 0)});
-    dw(code);
+    dd(code);
   }
 
   void PfExt(Prfop prfop, const AdrExt &adr) {
@@ -1992,7 +1992,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(1, 21),
                 F(adr.getRm().getIdx(), 16), F(option, 13), F(S, 12), F(2, 10),
                 F(adr.getXn().getIdx(), 5), F(prfop, 0)});
-    dw(code);
+    dd(code);
   }
 
   // loat/store register (pac)
@@ -2013,7 +2013,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(size, 30), F(0x7, 27), F(V, 26), F(M, 23),
                             F(S, 22), F(1, 21), F(imm9, 12), F(W, 11), F(1, 10),
                             F(adr.getXn().getIdx(), 5), F(xt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // loat/store register (pac)
@@ -2035,7 +2035,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(size, 30), F(0x7, 27), F(V, 26), F(M, 23),
                             F(S, 22), F(1, 21), F(imm9, 12), F(W, 11), F(1, 10),
                             F(adr.getXn().getIdx(), 5), F(xt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // loat/store register (unsigned immediate)
@@ -2056,7 +2056,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(1, 24), F(opc, 22),
                 F(imm12, 10), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
 
-    dw(code);
+    dd(code);
   }
 
   // loat/store register (unsigned immediate)
@@ -2076,7 +2076,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(1, 24), F(opc, 22),
                 F(imm12, 10), F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // loat/store register (unsigned immediate)
@@ -2096,7 +2096,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(size, 30), F(0x7, 27), F(V, 26), F(1, 24), F(opc, 22),
                 F(imm12, 10), F(adr.getXn().getIdx(), 5), F(prfop, 0)});
-    dw(code);
+    dd(code);
   }
 
   // Data processing (2 source)
@@ -2115,7 +2115,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(sf, 31), F(S, 29), F(0xd6, 21), F(rm.getIdx(), 16),
                 F(opcode, 10), F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Data processing (1 source)
@@ -2131,7 +2131,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(sf, 31), F(1, 30), F(S, 29), F(0xd6, 21), F(opcode2, 16),
                 F(opcode, 10), F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Data processing (1 source)
@@ -2144,7 +2144,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(sf, 31), F(1, 30), F(S, 29), F(0xd6, 21), F(opcode2, 16),
                 F(opcode, 10), F(0x1f, 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Logical (shifted register)
@@ -2164,7 +2164,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(sf, 31), F(opc, 29), F(0xa, 24), F(shmod, 22),
                             F(N, 21), F(rm.getIdx(), 16), F(imm6, 10),
                             F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Move (register) alias of ADD,ORR
@@ -2205,7 +2205,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(sf, 31), F(opc, 30), F(S, 29), F(0xb, 24),
                             F(shmod, 22), F(rm.getIdx(), 16), F(imm6, 10),
                             F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Add/subtract (extended register)
@@ -2224,7 +2224,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(sf, 31), F(opc, 30), F(S, 29), F(0xb, 24), F(opt, 22),
                 F(1, 21), F(rm.getIdx(), 16), F(option, 13), F(imm3, 10),
                 F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Add/subtract (with carry)
@@ -2242,7 +2242,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(sf, 31), F(op, 30), F(S, 29), F(0xd, 25), F(rm.getIdx(), 16),
                 F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Rotate right into flags
@@ -2258,7 +2258,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(sf, 31), F(op, 30), F(S, 29), F(0xd, 25), F(imm6, 15),
                 F(0x1, 10), F(xn.getIdx(), 5), F(o2, 4), F(mask, 0)});
-    dw(code);
+    dd(code);
   }
 
   // Evaluate into flags
@@ -2272,7 +2272,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(sf, 31), F(op, 30), F(S, 29), F(0xd, 25),
                             F(opcode2, 15), F(sz, 14), F(0x2, 10),
                             F(wn.getIdx(), 5), F(o3, 4), F(mask, 0)});
-    dw(code);
+    dd(code);
   }
 
   // Conditional compare (register)
@@ -2288,7 +2288,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(sf, 31), F(op, 30), F(S, 29), F(0xd2, 21),
                             F(rm.getIdx(), 16), F(cond, 12), F(o2, 10),
                             F(rn.getIdx(), 5), F(o3, 4), F(nczv, 0)});
-    dw(code);
+    dd(code);
   }
 
   // Conditional compare (imm)
@@ -2304,7 +2304,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(sf, 31), F(op, 30), F(S, 29), F(0xd2, 21),
                             F(imm5, 16), F(cond, 12), F(1, 11), F(o2, 10),
                             F(rn.getIdx(), 5), F(o3, 4), F(nczv, 0)});
-    dw(code);
+    dd(code);
   }
 
   // Conditional select
@@ -2322,7 +2322,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(sf, 31), F(op, 30), F(S, 29), F(0xd4, 21), F(rm.getIdx(), 16),
                 F(cond, 12), F(op2, 10), F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Conditional select
@@ -2341,7 +2341,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(sf, 31), F(op54, 29), F(0x1b, 24), F(op31, 21),
                             F(rm.getIdx(), 16), F(o0, 15), F(ra.getIdx(), 10),
                             F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Conditional select
@@ -2359,7 +2359,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(sf, 31), F(op54, 29), F(0x1b, 24), F(op31, 21),
                             F(rm.getIdx(), 16), F(o0, 15), F(0x1f, 10),
                             F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Cryptographic AES
@@ -2368,7 +2368,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x4e, 24), F(size, 22), F(0x14, 17), F(opcode, 12), F(2, 10),
                 F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Cryptographic three-register SHA
@@ -2378,7 +2378,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5e, 24), F(size, 22), F(vm.getIdx(), 16), F(opcode, 12),
                 F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Cryptographic three-register SHA
@@ -2388,7 +2388,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5e, 24), F(size, 22), F(vm.getIdx(), 16), F(opcode, 12),
                 F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Cryptographic two-register SHA
@@ -2397,7 +2397,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5e, 24), F(size, 22), F(0x14, 17), F(opcode, 12), F(2, 10),
                 F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD Scalar copy
@@ -2408,7 +2408,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(1, 30), F(op, 29), F(0xf, 25), F(imm5, 16), F(imm4, 11),
                 F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD Scalar three same FP16
@@ -2418,7 +2418,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(a, 23), F(2, 21),
                             F(vm.getIdx(), 16), F(opcode, 11), F(1, 10),
                             F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD Scalar two-register miscellaneous FP16
@@ -2427,7 +2427,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(1, 30), F(U, 29), F(0xf, 25), F(a, 23), F(0xf, 19),
                 F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void AdvSimdSc2RegMiscFp16(uint32_t U, uint32_t a, uint32_t opcode,
@@ -2443,7 +2443,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22),
                             F(vm.getIdx(), 16), F(1, 15), F(opcode, 11),
                             F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD Scalar two-register miscellaneous
@@ -2453,7 +2453,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22), F(1, 21),
                 F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void AdvSimdSc2RegMisc(uint32_t U, uint32_t opcode, const VRegSc &vd,
@@ -2469,7 +2469,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22), F(1, 21),
                 F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD Scalar two-register miscellaneous
@@ -2479,7 +2479,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22), F(1, 21),
                 F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void AdvSimdSc2RegMiscSz1x(uint32_t U, uint32_t opcode, const VRegSc &vd,
@@ -2494,7 +2494,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22), F(3, 20),
                 F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD scalar three different
@@ -2504,7 +2504,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22),
                             F(1, 21), F(vm.getIdx(), 16), F(opcode, 12),
                             F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD scalar three same
@@ -2514,7 +2514,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22),
                             F(1, 21), F(vm.getIdx(), 16), F(opcode, 11),
                             F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD scalar three same
@@ -2524,7 +2524,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22),
                             F(1, 21), F(vm.getIdx(), 16), F(opcode, 11),
                             F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD scalar three same
@@ -2534,7 +2534,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22),
                             F(1, 21), F(vm.getIdx(), 16), F(opcode, 11),
                             F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD scalar shift by immediate
@@ -2553,7 +2553,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(1, 30), F(U, 29), F(0x1f, 24), F(immh, 19), F(immb, 16),
                 F(opcode, 11), F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD scalar x indexed element
@@ -2576,7 +2576,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(1, 30), F(U, 29), F(0x1f, 24), F(size, 22),
                             F(L, 21), F(M, 20), F(vmidx, 16), F(opcode, 12),
                             F(H, 11), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void AdvSimdScXIndElem(uint32_t U, uint32_t opcode, const VRegSc &vd,
@@ -2592,7 +2592,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(Q, 30), F(0xe, 24), F(op2, 22),
                             F(vm.getIdx(), 16), F(len - 1, 13), F(op, 12),
                             F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD table lookup
@@ -2603,7 +2603,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(0xe, 24), F(op2, 22), F(vm.getIdx(), 16),
                 F(len, 13), F(op, 12), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD permute
@@ -2614,7 +2614,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(0xe, 24), F(size, 22), F(vm.getIdx(), 16),
                 F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD extract
@@ -2632,7 +2632,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(0x2e, 24), F(op2, 22), F(vm.getIdx(), 16),
                 F(imm4, 11), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD copy
@@ -2644,7 +2644,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(op, 29), F(0xe, 24), F(imm5, 16), F(imm4, 11),
                 F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD copy
@@ -2656,7 +2656,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(op, 29), F(0xe, 24), F(imm5, 16), F(imm4, 11),
                 F(3, 10), F(rn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD copy
@@ -2668,7 +2668,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(op, 29), F(0xe, 24), F(imm5, 16), F(imm4, 11),
                 F(1, 10), F(vn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD copy
@@ -2680,7 +2680,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(op, 29), F(0xe, 24), F(imm5, 16), F(imm4, 11),
                 F(1, 10), F(rn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD copy
@@ -2692,7 +2692,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(op, 29), F(0xe, 24), F(imm5, 16), F(imm4, 11),
                 F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD three same (FP16)
@@ -2703,7 +2703,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(a, 23), F(2, 21),
                             F(vm.getIdx(), 16), F(opcode, 11), F(1, 10),
                             F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD two-register miscellaneous (FP16)
@@ -2713,7 +2713,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(U, 29), F(0xe, 24), F(a, 23), F(0xf, 19),
                 F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void AdvSimd2RegMiscFp16(uint32_t U, uint32_t a, uint32_t opcode,
@@ -2730,7 +2730,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22),
                             F(vm.getIdx(), 16), F(1, 15), F(opcode, 11),
                             F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD three same extra
@@ -2751,7 +2751,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22),
                             F(vm.getIdx(), 16), F(1, 15), F(opcode, 11),
                             F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD two-register miscellaneous
@@ -2763,7 +2763,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(1, 21),
                 F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD two-register miscellaneous
@@ -2777,7 +2777,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(1, 21),
                 F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD two-register miscellaneous
@@ -2794,7 +2794,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(1, 21),
                 F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD two-register miscellaneous
@@ -2806,7 +2806,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(U, 29), F(0xe, 24), F((size & 1), 22), F(1, 21),
                 F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD two-register miscellaneous
@@ -2817,7 +2817,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(1, 21),
                 F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void AdvSimd2RegMiscSz1x(uint32_t U, uint32_t opcode, const VRegVec &vd,
@@ -2834,7 +2834,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(3, 20),
                 F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD across lanes
@@ -2845,7 +2845,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(3, 20),
                 F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD across lanes
@@ -2856,7 +2856,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(3, 20),
                 F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD three different
@@ -2868,7 +2868,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22),
                             F(1, 21), F(vm.getIdx(), 16), F(opcode, 12),
                             F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD three same
@@ -2879,7 +2879,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22),
                             F(1, 21), F(vm.getIdx(), 16), F(opcode, 11),
                             F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD three same
@@ -2890,7 +2890,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22),
                             F(1, 21), F(vm.getIdx(), 16), F(opcode, 11),
                             F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD three same
@@ -2901,7 +2901,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22),
                             F(1, 21), F(vm.getIdx(), 16), F(opcode, 11),
                             F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD three same
@@ -2911,7 +2911,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22),
                             F(1, 21), F(vm.getIdx(), 16), F(opcode, 11),
                             F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD modified immediate (vector)
@@ -2942,7 +2942,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(op, 29), F(0xf, 24), F(abc, 16), F(crmode, 12),
                 F(o2, 11), F(1, 10), F(defgh, 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD modified immediate (scalar)
@@ -2960,7 +2960,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(op, 29), F(0xf, 24), F(abc, 16), F(crmode, 12),
                 F(o2, 11), F(1, 10), F(defgh, 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void AdvSimdModiImmMoviMvni(uint32_t op, uint32_t o2, const VRegSc &vd,
@@ -2992,7 +2992,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(op, 29), F(0xf, 24), F(abc, 16), F(crmode, 12),
                 F(o2, 11), F(1, 10), F(defgh, 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD modified immediate
@@ -3006,7 +3006,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(op, 29), F(0xf, 24), F(abc, 16), F(crmode, 12),
                 F(o2, 11), F(1, 10), F(defgh, 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD shift by immediate
@@ -3028,7 +3028,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(Q, 30), F(U, 29), F(0xf, 24), F(immh, 19), F(immb, 16),
                 F(opcode, 11), F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Advanced SIMD vector x indexed element
@@ -3055,7 +3055,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(Q, 30), F(U, 29), F(0xf, 24), F(size, 22),
                             F(L, 21), F(M, 20), F(vmidx, 16), F(opcode, 12),
                             F(H, 11), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void AdvSimdVecXindElem(uint32_t U, uint32_t opcode, const VRegVec &vd,
@@ -3093,7 +3093,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x672, 21), F(vm.getIdx(), 16), F(2, 14), F(imm2, 12),
                 F(opcode, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Cryptographic three-register SHA 512
@@ -3102,7 +3102,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x673, 21), F(vm.getIdx(), 16), F(1, 15), F(O, 14),
                 F(opcode, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Cryptographic three-register SHA 512
@@ -3111,7 +3111,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x673, 21), F(vm.getIdx(), 16), F(1, 15), F(O, 14),
                 F(opcode, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // XAR
@@ -3120,7 +3120,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     verifyIncRange(imm6, 0, ones(6), ERR_ILLEGAL_IMM_RANGE);
     uint32_t code = concat({F(0x674, 21), F(vm.getIdx(), 16), F(imm6, 10),
                             F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Cryptographic four-register
@@ -3129,14 +3129,14 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x19c, 23), F(Op0, 21), F(vm.getIdx(), 16),
                 F(va.getIdx(), 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Cryptographic two-register SHA512
   void Crypto2RegSHA512(uint32_t opcode, const VRegVec &vd, const VRegVec &vn) {
     uint32_t code = concat(
         {F(0xcec08, 12), F(opcode, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // conversion between floating-point and fixed-point
@@ -3151,7 +3151,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(sf, 31), F(S, 29), F(0xf, 25), F(type, 22),
                             F(rmode, 19), F(opcode, 16), F(scale, 10),
                             F(rn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // conversion between floating-point and fixed-point
@@ -3166,7 +3166,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(sf, 31), F(S, 29), F(0xf, 25), F(type, 22),
                             F(rmode, 19), F(opcode, 16), F(scale, 10),
                             F(vn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // conversion between floating-point and integer
@@ -3175,7 +3175,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(sf, 31), F(S, 29), F(0xf, 25), F(type, 22),
                             F(1, 21), F(rmode, 19), F(opcode, 16),
                             F(vn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // conversion between floating-point and integer
@@ -3184,7 +3184,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(sf, 31), F(S, 29), F(0xf, 25), F(type, 22),
                             F(1, 21), F(rmode, 19), F(opcode, 16),
                             F(rn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // conversion between floating-point and integer
@@ -3193,7 +3193,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(sf, 31), F(S, 29), F(0xf, 25), F(type, 22),
                             F(1, 21), F(rmode, 19), F(opcode, 16),
                             F(vn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // conversion between floating-point and integer
@@ -3202,7 +3202,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(sf, 31), F(S, 29), F(0xf, 25), F(type, 22),
                             F(1, 21), F(rmode, 19), F(opcode, 16),
                             F(rn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Floating-piont data-processing (1 source)
@@ -3211,7 +3211,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21),
                 F(opcode, 15), F(1, 14), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Floating-piont compare
@@ -3220,7 +3220,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22),
                             F(1, 21), F(vm.getIdx(), 16), F(op, 14), F(1, 13),
                             F(vn.getIdx(), 5), F(opcode2, 0)});
-    dw(code);
+    dd(code);
   }
 
   // Floating-piont compare
@@ -3230,7 +3230,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21),
                 F(op, 14), F(1, 13), F(vn.getIdx(), 5), F(opcode2, 0)});
-    dw(code);
+    dd(code);
   }
 
   // Floating-piont immediate
@@ -3240,7 +3240,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21),
                 F(imm8, 13), F(1, 12), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Floating-piont conditional compare
@@ -3250,7 +3250,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22),
                             F(1, 21), F(vm.getIdx(), 16), F(cond, 12), F(1, 10),
                             F(vn.getIdx(), 5), F(op, 4), F(nzcv, 0)});
-    dw(code);
+    dd(code);
   }
 
   // Floating-piont data-processing (2 source)
@@ -3259,7 +3259,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22),
                             F(1, 21), F(vm.getIdx(), 16), F(opcode, 12),
                             F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Floating-piont conditional select
@@ -3268,7 +3268,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22),
                             F(1, 21), F(vm.getIdx(), 16), F(cond, 12), F(3, 10),
                             F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Floating-piont data-processing (3 source)
@@ -3279,7 +3279,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(M, 31), F(S, 29), F(0x1f, 24), F(type, 22), F(o1, 21),
                 F(vm.getIdx(), 16), F(o0, 15), F(va.getIdx(), 10),
                 F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // ########################### System instruction
@@ -3288,28 +3288,28 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
   void InstCache(IcOp icop, const XReg &xt) {
     uint32_t code =
         concat({F(0xd5, 24), F(1, 19), F(icop, 5), F(xt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Data cache maintenance
   void DataCache(DcOp dcop, const XReg &xt) {
     uint32_t code =
         concat({F(0xd5, 24), F(1, 19), F(dcop, 5), F(xt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // Addresss Translate
   void AddressTrans(AtOp atop, const XReg &xt) {
     uint32_t code =
         concat({F(0xd5, 24), F(1, 19), F(atop, 5), F(xt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // TLB Invaidate operation
   void TLBInv(TlbiOp tlbiop, const XReg &xt) {
     uint32_t code =
         concat({F(0xd5, 24), F(1, 19), F(tlbiop, 5), F(xt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // ################################### SVE
@@ -3323,7 +3323,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x4, 24), F(size, 22), F(type, 19), F(opc, 16),
                 F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE bitwize Logical Operation (predicated)
@@ -3358,7 +3358,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x4, 24), F(size, 22), F(type, 19), F(opc, 16), F(1, 13),
                 F(pg.getIdx(), 10), F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE bitwise logical reduction (predicated)
@@ -3394,7 +3394,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x4, 24), F(size, 22), F(type, 19), F(opc, 16), F(4, 13),
                 F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE bitwise shift by immediate (predicated)
@@ -3416,7 +3416,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x4, 24), F(tszh, 22), F(0, 19), F(opc, 16),
                             F(4, 13), F(pg.getIdx(), 10), F(tszl, 8),
                             F(imm3, 5), F(zdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE bitwise shift by vector (predicated)
@@ -3439,7 +3439,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x4, 24), F(size, 22), F(type, 19), F(opc, 16), F(5, 13),
                 F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE bitwise unary operations (predicated)
@@ -3462,7 +3462,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x4, 24), F(size, 22), F(zm.getIdx(), 16),
                             F(1, 14), F(opc, 13), F(pg.getIdx(), 10),
                             F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE integer multiply-add writeing multiplicand (predicated)
@@ -3473,7 +3473,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x4, 24), F(size, 22), F(zm.getIdx(), 16),
                             F(3, 14), F(opc, 13), F(pg.getIdx(), 10),
                             F(za.getIdx(), 5), F(zdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE integer add/subtract vectors (unpredicated)
@@ -3483,7 +3483,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x4, 24), F(size, 22), F(1, 21), F(zm.getIdx(), 16),
                 F(opc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE bitwise logical operations (unpredicated)
@@ -3492,7 +3492,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x4, 24), F(opc, 22), F(1, 21), F(zm.getIdx(), 16),
                 F(0xc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE index generation (immediate start, immediate increment)
@@ -3506,7 +3506,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     uint32_t code = concat({F(0x4, 24), F(size, 22), F(1, 21), F(imm5b, 16),
                             F(0x10, 10), F(imm5, 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE index generation (immediate start, register increment)
@@ -3519,7 +3519,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x4, 24), F(size, 22), F(1, 21), F(rm.getIdx(), 16),
                 F(0x12, 10), F(imm5, 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE index generation (register start, immediate increment)
@@ -3531,7 +3531,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     uint32_t code = concat({F(0x4, 24), F(size, 22), F(1, 21), F(imm5, 16),
                             F(0x11, 10), F(rn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE index generation (register start, register increment)
@@ -3540,7 +3540,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x4, 24), F(size, 22), F(1, 21), F(rm.getIdx(), 16),
                 F(0x13, 10), F(rn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE stack frame adjustment
@@ -3552,7 +3552,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     uint32_t code = concat({F(0x8, 23), F(op, 22), F(1, 21), F(xn.getIdx(), 16),
                             F(0xa, 11), F(imm6, 5), F(xd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE stack frame size
@@ -3564,7 +3564,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     uint32_t code = concat({F(0x9, 23), F(op, 22), F(1, 21), F(opc2, 16),
                             F(0xa, 11), F(imm6, 5), F(xd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE bitwise shift by immediate (unpredicated)
@@ -3584,7 +3584,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x4, 24), F(tszh, 22), F(1, 21), F(tszl, 19), F(imm3, 16),
                 F(0x9, 12), F(opc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE bitwise shift by wide elements (unpredicated)
@@ -3594,7 +3594,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x4, 24), F(size, 22), F(1, 21), F(zm.getIdx(), 16),
                 F(0x8, 12), F(opc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE address generation
@@ -3610,7 +3610,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x4, 24), F(opc, 22), F(1, 21),
                             F(adr.getZm().getIdx(), 16), F(0xa, 12), F(msz, 10),
                             F(adr.getZn().getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE address generation
@@ -3626,7 +3626,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x4, 24), F(opc, 22), F(1, 21),
                             F(adr.getZm().getIdx(), 16), F(0xa, 12), F(msz, 10),
                             F(adr.getZn().getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE Integer Misc - Unpredicated Group
@@ -3635,7 +3635,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x4, 24), F(size, 22), F(1, 21), F(opc, 16), F(0xb, 12),
                 F(type, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE constructive prefix (unpredicated)
@@ -3667,7 +3667,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x4, 24), F(size, 22), F(type1, 20), F(imm4, 16),
                 F(type2, 11), F(op, 10), F(pat, 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE element count
@@ -3708,7 +3708,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t imm13 = genNImmrImms(imm, zd.getBit());
     uint32_t code =
         concat({F(0x5, 24), F(opc, 22), F(imm13, 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE bitwise logical with immediate (unpredicated)
@@ -3729,7 +3729,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5, 24), F(size, 22), F(1, 20), F(pg.getIdx(), 16), F(6, 13),
                 F(imm8, 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE copy integer immediate (predicated)
@@ -3743,7 +3743,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5, 24), F(size, 22), F(1, 20), F(pg.getIdx(), 16),
                 F(type, 13), F(imm8, 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE extract vector (immediate offset)
@@ -3753,7 +3753,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     verifyIncRange(imm, 0, 255, ERR_ILLEGAL_IMM_RANGE);
     uint32_t code = concat({F(0x5, 24), F(1, 21), F(imm8h, 16), F(imm8l, 10),
                             F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE Permute Vector - Unpredicate Group
@@ -3762,7 +3762,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5, 24), F(size, 22), F(1, 21), F(type1, 16), F(type2, 10),
                 F(rn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE broadcast general register
@@ -3831,7 +3831,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5, 24), F(size, 22), F(1, 21), F(pm.getIdx(), 16), F(2, 13),
                 F(opc, 11), F(H, 10), F(pn.getIdx(), 5), F(pd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE reverse predicate elements
@@ -3839,14 +3839,14 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t size = genSize(pd);
     uint32_t code = concat({F(0x5, 24), F(size, 22), F(0xd1, 14),
                             F(pn.getIdx(), 5), F(pd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE unpack predicate elements
   void SveUnpackPredElem(uint32_t H, const _PReg &pd, const _PReg &pn) {
     uint32_t code = concat({F(0x5, 24), F(3, 20), F(H, 16), F(1, 14),
                             F(pn.getIdx(), 5), F(pd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE permute vector elements
@@ -3856,7 +3856,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5, 24), F(size, 22), F(1, 21), F(zm.getIdx(), 16), F(3, 13),
                 F(opc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE compress active elements
@@ -3866,7 +3866,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5, 24), F(size, 22), F(1, 21), F(0xc, 13),
                 F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE conditionally broaccast element to vector
@@ -3877,7 +3877,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5, 24), F(size, 22), F(0x14, 17), F(B, 16), F(0x4, 13),
                 F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE conditionally extract element to SIMD&FP scalar
@@ -3888,7 +3888,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5, 24), F(size, 22), F(0x15, 17), F(B, 16), F(0x4, 13),
                 F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(vdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE conditionally extract element to general Reg
@@ -3899,7 +3899,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5, 24), F(size, 22), F(0x18, 17), F(B, 16), F(0x5, 13),
                 F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(rdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE copy SIMD&FP scalar register to vector (predicated)
@@ -3910,7 +3910,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5, 24), F(size, 22), F(0x10, 17), F(0x4, 13),
                 F(pg.getIdx(), 10), F(vn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE copy general register to vector (predicated)
@@ -3921,7 +3921,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5, 24), F(size, 22), F(0x14, 17), F(0x5, 13),
                 F(pg.getIdx(), 10), F(rn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE extract element to SIMD&FP scalar register
@@ -3932,7 +3932,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5, 24), F(size, 22), F(0x11, 17), F(B, 16), F(0x4, 13),
                 F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE extract element to general register
@@ -3943,7 +3943,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5, 24), F(size, 22), F(0x10, 17), F(B, 16), F(0x5, 13),
                 F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE reverse within elements
@@ -3954,7 +3954,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5, 24), F(size, 22), F(0x9, 18), F(opc, 16), F(0x4, 13),
                 F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE vector splice
@@ -3964,7 +3964,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x5, 24), F(size, 22), F(0xb, 18), F(0x4, 13),
                 F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE select vector elements (predicated)
@@ -3974,7 +3974,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x5, 24), F(size, 22), F(1, 21),
                             F(zm.getIdx(), 16), F(0x3, 14), F(pg.getIdx(), 10),
                             F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE Integer Compare - Vector Group
@@ -3984,7 +3984,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x24, 24), F(size, 22), F(zm.getIdx(), 16),
                             F(opc, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5),
                             F(ne, 4), F(pd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE integer compare vectors
@@ -4011,7 +4011,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x24, 24), F(size, 22), F(1, 21), F(imm7, 14),
                             F(lt, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5),
                             F(ne, 4), F(pd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE predicate logical operations
@@ -4022,7 +4022,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(0x25, 24), F(op, 23), F(S, 22), F(pm.getIdx(), 16), F(1, 14),
                 F(pg.getIdx(), 10), F(o2, 9), F(pn.getIdx(), 5), F(o3, 4),
                 F(pd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE propagate break from previous partition
@@ -4032,7 +4032,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x25, 24), F(op, 23), F(S, 22),
                             F(pm.getIdx(), 16), F(3, 14), F(pg.getIdx(), 10),
                             F(pn.getIdx(), 5), F(B, 4), F(pd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE partition break condition
@@ -4042,7 +4042,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x25, 24), F(B, 23), F(S, 22), F(2, 19), F(1, 14),
                             F(pg.getIdx(), 10), F(pn.getIdx(), 5), F(M, 4),
                             F(pd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE propagate break to next partition
@@ -4051,7 +4051,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x25, 24), F(S, 22), F(3, 19), F(1, 14), F(pg.getIdx(), 10),
                 F(pn.getIdx(), 5), F(pdm.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE predicate first active
@@ -4059,7 +4059,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
                        const _PReg &pg) {
     uint32_t code = concat({F(0x25, 24), F(op, 23), F(S, 22), F(3, 19),
                             F(3, 14), F(pg.getIdx(), 5), F(pdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE predicate initialize
@@ -4067,7 +4067,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t size = genSize(pd);
     uint32_t code = concat({F(0x25, 24), F(size, 22), F(3, 19), F(S, 16),
                             F(7, 13), F(pat, 5), F(pd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE predicate next active
@@ -4075,7 +4075,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t size = genSize(pdn);
     uint32_t code = concat({F(0x25, 24), F(size, 22), F(3, 19), F(0xe, 13),
                             F(1, 10), F(pg.getIdx(), 5), F(pdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE predicate read from FFR (predicate)
@@ -4083,14 +4083,14 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
                           const _PReg &pg) {
     uint32_t code = concat({F(0x25, 24), F(op, 23), F(S, 22), F(3, 19),
                             F(0xf, 12), F(pg.getIdx(), 5), F(pd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE predicate read from FFR (unpredicate)
   void SvePredReadFFRUnpred(uint32_t op, uint32_t S, const _PReg &pd) {
     uint32_t code = concat({F(0x25, 24), F(op, 23), F(S, 22), F(3, 19),
                             F(0x1f, 12), F(pd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE predicate test
@@ -4099,14 +4099,14 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x25, 24), F(op, 23), F(S, 22), F(2, 19), F(3, 14),
                 F(pg.getIdx(), 10), F(pn.getIdx(), 5), F(opc2, 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE predicate zero
   void SvePredZero(uint32_t op, uint32_t S, const _PReg &pd) {
     uint32_t code = concat({F(0x25, 24), F(op, 23), F(S, 22), F(3, 19),
                             F(7, 13), F(1, 10), F(pd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE integer compare with signed immediate
@@ -4119,7 +4119,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x25, 24), F(size, 22), F(imm5, 16), F(op, 15),
                             F(o2, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5),
                             F(ne, 4), F(pd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE predicate count
@@ -4129,7 +4129,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x25, 24), F(size, 22), F(1, 21), F(opc, 16),
                             F(2, 14), F(pg.getIdx(), 10), F(o2, 9),
                             F(pn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE Inc/Dec by Predicate Count Group
@@ -4139,7 +4139,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x25, 24), F(size, 22), F(type1, 18), F(op, 17),
                             F(D, 16), F(type2, 11), F(opc2, 9),
                             F(pg.getIdx(), 5), F(rdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE inc/dec register by predicate count
@@ -4174,14 +4174,14 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
   // SVE FFR initialise
   void SveFFRInit(uint32_t opc) {
     uint32_t code = concat({F(0x25, 24), F(opc, 22), F(0xb, 18), F(0x24, 10)});
-    dw(code);
+    dd(code);
   }
 
   // SVE FFR write from predicate
   void SveFFRWritePred(uint32_t opc, const _PReg &pn) {
     uint32_t code = concat(
         {F(0x25, 24), F(opc, 22), F(0xa, 18), F(0x24, 10), F(pn.getIdx(), 5)});
-    dw(code);
+    dd(code);
   }
 
   // SVE conditionally terminate scalars
@@ -4191,7 +4191,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x25, 24), F(op, 23), F(sz, 22), F(1, 21), F(rm.getIdx(), 16),
                 F(0x8, 10), F(rn.getIdx(), 5), F(ne, 4)});
-    dw(code);
+    dd(code);
   }
 
   // SVE integer compare scalar count and limit
@@ -4203,7 +4203,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x25, 24), F(size, 22), F(1, 21),
                             F(rm.getIdx(), 16), F(sf, 12), F(U, 11), F(lt, 10),
                             F(rn.getIdx(), 5), F(eq, 4), F(pd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE broadcast floating-point immediate (unpredicated)
@@ -4214,7 +4214,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x25, 24), F(size, 22), F(7, 19), F(opc, 17), F(7, 14),
                 F(o2, 13), F(imm8, 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE broadcast integer immediate (unpredicated)
@@ -4229,7 +4229,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x25, 24), F(size, 22), F(7, 19), F(opc, 17), F(3, 14),
                 F((sh == 8), 13), F(imm8, 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE integer add/subtract immediate (unpredicated)
@@ -4244,7 +4244,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x25, 24), F(size, 22), F(4, 19), F(opc, 16), F(3, 14),
                 F((sh == 8), 13), F(imm8, 5), F(zdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE integer min/max immediate (unpredicated)
@@ -4260,7 +4260,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x25, 24), F(size, 22), F(5, 19), F(opc, 16), F(3, 14),
                 F(o2, 13), F(imm8, 5), F(zdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE integer multiply immediate (unpredicated)
@@ -4272,7 +4272,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x25, 24), F(size, 22), F(6, 19), F(opc, 16), F(3, 14),
                 F(o2, 13), F(imm8, 5), F(zdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE integer dot product (unpredicated)
@@ -4281,7 +4281,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t size = genSize(zda);
     uint32_t code = concat({F(0x44, 24), F(size, 22), F(zm.getIdx(), 16),
                             F(U, 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE integer dot product (indexed)
@@ -4297,7 +4297,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     uint32_t code = concat({F(0x44, 24), F(size, 22), F(1, 21), F(opc, 16),
                             F(U, 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floating-point complex add (predicated)
@@ -4310,7 +4310,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x64, 24), F(size, 22), F(rot, 16), F(1, 15),
                 F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floating-point complex multiply-add (predicated)
@@ -4323,7 +4323,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x64, 24), F(size, 22), F(zm.getIdx(), 16), F(rot, 13),
                 F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floating-point multiply-add (indexed)
@@ -4343,7 +4343,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     uint32_t code = concat({F(0x64, 24), F(size, 22), F(1, 21), F(opc, 16),
                             F(op, 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floating-point complex multiply-add (indexed)
@@ -4363,7 +4363,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x64, 24), F(size, 22), F(1, 21), F(opc, 16), F(1, 12),
                 F(rot, 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floating-point multiply (indexed)
@@ -4382,7 +4382,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     uint32_t code = concat({F(0x64, 24), F(size, 22), F(1, 21), F(opc, 16),
                             F(1, 13), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floating-point recursive reduction
@@ -4393,7 +4393,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x65, 24), F(size, 22), F(opc, 16), F(1, 13),
                 F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floating-point reciprocal estimate unpredicated
@@ -4401,7 +4401,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t size = genSize(zd);
     uint32_t code = concat({F(0x65, 24), F(size, 22), F(1, 19), F(opc, 16),
                             F(3, 12), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floating-point compare with zero
@@ -4413,7 +4413,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x65, 24), F(size, 22), F(1, 20), F(eq, 17),
                             F(lt, 16), F(1, 13), F(pg.getIdx(), 10),
                             F(zn.getIdx(), 5), F(ne, 4), F(pd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floating-point serial resuction (predicated)
@@ -4424,7 +4424,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x65, 24), F(size, 22), F(3, 19), F(opc, 16), F(1, 13),
                 F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(vdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floating-point arithmetic (unpredicated)
@@ -4433,7 +4433,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t size = genSize(zd);
     uint32_t code = concat({F(0x65, 24), F(size, 22), F(zm.getIdx(), 16),
                             F(opc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floating-point arithmetic (predicated)
@@ -4444,7 +4444,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x65, 24), F(size, 22), F(opc, 16), F(4, 13),
                 F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floating-point arithmetic with immediate (predicated)
@@ -4464,7 +4464,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x65, 24), F(size, 22), F(3, 19), F(opc, 16), F(4, 13),
                 F(pg.getIdx(), 10), F(i1, 5), F(zdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floating-point trig multiply-add coefficient
@@ -4474,7 +4474,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     verifyIncRange(imm, 0, 7, ERR_ILLEGAL_IMM_RANGE);
     uint32_t code = concat({F(0x65, 24), F(size, 22), F(2, 19), F(imm3, 16),
                             F(1, 15), F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floating-point convert precision
@@ -4483,7 +4483,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x65, 24), F(opc, 22), F(1, 19), F(opc2, 16), F(5, 13),
                 F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floating-point convert to integer
@@ -4492,7 +4492,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x65, 24), F(opc, 22), F(3, 19), F(opc2, 17),
                             F(U, 16), F(5, 13), F(pg.getIdx(), 10),
                             F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floating-point round to integral value
@@ -4503,7 +4503,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x65, 24), F(size, 22), F(opc, 16), F(5, 13),
                 F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floating-point unary operations
@@ -4514,7 +4514,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x65, 24), F(size, 22), F(3, 18), F(opc, 16), F(5, 13),
                 F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE integer convert to floationg-point
@@ -4523,7 +4523,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x65, 24), F(opc, 22), F(2, 19), F(opc2, 17),
                             F(U, 16), F(5, 13), F(pg.getIdx(), 10),
                             F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floationg-point compare vectors
@@ -4533,7 +4533,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x65, 24), F(size, 22), F(zm.getIdx(), 16),
                             F(op, 15), F(1, 14), F(o2, 13), F(pg.getIdx(), 10),
                             F(zn.getIdx(), 5), F(o3, 4), F(pd.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floationg-point multiply-accumulate writing addend
@@ -4543,7 +4543,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x65, 24), F(size, 22), F(1, 21),
                             F(zm.getIdx(), 16), F(opc, 13), F(pg.getIdx(), 10),
                             F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE floationg-point multiply-accumulate writing multiplicand
@@ -4554,7 +4554,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(0x65, 24), F(size, 22), F(1, 21), F(za.getIdx(), 16),
                 F(1, 15), F(opc, 13), F(pg.getIdx(), 10), F(zm.getIdx(), 5),
                 F(zdn.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 32-bit gather load (scalar plus 32-bit unscaled offsets)
@@ -4567,7 +4567,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(0x42, 25), F(msz, 23), F(xs, 22), F(adr.getZm().getIdx(), 16),
                 F(U, 14), F(ff, 13), F(pg.getIdx(), 10),
                 F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 32-bit gather load (vector plus immediate)
@@ -4582,7 +4582,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x42, 25), F(msz, 23), F(1, 21), F(imm5, 16),
                             F(1, 15), F(U, 14), F(ff, 13), F(pg.getIdx(), 10),
                             F(adr.getZn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 32-bit gather load halfwords (scalar plus 32-bit scaled offsets)
@@ -4594,7 +4594,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
                             F(adr.getZm().getIdx(), 16), F(U, 14), F(ff, 13),
                             F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
                             F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 32-bit gather load words (scalar plus 32-bit scaled offsets)
@@ -4606,7 +4606,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
                             F(adr.getZm().getIdx(), 16), F(U, 14), F(ff, 13),
                             F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
                             F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 32-bit gather prefetch (scalar plus 32-bit scaled offsets)
@@ -4618,7 +4618,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(0x42, 25), F(xs, 22), F(1, 21), F(adr.getZm().getIdx(), 16),
                 F(msz, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
                 F(prfop_sve, 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 32-bit gather prefetch (vector plus immediate)
@@ -4632,7 +4632,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x42, 25), F(msz, 23), F(imm5, 16), F(7, 13),
                             F(pg.getIdx(), 10), F(adr.getZn().getIdx(), 5),
                             F(prfop_sve, 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 32-bit contiguous prefetch (scalar plus immediate)
@@ -4645,7 +4645,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x42, 25), F(7, 22), F(imm6, 16), F(msz, 13),
                             F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
                             F(prfop_sve, 0)});
-    dw(code);
+    dd(code);
   }
 
   void Sve32ContiPfScImm(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg,
@@ -4654,7 +4654,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x42, 25), F(7, 22), F(0, 16), F(msz, 13), F(pg.getIdx(), 10),
                 F(adr.getXn().getIdx(), 5), F(prfop_sve, 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 32-bit contiguous prefetch (scalar plus scalar)
@@ -4665,7 +4665,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat(
         {F(0x42, 25), F(msz, 23), F(adr.getXm().getIdx(), 16), F(6, 13),
          F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(prfop_sve, 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE load and broadcast element
@@ -4688,7 +4688,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x42, 25), F(dtypeh, 23), F(1, 22), F(imm6, 16),
                             F(1, 15), F(dtypel, 13), F(pg.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void SveLoadAndBcElem(uint32_t dtypeh, uint32_t dtypel, const _ZReg &zt,
@@ -4697,7 +4697,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x42, 25), F(dtypeh, 23), F(1, 22), F(0, 16),
                             F(1, 15), F(dtypel, 13), F(pg.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE load predicate register
@@ -4708,13 +4708,13 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     verifyIncRange(imm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
     uint32_t code = concat({F(0x42, 25), F(3, 23), F(imm9h, 16), F(imm9l, 10),
                             F(adr.getXn().getIdx(), 5), F(pt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void SveLoadPredReg(const _PReg &pt, const AdrNoOfs &adr) {
     uint32_t code = concat({F(0x42, 25), F(3, 23), F(0, 16), F(0, 10),
                             F(adr.getXn().getIdx(), 5), F(pt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE load predicate vector
@@ -4728,13 +4728,13 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x42, 25), F(3, 23), F(imm9h, 16), F(1, 14), F(imm9l, 10),
                 F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void SveLoadPredVec(const _ZReg &zt, const AdrNoOfs &adr) {
     uint32_t code = concat({F(0x42, 25), F(3, 23), F(0, 16), F(1, 14), F(0, 10),
                             F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE contiguous first-fault load (scalar plus scalar)
@@ -4749,7 +4749,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat(
         {F(0x52, 25), F(dtype, 21), F(adr.getXm().getIdx(), 16), F(3, 13),
          F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void SveContiFFLdScSc(uint32_t dtype, const _ZReg &zt, const _PReg &pg,
@@ -4758,7 +4758,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x52, 25), F(dtype, 21), F(31, 16), F(3, 13),
                             F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
                             F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE contiguous load (scalar plus immediate)
@@ -4771,7 +4771,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x52, 25), F(dtype, 21), F(imm4, 16), F(5, 13),
                             F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
                             F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void SveContiLdScImm(uint32_t dtype, const _ZReg &zt, const _PReg &pg,
@@ -4780,7 +4780,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x52, 25), F(dtype, 21), F(0, 16), F(5, 13),
                             F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
                             F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE contiguous load (scalar plus scalar)
@@ -4791,7 +4791,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat(
         {F(0x52, 25), F(dtype, 21), F(adr.getXm().getIdx(), 16), F(2, 13),
          F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE contiguous non-fault load (scalar plus immediate)
@@ -4804,7 +4804,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x52, 25), F(dtype, 21), F(1, 20), F(imm4, 16),
                             F(5, 13), F(pg.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void SveContiNFLdScImm(uint32_t dtype, const _ZReg &zt, const _PReg &pg,
@@ -4813,7 +4813,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x52, 25), F(dtype, 21), F(1, 20), F(0, 16),
                             F(5, 13), F(pg.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE contiguous non-temporal load (scalar plus immediate)
@@ -4826,7 +4826,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x52, 25), F(msz, 23), F(imm4, 16), F(7, 13),
                             F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
                             F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void SveContiNTLdScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg,
@@ -4835,7 +4835,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x52, 25), F(msz, 23), F(0, 16), F(7, 13), F(pg.getIdx(), 10),
                 F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE contiguous non-temporal load (scalar plus scalar)
@@ -4846,7 +4846,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat(
         {F(0x52, 25), F(msz, 23), F(adr.getXm().getIdx(), 16), F(6, 13),
          F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE load and broadcast quadword (scalar plus immediate)
@@ -4861,7 +4861,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x52, 25), F(msz, 23), F(num, 21), F(imm4, 16),
                             F(1, 13), F(pg.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void SveLdBcQuadScImm(uint32_t msz, uint32_t num, const _ZReg &zt,
@@ -4870,7 +4870,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x52, 25), F(msz, 23), F(num, 21), F(0, 16),
                             F(1, 13), F(pg.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE load and broadcast quadword (scalar plus scalar)
@@ -4881,7 +4881,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x52, 25), F(msz, 23), F(num, 21),
                             F(adr.getXm().getIdx(), 16), F(pg.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE load multiple structures (scalar plus immediate)
@@ -4900,7 +4900,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x52, 25), F(msz, 23), F(num, 21), F(imm4, 16),
                             F(7, 13), F(pg.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void SveLdMultiStructScImm(uint32_t msz, uint32_t num, const _ZReg &zt,
@@ -4909,7 +4909,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x52, 25), F(msz, 23), F(num, 21), F(0, 16),
                             F(7, 13), F(pg.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE load multiple structures (scalar plus scalar)
@@ -4921,7 +4921,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(0x52, 25), F(msz, 23), F(num, 21),
                 F(adr.getXm().getIdx(), 16), F(6, 13), F(pg.getIdx(), 10),
                 F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 64-bit gather load (scalar plus unpacked 32-bit scaled offsets)
@@ -4935,7 +4935,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
                             F(adr.getZm().getIdx(), 16), F(U, 14), F(ff, 13),
                             F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
                             F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 64-bit gather load (scalar plus 64-bit scaled offsets)
@@ -4948,7 +4948,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(0x62, 25), F(msz, 23), F(3, 21), F(adr.getZm().getIdx(), 16),
                 F(1, 15), F(U, 14), F(ff, 13), F(pg.getIdx(), 10),
                 F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 64-bit gather load (scalar plus 64-bit unscaled offsets)
@@ -4960,7 +4960,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(0x62, 25), F(msz, 23), F(2, 21), F(adr.getZm().getIdx(), 16),
                 F(1, 15), F(U, 14), F(ff, 13), F(pg.getIdx(), 10),
                 F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 64-bit gather load (scalar plus unpacked 32-bit unscaled offsets)
@@ -4973,7 +4973,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(0x62, 25), F(msz, 23), F(xs, 22), F(adr.getZm().getIdx(), 16),
                 F(U, 14), F(ff, 13), F(pg.getIdx(), 10),
                 F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 64-bit gather load (vector plus immeidate)
@@ -4995,7 +4995,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x62, 25), F(msz, 23), F(1, 21), F(imm5, 16),
                             F(1, 15), F(U, 14), F(ff, 13), F(pg.getIdx(), 10),
                             F(adr.getZn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 64-bit gather load (scalar plus 64-bit scaled offsets)
@@ -5006,7 +5006,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x62, 25), F(3, 21), F(adr.getZm().getIdx(), 16),
                             F(1, 15), F(msz, 13), F(pg.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(prfop_sve, 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 64-bit gather load (scalar plus unpacked 32-bit scaled offsets)
@@ -5019,7 +5019,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(0x62, 25), F(xs, 22), F(1, 21), F(adr.getZm().getIdx(), 16),
                 F(msz, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
                 F(prfop_sve, 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 64-bit gather load (vector plus immediate)
@@ -5040,7 +5040,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x62, 25), F(msz, 23), F(imm5, 16), F(7, 13),
                             F(pg.getIdx(), 10), F(adr.getZn().getIdx(), 5),
                             F(prfop_sve, 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 32-bit scatter store (sclar plus 32-bit scaled offsets)
@@ -5053,7 +5053,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(0x72, 25), F(msz, 23), F(3, 21), F(adr.getZm().getIdx(), 16),
                 F(1, 15), F(xs, 14), F(pg.getIdx(), 10),
                 F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 32-bit scatter store (sclar plus 32-bit unscaled offsets)
@@ -5065,7 +5065,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(0x72, 25), F(msz, 23), F(2, 21), F(adr.getZm().getIdx(), 16),
                 F(1, 15), F(xs, 14), F(pg.getIdx(), 10),
                 F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 32-bit scatter store (vector plus immediate)
@@ -5086,7 +5086,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x72, 25), F(msz, 23), F(3, 21), F(imm5, 16),
                             F(5, 13), F(pg.getIdx(), 10),
                             F(adr.getZn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 64-bit scatter store (scalar plus 64-bit scaled offsets)
@@ -5098,7 +5098,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(0x72, 25), F(msz, 23), F(1, 21), F(adr.getZm().getIdx(), 16),
                 F(5, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
                 F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 64-bit scatter store (scalar plus 64-bit unscaled offsets)
@@ -5108,7 +5108,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat(
         {F(0x72, 25), F(msz, 23), F(adr.getZm().getIdx(), 16), F(5, 13),
          F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 64-bit scatter store (scalar plus unpacked 32-bit scaled offsets)
@@ -5121,7 +5121,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(0x72, 25), F(msz, 23), F(1, 21), F(adr.getZm().getIdx(), 16),
                 F(1, 15), F(xs, 14), F(pg.getIdx(), 10),
                 F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 64-bit scatter store (scalar plus unpacked 32-bit unscaled offsets)
@@ -5133,7 +5133,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(0x72, 25), F(msz, 23), F(adr.getZm().getIdx(), 16), F(1, 15),
                 F(xs, 14), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
                 F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE 64-bit scatter store (vector plus immediate)
@@ -5154,7 +5154,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x72, 25), F(msz, 23), F(2, 21), F(imm5, 16),
                             F(5, 13), F(pg.getIdx(), 10),
                             F(adr.getZn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE contiguous non-temporal store (scalar plus immediate)
@@ -5167,7 +5167,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x72, 25), F(msz, 23), F(1, 20), F(imm4, 16),
                             F(7, 13), F(pg.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void SveContiNTStScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg,
@@ -5176,7 +5176,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x72, 25), F(msz, 23), F(1, 20), F(0, 16),
                             F(7, 13), F(pg.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE contiguous non-temporal store (scalar plus scalar)
@@ -5187,7 +5187,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat(
         {F(0x72, 25), F(msz, 23), F(adr.getXm().getIdx(), 16), F(3, 13),
          F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE contiguous store (scalar plus immediate)
@@ -5201,7 +5201,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x72, 25), F(msz, 23), F(size, 21), F(imm4, 16),
                             F(7, 13), F(pg.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void SveContiStScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg,
@@ -5211,7 +5211,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x72, 25), F(msz, 23), F(size, 21), F(0, 16),
                             F(7, 13), F(pg.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE contiguous store (scalar plus scalar)
@@ -5224,7 +5224,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(0x72, 25), F(msz, 23), F(size, 21),
                 F(adr.getXm().getIdx(), 16), F(2, 13), F(pg.getIdx(), 10),
                 F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE store multipule structures (scalar plus immediate)
@@ -5243,7 +5243,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x72, 25), F(msz, 23), F(num, 21), F(1, 20),
                             F(imm4, 16), F(7, 13), F(pg.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void SveStMultiStructScImm(uint32_t msz, uint32_t num, const _ZReg &zt,
@@ -5252,7 +5252,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code = concat({F(0x72, 25), F(msz, 23), F(num, 21), F(1, 20),
                             F(0, 16), F(7, 13), F(pg.getIdx(), 10),
                             F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE store multipule structures (scalar plus scalar)
@@ -5264,7 +5264,7 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         concat({F(0x72, 25), F(msz, 23), F(num, 21),
                 F(adr.getXm().getIdx(), 16), F(3, 13), F(pg.getIdx(), 10),
                 F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE store predicate register
@@ -5277,13 +5277,13 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
 
     uint32_t code = concat({F(0x72, 25), F(3, 23), F(imm9h, 16), F(imm9l, 10),
                             F(adr.getXn().getIdx(), 5), F(pt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void SveStorePredReg(const _PReg &pt, const AdrNoOfs &adr) {
     uint32_t code = concat({F(0x72, 25), F(3, 23), F(0, 16), F(0, 10),
                             F(adr.getXn().getIdx(), 5), F(pt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   // SVE store predicate vector
@@ -5297,13 +5297,13 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
     uint32_t code =
         concat({F(0x72, 25), F(3, 23), F(imm9h, 16), F(2, 13), F(imm9l, 10),
                 F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
   void SveStorePredVec(const _ZReg &zt, const AdrNoOfs &adr) {
     uint32_t code = concat({F(0x72, 25), F(3, 23), F(0, 16), F(2, 13), F(0, 10),
                             F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dw(code);
+    dd(code);
   }
 
 #ifdef XBYAK_TRANSLATE_AARCH64
