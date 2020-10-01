@@ -494,27 +494,26 @@ void mov_imm(const WReg &dst, T imm) {
   return;
 }
 
-template<typename T> void cmp_imm(const XReg &a, T imm, const XReg &b){
+template <typename T> void cmp_imm(const XReg &a, T imm, const XReg &b) {
 
-    if((imm>>12)==0){
-        cmp(a, imm);
-    }else{
-        mov_imm(b, imm);
-        cmp(a, b);
-    }
+  if ((imm >> 12) == 0) {
+    cmp(a, imm);
+  } else {
+    mov_imm(b, imm);
+    cmp(a, b);
+  }
 
-    return;
+  return;
 }
 
-template<typename T> void cmp_imm(const WReg &a, T imm, const WReg &b){
+template <typename T> void cmp_imm(const WReg &a, T imm, const WReg &b) {
 
-    if((imm>>12)==0){
-        cmp(a, imm);
-    }else{
-        mov_imm(b, imm);
-        cmp(a, b);
-    }
+  if ((imm >> 12) == 0) {
+    cmp(a, imm);
+  } else {
+    mov_imm(b, imm);
+    cmp(a, b);
+  }
 
-    return;
+  return;
 }
-
