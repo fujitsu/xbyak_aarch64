@@ -223,12 +223,11 @@ public:
   }
 
   // remove dw method in the near feature
-#ifdef XBYAK_TRANSLATE_AARCH64
-  void dw_aarch64(uint32_t code){
-#else
-  void dw(uint32_t code) {
-#endif
+  void dw(uint32_t code) __attribute__((deprecated)) {
     dd(code);
+  }
+  void dw_aarch64(uint32_t code) __attribute__((deprecated)) {
+    dw(code);
   }
 
   // write 4 byte data

@@ -714,10 +714,6 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
         {F(op, 31), F(immlo, 29), F(0x10, 24), F(immhi, 5), F(rd.getIdx(), 0)});
   }
 
-#ifdef XBYAK_TRANSLATE_AARCH64
-#define dw dw_aarch64
-#endif
-
   void PCrelAddr(uint32_t op, const XReg &rd, const LabelAArch64 &label) {
     auto encFunc = [&, op, rd](int64_t labelOffset) {
       return PCrelAddrEnc(op, rd, labelOffset);
@@ -5307,7 +5303,6 @@ class CodeGeneratorAArch64 : public CodeGenUtil, public CodeArrayAArch64 {
   }
 
 #ifdef XBYAK_TRANSLATE_AARCH64
-#undef dw
 
   void mov(const XReg &rd, const LabelAArch64 &label) { adr(rd, label); }
 #endif
