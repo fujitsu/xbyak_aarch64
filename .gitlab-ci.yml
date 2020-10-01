@@ -10,13 +10,13 @@ before_script:
 
 ClangFormatCheck:
   stage: test
-  image: 677b25a35be8
+  image: bce7edfda510
   script:
   - ./.github/automation/clang-format.sh
 
 job_1:
   stage: test
-  image: eab00f929e35
+  image: bce7edfda510
   script:
 #    - pwd
 #    - ls
