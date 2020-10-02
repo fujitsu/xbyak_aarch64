@@ -222,20 +222,25 @@ public:
     size_ = 0;
   }
 
-#ifdef XBYAK_TRANSLATE_AARCH64
-  void dw_aarch64(uint32_t code){
-#else
-  void dw(uint32_t code) {
-#endif
-      if (size_ >= maxSize_) {
-        if (type_ == AUTO_GROW) {
-          growMemory();
-} else {
-  throw Error(ERR_CODE_IS_TOO_BIG);
-}
-}
-top_[size_++] = code;
-}
+  // remove dw method in the near feature
+  void dw(uint32_t code) __attribute__((deprecated)) {
+    dd(code);
+  }
+  void dw_aarch64(uint32_t code) __attribute__((deprecated)) {
+    dw(code);
+  }
+
+  // write 4 byte data
+  void dd(uint32_t code) {
+    if (size_ >= maxSize_) {
+      if (type_ == AUTO_GROW) {
+        growMemory();
+      } else {
+        throw Error(ERR_CODE_IS_TOO_BIG);
+      }
+    }
+    top_[size_++] = code;
+  }
 #ifdef XBYAK_TRANSLATE_AARCH64
 const uint8_t *getCode() const { return reinterpret_cast<uint8_t *>(top_); }
 const uint32_t *getCode32() const { return top_; }
