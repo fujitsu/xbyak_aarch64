@@ -227,7 +227,7 @@ public:
     dd(code);
   }
   void dw_aarch64(uint32_t code) __attribute__((deprecated)) {
-    dw(code);
+    dd(code);
   }
 
   // write 4 byte data
