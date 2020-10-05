@@ -45,7 +45,7 @@ template <class To, class From> inline const To CastTo(From p) throw() {
 struct AllocatorAArch64 {
   virtual uint32_t *alloc(size_t size) {
     return reinterpret_cast<uint32_t *>(
-        AlignedMalloc(size, inner::ALIGN_PAGE_SIZE));
+        AlignedMalloc(size, inner::getPageSize()));
   }
   virtual void free(uint32_t *p) { AlignedFree(p); }
   virtual ~AllocatorAArch64() {}
@@ -60,7 +60,7 @@ class MmapAllocatorAArch64 : AllocatorAArch64 {
 
 public:
   uint32_t *alloc(size_t size) {
-    const size_t alignedSizeM1 = inner::ALIGN_PAGE_SIZE - 1;
+    const size_t alignedSizeM1 = inner::getPageSize() - 1;
     size = (size + alignedSizeM1) & ~alignedSizeM1;
 #ifdef MAP_ANONYMOUS
     const int mode = MAP_PRIVATE | MAP_ANONYMOUS;
@@ -327,7 +327,7 @@ static inline bool protect(const void *addr, size_t size, int protectMode) {
   DWORD oldProtect;
   return VirtualProtect(const_cast<void *>(addr), size, mode, &oldProtect) != 0;
 #elif defined(__GNUC__)
-    size_t pageSize = sysconf(_SC_PAGESIZE);
+    size_t pageSize = inner::getPageSize();
     size_t iaddr = reinterpret_cast<size_t>(addr);
     size_t roundAddr = iaddr & ~(pageSize - static_cast<size_t>(1));
 

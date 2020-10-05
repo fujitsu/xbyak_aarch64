@@ -22,7 +22,15 @@ enum {
 
 namespace inner {
 
-static const size_t ALIGN_PAGE_SIZE = 4096;
+inline size_t getPageSize()
+{
+#ifdef __GNUC__
+  static const size_t pageSize = sysconf(_SC_PAGESIZE);
+#else
+  static const size_t pageSize = 4096;
+#endif
+  return pageSize;
+}
 
 inline bool IsInDisp8(uint32_t x) { return 0xFFFFFF80 <= x || x <= 0x7F; }
 inline bool IsInInt32(uint64_t x) {

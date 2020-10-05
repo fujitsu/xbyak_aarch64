@@ -5528,7 +5528,7 @@ public:
     if (x < 4 || (x % 4))
       throw Error(ERR_BAD_ALIGN);
 
-    if (isAutoGrow() && x > inner::ALIGN_PAGE_SIZE)
+    if (isAutoGrow() && x > inner::getPageSize())
       fprintf(stderr, "warning:autoGrow mode does not support %d align\n",
               (int)x);
 
