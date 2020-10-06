@@ -523,7 +523,7 @@ public:
   }
 };
 
-class CodeGenerator : public CodeGenUtil, public CodeArrayAArch64 {
+class CodeGenerator : public CodeGenUtil, public CodeArray {
   struct CodeInfo {
     size_t code_idx;
     std::string file;
@@ -551,7 +551,7 @@ class CodeGenerator : public CodeGenUtil, public CodeArrayAArch64 {
   CodeInfo cinfo_;
   std::deque<CodeInfo> codeInfoHist_;
 
-  LabelManagerAArch64 labelMgr_;
+  LabelManager labelMgr_;
 
   // set infomation of instruction code
   void setCodeInfo(const std::string &file, size_t line,
@@ -5351,8 +5351,8 @@ public:
   const PReg p13, p14, p15;
 
   CodeGenerator(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0,
-                AllocatorAArch64 *allocator = 0)
-      : CodeArrayAArch64(maxSize, userPtr, allocator)
+                Allocator *allocator = 0)
+      : CodeArray(maxSize, userPtr, allocator)
 #if 1
         ,
         w0(0), w1(1), w2(2), w3(3), w4(4), w5(5), w6(6), w7(7), w8(8), w9(9),
@@ -5475,7 +5475,7 @@ public:
   void readyRE() { return ready(PROTECT_RE); }
 #ifdef XBYAK_TEST
   void dump(bool doClear = true) {
-    CodeArrayAArch64::dump();
+    CodeArray::dump();
     if (doClear)
       size_ = 0;
   }

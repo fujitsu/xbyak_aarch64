@@ -42,19 +42,19 @@ template <class To, class From> inline const To CastTo(From p) throw() {
   return (const To)(size_t)(p);
 }
 
-struct AllocatorAArch64 {
+struct Allocator {
   virtual uint32_t *alloc(size_t size) {
     return reinterpret_cast<uint32_t *>(
         AlignedMalloc(size, inner::getPageSize()));
   }
   virtual void free(uint32_t *p) { AlignedFree(p); }
-  virtual ~AllocatorAArch64() {}
+  virtual ~Allocator() {}
   /* override to return false if you call protect() manually */
   virtual bool useProtect() const { return true; }
 };
 
 #ifdef XBYAK_USE_MMAP_ALLOCATOR
-class MmapAllocatorAArch64 : AllocatorAArch64 {
+class MmapAllocator : Allocator {
   typedef std::unordered_map<uintptr_t, size_t> SizeList;
   SizeList sizeList_;
 
@@ -89,18 +89,18 @@ public:
 };
 #endif
 
-// 2nd parameter for constructor of CodeArrayAArch64(maxSize, userPtr, alloc)
+// 2nd parameter for constructor of CodeArray(maxSize, userPtr, alloc)
 void *const AutoGrow = (void *)1;          //-V566
 void *const DontSetProtectRWE = (void *)2; //-V566
 
-class CodeArrayAArch64 {
+class CodeArray {
   enum Type {
     USER_BUF = 1, // use userPtr(non alignment, non protect)
     ALLOC_BUF,    // use new(alignment, protect)
     AUTO_GROW     // automatically move and grow memory if necessary
   };
-  CodeArrayAArch64(const CodeArrayAArch64 &rhs);
-  void operator=(const CodeArrayAArch64 &);
+  CodeArray(const CodeArray &rhs);
+  void operator=(const CodeArray &);
   bool isAllocType() const { return type_ == ALLOC_BUF || type_ == AUTO_GROW; }
 
   // type of partially applied function for encoding
@@ -121,14 +121,14 @@ class CodeArrayAArch64 {
   AddrInfoList addrInfoList_;
   const Type type_;
 #ifdef XBYAK_USE_MMAP_ALLOCATOR
-  MmapAllocatorAArch64 defaultAllocator_;
+  MmapAllocator defaultAllocator_;
 #else
-  AllocatorAArch64 defaultAllocator_;
+  Allocator defaultAllocator_;
 #endif
-  AllocatorAArch64 *alloc_;
+  Allocator *alloc_;
 
 protected:
-  friend class LabelManagerAArch64;
+  friend class LabelManager;
   size_t maxSize_; // max size of code size (per uint32_t)
   uint32_t *top_;
   size_t size_; // code size
@@ -171,13 +171,13 @@ public:
     PROTECT_RWE = 1, // read/write/exec
     PROTECT_RE = 2   // read/exec
   };
-  explicit CodeArrayAArch64(size_t maxSize, void *userPtr = 0,
-                            AllocatorAArch64 *allocator = 0)
+  explicit CodeArray(size_t maxSize, void *userPtr = 0,
+                     Allocator *allocator = 0)
       : type_(userPtr == AutoGrow
                   ? AUTO_GROW
                   : (userPtr == 0 || userPtr == DontSetProtectRWE) ? ALLOC_BUF
                                                                    : USER_BUF),
-        alloc_(allocator ? allocator : (AllocatorAArch64 *)&defaultAllocator_),
+        alloc_(allocator ? allocator : (Allocator *)&defaultAllocator_),
         maxSize_(maxSize / CSIZE),
         top_(type_ == USER_BUF
                  ? reinterpret_cast<uint32_t *>(userPtr)
@@ -191,7 +191,7 @@ public:
       throw Error(ERR_CANT_PROTECT);
     }
   }
-  virtual ~CodeArrayAArch64() {
+  virtual ~CodeArray() {
     if (isAllocType()) {
       if (useProtect())
         setProtectModeRW(false);

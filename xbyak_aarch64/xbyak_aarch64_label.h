@@ -31,12 +31,12 @@ struct JmpLabel {
       : endOfJmp(endOfJmp), encFunc(encFunc) {}
 };
 
-class LabelManagerAArch64;
+class LabelManager;
 
 class Label {
-  mutable LabelManagerAArch64 *mgr;
+  mutable LabelManager *mgr;
   mutable int id;
-  friend class LabelManagerAArch64;
+  friend class LabelManager;
 
 public:
   Label() : mgr(nullptr), id(0) {}
@@ -55,24 +55,24 @@ public:
 using namespace Xbyak::Xbyak_aarch64;
 #endif
 
-class LabelManagerAArch64 {
+class LabelManager {
 
   // for Label class
-  struct ClabelValAArch64 {
-    ClabelValAArch64(size_t offset = 0) : offset(offset), refCount(1) {}
+  struct ClabelVal {
+    ClabelVal(size_t offset = 0) : offset(offset), refCount(1) {}
     size_t offset;
     int refCount;
   };
-  typedef std::unordered_map<int, ClabelValAArch64> ClabelDefListAArch64;
-  typedef std::unordered_multimap<int, const JmpLabel> ClabelUndefListAArch64;
-  typedef std::unordered_set<Label *> LabelPtrListAArch64;
+  typedef std::unordered_map<int, ClabelVal> ClabelDefList;
+  typedef std::unordered_multimap<int, const JmpLabel> ClabelUndefList;
+  typedef std::unordered_set<Label *> LabelPtrList;
 
-  CodeArrayAArch64 *base_;
+  CodeArray *base_;
   // global : stateList_.front(), local : stateList_.back()
   mutable int labelId_;
-  ClabelDefListAArch64 clabelDefListAArch64_;
-  ClabelUndefListAArch64 clabelUndefListAArch64_;
-  LabelPtrListAArch64 labelPtrListAArch64_;
+  ClabelDefList clabelDefList_;
+  ClabelUndefList clabelUndefList_;
+  LabelPtrList labelPtrList_;
 
   int getId(const Label &label) const {
     if (label.id == 0)
@@ -115,16 +115,16 @@ class LabelManagerAArch64 {
   }
   friend class Label;
   void incRefCount(int id, Label *label) {
-    clabelDefListAArch64_[id].refCount++;
-    labelPtrListAArch64_.insert(label);
+    clabelDefList_[id].refCount++;
+    labelPtrList_.insert(label);
   }
   void decRefCount(int id, Label *label) {
-    labelPtrListAArch64_.erase(label);
-    ClabelDefListAArch64::iterator i = clabelDefListAArch64_.find(id);
-    if (i == clabelDefListAArch64_.end())
+    labelPtrList_.erase(label);
+    ClabelDefList::iterator i = clabelDefList_.find(id);
+    if (i == clabelDefList_.end())
       return;
     if (i->second.refCount == 1) {
-      clabelDefListAArch64_.erase(id);
+      clabelDefList_.erase(id);
     } else {
       --i->second.refCount;
     }
@@ -139,51 +139,48 @@ class LabelManagerAArch64 {
   }
   // detach all labels linked to LabelManager
   void resetLabelPtrList() {
-    for (LabelPtrListAArch64::iterator i = labelPtrListAArch64_.begin(),
-                                       ie = labelPtrListAArch64_.end();
+    for (LabelPtrList::iterator i = labelPtrList_.begin(),
+                                ie = labelPtrList_.end();
          i != ie; ++i) {
       (*i)->clear();
     }
-    labelPtrListAArch64_.clear();
+    labelPtrList_.clear();
   }
 
 public:
-  LabelManagerAArch64() { reset(); }
-  ~LabelManagerAArch64() { resetLabelPtrList(); }
+  LabelManager() { reset(); }
+  ~LabelManager() { resetLabelPtrList(); }
   void reset() {
     base_ = 0;
     labelId_ = 1;
-    clabelDefListAArch64_.clear();
-    clabelUndefListAArch64_.clear();
+    clabelDefList_.clear();
+    clabelUndefList_.clear();
     resetLabelPtrList();
   }
 
-  void set(CodeArrayAArch64 *base) { base_ = base; }
+  void set(CodeArray *base) { base_ = base; }
 
   void defineClabel(Label &label) {
-    define_inner(clabelDefListAArch64_, clabelUndefListAArch64_, getId(label),
-                 base_->size_);
+    define_inner(clabelDefList_, clabelUndefList_, getId(label), base_->size_);
     label.mgr = this;
-    labelPtrListAArch64_.insert(&label);
+    labelPtrList_.insert(&label);
   }
   void assign(Label &dst, const Label &src) {
-    ClabelDefListAArch64::const_iterator i = clabelDefListAArch64_.find(src.id);
-    if (i == clabelDefListAArch64_.end())
+    ClabelDefList::const_iterator i = clabelDefList_.find(src.id);
+    if (i == clabelDefList_.end())
       throw Error(ERR_LABEL_ISNOT_SET_BY_L);
-    define_inner(clabelDefListAArch64_, clabelUndefListAArch64_, dst.id,
-                 i->second.offset);
+    define_inner(clabelDefList_, clabelUndefList_, dst.id, i->second.offset);
     dst.mgr = this;
-    labelPtrListAArch64_.insert(&dst);
+    labelPtrList_.insert(&dst);
   }
   bool getOffset(size_t *offset, const Label &label) const {
-    return getOffset_inner(clabelDefListAArch64_, offset, getId(label));
+    return getOffset_inner(clabelDefList_, offset, getId(label));
   }
   void addUndefinedLabel(const Label &label, const JmpLabel &jmp) {
-    clabelUndefListAArch64_.insert(
-        ClabelUndefListAArch64::value_type(label.id, jmp));
+    clabelUndefList_.insert(ClabelUndefList::value_type(label.id, jmp));
   }
   bool hasUndefClabel() const {
-    return hasUndefinedLabel_inner(clabelUndefListAArch64_);
+    return hasUndefinedLabel_inner(clabelUndefList_);
   }
   const uint8_t *getCode() const { return base_->getCode(); }
   bool isReady() const {
