@@ -22,27 +22,27 @@
 #include "xbyak_aarch64_err.h"
 #include "xbyak_aarch64_inner.h"
 
-struct JmpLabelAArch64 {
+struct JmpLabel {
   // type of partially applied function for encoding
   typedef std::function<uint32_t(int64_t)> EncFunc;
   size_t endOfJmp; /* offset from top to the end address of jmp */
   EncFunc encFunc;
-  explicit JmpLabelAArch64(const EncFunc &encFunc, size_t endOfJmp = 0)
+  explicit JmpLabel(const EncFunc &encFunc, size_t endOfJmp = 0)
       : endOfJmp(endOfJmp), encFunc(encFunc) {}
 };
 
 class LabelManagerAArch64;
 
-class LabelAArch64 {
+class Label {
   mutable LabelManagerAArch64 *mgr;
   mutable int id;
   friend class LabelManagerAArch64;
 
 public:
-  LabelAArch64() : mgr(nullptr), id(0) {}
-  LabelAArch64(const LabelAArch64 &rhs);
-  LabelAArch64 &operator=(const LabelAArch64 &rhs);
-  ~LabelAArch64();
+  Label() : mgr(nullptr), id(0) {}
+  Label(const Label &rhs);
+  Label &operator=(const Label &rhs);
+  ~Label();
   void clear() {
     mgr = nullptr;
     id = 0;
@@ -64,9 +64,8 @@ class LabelManagerAArch64 {
     int refCount;
   };
   typedef std::unordered_map<int, ClabelValAArch64> ClabelDefListAArch64;
-  typedef std::unordered_multimap<int, const JmpLabelAArch64>
-      ClabelUndefListAArch64;
-  typedef std::unordered_set<LabelAArch64 *> LabelPtrListAArch64;
+  typedef std::unordered_multimap<int, const JmpLabel> ClabelUndefListAArch64;
+  typedef std::unordered_set<Label *> LabelPtrListAArch64;
 
   CodeArrayAArch64 *base_;
   // global : stateList_.front(), local : stateList_.back()
@@ -75,7 +74,7 @@ class LabelManagerAArch64 {
   ClabelUndefListAArch64 clabelUndefListAArch64_;
   LabelPtrListAArch64 labelPtrListAArch64_;
 
-  int getId(const LabelAArch64 &label) const {
+  int getId(const Label &label) const {
     if (label.id == 0)
       label.id = labelId_++;
     return label.id;
@@ -93,7 +92,7 @@ class LabelManagerAArch64 {
       typename UndefList::iterator itr = undefList.find(labelId);
       if (itr == undefList.end())
         break;
-      const JmpLabelAArch64 *jmp = &itr->second;
+      const JmpLabel *jmp = &itr->second;
       const size_t offset = jmp->endOfJmp;
       int64_t labelOffset = (addrOffset - offset) * CSIZE;
       uint32_t disp = jmp->encFunc(labelOffset);
@@ -114,12 +113,12 @@ class LabelManagerAArch64 {
     *offset = i->second.offset;
     return true;
   }
-  friend class LabelAArch64;
-  void incRefCount(int id, LabelAArch64 *label) {
+  friend class Label;
+  void incRefCount(int id, Label *label) {
     clabelDefListAArch64_[id].refCount++;
     labelPtrListAArch64_.insert(label);
   }
-  void decRefCount(int id, LabelAArch64 *label) {
+  void decRefCount(int id, Label *label) {
     labelPtrListAArch64_.erase(label);
     ClabelDefListAArch64::iterator i = clabelDefListAArch64_.find(id);
     if (i == clabelDefListAArch64_.end())
@@ -161,13 +160,13 @@ public:
 
   void set(CodeArrayAArch64 *base) { base_ = base; }
 
-  void defineClabel(LabelAArch64 &label) {
+  void defineClabel(Label &label) {
     define_inner(clabelDefListAArch64_, clabelUndefListAArch64_, getId(label),
                  base_->getSize());
     label.mgr = this;
     labelPtrListAArch64_.insert(&label);
   }
-  void assign(LabelAArch64 &dst, const LabelAArch64 &src) {
+  void assign(Label &dst, const Label &src) {
     ClabelDefListAArch64::const_iterator i = clabelDefListAArch64_.find(src.id);
     if (i == clabelDefListAArch64_.end())
       throw Error(ERR_LABEL_ISNOT_SET_BY_L);
@@ -176,11 +175,10 @@ public:
     dst.mgr = this;
     labelPtrListAArch64_.insert(&dst);
   }
-  bool getOffset(size_t *offset, const LabelAArch64 &label) const {
+  bool getOffset(size_t *offset, const Label &label) const {
     return getOffset_inner(clabelDefListAArch64_, offset, getId(label));
   }
-  void addUndefinedLabel(const LabelAArch64 &label,
-                         const JmpLabelAArch64 &jmp) {
+  void addUndefinedLabel(const Label &label, const JmpLabel &jmp) {
     clabelUndefListAArch64_.insert(
         ClabelUndefListAArch64::value_type(label.id, jmp));
   }
@@ -198,13 +196,13 @@ public:
   }
 };
 
-inline LabelAArch64::LabelAArch64(const LabelAArch64 &rhs) {
+inline Label::Label(const Label &rhs) {
   id = rhs.id;
   mgr = rhs.mgr;
   if (mgr)
     mgr->incRefCount(id, this);
 }
-inline LabelAArch64 &LabelAArch64::operator=(const LabelAArch64 &rhs) {
+inline Label &Label::operator=(const Label &rhs) {
   if (id)
     throw Error(ERR_LABEL_IS_ALREADY_SET_BY_L);
   id = rhs.id;
@@ -213,11 +211,11 @@ inline LabelAArch64 &LabelAArch64::operator=(const LabelAArch64 &rhs) {
     mgr->incRefCount(id, this);
   return *this;
 }
-inline LabelAArch64::~LabelAArch64() {
+inline Label::~Label() {
   if (id && mgr)
     mgr->decRefCount(id, this);
 }
-inline const uint32_t *LabelAArch64::getAddress() const {
+inline const uint32_t *Label::getAddress() const {
   if (mgr == 0 || !mgr->isReady())
     return 0;
   size_t offset;

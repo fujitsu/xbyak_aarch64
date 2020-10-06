@@ -22,8 +22,7 @@ enum {
 
 namespace inner {
 
-inline size_t getPageSize()
-{
+inline size_t getPageSize() {
 #ifdef __GNUC__
   static const size_t pageSize = sysconf(_SC_PAGESIZE);
 #else

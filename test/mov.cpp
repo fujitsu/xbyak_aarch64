@@ -18,7 +18,7 @@
 
 using namespace Xbyak_aarch64;
 
-class GeneratorMovImm : public CodeGeneratorAArch64 {
+class GeneratorMovImm : public CodeGenerator {
 
 public:
   GeneratorMovImm() {}

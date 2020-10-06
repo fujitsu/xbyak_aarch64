@@ -19,7 +19,7 @@
 
 using namespace Xbyak_aarch64;
 
-class GeneratorImm : public CodeGeneratorAArch64 {
+class GeneratorImm : public CodeGenerator {
 
 public:
   GeneratorImm() {}

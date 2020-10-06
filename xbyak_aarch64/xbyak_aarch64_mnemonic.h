@@ -18,7 +18,7 @@
 #else
 #define XBYAK_SET_CODE_INFO()
 #endif
-void adr(const XReg &xd, const LabelAArch64 &label) {
+void adr(const XReg &xd, const Label &label) {
   XBYAK_SET_CODE_INFO();
   PCrelAddr(0, xd, label);
 }
@@ -26,7 +26,7 @@ void adr(const XReg &xd, const int64_t label) {
   XBYAK_SET_CODE_INFO();
   PCrelAddr(0, xd, label);
 }
-void adrp(const XReg &xd, const LabelAArch64 &label) {
+void adrp(const XReg &xd, const Label &label) {
   XBYAK_SET_CODE_INFO();
   PCrelAddr(1, xd, label);
 }
@@ -340,7 +340,7 @@ void ror(const XReg &rd, const XReg &rn, const uint32_t imm) {
   XBYAK_SET_CODE_INFO();
   Extract(0, 0, rd, rn, rn, imm);
 }
-void b(const Cond cond, const LabelAArch64 &label) {
+void b(const Cond cond, const Label &label) {
   XBYAK_SET_CODE_INFO();
   CondBrImm(cond, label);
 }
@@ -600,7 +600,7 @@ void blrab(const XReg &rn, const XReg &rm) {
   XBYAK_SET_CODE_INFO();
   UncondBr2Reg(9, 31, 3, rn, rm);
 }
-void b(const LabelAArch64 &label) {
+void b(const Label &label) {
   XBYAK_SET_CODE_INFO();
   UncondBrImm(0, label);
 }
@@ -608,7 +608,7 @@ void b(const int64_t label) {
   XBYAK_SET_CODE_INFO();
   UncondBrImm(0, label);
 }
-void bl(const LabelAArch64 &label) {
+void bl(const Label &label) {
   XBYAK_SET_CODE_INFO();
   UncondBrImm(1, label);
 }
@@ -616,11 +616,11 @@ void bl(const int64_t label) {
   XBYAK_SET_CODE_INFO();
   UncondBrImm(1, label);
 }
-void cbz(const WReg &rt, const LabelAArch64 &label) {
+void cbz(const WReg &rt, const Label &label) {
   XBYAK_SET_CODE_INFO();
   CompareBr(0, rt, label);
 }
-void cbz(const XReg &rt, const LabelAArch64 &label) {
+void cbz(const XReg &rt, const Label &label) {
   XBYAK_SET_CODE_INFO();
   CompareBr(0, rt, label);
 }
@@ -632,11 +632,11 @@ void cbz(const XReg &rt, const int64_t label) {
   XBYAK_SET_CODE_INFO();
   CompareBr(0, rt, label);
 }
-void cbnz(const WReg &rt, const LabelAArch64 &label) {
+void cbnz(const WReg &rt, const Label &label) {
   XBYAK_SET_CODE_INFO();
   CompareBr(1, rt, label);
 }
-void cbnz(const XReg &rt, const LabelAArch64 &label) {
+void cbnz(const XReg &rt, const Label &label) {
   XBYAK_SET_CODE_INFO();
   CompareBr(1, rt, label);
 }
@@ -648,11 +648,11 @@ void cbnz(const XReg &rt, const int64_t label) {
   XBYAK_SET_CODE_INFO();
   CompareBr(1, rt, label);
 }
-void tbz(const WReg &rt, const uint32_t imm, const LabelAArch64 &label) {
+void tbz(const WReg &rt, const uint32_t imm, const Label &label) {
   XBYAK_SET_CODE_INFO();
   TestBr(0, rt, imm, label);
 }
-void tbz(const XReg &rt, const uint32_t imm, const LabelAArch64 &label) {
+void tbz(const XReg &rt, const uint32_t imm, const Label &label) {
   XBYAK_SET_CODE_INFO();
   TestBr(0, rt, imm, label);
 }
@@ -664,11 +664,11 @@ void tbz(const XReg &rt, const uint32_t imm, const int64_t label) {
   XBYAK_SET_CODE_INFO();
   TestBr(0, rt, imm, label);
 }
-void tbnz(const WReg &rt, const uint32_t imm, const LabelAArch64 &label) {
+void tbnz(const WReg &rt, const uint32_t imm, const Label &label) {
   XBYAK_SET_CODE_INFO();
   TestBr(1, rt, imm, label);
 }
-void tbnz(const XReg &rt, const uint32_t imm, const LabelAArch64 &label) {
+void tbnz(const XReg &rt, const uint32_t imm, const Label &label) {
   XBYAK_SET_CODE_INFO();
   TestBr(1, rt, imm, label);
 }
@@ -2454,11 +2454,11 @@ void ldapur(const XReg &rt, const AdrImm &adr) {
   XBYAK_SET_CODE_INFO();
   LdaprStlr(3, 1, rt, adr);
 }
-void ldr(const WReg &rt, const LabelAArch64 &label) {
+void ldr(const WReg &rt, const Label &label) {
   XBYAK_SET_CODE_INFO();
   LdRegLiteral((rt.getBit() == 64) ? 1 : 0, 0, rt, label);
 }
-void ldr(const XReg &rt, const LabelAArch64 &label) {
+void ldr(const XReg &rt, const Label &label) {
   XBYAK_SET_CODE_INFO();
   LdRegLiteral((rt.getBit() == 64) ? 1 : 0, 0, rt, label);
 }
@@ -2470,11 +2470,11 @@ void ldr(const XReg &rt, const int64_t label) {
   XBYAK_SET_CODE_INFO();
   LdRegLiteral((rt.getBit() == 64) ? 1 : 0, 0, rt, label);
 }
-void ldrsw(const WReg &rt, const LabelAArch64 &label) {
+void ldrsw(const WReg &rt, const Label &label) {
   XBYAK_SET_CODE_INFO();
   LdRegLiteral(2, 0, rt, label);
 }
-void ldrsw(const XReg &rt, const LabelAArch64 &label) {
+void ldrsw(const XReg &rt, const Label &label) {
   XBYAK_SET_CODE_INFO();
   LdRegLiteral(2, 0, rt, label);
 }
@@ -2486,15 +2486,15 @@ void ldrsw(const XReg &rt, const int64_t label) {
   XBYAK_SET_CODE_INFO();
   LdRegLiteral(2, 0, rt, label);
 }
-void ldr(const SReg &vt, const LabelAArch64 &label) {
+void ldr(const SReg &vt, const Label &label) {
   XBYAK_SET_CODE_INFO();
   LdRegSimdFpLiteral(vt, label);
 }
-void ldr(const DReg &vt, const LabelAArch64 &label) {
+void ldr(const DReg &vt, const Label &label) {
   XBYAK_SET_CODE_INFO();
   LdRegSimdFpLiteral(vt, label);
 }
-void ldr(const QReg &vt, const LabelAArch64 &label) {
+void ldr(const QReg &vt, const Label &label) {
   XBYAK_SET_CODE_INFO();
   LdRegSimdFpLiteral(vt, label);
 }
@@ -2510,7 +2510,7 @@ void ldr(const QReg &vt, const int64_t label) {
   XBYAK_SET_CODE_INFO();
   LdRegSimdFpLiteral(vt, label);
 }
-void prfm(const Prfop prfop, const LabelAArch64 &label) {
+void prfm(const Prfop prfop, const Label &label) {
   XBYAK_SET_CODE_INFO();
   PfLiteral(prfop, label);
 }
