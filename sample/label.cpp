@@ -17,7 +17,7 @@
 using namespace Xbyak_aarch64;
 class Generator : public CodeGenerator {
 public:
-  void genAddFunc() {
+  Generator() {
     Label L1, L2;
     L(L1);
     add(w0, w1, w0);
@@ -28,15 +28,11 @@ public:
     L(L2);
     ret();
   }
-  const uint8_t *gen() {
-    genAddFunc();
-    ready();
-    return getCode();
-  }
 };
 int main() {
   Generator gen;
-  int (*f)(int a, int b) = (int (*)(int a, int b))gen.gen();
+  gen.ready();
+  auto f = gen.getCode<int (*)(int, int)>();
   std::cout << f(3, 4) << std::endl;
   return 0;
 }

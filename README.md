@@ -81,26 +81,28 @@ and 2) call the function. This example outputs "7" to STDOUT.
 
 
 ```
-#include <xbyak_aarch64/xbyak_aarch64.h>
-using namespace Xbyak;
+#include "../xbyak_aarch64/xbyak_aarch64.h"
+using namespace Xbyak_aarch64;
 class Generator : public CodeGenerator {
 public:
-    void genAddFunc() {
-        add(w0,w1,w0);
-        ret();
-    }
-    const uint32_t *gen() {
-        genAddFunc();
-        ready();
-        return getCode();
-    }
+  Generator() {
+    Label L1, L2;
+    L(L1);
+    add(w0, w1, w0);
+    cmp(w0, 13);
+    b(EQ, L2);
+    sub(w1, w1, 1);
+    b(L1);
+    L(L2);
+    ret();
+  }
 };
-
 int main() {
-    Generator gen;
-    int (*f)(int a, int b) = (int (*)(int a, int b))gen.gen();
-    std::cout << f(3,4) << std::endl;
-    return 0;
+  Generator gen;
+  gen.ready();
+  auto f = gen.getCode<int (*)(int, int)>();
+  std::cout << f(3, 4) << std::endl;
+  return 0;
 }
 ```
 
