@@ -18,6 +18,13 @@ Xbyak_aarch64 is based on Xbyak developed for x86_64 CPUs by MITSUNARI Shigeo.
 Xbyak_aarch64 uses no external library and it is written as standard C++ header files 
 so that we believe Xbyak_aarch64 works various environment with various compilers.
 
+### News
+Break backward compatibility:
+- namespace Xbyak is renamed to Xbyak_aarch64.
+- Some class are renamed (e.g. CodeGeneratorAArch64 -> CodeGenerator).
+- L_aarch64() is renamed to L().
+- use dd(uint32_t) instead of dw(uint32_t).
+
 ### Supported Compilers
 
 Almost C++11 or later compilers for AArch64 such as g++, clang++.
@@ -522,12 +529,12 @@ You can use "label" to direct where branch instruction jump to.
 The following example shows how to use "label".
 
 ```
-LabelAArch64 L1;           // (1), instance of LabelAArch64 class
+Label L1;           // (1), instance of Label class
  
 mov(w4, w0); 
 mov(w3, 0); 
 mov(w0, 0); 
-L_aarch64(L1);              // (2), "L" function registers JIT code address of this position to label L1.
+L(L1);              // (2), "L" function registers JIT code address of this position to label L1.
 add(w0, w0, w4); 
 add(w3, w3, 1); 
 cmp(w2, w3); 
@@ -542,11 +549,11 @@ bgt(L1);            // (3), set destination of branch instruction to the address
 You can copy the address stored in "Label" instance by using assignL function.
 
 ```
-LabelAArch64 L1,L2,L3; 
+Label L1,L2,L3; 
 ....
-L_aarch64(L1);               // JIT code address of this position is stored to L1.
+L(L1);               // JIT code address of this position is stored to L1.
 ....
-L_aarch64(L2);               // JIT code address of this position is stored to L1.
+L(L2);               // JIT code address of this position is stored to L1.
 ....
 if (flag) { 
 assignL(L3,L1);      // The address stored in L1 is copied to L3.
@@ -563,7 +570,7 @@ The default max size of JIT-ed code is 4096 bytes.
 Specify the size in constructor of `CodeGenerator()` if necessary.
 
 ```
-class Quantize : public Xbyak::CodeGenerator {
+class Quantize : public Xbyak_aarch64::CodeGenerator {
 public:
   Quantize()
     : CodeGenerator(8192)
@@ -582,8 +589,8 @@ Call `setProtectModeRE` yourself to change memory mode if using the prepaired me
 ```
 uint8_t alignas(4096) buf[8192]; // C++11 or later
 
-struct Code : Xbyak::CodeGenerator {
-    Code() : Xbyak::CodeGenerator(sizeof(buf), buf)
+struct Code : Xbyak_aarch64::CodeGenerator {
+    Code() : Xbyak_aarch64::CodeGenerator(sizeof(buf), buf)
     {
         mov(rax, 123);
         ret();
@@ -607,9 +614,9 @@ the memory region for JIT-ed code is automatically extended if needed.
 
 Call `ready()` or `readyRE()` before calling `getCode()` to fix jump address.
 ```
-struct Code : Xbyak::CodeGenerator {
+struct Code : Xbyak_aarch64::CodeGenerator {
   Code()
-    : Xbyak::CodeGenerator(<default memory size>, Xbyak::AutoGrow)
+    : Xbyak_aarch64::CodeGenerator(<default memory size>, Xbyak_aarch64::AutoGrow)
   {
      ...
   }
@@ -623,14 +630,14 @@ c.ready(); // mode = Read/Write/Exec
 * Don't use the address returned by `getCurr()` before calling `ready()` because it may be invalid address.
 
 ### Read/Exec mode
-Xbyak set Read/Write/Exec mode to memory to run jit code.
+Xbyak_aarch64 set Read/Write/Exec mode to memory to run jit code.
 If you want to use Read/Exec mode for security, then specify `DontSetProtectRWE` for `CodeGenerator` and
 call `setProtectModeRE()` after generating jit code.
 
 ```
-struct Code : Xbyak::CodeGenerator {
+struct Code : Xbyak_aarch64::CodeGenerator {
     Code()
-        : Xbyak::CodeGenerator(4096, Xbyak::DontSetProtectRWE)
+        : Xbyak_aarch64::CodeGenerator(4096, Xbyak_aarch64::DontSetProtectRWE)
     {
         mov(eax, 123);
         ret();
