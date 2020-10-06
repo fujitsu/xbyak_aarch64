@@ -162,7 +162,7 @@ public:
 
   void defineClabel(Label &label) {
     define_inner(clabelDefListAArch64_, clabelUndefListAArch64_, getId(label),
-                 base_->getSize());
+                 base_->size_);
     label.mgr = this;
     labelPtrListAArch64_.insert(&label);
   }
@@ -185,12 +185,7 @@ public:
   bool hasUndefClabel() const {
     return hasUndefinedLabel_inner(clabelUndefListAArch64_);
   }
-#ifdef XBYAK_TRANSLATE_AARCH64
   const uint8_t *getCode() const { return base_->getCode(); }
-  const uint32_t *getCode32() const { return base_->getCode32(); }
-#else
-  const uint32_t *getCode() const { return base_->getCode(); }
-#endif
   bool isReady() const {
     return !base_->isAutoGrow() || base_->isCalledCalcJmpAddress();
   }
@@ -221,11 +216,7 @@ inline const uint32_t *Label::getAddress() const {
   size_t offset;
   if (!mgr->getOffset(&offset, *this))
     return 0;
-#ifdef XBYAK_TRANSLATE_AARCH64
-  return mgr->getCode32() + offset * CSIZE;
-#else
-  return mgr->getCode() + offset * CSIZE;
-#endif
+  return (const uint32_t *)mgr->getCode() + offset;
 }
 
 #endif

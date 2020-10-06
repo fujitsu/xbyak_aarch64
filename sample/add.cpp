@@ -22,7 +22,7 @@ public:
     add(w0, w1, w0);
     ret();
   }
-  const uint32_t *gen() {
+  const uint8_t *gen() {
     genAddFunc();
     ready();
     return getCode();
