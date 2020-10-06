@@ -5457,6 +5457,9 @@ public:
     labelMgr_.set(this);
   }
   bool hasUndefinedLabel() const { return labelMgr_.hasUndefClabel(); }
+  void clearCache(void *begin, void *end) {
+    __builtin___clear_cache((char *)begin, (char *)end);
+  }
   /*
           MUST call ready() to complete generating code if you use AutoGrow
      mode.
@@ -5470,6 +5473,8 @@ public:
       if (useProtect())
         setProtectMode(mode);
     }
+    clearCache(const_cast<uint8_t *>(getCode()),
+               const_cast<uint8_t *>(getCurr()));
   }
   // set read/exec
   void readyRE() { return ready(PROTECT_RE); }
