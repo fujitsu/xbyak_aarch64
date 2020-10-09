@@ -51,10 +51,6 @@ public:
   const uint32_t *getAddress() const;
 };
 
-#ifdef XBYAK_TRANSLATE_AARCH64
-using namespace Xbyak::Xbyak_aarch64;
-#endif
-
 class LabelManager {
 
   // for Label class
