@@ -86,11 +86,10 @@ public:
       /* Can not read ZCR_EL1 system register from application level.*/
       sveLen_ = static_cast<sveLen_t>(prctl(PR_SVE_GET_VL));
     }
-
-    std::cout << type_ << std::endl;
   } // namespace util
 #undef SYS_REG_FIELD
 
+  Type getType() const { return type_; }
   bool has(Type type) const { return (type & type_) != 0; }
   uint64_t getSveLen() const { return sveLen_; }
 };
