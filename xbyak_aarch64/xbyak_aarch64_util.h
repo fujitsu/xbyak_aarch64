@@ -17,6 +17,7 @@
 #ifndef XBYAK_AARCH64_UTIL_H_
 #define XBYAK_AARCH64_UTIL_H_
 
+#include <stdint.h>
 #include <sys/prctl.h>
 
 namespace Xbyak_aarch64 {
