@@ -84,8 +84,13 @@ public:
     if (SYS_REG_FIELD(regVal, ID_AA64PFR0_EL1, SVE) == 0x1) {
       type_ |= tSVE;
       /* Can not read ZCR_EL1 system register from application level.*/
+#ifdef PR_SVE_GET_VL
       sveLen_ = static_cast<sveLen_t>(prctl(PR_SVE_GET_VL));
+#else
+      sveLen_ = static_cast<sveLen_t>(prctl(51));
+#endif
     }
+
   } // namespace util
 #undef SYS_REG_FIELD
 
