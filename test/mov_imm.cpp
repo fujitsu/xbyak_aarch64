@@ -23,30 +23,44 @@ class GeneratorMovImm : public CodeGenerator {
 public:
   GeneratorMovImm() {}
 
-  void genMovFuncCore(const uint32_t imm) {
-    mov_imm(w0, imm);
-    ret();
-  }
-  void genMovFuncCore(const int32_t imm) {
-    mov_imm(w0, imm);
-    ret();
-  }
-  void genMovFuncCore(const uint64_t imm) {
+  void genMovFuncCore(const uint32_t imm, const XReg reg) {
+    (void)reg;
     mov_imm(x0, imm);
     ret();
   }
-  void genMovFuncCore(const int64_t imm) {
+  void genMovFuncCore(const uint32_t imm, const WReg reg) {
+    (void)reg;
+    mov_imm(w0, imm);
+    ret();
+  }
+  void genMovFuncCore(const int32_t imm, const XReg reg) {
+    (void)reg;
+    mov_imm(x0, imm);
+    ret();
+  }
+  void genMovFuncCore(const int32_t imm, const WReg reg) {
+    (void)reg;
+    mov_imm(w0, imm);
+    ret();
+  }
+  void genMovFuncCore(const uint64_t imm, const XReg reg) {
+    (void)reg;
+    mov_imm(x0, imm);
+    ret();
+  }
+  void genMovFuncCore(const int64_t imm, const XReg reg) {
+    (void)reg;
     mov_imm(x0, imm);
     ret();
   }
 };
 
-template <typename T> int test_mov_imm(std::vector<T> &v) {
+template <typename T, typename U> int test_mov_imm(std::vector<T> &v, U &reg) {
   int errCount = 0;
 
   for (const auto &e : v) {
     GeneratorMovImm s;
-    s.genMovFuncCore(e);
+    s.genMovFuncCore(e, reg);
     s.ready();
 
     /* Dump jit code to stdout. */
@@ -71,6 +85,8 @@ template <typename T> int test_mov_imm(std::vector<T> &v) {
 
 int main() {
   int errCount = 0;
+  XReg x0(0);
+  WReg w0(0);
 
   std::vector<int32_t> v_int32 = {
       std::numeric_limits<int32_t>::min(),
@@ -108,25 +124,31 @@ int main() {
                                     uint32_t(0xfff00000),
                                     ~uint32_t(0)};
 
-  std::vector<int64_t> v_int64 = {std::numeric_limits<int64_t>::min(),
-                                  std::numeric_limits<int64_t>::min() + 1,
-                                  -2048,
-                                  -2047,
-                                  -2046,
-                                  -1,
-                                  0,
-                                  1,
-                                  2046,
-                                  2047,
-                                  2048,
-                                  std::numeric_limits<int64_t>::max() - 1,
-                                  std::numeric_limits<int64_t>::max(),
-                                  int64_t(0x7654abcdef098765),
-                                  int64_t(0x76540000ef098765),
-                                  int64_t(0x0007ff0000000000),
-                                  int64_t(0x00000000000007ff),
-                                  int64_t(0x7ff0000000000000),
-                                  int64_t(0xfff0000000000000)};
+  std::vector<int64_t> v_int64 = {
+      std::numeric_limits<int64_t>::min(),
+      std::numeric_limits<int64_t>::min() + 1,
+      -2048,
+      -2047,
+      -2046,
+      -1,
+      0,
+      1,
+      2046,
+      2047,
+      2048,
+      std::numeric_limits<int64_t>::max() - 1,
+      std::numeric_limits<int64_t>::max(),
+      int64_t(0x7654abcdef098765),
+      int64_t(0x76540000ef098765),
+      int64_t(0x0007ff0000000000),
+      int64_t(0x00000000000007ff),
+      int64_t(0x7ff0000000000000),
+      int64_t(0xfff0000000000000),
+      int64_t(0xffffffffffff1234),
+      int64_t(0xffffffff1234ffff),
+      int64_t(0xffff1234ffffffff),
+      int64_t(0x1234ffffffffffff),
+  };
 
   std::vector<uint64_t> v_uint64 = {
       0,
@@ -143,13 +165,19 @@ int main() {
       uint64_t(0x00000000000007ff),
       uint64_t(0x7ff0000000000000),
       uint64_t(0xfff0000000000000),
+      uint64_t(0xffffffffffff1234),
+      uint64_t(0xffffffff1234ffff),
+      uint64_t(0xffff1234ffffffff),
+      uint64_t(0x1234ffffffffffff),
       ~uint64_t(0),
   };
 
-  errCount += test_mov_imm(v_int32);
-  errCount += test_mov_imm(v_int64);
-  errCount += test_mov_imm(v_uint32);
-  errCount += test_mov_imm(v_uint64);
+  errCount += test_mov_imm(v_int32, x0);
+  errCount += test_mov_imm(v_int32, w0);
+  errCount += test_mov_imm(v_int64, x0);
+  errCount += test_mov_imm(v_uint32, x0);
+  errCount += test_mov_imm(v_uint32, w0);
+  errCount += test_mov_imm(v_uint64, x0);
 
   return errCount;
 }
