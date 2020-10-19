@@ -393,6 +393,10 @@ void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
 template <typename T> void mov_imm(const XReg &dst, T imm) {
   bool flag = false;
   uint64_t bit_ptn = static_cast<uint64_t>(imm);
+  uint64_t inv_bit_ptn = ~bit_ptn;
+  int count = 0;
+  int pos = 0;
+  uint32_t ptn = 0;
 
   if (imm == 0) {
     mov(dst, 0);
@@ -406,6 +410,21 @@ template <typename T> void mov_imm(const XReg &dst, T imm) {
 
   if (isBitMask(bit_ptn)) {
     mov(dst, imm);
+    return;
+  }
+
+  /* Check if movn is applicable. */
+  for (int i = 0; i < 4; i++) {
+    uint32_t tag_bit =
+        static_cast<uint32_t>((inv_bit_ptn >> (16 * i)) & 0xFFFF);
+    if (tag_bit) {
+      ptn = tag_bit;
+      pos = i;
+      count++;
+    }
+  }
+  if (count == 1) {
+    movn(dst, ptn, 16 * pos);
     return;
   }
 
