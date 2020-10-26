@@ -697,4603 +697,707 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
 
   // ################## encoding function ##################
   // PC-rel. addressing
-  uint32_t PCrelAddrEnc(uint32_t op, const XReg &rd, int64_t labelOffset) {
-    int32_t imm =
-        static_cast<uint32_t>((op == 1) ? labelOffset >> 12 : labelOffset);
-    uint32_t immlo = field(imm, 1, 0);
-    uint32_t immhi = field(imm, 20, 2);
-    verifyIncRange(rd.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(imm, -1 * (1 << 20), ones(20), ERR_ILLEGAL_IMM_RANGE, true);
-    return concat(
-        {F(op, 31), F(immlo, 29), F(0x10, 24), F(immhi, 5), F(rd.getIdx(), 0)});
-  }
-
-  void PCrelAddr(uint32_t op, const XReg &rd, const Label &label) {
-    auto encFunc = [&, op, rd](int64_t labelOffset) {
-      return PCrelAddrEnc(op, rd, labelOffset);
-    };
-    JmpLabel jmpL = JmpLabel(encFunc, size_);
-    uint32_t code = PCrelAddrEnc(op, rd, genLabelOffset(label, jmpL));
-    dd(code);
-  }
-
-  void PCrelAddr(uint32_t op, const XReg &rd, int64_t label) {
-    uint32_t code = PCrelAddrEnc(op, rd, label);
-    dd(code);
-  }
-
-  // Add/subtract (immediate)
+  // QQQ
+  uint32_t PCrelAddrEnc(uint32_t op, const XReg &rd, int64_t labelOffset);
+  void PCrelAddr(uint32_t op, const XReg &rd, const Label &label);
+  void PCrelAddr(uint32_t op, const XReg &rd, int64_t label);
   void AddSubImm(uint32_t op, uint32_t S, const RReg &rd, const RReg &rn,
-                 uint32_t imm, uint32_t sh) {
-    uint32_t sf = genSf(rd);
-    uint32_t imm12 = imm & ones(12);
-    uint32_t sh_f = (sh == 12) ? 1 : 0;
-
-    verifyIncRange(imm, 0, ones(12), ERR_ILLEGAL_IMM_RANGE);
-    verifyIncList(sh, {0, 12}, ERR_ILLEGAL_CONST_VALUE);
-
-    uint32_t code =
-        concat({F(sf, 31), F(op, 30), F(S, 29), F(0x11, 24), F(sh_f, 22),
-                F(imm12, 10), F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Logical (immediate)
+                 uint32_t imm, uint32_t sh);
   void LogicalImm(uint32_t opc, const RReg &rd, const RReg &rn, uint64_t imm,
-                  bool alias = false) {
-    uint32_t sf = genSf(rd);
-    uint32_t n_immr_imms = genNImmrImms(imm, rd.getBit());
-
-    if (!alias && opc == 3)
-      verifyIncRange(rd.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    if (!alias && opc == 1)
-      verifyIncRange(rn.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code =
-        concat({F(sf, 31), F(opc, 29), F(0x24, 23), F(n_immr_imms, 10),
-                F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Move wide(immediate)
-  void MvWideImm(uint32_t opc, const RReg &rd, uint32_t imm, uint32_t sh) {
-    uint32_t sf = genSf(rd);
-    uint32_t hw = field(sh, 5, 4);
-    uint32_t imm16 = imm & 0xffff;
-
-    if (sf == 0)
-      verifyIncList(sh, {0, 16}, ERR_ILLEGAL_CONST_VALUE);
-    else
-      verifyIncList(sh, {0, 16, 32, 48}, ERR_ILLEGAL_CONST_VALUE);
-    verifyIncRange(imm, 0, ones(16), ERR_ILLEGAL_IMM_RANGE);
-    verifyIncRange(rd.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(sf, 31), F(opc, 29), F(0x25, 23), F(hw, 21),
-                            F(imm16, 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Move (immediate) alias of ORR,MOVN,MOVZ
-  void MvImm(const RReg &rd, uint64_t imm) {
-    uint32_t rd_bit = rd.getBit();
-    uint32_t hw = 0;
-    uint32_t inv_hw = 0;
-    uint32_t validField[4] = {0};
-    uint32_t imm16 = 0;
-    uint32_t inv_imm16 = 0;
-    uint32_t fieldCount = 0;
-    uint32_t invFieldCount = 0;
-
-    if (imm == 0) {
-      MvWideImm(2, rd, 0, 0);
-      return;
-    }
-
-    if ((rd_bit == 64 && imm == ~uint64_t(0)) ||
-        (rd_bit == 32 &&
-         ((imm & uint64_t(0xffffffff)) == uint64_t(0xffffffff)))) {
-      MvWideImm(0, rd, 0, 0);
-      return;
-    }
-
-    /***** MOVZ *****/
-    /* Count how many valid 16-bit field exists. */
-    for (uint32_t i = 0; i < rd_bit / 16; ++i) {
-      if (field(imm, 15 + i * 16, i * 16)) {
-        validField[i] = 1;
-        ++fieldCount;
-        hw = i;
-        imm16 = field(imm, 15 + 16 * i, 16 * i);
-      }
-    }
-    if (fieldCount < 2) {
-      if (!(imm16 == 0 && hw != 0)) {
-        /* alias of MOVZ
-           which set 16-bit immediate, bit position is indicated by (hw * 4). */
-        MvWideImm(2, rd, imm16, hw << 4);
-        return;
-      }
-    }
-
-    /***** MOVN *****/
-    /* Count how many valid 16-bit field exists. */
-    for (uint32_t i = 0; i < rd_bit / 16; ++i) {
-      if (field(~imm, 15 + i * 16, i * 16)) {
-        ++invFieldCount;
-        inv_imm16 = field(~imm, 15 + 16 * i, 16 * i);
-        inv_hw = i;
-      }
-    }
-    if (invFieldCount == 1) {
-      if ((!(inv_imm16 == 0 && inv_hw != 0) && inv_imm16 != ones(16) &&
-           rd_bit == 32) ||
-          (!(inv_imm16 == 0 && inv_hw != 0) && rd_bit == 64)) {
-        /* alias of MOVN
-           which firstly, set 16-bit immediate, bit position is indicated by (hw
-           * 4) then, result is inverted (NOT). */
-        MvWideImm(0, rd, inv_imm16, inv_hw << 4);
-        return;
-      }
-    }
-
-    /***** ORR *****/
-    auto ptn_size = getPtnSize(imm, rd_bit);
-    auto ptn = imm & ones(ptn_size);
-    auto rotate_num = getPtnRotateNum(ptn, ptn_size);
-    auto rotate_ptn = lrotate(ptn, ptn_size, rotate_num);
-    auto one_bit_num = countOneBit(rotate_ptn, ptn_size);
-    auto seq_one_bit_num = countSeqOneBit(rotate_ptn, ptn_size);
-    if (one_bit_num == seq_one_bit_num) {
-      // alias of ORR
-      LogicalImm(1, rd, RReg(31, rd_bit), imm, true);
-      return;
-    }
-
-    /**** MOVZ followed by successive MOVK *****/
-    bool isFirst = true;
-    for (uint32_t i = 0; i < rd_bit / 16; ++i) {
-      if (validField[i]) {
-        if (isFirst) {
-          MvWideImm(2, rd, field(imm, 15 + 16 * i, 16 * i), 16 * i);
-          isFirst = false;
-        } else {
-          MvWideImm(3, rd, field(imm, 15 + 16 * i, 16 * i), 16 * i);
-        }
-      }
-    }
-  }
-
-  // Bitfield
+                  bool alias = false);
+  void MvWideImm(uint32_t opc, const RReg &rd, uint32_t imm, uint32_t sh);
+  void MvImm(const RReg &rd, uint64_t imm);
   void Bitfield(uint32_t opc, const RReg &rd, const RReg &rn, uint32_t immr,
-                uint32_t imms, bool rn_chk = true) {
-    uint32_t sf = genSf(rd);
-    uint32_t N = sf;
-
-    verifyIncRange(rd.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    if (rn_chk)
-      verifyIncRange(rn.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(immr, 0, rd.getBit() - 1, ERR_ILLEGAL_IMM_RANGE);
-    verifyIncRange(imms, 0, rd.getBit() - 1, ERR_ILLEGAL_IMM_RANGE);
-
-    uint32_t code =
-        concat({F(sf, 31), F(opc, 29), F(0x26, 23), F(N, 22), F(immr, 16),
-                F(imms, 10), F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Extract
+                uint32_t imms, bool rn_chk = true);
   void Extract(uint32_t op21, uint32_t o0, const RReg &rd, const RReg &rn,
-               const RReg &rm, uint32_t imm) {
-    uint32_t sf = genSf(rd);
-    uint32_t N = sf;
-
-    verifyIncRange(rd.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(rn.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(rm.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(imm, 0, rd.getBit() - 1, ERR_ILLEGAL_IMM_RANGE);
-
-    uint32_t code = concat({F(sf, 31), F(op21, 29), F(0x27, 23), F(N, 22),
-                            F(o0, 21), F(rm.getIdx(), 16), F(imm, 10),
-                            F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Conditional branch (immediate)
-  uint32_t CondBrImmEnc(uint32_t cond, int64_t labelOffset) {
-    uint32_t imm19 = static_cast<uint32_t>((labelOffset >> 2) & ones(19));
-    verifyIncRange(labelOffset, -1 * (1 << 20), ones(20), ERR_LABEL_IS_TOO_FAR,
-                   true);
-    return concat({F(0x2a, 25), F(imm19, 5), F(cond, 0)});
-  }
-
-  void CondBrImm(Cond cond, const Label &label) {
-    auto encFunc = [&, cond](int64_t labelOffset) {
-      return CondBrImmEnc(cond, labelOffset);
-    };
-    JmpLabel jmpL = JmpLabel(encFunc, size_);
-    uint32_t code = CondBrImmEnc(cond, genLabelOffset(label, jmpL));
-    dd(code);
-  }
-
-  void CondBrImm(Cond cond, int64_t label) {
-    uint32_t code = CondBrImmEnc(cond, label);
-    dd(code);
-  }
-
-  // Exception generation
-  void ExceptionGen(uint32_t opc, uint32_t op2, uint32_t LL, uint32_t imm) {
-    uint32_t imm16 = imm & ones(16);
-    verifyIncRange(imm, 0, ones(16), ERR_ILLEGAL_IMM_RANGE);
-    uint32_t code =
-        concat({F(0xd4, 24), F(opc, 21), F(imm16, 5), F(op2, 2), F(LL, 0)});
-    dd(code);
-  }
-
-  // Hints
-  void Hints(uint32_t CRm, uint32_t op2) {
-    uint32_t code = concat({F(0xd5032, 12), F(CRm, 8), F(op2, 5), F(0x1f, 0)});
-    dd(code);
-  }
-
-  void Hints(uint32_t imm) { Hints(field(imm, 6, 3), field(imm, 2, 0)); }
-
-  // Barriers (option)
-  void BarriersOpt(uint32_t op2, BarOpt opt, uint32_t rt) {
-    if (op2 == 6)
-      verifyIncList(opt, {SY}, ERR_ILLEGAL_BARRIER_OPT);
-    uint32_t code = concat({F(0xd5033, 12), F(opt, 8), F(op2, 5), F(rt, 0)});
-    dd(code);
-  }
-
-  // Barriers (no option)
-  void BarriersNoOpt(uint32_t CRm, uint32_t op2, uint32_t rt) {
-    verifyIncRange(CRm, 0, ones(4), ERR_ILLEGAL_IMM_RANGE);
-    uint32_t code = concat({F(0xd5033, 12), F(CRm, 8), F(op2, 5), F(rt, 0)});
-    dd(code);
-  }
-
-  // pstate
-  void PState(PStateField psfield, uint32_t imm) {
-    uint32_t CRm = imm & ones(4);
-    uint32_t op1, op2;
-    switch (psfield) {
-    case SPSel:
-      op1 = 0;
-      op2 = 5;
-      break;
-    case DAIFSet:
-      op1 = 3;
-      op2 = 6;
-      break;
-    case DAIFClr:
-      op1 = 3;
-      op2 = 7;
-      break;
-    case UAO:
-      op1 = 0;
-      op2 = 3;
-      break;
-    case PAN:
-      op1 = 0;
-      op2 = 4;
-      break;
-    case DIT:
-      op1 = 3;
-      op2 = 2;
-      break;
-    default:
-      op1 = 0;
-      op2 = 0;
-    }
-    uint32_t code = concat({F(0xd5, 24), F(op1, 16), F(0x4, 12), F(CRm, 8),
-                            F(op2, 5), F(0x1f, 0)});
-    dd(code);
-  }
-
-  void PState(uint32_t op1, uint32_t CRm, uint32_t op2) {
-    uint32_t code = concat({F(0xd5, 24), F(op1, 16), F(0x4, 12), F(CRm, 8),
-                            F(op2, 5), F(0x1f, 0)});
-    dd(code);
-  }
-
-  // Systtem instructions
+               const RReg &rm, uint32_t imm);
+  uint32_t CondBrImmEnc(uint32_t cond, int64_t labelOffset);
+  void CondBrImm(Cond cond, const Label &label);
+  void CondBrImm(Cond cond, int64_t label);
+  void ExceptionGen(uint32_t opc, uint32_t op2, uint32_t LL, uint32_t imm);
+  void Hints(uint32_t CRm, uint32_t op2);
+  void Hints(uint32_t imm);
+  void BarriersOpt(uint32_t op2, BarOpt opt, uint32_t rt);
+  void BarriersNoOpt(uint32_t CRm, uint32_t op2, uint32_t rt);
+  void PState(PStateField psfield, uint32_t imm);
+  void PState(uint32_t op1, uint32_t CRm, uint32_t op2);
   void SysInst(uint32_t L, uint32_t op1, uint32_t CRn, uint32_t CRm,
-               uint32_t op2, const XReg &rt) {
-    uint32_t code =
-        concat({F(0xd5, 24), F(L, 21), F(1, 19), F(op1, 16), F(CRn, 12),
-                F(CRm, 8), F(op2, 5), F(rt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // System register move
+               uint32_t op2, const XReg &rt);
   void SysRegMove(uint32_t L, uint32_t op0, uint32_t op1, uint32_t CRn,
-                  uint32_t CRm, uint32_t op2, const XReg &rt) {
-    uint32_t code =
-        concat({F(0xd5, 24), F(L, 21), F(1, 20), F(op0, 19), F(op1, 16),
-                F(CRn, 12), F(CRm, 8), F(op2, 5), F(rt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Unconditional branch
+                  uint32_t CRm, uint32_t op2, const XReg &rt);
   void UncondBrNoReg(uint32_t opc, uint32_t op2, uint32_t op3, uint32_t rn,
-                     uint32_t op4) {
-    uint32_t code = concat(
-        {F(0x6b, 25), F(opc, 21), F(op2, 16), F(op3, 10), F(rn, 5), F(op4, 0)});
-    dd(code);
-  }
-
+                     uint32_t op4);
   void UncondBr1Reg(uint32_t opc, uint32_t op2, uint32_t op3, const RReg &rn,
-                    uint32_t op4) {
-    uint32_t code = concat({F(0x6b, 25), F(opc, 21), F(op2, 16), F(op3, 10),
-                            F(rn.getIdx(), 5), F(op4, 0)});
-    dd(code);
-  }
-
+                    uint32_t op4);
   void UncondBr2Reg(uint32_t opc, uint32_t op2, uint32_t op3, const RReg &rn,
-                    const RReg &rm) {
-    uint32_t code = concat({F(0x6b, 25), F(opc, 21), F(op2, 16), F(op3, 10),
-                            F(rn.getIdx(), 5), F(rm.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Unconditional branch (immediate)
-  uint32_t UncondBrImmEnc(uint32_t op, int64_t labelOffset) {
-    verifyIncRange(labelOffset, -1 * (1 << 27), ones(27), ERR_LABEL_IS_TOO_FAR,
-                   true);
-    uint32_t imm26 = static_cast<uint32_t>((labelOffset >> 2) & ones(26));
-    return concat({F(op, 31), F(5, 26), F(imm26, 0)});
-  }
-
-  void UncondBrImm(uint32_t op, const Label &label) {
-    auto encFunc = [&, op](int64_t labelOffset) {
-      return UncondBrImmEnc(op, labelOffset);
-    };
-    JmpLabel jmpL = JmpLabel(encFunc, size_);
-    uint32_t code = UncondBrImmEnc(op, genLabelOffset(label, jmpL));
-    dd(code);
-  }
-
-  void UncondBrImm(uint32_t op, int64_t label) {
-    uint32_t code = UncondBrImmEnc(op, label);
-    dd(code);
-  }
-
-  // Compare and branch (immediate)
-  uint32_t CompareBrEnc(uint32_t op, const RReg &rt, int64_t labelOffset) {
-    verifyIncRange(labelOffset, -1 * (1 << 20), ones(20), ERR_LABEL_IS_TOO_FAR,
-                   true);
-
-    uint32_t sf = genSf(rt);
-    uint32_t imm19 = (static_cast<uint32_t>(labelOffset >> 2)) & ones(19);
-    return concat(
-        {F(sf, 31), F(0x1a, 25), F(op, 24), F(imm19, 5), F(rt.getIdx(), 0)});
-  }
-
-  void CompareBr(uint32_t op, const RReg &rt, const Label &label) {
-    auto encFunc = [&, op](int64_t labelOffset) {
-      return CompareBrEnc(op, rt, labelOffset);
-    };
-    JmpLabel jmpL = JmpLabel(encFunc, size_);
-    uint32_t code = CompareBrEnc(op, rt, genLabelOffset(label, jmpL));
-    dd(code);
-  }
-
-  void CompareBr(uint32_t op, const RReg &rt, int64_t label) {
-    uint32_t code = CompareBrEnc(op, rt, label);
-    dd(code);
-  }
-
-  // Test and branch (immediate)
+                    const RReg &rm);
+  uint32_t UncondBrImmEnc(uint32_t op, int64_t labelOffset);
+  void UncondBrImm(uint32_t op, const Label &label);
+  void UncondBrImm(uint32_t op, int64_t label);
+  uint32_t CompareBrEnc(uint32_t op, const RReg &rt, int64_t labelOffset);
+  void CompareBr(uint32_t op, const RReg &rt, const Label &label);
+  void CompareBr(uint32_t op, const RReg &rt, int64_t label);
   uint32_t TestBrEnc(uint32_t op, const RReg &rt, uint32_t imm,
-                     int64_t labelOffset) {
-    verifyIncRange(labelOffset, -1 * (1 << 15), ones(15), ERR_LABEL_IS_TOO_FAR,
-                   true);
-    verifyIncRange(imm, 0, ones(6), ERR_ILLEGAL_IMM_RANGE);
-
-    uint32_t b5 = field(imm, 5, 5);
-    uint32_t b40 = field(imm, 4, 0);
-    uint32_t imm14 = (static_cast<uint32_t>(labelOffset >> 2)) & ones(14);
-
-    if (b5 == 1)
-      verifyIncList(rt.getBit(), {64}, ERR_ILLEGAL_IMM_VALUE);
-
-    return concat({F(b5, 31), F(0x1b, 25), F(op, 24), F(b40, 19), F(imm14, 5),
-                   F(rt.getIdx(), 0)});
-  }
-
-  void TestBr(uint32_t op, const RReg &rt, uint32_t imm, const Label &label) {
-    auto encFunc = [&, op, rt, imm](int64_t labelOffset) {
-      return TestBrEnc(op, rt, imm, labelOffset);
-    };
-    JmpLabel jmpL = JmpLabel(encFunc, size_);
-    uint32_t code = TestBrEnc(op, rt, imm, genLabelOffset(label, jmpL));
-    dd(code);
-  }
-
-  void TestBr(uint32_t op, const RReg &rt, uint32_t imm, int64_t label) {
-    uint32_t code = TestBrEnc(op, rt, imm, label);
-    dd(code);
-  }
-
-  // Advanced SIMD load/store multipule structure
+                     int64_t labelOffset);
+  void TestBr(uint32_t op, const RReg &rt, uint32_t imm, const Label &label);
+  void TestBr(uint32_t op, const RReg &rt, uint32_t imm, int64_t label);
   void AdvSimdLdStMultiStructExceptLd1St1(uint32_t L, uint32_t opc,
                                           const VRegList &vt,
-                                          const AdrNoOfs &adr) {
-    uint32_t Q = genQ(vt);
-    uint32_t size = genSize(vt);
-    uint32_t len = vt.getLen();
-
-    verifyIncRange(len, 1, 4, ERR_ILLEGAL_REG_IDX);
-
-    opc = (opc == 0x2 && len == 1)
-              ? 0x7
-              : (opc == 0x2 && len == 2) ? 0xa
-                                         : (opc == 0x2 && len == 3) ? 0x6 : opc;
-    uint32_t code =
-        concat({F(Q, 30), F(0x18, 23), F(L, 22), F(opc, 12), F(size, 10),
-                F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dd(code);
-  }
-
+                                          const AdrNoOfs &adr);
   void AdvSimdLdStMultiStructForLd1St1(uint32_t L, uint32_t opc,
-                                       const VRegList &vt,
-                                       const AdrNoOfs &adr) {
-    AdvSimdLdStMultiStructExceptLd1St1(L, opc, vt, adr);
-  }
-
-  // Advanced SIMD load/store multple structures (post-indexed register offset)
+                                       const VRegList &vt, const AdrNoOfs &adr);
   void AdvSimdLdStMultiStructPostRegExceptLd1St1(uint32_t L, uint32_t opc,
                                                  const VRegList &vt,
-                                                 const AdrPostReg &adr) {
-    uint32_t Q = genQ(vt);
-    uint32_t size = genSize(vt);
-
-    verifyIncRange(adr.getXm().getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t len = vt.getLen();
-    verifyIncRange(len, 1, 4, ERR_ILLEGAL_REG_IDX);
-    opc = (opc == 0x2 && len == 1)
-              ? 0x7
-              : (opc == 0x2 && len == 2) ? 0xa
-                                         : (opc == 0x2 && len == 3) ? 0x6 : opc;
-    uint32_t code =
-        concat({F(Q, 30), F(0x19, 23), F(L, 22), F(adr.getXm().getIdx(), 16),
-                F(opc, 12), F(size, 10), F(adr.getXn().getIdx(), 5),
-                F(vt.getIdx(), 0)});
-    dd(code);
-  }
-
+                                                 const AdrPostReg &adr);
   void AdvSimdLdStMultiStructPostRegForLd1St1(uint32_t L, uint32_t opc,
                                               const VRegList &vt,
-                                              const AdrPostReg &adr) {
-    AdvSimdLdStMultiStructPostRegExceptLd1St1(L, opc, vt, adr);
-  }
-
-  // Advanced SIMD load/store multple structures (post-indexed immediate offset)
+                                              const AdrPostReg &adr);
   void AdvSimdLdStMultiStructPostImmExceptLd1St1(uint32_t L, uint32_t opc,
                                                  const VRegList &vt,
-                                                 const AdrPostImm &adr) {
-    uint32_t Q = genQ(vt);
-    uint32_t size = genSize(vt);
-    uint32_t len = vt.getLen();
-
-    verifyIncRange(adr.getImm(), 0, ((8 * len) << Q), ERR_ILLEGAL_IMM_RANGE);
-    verifyIncRange(len, 1, 4, ERR_ILLEGAL_REG_IDX);
-
-    opc = (opc == 0x2 && len == 1)
-              ? 0x7
-              : (opc == 0x2 && len == 2) ? 0xa
-                                         : (opc == 0x2 && len == 3) ? 0x6 : opc;
-    uint32_t code =
-        concat({F(Q, 30), F(0x19, 23), F(L, 22), F(0x1f, 16), F(opc, 12),
-                F(size, 10), F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD load/store multple structures (post-indexed immediate offset)
+                                                 const AdrPostImm &adr);
   void AdvSimdLdStMultiStructPostImmForLd1St1(uint32_t L, uint32_t opc,
                                               const VRegList &vt,
-                                              const AdrPostImm &adr) {
-    AdvSimdLdStMultiStructPostImmExceptLd1St1(L, opc, vt, adr);
-  }
-
-  // Advanced SIMD load/store single structures
+                                              const AdrPostImm &adr);
   void AdvSimdLdStSingleStruct(uint32_t L, uint32_t R, uint32_t num,
-                               const VRegElem &vt, const AdrNoOfs &adr) {
-    uint32_t Q = genQ(vt);
-    uint32_t S = genS(vt);
-    uint32_t size = genSizeEnc(vt);
-    uint32_t opc = (vt.getBit() == 8)
-                       ? field(num - 1, 1, 1)
-                       : (vt.getBit() == 16) ? field(num - 1, 1, 1) + 2
-                                             : field(num - 1, 1, 1) + 4;
-    uint32_t code =
-        concat({F(Q, 30), F(0x1a, 23), F(L, 22), F(R, 21), F(opc, 13), F(S, 12),
-                F(size, 10), F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD load replication single structures
+                               const VRegElem &vt, const AdrNoOfs &adr);
   void AdvSimdLdRepSingleStruct(uint32_t L, uint32_t R, uint32_t opcode,
                                 uint32_t S, const VRegVec &vt,
-                                const AdrNoOfs &adr) {
-    uint32_t Q = genQ(vt);
-    uint32_t size = genSize(vt);
-    uint32_t code = concat({F(Q, 30), F(0x1a, 23), F(L, 22), F(R, 21),
-                            F(opcode, 13), F(S, 12), F(size, 10),
-                            F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD load/store single structures (post-indexed register)
+                                const AdrNoOfs &adr);
   void AdvSimdLdStSingleStructPostReg(uint32_t L, uint32_t R, uint32_t num,
                                       const VRegElem &vt,
-                                      const AdrPostReg &adr) {
-    uint32_t Q = genQ(vt);
-    uint32_t S = genS(vt);
-    uint32_t size = genSizeEnc(vt);
-    uint32_t opc = (vt.getBit() == 8)
-                       ? field(num - 1, 1, 1)
-                       : (vt.getBit() == 16) ? field(num - 1, 1, 1) + 2
-                                             : field(num - 1, 1, 1) + 4;
-    uint32_t code =
-        concat({F(Q, 30), F(0x1b, 23), F(L, 22), F(R, 21),
-                F(adr.getXm().getIdx(), 16), F(opc, 13), F(S, 12), F(size, 10),
-                F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD load/store single structures (post-indexed register,
-  // replicate)
+                                      const AdrPostReg &adr);
   void AdvSimdLdStSingleStructRepPostReg(uint32_t L, uint32_t R,
                                          uint32_t opcode, uint32_t S,
                                          const VRegVec &vt,
-                                         const AdrPostReg &adr) {
-    uint32_t Q = genQ(vt);
-    uint32_t size = genSize(vt);
-    uint32_t code =
-        concat({F(Q, 30), F(0x1b, 23), F(L, 22), F(R, 21),
-                F(adr.getXm().getIdx(), 16), F(opcode, 13), F(S, 12),
-                F(size, 10), F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD load/store single structures (post-indexed immediate)
+                                         const AdrPostReg &adr);
   void AdvSimdLdStSingleStructPostImm(uint32_t L, uint32_t R, uint32_t num,
                                       const VRegElem &vt,
-                                      const AdrPostImm &adr) {
-    uint32_t Q = genQ(vt);
-    uint32_t S = genS(vt);
-    uint32_t size = genSizeEnc(vt);
-    uint32_t opc = (vt.getBit() == 8)
-                       ? field(num - 1, 1, 1)
-                       : (vt.getBit() == 16) ? field(num - 1, 1, 1) + 2
-                                             : field(num - 1, 1, 1) + 4;
-
-    verifyIncList(adr.getImm(), {num * vt.getBit() / 8}, ERR_ILLEGAL_IMM_VALUE);
-
-    uint32_t code = concat({F(Q, 30), F(0x1b, 23), F(L, 22), F(R, 21),
-                            F(0x1f, 16), F(opc, 13), F(S, 12), F(size, 10),
-                            F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD load replication single structures (post-indexed immediate)
+                                      const AdrPostImm &adr);
   void AdvSimdLdRepSingleStructPostImm(uint32_t L, uint32_t R, uint32_t opcode,
                                        uint32_t S, const VRegVec &vt,
-                                       const AdrPostImm &adr) {
-    uint32_t Q = genQ(vt);
-    uint32_t size = genSize(vt);
-    uint32_t len = (field(opcode, 0, 0) << 1) + R + 1;
-
-    verifyIncList(adr.getImm(), {len << size}, ERR_ILLEGAL_IMM_VALUE);
-
-    uint32_t code = concat({F(Q, 30), F(0x1b, 23), F(L, 22), F(R, 21),
-                            F(0x1f, 16), F(opcode, 13), F(S, 12), F(size, 10),
-                            F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // store exclusive
+                                       const AdrPostImm &adr);
   void StExclusive(uint32_t size, uint32_t o0, const WReg ws, const RReg &rt,
-                   const AdrImm &adr) {
-    uint32_t L = 0;
-    uint32_t o2 = 0;
-    uint32_t o1 = 0;
-
-    verifyIncList(adr.getImm(), {0}, ERR_ILLEGAL_IMM_VALUE);
-    verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(ws.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code =
-        concat({F(size, 30), F(0x8, 24), F(o2, 23), F(L, 22), F(o1, 21),
-                F(ws.getIdx(), 16), F(o0, 15), F(0x1f, 10),
-                F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // load exclusive
+                   const AdrImm &adr);
   void LdExclusive(uint32_t size, uint32_t o0, const RReg &rt,
-                   const AdrImm &adr) {
-    uint32_t L = 1;
-    uint32_t o2 = 0;
-    uint32_t o1 = 0;
-
-    verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncList(adr.getImm(), {0}, ERR_ILLEGAL_IMM_VALUE);
-
-    uint32_t code = concat({F(size, 30), F(0x8, 24), F(o2, 23), F(L, 22),
-                            F(o1, 21), F(0x1f, 16), F(o0, 15), F(0x1f, 10),
-                            F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // store LORelease
+                   const AdrImm &adr);
   void StLORelase(uint32_t size, uint32_t o0, const RReg &rt,
-                  const AdrImm &adr) {
-    uint32_t L = 0;
-    uint32_t o2 = 1;
-    uint32_t o1 = 0;
-
-    verifyIncList(adr.getImm(), {0}, ERR_ILLEGAL_IMM_VALUE);
-    verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(size, 30), F(0x8, 24), F(o2, 23), F(L, 22),
-                            F(o1, 21), F(0x1f, 16), F(o0, 15), F(0x1f, 10),
-                            F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // load LOAcquire
+                  const AdrImm &adr);
   void LdLOAcquire(uint32_t size, uint32_t o0, const RReg &rt,
-                   const AdrImm &adr) {
-    uint32_t L = 1;
-    uint32_t o2 = 1;
-    uint32_t o1 = 0;
-
-    verifyIncList(adr.getImm(), {0}, ERR_ILLEGAL_IMM_VALUE);
-    verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(size, 30), F(0x8, 24), F(o2, 23), F(L, 22),
-                            F(o1, 21), F(0x1f, 16), F(o0, 15), F(0x1f, 10),
-                            F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // compare and swap
+                   const AdrImm &adr);
   void Cas(uint32_t size, uint32_t o2, uint32_t L, uint32_t o1, uint32_t o0,
-           const RReg &rs, const RReg &rt, const AdrNoOfs &adr) {
-    verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(rs.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code =
-        concat({F(size, 30), F(0x8, 24), F(o2, 23), F(L, 22), F(o1, 21),
-                F(rs.getIdx(), 16), F(o0, 15), F(0x1f, 10),
-                F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // load/store exclusive pair
+           const RReg &rs, const RReg &rt, const AdrNoOfs &adr);
   void StExclusivePair(uint32_t L, uint32_t o1, uint32_t o0, const WReg &ws,
-                       const RReg &rt1, const RReg &rt2, const AdrImm &adr) {
-    uint32_t sz = (rt1.getBit() == 64) ? 1 : 0;
-
-    verifyIncList(adr.getImm(), {0}, ERR_ILLEGAL_IMM_VALUE);
-    verifyIncRange(rt1.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(rt2.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(ws.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code =
-        concat({F(1, 31), F(sz, 30), F(0x8, 24), F(0, 23), F(L, 22), F(o1, 21),
-                F(ws.getIdx(), 16), F(o0, 15), F(rt2.getIdx(), 10),
-                F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
-    dd(code);
-  }
-
-  // load/store exclusive pair
+                       const RReg &rt1, const RReg &rt2, const AdrImm &adr);
   void LdExclusivePair(uint32_t L, uint32_t o1, uint32_t o0, const RReg &rt1,
-                       const RReg &rt2, const AdrImm &adr) {
-    uint32_t sz = (rt1.getBit() == 64) ? 1 : 0;
-
-    verifyIncList(adr.getImm(), {0}, ERR_ILLEGAL_IMM_VALUE);
-    verifyIncRange(rt1.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(rt2.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code =
-        concat({F(1, 31), F(sz, 30), F(0x8, 24), F(0, 23), F(L, 22), F(o1, 21),
-                F(0x1f, 16), F(o0, 15), F(rt2.getIdx(), 10),
-                F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
-    dd(code);
-  }
-
-  // compare and swap pair
+                       const RReg &rt2, const AdrImm &adr);
   void CasPair(uint32_t L, uint32_t o1, uint32_t o0, const RReg &rs,
-               const RReg &rt, const AdrNoOfs &adr) {
-    uint32_t sz = (rt.getBit() == 64) ? 1 : 0;
-
-    verifyIncRange(rs.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code =
-        concat({F(0, 31), F(sz, 30), F(0x8, 24), F(0, 23), F(L, 22), F(o1, 21),
-                F(rs.getIdx(), 16), F(o0, 15), F(0x1f, 10),
-                F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // LDAPR/STLR (unscaled immediate)
+               const RReg &rt, const AdrNoOfs &adr);
   void LdaprStlr(uint32_t size, uint32_t opc, const RReg &rt,
-                 const AdrImm &adr) {
-    int32_t simm = adr.getImm();
-    uint32_t imm9 = simm & ones(9);
-
-    verifyIncRange(simm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(size, 30), F(0x19, 24), F(opc, 22), F(imm9, 12),
-                            F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // load register (literal)
+                 const AdrImm &adr);
   uint32_t LdRegLiteralEnc(uint32_t opc, uint32_t V, const RReg &rt,
-                           int64_t labelOffset) {
-    verifyIncRange(labelOffset, (-1) * (1 << 20), ones(20),
-                   ERR_LABEL_IS_TOO_FAR, true);
-
-    uint32_t imm19 = (static_cast<uint32_t>(labelOffset >> 2)) & ones(19);
-    return concat(
-        {F(opc, 30), F(0x3, 27), F(V, 26), F(imm19, 5), F(rt.getIdx(), 0)});
-  }
-
+                           int64_t labelOffset);
   void LdRegLiteral(uint32_t opc, uint32_t V, const RReg &rt,
-                    const Label &label) {
-    auto encFunc = [&, opc, V, rt](int64_t labelOffset) {
-      return LdRegLiteralEnc(opc, V, rt, labelOffset);
-    };
-    JmpLabel jmpL = JmpLabel(encFunc, size_);
-    uint32_t code = LdRegLiteralEnc(opc, V, rt, genLabelOffset(label, jmpL));
-    dd(code);
-  }
-
-  void LdRegLiteral(uint32_t opc, uint32_t V, const RReg &rt, int64_t label) {
-    uint32_t code = LdRegLiteralEnc(opc, V, rt, label);
-    dd(code);
-  }
-
-  // load register (SIMD&FP, literal)
-  uint32_t LdRegSimdFpLiteralEnc(const VRegSc &vt, int64_t labelOffset) {
-    verifyIncRange(labelOffset, -1 * (1 << 20), ones(20), ERR_LABEL_IS_TOO_FAR,
-                   true);
-
-    uint32_t opc = (vt.getBit() == 32) ? 0 : (vt.getBit() == 64) ? 1 : 2;
-    uint32_t imm19 = (static_cast<uint32_t>(labelOffset >> 2)) & ones(19);
-    uint32_t V = 1;
-    return concat(
-        {F(opc, 30), F(0x3, 27), F(V, 26), F(imm19, 5), F(vt.getIdx(), 0)});
-  }
-
-  void LdRegSimdFpLiteral(const VRegSc &vt, const Label &label) {
-    auto encFunc = [&, vt](int64_t labelOffset) {
-      return LdRegSimdFpLiteralEnc(vt, labelOffset);
-    };
-    JmpLabel jmpL = JmpLabel(encFunc, size_);
-    uint32_t code = LdRegSimdFpLiteralEnc(vt, genLabelOffset(label, jmpL));
-    dd(code);
-  }
-
-  void LdRegSimdFpLiteral(const VRegSc &vt, int64_t label) {
-    uint32_t code = LdRegSimdFpLiteralEnc(vt, label);
-    dd(code);
-  }
-
-  // prefetch (literal)
-  uint32_t PfLiteralEnc(Prfop prfop, int64_t labelOffset) {
-    verifyIncRange(labelOffset, -1 * (1 << 20), ones(20), ERR_LABEL_IS_TOO_FAR,
-                   true);
-
-    uint32_t opc = 3;
-    uint32_t imm19 = (static_cast<uint32_t>(labelOffset >> 2)) & ones(19);
-    uint32_t V = 0;
-    return concat({F(opc, 30), F(0x3, 27), F(V, 26), F(imm19, 5), F(prfop, 0)});
-  }
-
-  void PfLiteral(Prfop prfop, const Label &label) {
-    auto encFunc = [&, prfop](int64_t labelOffset) {
-      return PfLiteralEnc(prfop, labelOffset);
-    };
-    JmpLabel jmpL = JmpLabel(encFunc, size_);
-    uint32_t code = PfLiteralEnc(prfop, genLabelOffset(label, jmpL));
-    dd(code);
-  }
-
-  void PfLiteral(Prfop prfop, int64_t label) {
-    uint32_t code = PfLiteralEnc(prfop, label);
-    dd(code);
-  }
-
-  // Load/store no-allocate pair (offset)
+                    const Label &label);
+  void LdRegLiteral(uint32_t opc, uint32_t V, const RReg &rt, int64_t label);
+  uint32_t LdRegSimdFpLiteralEnc(const VRegSc &vt, int64_t labelOffset);
+  void LdRegSimdFpLiteral(const VRegSc &vt, const Label &label);
+  void LdRegSimdFpLiteral(const VRegSc &vt, int64_t label);
+  uint32_t PfLiteralEnc(Prfop prfop, int64_t labelOffset);
+  void PfLiteral(Prfop prfop, const Label &label);
+  void PfLiteral(Prfop prfop, int64_t label);
   void LdStNoAllocPair(uint32_t L, const RReg &rt1, const RReg &rt2,
-                       const AdrImm &adr) {
-    int32_t imm = adr.getImm();
-    int32_t times = (rt1.getBit() == 32) ? 1 : 2;
-
-    verifyIncRange(imm, (-256 * times), (252 * times), ERR_ILLEGAL_IMM_RANGE,
-                   true);
-    verifyCond(
-        imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
-        ERR_ILLEGAL_IMM_COND);
-
-    uint32_t opc = (rt1.getBit() == 32) ? 0 : 2;
-    uint32_t imm7 = (imm >> (times + 1)) & ones(7);
-    uint32_t V = 0;
-
-    verifyIncRange(rt1.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(rt2.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(L, 22),
-                            F(imm7, 15), F(rt2.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Load/store no-allocate pair (offset)
+                       const AdrImm &adr);
   void LdStSimdFpNoAllocPair(uint32_t L, const VRegSc &vt1, const VRegSc &vt2,
-                             const AdrImm &adr) {
-    int32_t imm = adr.getImm();
-    int32_t times = vt1.getBit() / 32;
-
-    verifyIncRange(imm, (-256 * times), (252 * times), ERR_ILLEGAL_IMM_RANGE,
-                   true);
-    verifyCond(
-        imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
-        ERR_ILLEGAL_IMM_COND);
-
-    uint32_t opc = (vt1.getBit() == 32) ? 0 : (vt1.getBit() == 64) ? 1 : 2;
-    uint32_t sh = static_cast<uint32_t>(std::log2(4 * times));
-    uint32_t imm7 = (imm >> sh) & ones(7);
-    uint32_t V = 1;
-    uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(L, 22),
-                            F(imm7, 15), F(vt2.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(vt1.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Load/store pair (post-indexed)
+                             const AdrImm &adr);
   void LdStRegPairPostImm(uint32_t opc, uint32_t L, const RReg &rt1,
-                          const RReg &rt2, const AdrPostImm &adr) {
-    int32_t imm = adr.getImm();
-    int32_t times = (opc == 2) ? 2 : 1;
-
-    verifyIncRange(imm, (-256 * times), (252 * times), ERR_ILLEGAL_IMM_RANGE,
-                   true);
-    verifyCond(
-        imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
-        ERR_ILLEGAL_IMM_COND);
-
-    uint32_t imm7 = (imm >> (times + 1)) & ones(7);
-    uint32_t V = 0;
-
-    verifyIncRange(rt1.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(rt2.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(1, 23),
-                            F(L, 22), F(imm7, 15), F(rt2.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Load/store pair (post-indexed)
+                          const RReg &rt2, const AdrPostImm &adr);
   void LdStSimdFpPairPostImm(uint32_t L, const VRegSc &vt1, const VRegSc &vt2,
-                             const AdrPostImm &adr) {
-    int32_t imm = adr.getImm();
-    int32_t times = vt1.getBit() / 32;
-
-    verifyIncRange(imm, (-256 * times), (252 * times), ERR_ILLEGAL_IMM_RANGE,
-                   true);
-    verifyCond(
-        imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
-        ERR_ILLEGAL_IMM_COND);
-
-    uint32_t opc = (vt1.getBit() == 32) ? 0 : (vt1.getBit() == 64) ? 1 : 2;
-    uint32_t sh = static_cast<uint32_t>(std::log2(4 * times));
-    uint32_t imm7 = (imm >> sh) & ones(7);
-    uint32_t V = 1;
-    uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(1, 23),
-                            F(L, 22), F(imm7, 15), F(vt2.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(vt1.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Load/store pair (offset)
+                             const AdrPostImm &adr);
   void LdStRegPair(uint32_t opc, uint32_t L, const RReg &rt1, const RReg &rt2,
-                   const AdrImm &adr) {
-    int32_t imm = adr.getImm();
-    int32_t times = (opc == 2) ? 2 : 1;
-
-    verifyIncRange(imm, (-256 * times), (252 * times), ERR_ILLEGAL_IMM_RANGE,
-                   true);
-    verifyCond(
-        imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
-        ERR_ILLEGAL_IMM_COND);
-
-    uint32_t imm7 = (imm >> (times + 1)) & ones(7);
-    uint32_t V = 0;
-
-    verifyIncRange(rt1.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(rt2.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(2, 23),
-                            F(L, 22), F(imm7, 15), F(rt2.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Load/store pair (offset)
+                   const AdrImm &adr);
   void LdStSimdFpPair(uint32_t L, const VRegSc &vt1, const VRegSc &vt2,
-                      const AdrImm &adr) {
-    int32_t imm = adr.getImm();
-    int32_t times = vt1.getBit() / 32;
-
-    verifyIncRange(imm, (-256 * times), (252 * times), ERR_ILLEGAL_IMM_RANGE,
-                   true);
-    verifyCond(
-        imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
-        ERR_ILLEGAL_IMM_COND);
-
-    uint32_t opc = (vt1.getBit() == 32) ? 0 : (vt1.getBit() == 64) ? 1 : 2;
-    uint32_t sh = static_cast<uint32_t>(std::log2(4 * times));
-    uint32_t imm7 = (imm >> sh) & ones(7);
-    uint32_t V = 1;
-    uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(2, 23),
-                            F(L, 22), F(imm7, 15), F(vt2.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(vt1.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Load/store pair (pre-indexed)
+                      const AdrImm &adr);
   void LdStRegPairPre(uint32_t opc, uint32_t L, const RReg &rt1,
-                      const RReg &rt2, const AdrPreImm &adr) {
-    int32_t imm = adr.getImm();
-    int32_t times = (opc == 2) ? 2 : 1;
-
-    verifyIncRange(imm, (-256 * times), (252 * times), ERR_ILLEGAL_IMM_RANGE,
-                   true);
-    verifyCond(
-        imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
-        ERR_ILLEGAL_IMM_COND);
-
-    uint32_t imm7 = (imm >> (times + 1)) & ones(7);
-    uint32_t V = 0;
-
-    verifyIncRange(rt1.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(rt2.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(3, 23),
-                            F(L, 22), F(imm7, 15), F(rt2.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Load/store pair (pre-indexed)
+                      const RReg &rt2, const AdrPreImm &adr);
   void LdStSimdFpPairPre(uint32_t L, const VRegSc &vt1, const VRegSc &vt2,
-                         const AdrPreImm &adr) {
-    int32_t imm = adr.getImm();
-    int32_t times = vt1.getBit() / 32;
-
-    verifyIncRange(imm, (-256 * times), (252 * times), ERR_ILLEGAL_IMM_RANGE,
-                   true);
-    verifyCond(
-        imm, [=](uint64_t x) { return ((x % (4 * times)) == 0); },
-        ERR_ILLEGAL_IMM_COND);
-
-    uint32_t opc = (vt1.getBit() == 32) ? 0 : (vt1.getBit() == 64) ? 1 : 2;
-    uint32_t sh = static_cast<uint32_t>(std::log2(4 * times));
-    uint32_t imm7 = (imm >> sh) & ones(7);
-    uint32_t V = 1;
-    uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(3, 23),
-                            F(L, 22), F(imm7, 15), F(vt2.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(vt1.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Load/store register (unscaled immediate)
+                         const AdrPreImm &adr);
   void LdStRegUnsImm(uint32_t size, uint32_t opc, const RReg &rt,
-                     const AdrImm &adr) {
-    int imm = adr.getImm();
-    uint32_t imm9 = imm & ones(9);
-
-    verifyIncRange(imm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t V = 0;
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12),
-                F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Load/store register (SIMD&FP, unscaled immediate)
-  void LdStSimdFpRegUnsImm(uint32_t opc, const VRegSc &vt, const AdrImm &adr) {
-    uint32_t size = (vt.getBit() == 16)
-                        ? 1
-                        : (vt.getBit() == 32) ? 2 : (vt.getBit() == 64) ? 3 : 0;
-
-    int imm = adr.getImm();
-    uint32_t imm9 = adr.getImm() & ones(9);
-
-    verifyIncRange(imm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-
-    uint32_t V = 1;
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12),
-                F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // prefetch register (unscaled immediate)
-  void PfRegUnsImm(Prfop prfop, const AdrImm &adr) {
-    uint32_t size = 3;
-    uint32_t opc = 2;
-
-    int imm = adr.getImm();
-    uint32_t imm9 = imm & ones(9);
-
-    verifyIncRange(imm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-
-    uint32_t V = 0;
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12),
-                F(adr.getXn().getIdx(), 5), F(prfop, 0)});
-    dd(code);
-  }
-
-  // Load/store register (immediate post-indexed)
+                     const AdrImm &adr);
+  void LdStSimdFpRegUnsImm(uint32_t opc, const VRegSc &vt, const AdrImm &adr);
+  void PfRegUnsImm(Prfop prfop, const AdrImm &adr);
   void LdStRegPostImm(uint32_t size, uint32_t opc, const RReg &rt,
-                      const AdrPostImm &adr) {
-    int imm = adr.getImm();
-    uint32_t imm9 = imm & ones(9);
-
-    verifyIncRange(imm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t V = 0;
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12),
-                F(1, 10), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Load/store register (SIMD&FP, immediate post-indexed)
+                      const AdrPostImm &adr);
   void LdStSimdFpRegPostImm(uint32_t opc, const VRegSc &vt,
-                            const AdrPostImm &adr) {
-    uint32_t size = (vt.getBit() == 16)
-                        ? 1
-                        : (vt.getBit() == 32) ? 2 : (vt.getBit() == 64) ? 3 : 0;
-
-    int imm = adr.getImm();
-    uint32_t imm9 = imm & ones(9);
-
-    verifyIncRange(imm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-
-    uint32_t V = 1;
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12),
-                F(1, 10), F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Load/store register (unprivileged)
+                            const AdrPostImm &adr);
   void LdStRegUnpriv(uint32_t size, uint32_t opc, const RReg &rt,
-                     const AdrImm &adr) {
-    int imm = adr.getImm();
-    uint32_t imm9 = imm & ones(9);
-
-    verifyIncRange(imm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t V = 0;
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12),
-                F(2, 10), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Load/store register (immediate pre-indexed)
+                     const AdrImm &adr);
   void LdStRegPre(uint32_t size, uint32_t opc, const RReg &rt,
-                  const AdrPreImm &adr) {
-    int imm = adr.getImm();
-    uint32_t imm9 = imm & ones(9);
-
-    verifyIncRange(imm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t V = 0;
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12),
-                F(3, 10), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Load/store register (SIMD&FP, immediate pre-indexed)
-  void LdStSimdFpRegPre(uint32_t opc, const VRegSc &vt, const AdrPreImm &adr) {
-    uint32_t size = (vt.getBit() == 16)
-                        ? 1
-                        : (vt.getBit() == 32) ? 2 : (vt.getBit() == 64) ? 3 : 0;
-
-    int imm = adr.getImm();
-    uint32_t imm9 = imm & ones(9);
-
-    verifyIncRange(imm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-
-    uint32_t V = 1;
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12),
-                F(3, 10), F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Atomic memory oprations
+                  const AdrPreImm &adr);
+  void LdStSimdFpRegPre(uint32_t opc, const VRegSc &vt, const AdrPreImm &adr);
   void AtomicMemOp(uint32_t size, uint32_t V, uint32_t A, uint32_t R,
                    uint32_t o3, uint32_t opc, const RReg &rs, const RReg &rt,
-                   const AdrNoOfs &adr) {
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(A, 23), F(R, 22), F(1, 21),
-                F(rs.getIdx(), 16), F(o3, 15), F(opc, 12),
-                F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dd(code);
-  }
-
+                   const AdrNoOfs &adr);
   void AtomicMemOp(uint32_t size, uint32_t V, uint32_t A, uint32_t R,
                    uint32_t o3, uint32_t opc, const RReg &rs, const RReg &rt,
-                   const AdrImm &adr) {
-    verifyIncList(adr.getImm(), {0}, ERR_ILLEGAL_IMM_VALUE);
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(A, 23), F(R, 22), F(1, 21),
-                F(rs.getIdx(), 16), F(o3, 15), F(opc, 12),
-                F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // load/store register (register offset)
-  void LdStReg(uint32_t size, uint32_t opc, const RReg &rt, const AdrReg &adr) {
-    uint32_t option = 3;
-    uint32_t S =
-        ((adr.getInitSh() && size == 0) || (adr.getSh() != 0 && size != 0)) ? 1
-                                                                            : 0;
-    uint32_t V = 0;
-
-    verifyIncList(adr.getSh(), {0, size}, ERR_ILLEGAL_CONST_VALUE);
-    verifyIncList(adr.getMod(), {LSL}, ERR_ILLEGAL_SHMOD);
-
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(1, 21),
-                F(adr.getXm().getIdx(), 16), F(option, 13), F(S, 12), F(2, 10),
-                F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // load/store register (register offset)
-  void LdStReg(uint32_t size, uint32_t opc, const RReg &rt, const AdrExt &adr) {
-    uint32_t option = adr.getMod();
-    uint32_t S =
-        ((adr.getInitSh() && size == 0) || (adr.getSh() != 0 && size != 0)) ? 1
-                                                                            : 0;
-    uint32_t V = 0;
-
-    verifyIncList(adr.getSh(), {0, size}, ERR_ILLEGAL_CONST_VALUE);
-    if (adr.getRm().getBit() == 64)
-      verifyIncList(option, {SXTX}, ERR_ILLEGAL_EXTMOD);
-    else
-      verifyIncList(option, {UXTW, SXTW}, ERR_ILLEGAL_EXTMOD);
-
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(1, 21),
-                F(adr.getRm().getIdx(), 16), F(option, 13), F(S, 12), F(2, 10),
-                F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // load/store register (register offset)
-  void LdStSimdFpReg(uint32_t opc, const VRegSc &vt, const AdrReg &adr) {
-    uint32_t size = genSize(vt);
-    uint32_t option = 3;
-    uint32_t vt_bit = vt.getBit();
-    uint32_t S =
-        ((adr.getInitSh() && vt_bit == 8) || (adr.getSh() != 0 && vt_bit != 8))
-            ? 1
-            : 0;
-    uint32_t V = 1;
-
-    verifyIncList(adr.getSh(), {0, size}, ERR_ILLEGAL_CONST_VALUE);
-
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(1, 21),
-                F(adr.getXm().getIdx(), 16), F(option, 13), F(S, 12), F(2, 10),
-                F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // load/store register (register offset)
-  void LdStSimdFpReg(uint32_t opc, const VRegSc &vt, const AdrExt &adr) {
-    uint32_t size = genSize(vt);
-    uint32_t option = adr.getMod();
-    uint32_t vt_bit = vt.getBit();
-    uint32_t S =
-        ((adr.getInitSh() && vt_bit == 8) || (adr.getSh() != 0 && vt_bit != 8))
-            ? 1
-            : 0;
-    uint32_t V = 1;
-
-    uint32_t max_sh = (vt.getBit() == 128) ? 4 : size;
-    verifyIncList(adr.getSh(), {0, max_sh}, ERR_ILLEGAL_CONST_VALUE);
-
-    if (adr.getRm().getBit() == 64)
-      verifyIncList(option, {SXTX}, ERR_ILLEGAL_EXTMOD);
-    else
-      verifyIncList(option, {UXTW, SXTW}, ERR_ILLEGAL_EXTMOD);
-
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(1, 21),
-                F(adr.getRm().getIdx(), 16), F(option, 13), F(S, 12), F(2, 10),
-                F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // load/store register (register offset)
-  void PfExt(Prfop prfop, const AdrReg &adr) {
-    uint32_t size = 3;
-    uint32_t opc = 2;
-    uint32_t option = adr.getMod();
-    uint32_t S =
-        ((adr.getInitSh() && size == 0) || (adr.getSh() != 0 && size != 0)) ? 1
-                                                                            : 0;
-    uint32_t V = 0;
-
-    verifyIncList(adr.getSh(), {0, 3}, ERR_ILLEGAL_CONST_VALUE);
-    verifyIncList(option, {LSL}, ERR_ILLEGAL_SHMOD);
-
-    uint32_t ext_opt = 3;
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(1, 21),
-                F(adr.getXm().getIdx(), 16), F(ext_opt, 13), F(S, 12), F(2, 10),
-                F(adr.getXn().getIdx(), 5), F(prfop, 0)});
-    dd(code);
-  }
-
-  void PfExt(Prfop prfop, const AdrExt &adr) {
-    uint32_t size = 3;
-    uint32_t opc = 2;
-    uint32_t option = adr.getMod();
-    uint32_t S =
-        ((adr.getInitSh() && size == 0) || (adr.getSh() != 0 && size != 0)) ? 1
-                                                                            : 0;
-    uint32_t V = 0;
-
-    verifyIncList(adr.getSh(), {0, 3}, ERR_ILLEGAL_CONST_VALUE);
-
-    if (adr.getRm().getBit() == 64)
-      verifyIncList(option, {SXTX}, ERR_ILLEGAL_EXTMOD);
-    else
-      verifyIncList(option, {UXTW, SXTW}, ERR_ILLEGAL_EXTMOD);
-
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(1, 21),
-                F(adr.getRm().getIdx(), 16), F(option, 13), F(S, 12), F(2, 10),
-                F(adr.getXn().getIdx(), 5), F(prfop, 0)});
-    dd(code);
-  }
-
-  // loat/store register (pac)
-  void LdStRegPac(uint32_t M, uint32_t W, const XReg &xt, const AdrImm &adr) {
-    uint32_t size = 3;
-    uint32_t V = 0;
-
-    int32_t imm = adr.getImm();
-    uint32_t S = (imm < 0) ? 1 : 0;
-    uint32_t imm9 = (imm >> 3) & ones(9);
-
-    verifyIncRange(imm, -4096, 4088, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyCond(
-        std::abs(imm), [](uint64_t x) { return ((x % 8) == 0); },
-        ERR_ILLEGAL_IMM_COND);
-    verifyIncRange(xt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(size, 30), F(0x7, 27), F(V, 26), F(M, 23),
-                            F(S, 22), F(1, 21), F(imm9, 12), F(W, 11), F(1, 10),
-                            F(adr.getXn().getIdx(), 5), F(xt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // loat/store register (pac)
-  void LdStRegPac(uint32_t M, uint32_t W, const XReg &xt,
-                  const AdrPreImm &adr) {
-    uint32_t size = 3;
-    uint32_t V = 0;
-
-    int32_t imm = adr.getImm();
-    uint32_t S = (imm < 0) ? 1 : 0;
-    uint32_t imm9 = (imm >> 3) & ones(9);
-
-    verifyIncRange(imm, -4096, 4088, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyCond(
-        std::abs(imm), [](uint64_t x) { return ((x % 8) == 0); },
-        ERR_ILLEGAL_IMM_COND);
-    verifyIncRange(xt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(size, 30), F(0x7, 27), F(V, 26), F(M, 23),
-                            F(S, 22), F(1, 21), F(imm9, 12), F(W, 11), F(1, 10),
-                            F(adr.getXn().getIdx(), 5), F(xt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // loat/store register (unsigned immediate)
+                   const AdrImm &adr);
+  void LdStReg(uint32_t size, uint32_t opc, const RReg &rt, const AdrReg &adr);
+  void LdStReg(uint32_t size, uint32_t opc, const RReg &rt, const AdrExt &adr);
+  void LdStSimdFpReg(uint32_t opc, const VRegSc &vt, const AdrReg &adr);
+  void LdStSimdFpReg(uint32_t opc, const VRegSc &vt, const AdrExt &adr);
+  void PfExt(Prfop prfop, const AdrReg &adr);
+  void PfExt(Prfop prfop, const AdrExt &adr);
+  void LdStRegPac(uint32_t M, uint32_t W, const XReg &xt, const AdrImm &adr);
+  void LdStRegPac(uint32_t M, uint32_t W, const XReg &xt, const AdrPreImm &adr);
   void LdStRegUnImm(uint32_t size, uint32_t opc, const RReg &rt,
-                    const AdrUimm &adr) {
-    int32_t imm = adr.getImm();
-    int32_t times = 1 << size;
-    uint32_t imm12 = (imm >> size) & ones(12);
-
-    verifyIncRange(imm, 0, 4095 * times, ERR_ILLEGAL_IMM_RANGE);
-    verifyCond(
-        imm, [=](uint64_t x) { return ((x & ones(size)) == 0); },
-        ERR_ILLEGAL_IMM_COND);
-    verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t V = 0;
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(1, 24), F(opc, 22),
-                F(imm12, 10), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
-
-    dd(code);
-  }
-
-  // loat/store register (unsigned immediate)
-  void LdStSimdFpUnImm(uint32_t opc, const VRegSc &vt, const AdrUimm &adr) {
-    int32_t imm = adr.getImm();
-    uint32_t times = vt.getBit() / 8;
-    uint32_t sh = (uint32_t)std::log2(times);
-    uint32_t imm12 = (imm >> sh) & ones(12);
-
-    verifyIncRange(imm, 0, 4095 * times, ERR_ILLEGAL_IMM_RANGE);
-    verifyCond(
-        imm, [=](uint64_t x) { return ((x & ones(sh)) == 0); },
-        ERR_ILLEGAL_IMM_COND);
-
-    uint32_t V = 1;
-    uint32_t size = genSize(vt);
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(1, 24), F(opc, 22),
-                F(imm12, 10), F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // loat/store register (unsigned immediate)
-  void PfRegImm(Prfop prfop, const AdrUimm &adr) {
-    int32_t imm = adr.getImm();
-    int32_t times = 8;
-    uint32_t imm12 = (imm >> 3) & ones(12);
-
-    verifyIncRange(imm, 0, 4095 * times, ERR_ILLEGAL_IMM_RANGE);
-    verifyCond(
-        imm, [=](uint64_t x) { return ((x & ones(3)) == 0); },
-        ERR_ILLEGAL_IMM_COND);
-
-    uint32_t size = 3;
-    uint32_t opc = 2;
-    uint32_t V = 0;
-    uint32_t code =
-        concat({F(size, 30), F(0x7, 27), F(V, 26), F(1, 24), F(opc, 22),
-                F(imm12, 10), F(adr.getXn().getIdx(), 5), F(prfop, 0)});
-    dd(code);
-  }
-
-  // Data processing (2 source)
+                    const AdrUimm &adr);
+  void LdStSimdFpUnImm(uint32_t opc, const VRegSc &vt, const AdrUimm &adr);
+  void PfRegImm(Prfop prfop, const AdrUimm &adr);
   void DataProc2Src(uint32_t opcode, const RReg &rd, const RReg &rn,
-                    const RReg &rm) {
-    uint32_t sf = genSf(rm);
-    uint32_t S = 0;
-
-    verifyCond(
-        SP_IDX,
-        [=](uint64_t x) {
-          return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x;
-        },
-        ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code =
-        concat({F(sf, 31), F(S, 29), F(0xd6, 21), F(rm.getIdx(), 16),
-                F(opcode, 10), F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Data processing (1 source)
+                    const RReg &rm);
   void DataProc1Src(uint32_t opcode2, uint32_t opcode, const RReg &rd,
-                    const RReg &rn) {
-    uint32_t sf = genSf(rd);
-    uint32_t S = 0;
-
-    verifyCond(
-        SP_IDX, [=](uint64_t x) { return rd.getIdx() < x || rn.getIdx() < x; },
-        ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code =
-        concat({F(sf, 31), F(1, 30), F(S, 29), F(0xd6, 21), F(opcode2, 16),
-                F(opcode, 10), F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Data processing (1 source)
-  void DataProc1Src(uint32_t opcode2, uint32_t opcode, const RReg &rd) {
-    uint32_t sf = genSf(rd);
-    uint32_t S = 0;
-
-    verifyIncRange(rd.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code =
-        concat({F(sf, 31), F(1, 30), F(S, 29), F(0xd6, 21), F(opcode2, 16),
-                F(opcode, 10), F(0x1f, 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Logical (shifted register)
+                    const RReg &rn);
+  void DataProc1Src(uint32_t opcode2, uint32_t opcode, const RReg &rd);
   void LogicalShiftReg(uint32_t opc, uint32_t N, const RReg &rd, const RReg &rn,
-                       const RReg &rm, ShMod shmod, uint32_t sh) {
-    uint32_t sf = genSf(rd);
-    uint32_t imm6 = sh & ones(6);
-
-    verifyIncRange(sh, 0, (32 << sf) - 1, ERR_ILLEGAL_CONST_RANGE);
-    verifyCond(
-        SP_IDX,
-        [=](uint64_t x) {
-          return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x;
-        },
-        ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(sf, 31), F(opc, 29), F(0xa, 24), F(shmod, 22),
-                            F(N, 21), F(rm.getIdx(), 16), F(imm6, 10),
-                            F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Move (register) alias of ADD,ORR
-  void MvReg(const RReg &rd, const RReg &rn) {
-    if (rd.getIdx() == SP_IDX || rn.getIdx() == SP_IDX) {
-      // alias of ADD
-      AddSubImm(0, 0, rd, rn, 0, 0);
-    } else {
-      // alias of ORR
-      LogicalShiftReg(1, 0, rd, RReg(SP_IDX, rd.getBit()), rn, LSL, 0);
-    }
-  }
-
-  // Add/subtract (shifted register)
+                       const RReg &rm, ShMod shmod, uint32_t sh);
+  void MvReg(const RReg &rd, const RReg &rn);
   void AddSubShiftReg(uint32_t opc, uint32_t S, const RReg &rd, const RReg &rn,
                       const RReg &rm, ShMod shmod, uint32_t sh,
-                      bool alias = false) {
-    uint32_t rd_sp = (rd.getIdx() == SP_IDX);
-    uint32_t rn_sp = (rn.getIdx() == SP_IDX);
-    if (((rd_sp + rn_sp) >= 1 + (uint32_t)alias) && shmod == LSL) {
-      AddSubExtReg(opc, S, rd, rn, rm, EXT_LSL, sh);
-      return;
-    }
-
-    if (shmod == NONE)
-      shmod = LSL;
-
-    uint32_t sf = genSf(rd);
-    uint32_t imm6 = sh & ones(6);
-
-    verifyIncRange(sh, 0, (32 << sf) - 1, ERR_ILLEGAL_CONST_RANGE);
-    if (!(alias && S == 1))
-      verifyIncRange(rd.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    if (!(alias && opc == 1))
-      verifyIncRange(rn.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(rm.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(sf, 31), F(opc, 30), F(S, 29), F(0xb, 24),
-                            F(shmod, 22), F(rm.getIdx(), 16), F(imm6, 10),
-                            F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Add/subtract (extended register)
+                      bool alias = false);
   void AddSubExtReg(uint32_t opc, uint32_t S, const RReg &rd, const RReg &rn,
-                    const RReg &rm, ExtMod extmod, uint32_t sh) {
-    uint32_t sf = genSf(rd);
-    uint32_t opt = 0;
-    uint32_t imm3 = sh & ones(3);
-
-    verifyIncRange(sh, 0, 4, ERR_ILLEGAL_CONST_RANGE);
-
-    uint32_t option = (extmod == EXT_LSL && sf == 0)
-                          ? 2
-                          : (extmod == EXT_LSL && sf == 1) ? 3 : extmod;
-    uint32_t code =
-        concat({F(sf, 31), F(opc, 30), F(S, 29), F(0xb, 24), F(opt, 22),
-                F(1, 21), F(rm.getIdx(), 16), F(option, 13), F(imm3, 10),
-                F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Add/subtract (with carry)
+                    const RReg &rm, ExtMod extmod, uint32_t sh);
   void AddSubCarry(uint32_t op, uint32_t S, const RReg &rd, const RReg &rn,
-                   const RReg &rm) {
-    uint32_t sf = genSf(rd);
-
-    verifyCond(
-        SP_IDX,
-        [=](uint64_t x) {
-          return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x;
-        },
-        ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code =
-        concat({F(sf, 31), F(op, 30), F(S, 29), F(0xd, 25), F(rm.getIdx(), 16),
-                F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Rotate right into flags
+                   const RReg &rm);
   void RotateR(uint32_t op, uint32_t S, uint32_t o2, const XReg &xn,
-               uint32_t sh, uint32_t mask) {
-    uint32_t sf = genSf(xn);
-    uint32_t imm6 = sh & ones(6);
-
-    verifyIncRange(xn.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(sh, 0, 63, ERR_ILLEGAL_CONST_RANGE);
-    verifyIncRange(mask, 0, 15, ERR_ILLEGAL_CONST_RANGE);
-
-    uint32_t code =
-        concat({F(sf, 31), F(op, 30), F(S, 29), F(0xd, 25), F(imm6, 15),
-                F(0x1, 10), F(xn.getIdx(), 5), F(o2, 4), F(mask, 0)});
-    dd(code);
-  }
-
-  // Evaluate into flags
+               uint32_t sh, uint32_t mask);
   void Evaluate(uint32_t op, uint32_t S, uint32_t opcode2, uint32_t sz,
-                uint32_t o3, uint32_t mask, const WReg &wn) {
-    uint32_t sf = 0;
-
-    verifyIncRange(wn.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(mask, 0, 15, ERR_ILLEGAL_CONST_RANGE);
-
-    uint32_t code = concat({F(sf, 31), F(op, 30), F(S, 29), F(0xd, 25),
-                            F(opcode2, 15), F(sz, 14), F(0x2, 10),
-                            F(wn.getIdx(), 5), F(o3, 4), F(mask, 0)});
-    dd(code);
-  }
-
-  // Conditional compare (register)
+                uint32_t o3, uint32_t mask, const WReg &wn);
   void CondCompReg(uint32_t op, uint32_t S, uint32_t o2, uint32_t o3,
-                   const RReg &rn, const RReg &rm, uint32_t nczv, Cond cond) {
-    uint32_t sf = genSf(rn);
-
-    verifyCond(
-        SP_IDX, [=](uint64_t x) { return rn.getIdx() < x || rm.getIdx() < x; },
-        ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(nczv, 0, 15, ERR_ILLEGAL_CONST_RANGE);
-
-    uint32_t code = concat({F(sf, 31), F(op, 30), F(S, 29), F(0xd2, 21),
-                            F(rm.getIdx(), 16), F(cond, 12), F(o2, 10),
-                            F(rn.getIdx(), 5), F(o3, 4), F(nczv, 0)});
-    dd(code);
-  }
-
-  // Conditional compare (imm)
+                   const RReg &rn, const RReg &rm, uint32_t nczv, Cond cond);
   void CondCompImm(uint32_t op, uint32_t S, uint32_t o2, uint32_t o3,
-                   const RReg &rn, uint32_t imm, uint32_t nczv, Cond cond) {
-    uint32_t sf = genSf(rn);
-    uint32_t imm5 = imm & ones(5);
-
-    verifyIncRange(imm, 0, 31, ERR_ILLEGAL_IMM_RANGE);
-    verifyIncRange(nczv, 0, 15, ERR_ILLEGAL_CONST_RANGE);
-    verifyIncRange(rn.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(sf, 31), F(op, 30), F(S, 29), F(0xd2, 21),
-                            F(imm5, 16), F(cond, 12), F(1, 11), F(o2, 10),
-                            F(rn.getIdx(), 5), F(o3, 4), F(nczv, 0)});
-    dd(code);
-  }
-
-  // Conditional select
+                   const RReg &rn, uint32_t imm, uint32_t nczv, Cond cond);
   void CondSel(uint32_t op, uint32_t S, uint32_t op2, const RReg &rd,
-               const RReg &rn, const RReg &rm, Cond cond) {
-    uint32_t sf = genSf(rn);
-
-    verifyCond(
-        SP_IDX,
-        [=](uint64_t x) {
-          return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x;
-        },
-        ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code =
-        concat({F(sf, 31), F(op, 30), F(S, 29), F(0xd4, 21), F(rm.getIdx(), 16),
-                F(cond, 12), F(op2, 10), F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Conditional select
+               const RReg &rn, const RReg &rm, Cond cond);
   void DataProc3Reg(uint32_t op54, uint32_t op31, uint32_t o0, const RReg &rd,
-                    const RReg &rn, const RReg &rm, const RReg &ra) {
-    uint32_t sf = genSf(rd);
-
-    verifyCond(
-        SP_IDX,
-        [=](uint64_t x) {
-          return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x ||
-                 ra.getIdx() < x;
-        },
-        ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(sf, 31), F(op54, 29), F(0x1b, 24), F(op31, 21),
-                            F(rm.getIdx(), 16), F(o0, 15), F(ra.getIdx(), 10),
-                            F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Conditional select
+                    const RReg &rn, const RReg &rm, const RReg &ra);
   void DataProc3Reg(uint32_t op54, uint32_t op31, uint32_t o0, const RReg &rd,
-                    const RReg &rn, const RReg &rm) {
-    uint32_t sf = genSf(rd);
-
-    verifyCond(
-        SP_IDX,
-        [=](uint64_t x) {
-          return rd.getIdx() < x || rn.getIdx() < x || rm.getIdx() < x;
-        },
-        ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(sf, 31), F(op54, 29), F(0x1b, 24), F(op31, 21),
-                            F(rm.getIdx(), 16), F(o0, 15), F(0x1f, 10),
-                            F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Cryptographic AES
-  void CryptAES(uint32_t opcode, const VRegVec &vd, const VRegVec &vn) {
-    uint32_t size = genSize(vd);
-    uint32_t code =
-        concat({F(0x4e, 24), F(size, 22), F(0x14, 17), F(opcode, 12), F(2, 10),
-                F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Cryptographic three-register SHA
+                    const RReg &rn, const RReg &rm);
+  void CryptAES(uint32_t opcode, const VRegVec &vd, const VRegVec &vn);
   void Crypt3RegSHA(uint32_t opcode, const VRegSc &vd, const VRegSc &vn,
-                    const VRegVec &vm) {
-    uint32_t size = 0;
-    uint32_t code =
-        concat({F(0x5e, 24), F(size, 22), F(vm.getIdx(), 16), F(opcode, 12),
-                F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Cryptographic three-register SHA
+                    const VRegVec &vm);
   void Crypt3RegSHA(uint32_t opcode, const VRegVec &vd, const VRegVec &vn,
-                    const VRegVec &vm) {
-    uint32_t size = 0;
-    uint32_t code =
-        concat({F(0x5e, 24), F(size, 22), F(vm.getIdx(), 16), F(opcode, 12),
-                F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Cryptographic two-register SHA
-  void Crypt2RegSHA(uint32_t opcode, const Reg &vd, const Reg &vn) {
-    uint32_t size = 0;
-    uint32_t code =
-        concat({F(0x5e, 24), F(size, 22), F(0x14, 17), F(opcode, 12), F(2, 10),
-                F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD Scalar copy
+                    const VRegVec &vm);
+  void Crypt2RegSHA(uint32_t opcode, const Reg &vd, const Reg &vn);
   void AdvSimdScCopy(uint32_t op, uint32_t imm4, const VRegSc &vd,
-                     const VRegElem &vn) {
-    uint32_t sh = genSize(vd);
-    uint32_t imm5 = 1 << sh | vn.getElemIdx() << (sh + 1);
-    uint32_t code =
-        concat({F(1, 30), F(op, 29), F(0xf, 25), F(imm5, 16), F(imm4, 11),
-                F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD Scalar three same FP16
+                     const VRegElem &vn);
   void AdvSimdSc3SameFp16(uint32_t U, uint32_t a, uint32_t opcode,
-                          const VRegSc &vd, const VRegSc &vn,
-                          const VRegSc &vm) {
-    uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(a, 23), F(2, 21),
-                            F(vm.getIdx(), 16), F(opcode, 11), F(1, 10),
-                            F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD Scalar two-register miscellaneous FP16
+                          const VRegSc &vd, const VRegSc &vn, const VRegSc &vm);
   void AdvSimdSc2RegMiscFp16(uint32_t U, uint32_t a, uint32_t opcode,
-                             const VRegSc &vd, const VRegSc &vn) {
-    uint32_t code =
-        concat({F(1, 30), F(U, 29), F(0xf, 25), F(a, 23), F(0xf, 19),
-                F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
+                             const VRegSc &vd, const VRegSc &vn);
   void AdvSimdSc2RegMiscFp16(uint32_t U, uint32_t a, uint32_t opcode,
-                             const VRegSc &vd, const VRegSc &vn, double zero) {
-    verifyIncList(std::lround(zero * 10), {0}, ERR_ILLEGAL_CONST_VALUE);
-    AdvSimdSc2RegMiscFp16(U, a, opcode, vd, vn);
-  }
-
-  // Advanced SIMD Scalar three same extra
+                             const VRegSc &vd, const VRegSc &vn, double zero);
   void AdvSimdSc3SameExtra(uint32_t U, uint32_t opcode, const VRegSc &vd,
-                           const VRegSc &vn, const VRegSc &vm) {
-    uint32_t size = genSize(vd);
-    uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22),
-                            F(vm.getIdx(), 16), F(1, 15), F(opcode, 11),
-                            F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD Scalar two-register miscellaneous
+                           const VRegSc &vn, const VRegSc &vm);
   void AdvSimdSc2RegMisc(uint32_t U, uint32_t opcode, const VRegSc &vd,
-                         const VRegSc &vn) {
-    uint32_t size = genSize(vd);
-    uint32_t code =
-        concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22), F(1, 21),
-                F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
+                         const VRegSc &vn);
   void AdvSimdSc2RegMisc(uint32_t U, uint32_t opcode, const VRegSc &vd,
-                         const VRegSc &vn, uint32_t zero) {
-    verifyIncList(zero, {0}, ERR_ILLEGAL_CONST_VALUE);
-    AdvSimdSc2RegMisc(U, opcode, vd, vn);
-  }
-
-  // Advanced SIMD Scalar two-register miscellaneous
+                         const VRegSc &vn, uint32_t zero);
   void AdvSimdSc2RegMiscSz0x(uint32_t U, uint32_t opcode, const VRegSc &vd,
-                             const VRegSc &vn) {
-    uint32_t size = genSize(vn) & 1;
-    uint32_t code =
-        concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22), F(1, 21),
-                F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD Scalar two-register miscellaneous
+                             const VRegSc &vn);
   void AdvSimdSc2RegMiscSz1x(uint32_t U, uint32_t opcode, const VRegSc &vd,
-                             const VRegSc &vn) {
-    uint32_t size = genSize(vd);
-    uint32_t code =
-        concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22), F(1, 21),
-                F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
+                             const VRegSc &vn);
   void AdvSimdSc2RegMiscSz1x(uint32_t U, uint32_t opcode, const VRegSc &vd,
-                             const VRegSc &vn, double zero) {
-    verifyIncList(std::lround(zero * 10), {0}, ERR_ILLEGAL_CONST_VALUE);
-    AdvSimdSc2RegMiscSz1x(U, opcode, vd, vn);
-  }
-
-  // Advanced SIMD scalar pairwize
+                             const VRegSc &vn, double zero);
   void AdvSimdScPairwise(uint32_t U, uint32_t size, uint32_t opcode,
-                         const VRegSc &vd, const VRegVec &vn) {
-    uint32_t code =
-        concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22), F(3, 20),
-                F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD scalar three different
+                         const VRegSc &vd, const VRegVec &vn);
   void AdvSimdSc3Diff(uint32_t U, uint32_t opcode, const VRegSc &vd,
-                      const VRegSc &vn, const VRegSc &vm) {
-    uint32_t size = genSize(vn);
-    uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22),
-                            F(1, 21), F(vm.getIdx(), 16), F(opcode, 12),
-                            F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD scalar three same
+                      const VRegSc &vn, const VRegSc &vm);
   void AdvSimdSc3Same(uint32_t U, uint32_t opcode, const VRegSc &vd,
-                      const VRegSc &vn, const VRegSc &vm) {
-    uint32_t size = genSize(vd);
-    uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22),
-                            F(1, 21), F(vm.getIdx(), 16), F(opcode, 11),
-                            F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD scalar three same
+                      const VRegSc &vn, const VRegSc &vm);
   void AdvSimdSc3SameSz0x(uint32_t U, uint32_t opcode, const VRegSc &vd,
-                          const VRegSc &vn, const VRegSc &vm) {
-    uint32_t size = genSize(vd) & 1;
-    uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22),
-                            F(1, 21), F(vm.getIdx(), 16), F(opcode, 11),
-                            F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD scalar three same
+                          const VRegSc &vn, const VRegSc &vm);
   void AdvSimdSc3SameSz1x(uint32_t U, uint32_t opcode, const VRegSc &vd,
-                          const VRegSc &vn, const VRegSc &vm) {
-    uint32_t size = genSize(vd);
-    uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22),
-                            F(1, 21), F(vm.getIdx(), 16), F(opcode, 11),
-                            F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD scalar shift by immediate
+                          const VRegSc &vn, const VRegSc &vm);
   void AdvSimdScShImm(uint32_t U, uint32_t opcode, const VRegSc &vd,
-                      const VRegSc &vn, uint32_t sh) {
-    uint32_t size = genSize(vd);
-
-    bool lsh = (opcode == 0xa || opcode == 0xc || opcode == 0xe); // left shift
-    uint32_t base = vd.getBit();
-    uint32_t imm = (lsh) ? (sh + base) : ((base << 1) - sh);
-    uint32_t immh = 1 << size | field(imm, size + 2, 3);
-    uint32_t immb = field(imm, 2, 0);
-
-    verifyIncRange(sh, (1 - lsh), (base - lsh), ERR_ILLEGAL_CONST_RANGE);
-
-    uint32_t code =
-        concat({F(1, 30), F(U, 29), F(0x1f, 24), F(immh, 19), F(immb, 16),
-                F(opcode, 11), F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD scalar x indexed element
+                      const VRegSc &vn, uint32_t sh);
   void AdvSimdScXIndElemSz(uint32_t U, uint32_t size, uint32_t opcode,
                            const VRegSc &vd, const VRegSc &vn,
-                           const VRegElem &vm) {
-    uint32_t bits = vm.getBit();
-    uint32_t eidx = vm.getElemIdx();
-    uint32_t H = (bits == 16)
-                     ? field(eidx, 2, 2)
-                     : (bits == 32) ? field(eidx, 1, 1) : field(eidx, 0, 0);
-    uint32_t L =
-        (bits == 16) ? field(eidx, 1, 1) : (bits == 32) ? field(eidx, 0, 0) : 0;
-    uint32_t M = (bits == 16) ? field(eidx, 0, 0) : field(vm.getIdx(), 4, 4);
-    uint32_t vmidx = vm.getIdx() & ones(4);
-
-    if (bits == 16)
-      verifyIncRange(vm.getIdx(), 0, 15, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(1, 30), F(U, 29), F(0x1f, 24), F(size, 22),
-                            F(L, 21), F(M, 20), F(vmidx, 16), F(opcode, 12),
-                            F(H, 11), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
+                           const VRegElem &vm);
   void AdvSimdScXIndElem(uint32_t U, uint32_t opcode, const VRegSc &vd,
-                         const VRegSc &vn, const VRegElem &vm) {
-    uint32_t size = genSize(vm);
-    AdvSimdScXIndElemSz(U, size, opcode, vd, vn, vm);
-  }
-
-  // Advanced SIMD table lookup
+                         const VRegSc &vn, const VRegElem &vm);
   void AdvSimdTblLkup(uint32_t op2, uint32_t len, uint32_t op,
-                      const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
-    uint32_t Q = genQ(vd);
-    uint32_t code = concat({F(Q, 30), F(0xe, 24), F(op2, 22),
-                            F(vm.getIdx(), 16), F(len - 1, 13), F(op, 12),
-                            F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD table lookup
+                      const VRegVec &vd, const VRegVec &vn, const VRegVec &vm);
   void AdvSimdTblLkup(uint32_t op2, uint32_t op, const VRegVec &vd,
-                      const VRegList &vn, const VRegVec &vm) {
-    uint32_t Q = genQ(vd);
-    uint32_t len = vn.getLen() - 1;
-    uint32_t code =
-        concat({F(Q, 30), F(0xe, 24), F(op2, 22), F(vm.getIdx(), 16),
-                F(len, 13), F(op, 12), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD permute
+                      const VRegList &vn, const VRegVec &vm);
   void AdvSimdPermute(uint32_t opcode, const VRegVec &vd, const VRegVec &vn,
-                      const VRegVec &vm) {
-    uint32_t Q = genQ(vd);
-    uint32_t size = genSize(vd);
-    uint32_t code =
-        concat({F(Q, 30), F(0xe, 24), F(size, 22), F(vm.getIdx(), 16),
-                F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD extract
+                      const VRegVec &vm);
   void AdvSimdExtract(uint32_t op2, const VRegVec &vd, const VRegVec &vn,
-                      const VRegVec &vm, uint32_t index) {
-    uint32_t Q = genQ(vd);
-    uint32_t imm4 = index & ones(4);
-
-    verifyIncRange(index, 0, 15, ERR_ILLEGAL_CONST_RANGE);
-    if (Q == 0)
-      verifyCond(
-          imm4, [](int64_t x) { return (x >> 3) == 0; },
-          ERR_ILLEGAL_CONST_COND);
-
-    uint32_t code =
-        concat({F(Q, 30), F(0x2e, 24), F(op2, 22), F(vm.getIdx(), 16),
-                F(imm4, 11), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD copy
+                      const VRegVec &vm, uint32_t index);
   void AdvSimdCopyDupElem(uint32_t op, uint32_t imm4, const VRegVec &vd,
-                          const VRegElem &vn) {
-    uint32_t Q = genQ(vd);
-    uint32_t size = genSize(vd);
-    uint32_t imm5 = (1 << size) | (vn.getElemIdx() << (size + 1));
-    uint32_t code =
-        concat({F(Q, 30), F(op, 29), F(0xe, 24), F(imm5, 16), F(imm4, 11),
-                F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD copy
+                          const VRegElem &vn);
   void AdvSimdCopyDupGen(uint32_t op, uint32_t imm4, const VRegVec &vd,
-                         const RReg &rn) {
-    uint32_t Q = genQ(vd);
-    uint32_t size = genSize(vd);
-    uint32_t imm5 = 1 << size;
-    uint32_t code =
-        concat({F(Q, 30), F(op, 29), F(0xe, 24), F(imm5, 16), F(imm4, 11),
-                F(3, 10), F(rn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD copy
+                         const RReg &rn);
   void AdvSimdCopyMov(uint32_t op, uint32_t imm4, const RReg &rd,
-                      const VRegElem &vn) {
-    uint32_t Q = genSf(rd);
-    uint32_t size = genSize(vn);
-    uint32_t imm5 = ((1 << size) | (vn.getElemIdx() << (size + 1))) & ones(5);
-    uint32_t code =
-        concat({F(Q, 30), F(op, 29), F(0xe, 24), F(imm5, 16), F(imm4, 11),
-                F(1, 10), F(vn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD copy
+                      const VRegElem &vn);
   void AdvSimdCopyInsGen(uint32_t op, uint32_t imm4, const VRegElem &vd,
-                         const RReg &rn) {
-    uint32_t Q = 1;
-    uint32_t size = genSize(vd);
-    uint32_t imm5 = ((1 << size) | (vd.getElemIdx() << (size + 1))) & ones(5);
-    uint32_t code =
-        concat({F(Q, 30), F(op, 29), F(0xe, 24), F(imm5, 16), F(imm4, 11),
-                F(1, 10), F(rn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD copy
-  void AdvSimdCopyElemIns(uint32_t op, const VRegElem &vd, const VRegElem &vn) {
-    uint32_t Q = 1;
-    uint32_t size = genSize(vd);
-    uint32_t imm5 = ((1 << size) | (vd.getElemIdx() << (size + 1))) & ones(5);
-    uint32_t imm4 = (vn.getElemIdx() << size) & ones(4);
-    uint32_t code =
-        concat({F(Q, 30), F(op, 29), F(0xe, 24), F(imm5, 16), F(imm4, 11),
-                F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD three same (FP16)
+                         const RReg &rn);
+  void AdvSimdCopyElemIns(uint32_t op, const VRegElem &vd, const VRegElem &vn);
   void AdvSimd3SameFp16(uint32_t U, uint32_t a, uint32_t opcode,
                         const VRegVec &vd, const VRegVec &vn,
-                        const VRegVec &vm) {
-    uint32_t Q = genQ(vd);
-    uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(a, 23), F(2, 21),
-                            F(vm.getIdx(), 16), F(opcode, 11), F(1, 10),
-                            F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD two-register miscellaneous (FP16)
+                        const VRegVec &vm);
   void AdvSimd2RegMiscFp16(uint32_t U, uint32_t a, uint32_t opcode,
-                           const VRegVec &vd, const VRegVec &vn) {
-    uint32_t Q = genQ(vd);
-    uint32_t code =
-        concat({F(Q, 30), F(U, 29), F(0xe, 24), F(a, 23), F(0xf, 19),
-                F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
+                           const VRegVec &vd, const VRegVec &vn);
   void AdvSimd2RegMiscFp16(uint32_t U, uint32_t a, uint32_t opcode,
-                           const VRegVec &vd, const VRegVec &vn, double zero) {
-    verifyIncList(std::lround(zero * 10), {0}, ERR_ILLEGAL_CONST_VALUE);
-    AdvSimd2RegMiscFp16(U, a, opcode, vd, vn);
-  }
-
-  // Advanced SIMD three same extra
+                           const VRegVec &vd, const VRegVec &vn, double zero);
   void AdvSimd3SameExtra(uint32_t U, uint32_t opcode, const VRegVec &vd,
-                         const VRegVec &vn, const VRegVec &vm) {
-    uint32_t Q = genQ(vd);
-    uint32_t size = genSize(vd);
-    uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22),
-                            F(vm.getIdx(), 16), F(1, 15), F(opcode, 11),
-                            F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD three same extra
+                         const VRegVec &vn, const VRegVec &vm);
   void AdvSimd3SameExtraRotate(uint32_t U, uint32_t op32, const VRegVec &vd,
                                const VRegVec &vn, const VRegVec &vm,
-                               uint32_t rotate) {
-    uint32_t Q = genQ(vd);
-    uint32_t size = genSize(vd);
-    uint32_t rot = rotate / 90;
-    uint32_t opcode =
-        (op32 == 2) ? ((op32 << 2) | rot) : ((op32 << 2) | (rot & 0x2));
-
-    if (op32 == 2)
-      verifyIncList(rotate, {0, 90, 180, 270}, ERR_ILLEGAL_CONST_VALUE);
-    else if (op32 == 3)
-      verifyIncList(rotate, {90, 270}, ERR_ILLEGAL_CONST_VALUE);
-
-    uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22),
-                            F(vm.getIdx(), 16), F(1, 15), F(opcode, 11),
-                            F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD two-register miscellaneous
+                               uint32_t rotate);
   void AdvSimd2RegMisc(uint32_t U, uint32_t opcode, const VRegVec &vd,
-                       const VRegVec &vn) {
-    bool sel_vd = (opcode != 0x2 && opcode != 0x6);
-    uint32_t Q = (sel_vd) ? genQ(vd) : genQ(vn);
-    uint32_t size = (sel_vd) ? genSize(vd) : genSize(vn);
-    uint32_t code =
-        concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(1, 21),
-                F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD two-register miscellaneous
+                       const VRegVec &vn);
   void AdvSimd2RegMisc(uint32_t U, uint32_t opcode, const VRegVec &vd,
-                       const VRegVec &vn, uint32_t sh) {
-    uint32_t Q = genQ(vn);
-    uint32_t size = genSize(vn);
-
-    verifyIncList(sh, {vn.getBit()}, ERR_ILLEGAL_CONST_VALUE);
-
-    uint32_t code =
-        concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(1, 21),
-                F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD two-register miscellaneous
+                       const VRegVec &vn, uint32_t sh);
   void AdvSimd2RegMiscZero(uint32_t U, uint32_t opcode, const VRegVec &vd,
-                           const VRegVec &vn, uint32_t zero) {
-    verifyIncList(zero, {0}, ERR_ILLEGAL_CONST_VALUE);
-    AdvSimd2RegMisc(U, opcode, vd, vn);
-  }
-
-  // Advanced SIMD two-register miscellaneous
+                           const VRegVec &vn, uint32_t zero);
   void AdvSimd2RegMiscSz(uint32_t U, uint32_t size, uint32_t opcode,
-                         const VRegVec &vd, const VRegVec &vn) {
-    uint32_t Q = genQ(vd);
-    uint32_t code =
-        concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(1, 21),
-                F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD two-register miscellaneous
+                         const VRegVec &vd, const VRegVec &vn);
   void AdvSimd2RegMiscSz0x(uint32_t U, uint32_t opcode, const VRegVec &vd,
-                           const VRegVec &vn) {
-    bool sel_vd = (opcode == 0x17);
-    uint32_t Q = (!sel_vd) ? genQ(vd) : genQ(vn);
-    uint32_t size = (sel_vd) ? genSize(vd) : genSize(vn);
-    uint32_t code =
-        concat({F(Q, 30), F(U, 29), F(0xe, 24), F((size & 1), 22), F(1, 21),
-                F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD two-register miscellaneous
+                           const VRegVec &vn);
   void AdvSimd2RegMiscSz1x(uint32_t U, uint32_t opcode, const VRegVec &vd,
-                           const VRegVec &vn) {
-    uint32_t Q = genQ(vd);
-    uint32_t size = genSize(vd);
-    uint32_t code =
-        concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(1, 21),
-                F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
+                           const VRegVec &vn);
   void AdvSimd2RegMiscSz1x(uint32_t U, uint32_t opcode, const VRegVec &vd,
-                           const VRegVec &vn, double zero) {
-    verifyIncList(std::lround(zero * 10), {0}, ERR_ILLEGAL_CONST_VALUE);
-    AdvSimd2RegMiscSz1x(U, opcode, vd, vn);
-  }
-
-  // Advanced SIMD across lanes
+                           const VRegVec &vn, double zero);
   void AdvSimdAcrossLanes(uint32_t U, uint32_t opcode, const VRegSc &vd,
-                          const VRegVec &vn) {
-    uint32_t Q = genQ(vn);
-    uint32_t size = genSize(vn);
-    uint32_t code =
-        concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(3, 20),
-                F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD across lanes
+                          const VRegVec &vn);
   void AdvSimdAcrossLanesSz0x(uint32_t U, uint32_t opcode, const VRegSc &vd,
-                              const VRegVec &vn) {
-    uint32_t Q = genQ(vn);
-    uint32_t size = 0;
-    uint32_t code =
-        concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(3, 20),
-                F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD across lanes
+                              const VRegVec &vn);
   void AdvSimdAcrossLanesSz1x(uint32_t U, uint32_t opcode, const VRegSc &vd,
-                              const VRegVec &vn) {
-    uint32_t Q = genQ(vn);
-    uint32_t size = 2;
-    uint32_t code =
-        concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(3, 20),
-                F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD three different
+                              const VRegVec &vn);
   void AdvSimd3Diff(uint32_t U, uint32_t opcode, const VRegVec &vd,
-                    const VRegVec &vn, const VRegVec &vm) {
-    bool vd_sel = (opcode == 0x4 || opcode == 0x6);
-    uint32_t Q = (vd_sel) ? genQ(vd) : genQ(vm);
-    uint32_t size = (vd_sel) ? genSize(vd) : genSize(vm);
-    uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22),
-                            F(1, 21), F(vm.getIdx(), 16), F(opcode, 12),
-                            F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD three same
+                    const VRegVec &vn, const VRegVec &vm);
   void AdvSimd3Same(uint32_t U, uint32_t opcode, const VRegVec &vd,
-                    const VRegVec &vn, const VRegVec &vm) {
-    uint32_t Q = genQ(vd);
-    uint32_t size = genSize(vd);
-    uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22),
-                            F(1, 21), F(vm.getIdx(), 16), F(opcode, 11),
-                            F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD three same
+                    const VRegVec &vn, const VRegVec &vm);
   void AdvSimd3SameSz0x(uint32_t U, uint32_t opcode, const VRegVec &vd,
-                        const VRegVec &vn, const VRegVec &vm) {
-    uint32_t Q = genQ(vd);
-    uint32_t size = genSize(vd) & 1;
-    uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22),
-                            F(1, 21), F(vm.getIdx(), 16), F(opcode, 11),
-                            F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD three same
+                        const VRegVec &vn, const VRegVec &vm);
   void AdvSimd3SameSz1x(uint32_t U, uint32_t opcode, const VRegVec &vd,
-                        const VRegVec &vn, const VRegVec &vm) {
-    uint32_t Q = genQ(vd);
-    uint32_t size = genSize(vd);
-    uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22),
-                            F(1, 21), F(vm.getIdx(), 16), F(opcode, 11),
-                            F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD three same
+                        const VRegVec &vn, const VRegVec &vm);
   void AdvSimd3SameSz(uint32_t U, uint32_t size, uint32_t opcode,
-                      const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
-    uint32_t Q = genQ(vd);
-    uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22),
-                            F(1, 21), F(vm.getIdx(), 16), F(opcode, 11),
-                            F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD modified immediate (vector)
+                      const VRegVec &vd, const VRegVec &vn, const VRegVec &vm);
   void AdvSimdModiImmMoviMvni(uint32_t op, uint32_t o2, const VRegVec &vd,
-                              uint32_t imm, ShMod shmod, uint32_t sh) {
-    uint32_t Q = genQ(vd);
-    uint32_t crmode = (vd.getBit() == 8)
-                          ? 0xe
-                          : (vd.getBit() == 16)
-                                ? 0x8 | (sh >> 2)
-                                : (vd.getBit() == 32 && shmod == LSL)
-                                      ? (sh >> 2)
-                                      : (vd.getBit() == 32 && shmod == MSL)
-                                            ? 0xc | (sh >> 4)
-                                            : 0xe;
-
-    if (vd.getBit() == 8)
-      verifyIncList(sh, {0}, ERR_ILLEGAL_CONST_VALUE);
-    else if (vd.getBit() == 16)
-      verifyIncList(sh, {8 * field(crmode, 1, 1)}, ERR_ILLEGAL_CONST_VALUE);
-    else if (vd.getBit() == 32 && shmod == LSL)
-      verifyIncList(sh, {8 * field(crmode, 2, 1)}, ERR_ILLEGAL_CONST_VALUE);
-    else if (vd.getBit() == 32 && shmod == MSL)
-      verifyIncList(sh, {8 * field(crmode, 0, 0) + 8}, ERR_ILLEGAL_CONST_VALUE);
-
-    uint32_t abc = field(imm, 7, 5);
-    uint32_t defgh = field(imm, 4, 0);
-    uint32_t code =
-        concat({F(Q, 30), F(op, 29), F(0xf, 24), F(abc, 16), F(crmode, 12),
-                F(o2, 11), F(1, 10), F(defgh, 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD modified immediate (scalar)
+                              uint32_t imm, ShMod shmod, uint32_t sh);
   void AdvSimdModiImmMoviMvniEnc(uint32_t Q, uint32_t op, uint32_t o2,
-                                 const Reg &vd, uint64_t imm) {
-    uint32_t crmode = 0xe;
-    uint32_t imm8 = compactImm(imm);
-
-    verifyCond(
-        imm, [&](uint64_t x) { return isCompact(x, imm8); },
-        ERR_ILLEGAL_IMM_COND);
-
-    uint32_t abc = field(imm8, 7, 5);
-    uint32_t defgh = field(imm8, 4, 0);
-    uint32_t code =
-        concat({F(Q, 30), F(op, 29), F(0xf, 24), F(abc, 16), F(crmode, 12),
-                F(o2, 11), F(1, 10), F(defgh, 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
+                                 const Reg &vd, uint64_t imm);
   void AdvSimdModiImmMoviMvni(uint32_t op, uint32_t o2, const VRegSc &vd,
-                              uint64_t imm) {
-    uint32_t Q = 0;
-    AdvSimdModiImmMoviMvniEnc(Q, op, o2, vd, imm);
-  }
-
+                              uint64_t imm);
   void AdvSimdModiImmMoviMvni(uint32_t op, uint32_t o2, const VRegVec &vd,
-                              uint64_t imm) {
-    uint32_t Q = genQ(vd);
-    AdvSimdModiImmMoviMvniEnc(Q, op, o2, vd, imm);
-  }
-
-  // Advanced SIMD modified immediate
+                              uint64_t imm);
   void AdvSimdModiImmOrrBic(uint32_t op, uint32_t o2, const VRegVec &vd,
-                            uint32_t imm, ShMod mod, uint32_t sh) {
-    uint32_t Q = genQ(vd);
-    uint32_t crmode = (vd.getBit() == 16) ? (0x9 | (sh >> 2)) : (1 | (sh >> 2));
-
-    verifyIncList(mod, {LSL}, ERR_ILLEGAL_SHMOD);
-    if (vd.getBit() == 16)
-      verifyIncList(sh, {8 * field(crmode, 1, 1)}, ERR_ILLEGAL_CONST_VALUE);
-    else if (vd.getBit() == 32)
-      verifyIncList(sh, {8 * field(crmode, 2, 1)}, ERR_ILLEGAL_CONST_VALUE);
-
-    uint32_t abc = field(imm, 7, 5);
-    uint32_t defgh = field(imm, 4, 0);
-    uint32_t code =
-        concat({F(Q, 30), F(op, 29), F(0xf, 24), F(abc, 16), F(crmode, 12),
-                F(o2, 11), F(1, 10), F(defgh, 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD modified immediate
+                            uint32_t imm, ShMod mod, uint32_t sh);
   void AdvSimdModiImmFmov(uint32_t op, uint32_t o2, const VRegVec &vd,
-                          double imm) {
-    uint32_t Q = genQ(vd);
-    uint32_t crmode = 0xf;
-    uint32_t imm8 = compactImm(imm, vd.getBit());
-    uint32_t abc = field(imm8, 7, 5);
-    uint32_t defgh = field(imm8, 4, 0);
-    uint32_t code =
-        concat({F(Q, 30), F(op, 29), F(0xf, 24), F(abc, 16), F(crmode, 12),
-                F(o2, 11), F(1, 10), F(defgh, 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD shift by immediate
+                          double imm);
   void AdvSimdShImm(uint32_t U, uint32_t opcode, const VRegVec &vd,
-                    const VRegVec &vn, uint32_t sh) {
-    bool vd_sel = (opcode != 0x14);
-    uint32_t Q = (vd_sel) ? genQ(vd) : genQ(vn);
-    uint32_t size = (vd_sel) ? genSize(vd) : genSize(vn);
-
-    bool lsh = (opcode == 0xa || opcode == 0xc || opcode == 0xe ||
-                opcode == 0x14); // left shift
-    uint32_t base = (vd_sel) ? vd.getBit() : vn.getBit();
-    uint32_t imm = (lsh) ? (sh + base) : ((base << 1) - sh);
-    uint32_t immh = 1 << size | field(imm, size + 2, 3);
-    uint32_t immb = field(imm, 2, 0);
-
-    verifyIncRange(sh, (1 - lsh), (base - lsh), ERR_ILLEGAL_CONST_RANGE);
-
-    uint32_t code =
-        concat({F(Q, 30), F(U, 29), F(0xf, 24), F(immh, 19), F(immb, 16),
-                F(opcode, 11), F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Advanced SIMD vector x indexed element
+                    const VRegVec &vn, uint32_t sh);
   void AdvSimdVecXindElemEnc(uint32_t Q, uint32_t U, uint32_t size,
                              uint32_t opcode, const VRegVec &vd,
-                             const VRegVec &vn, const VRegElem &vm) {
-    bool ucmla = (U == 1 && (opcode & 0x9) == 1);
-    uint32_t bits =
-        (vm.getBit() == 8) ? 32 : (ucmla) ? vm.getBit() * 2 : vm.getBit();
-    uint32_t eidx = vm.getElemIdx();
-    uint32_t H = (bits == 16)
-                     ? field(eidx, 2, 2)
-                     : (bits == 32) ? field(eidx, 1, 1) : field(eidx, 0, 0);
-    uint32_t L =
-        (bits == 16) ? field(eidx, 1, 1) : (bits == 32) ? field(eidx, 0, 0) : 0;
-    uint32_t M = (bits == 16) ? field(eidx, 0, 0) : field(vm.getIdx(), 4, 4);
-    uint32_t vmidx = vm.getIdx() & ones(4);
-
-    if (bits == 16)
-      verifyIncRange(vm.getIdx(), 0, 15, ERR_ILLEGAL_REG_IDX);
-    else
-      verifyIncRange(vm.getIdx(), 0, 31, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(Q, 30), F(U, 29), F(0xf, 24), F(size, 22),
-                            F(L, 21), F(M, 20), F(vmidx, 16), F(opcode, 12),
-                            F(H, 11), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
+                             const VRegVec &vn, const VRegElem &vm);
   void AdvSimdVecXindElem(uint32_t U, uint32_t opcode, const VRegVec &vd,
-                          const VRegVec &vn, const VRegElem &vm) {
-    bool vd_sel = (opcode == 0xe);
-    uint32_t Q = (vd_sel) ? genQ(vd) : genQ(vn);
-    uint32_t size = (vd_sel) ? genSize(vd) : genSize(vn);
-    AdvSimdVecXindElemEnc(Q, U, size, opcode, vd, vn, vm);
-  }
-
-  // Advanced SIMD vector x indexed element
+                          const VRegVec &vn, const VRegElem &vm);
   void AdvSimdVecXindElem(uint32_t U, uint32_t opcode, const VRegVec &vd,
                           const VRegVec &vn, const VRegElem &vm,
-                          uint32_t rotate) {
-    uint32_t Q = genQ(vd);
-    uint32_t size = genSize(vd);
-    uint32_t rot = rotate / 90;
-
-    verifyIncList(rotate, {0, 90, 180, 270}, ERR_ILLEGAL_CONST_VALUE);
-
-    AdvSimdVecXindElemEnc(Q, U, size, (rot << 1 | opcode), vd, vn, vm);
-  }
-
+                          uint32_t rotate);
   void AdvSimdVecXindElemSz(uint32_t U, uint32_t size, uint32_t opcode,
                             const VRegVec &vd, const VRegVec &vn,
-                            const VRegElem &vm) {
-    uint32_t Q = genQ(vd);
-    AdvSimdVecXindElemEnc(Q, U, size, opcode, vd, vn, vm);
-  }
-
-  // Cryptographic three-register, imm2
+                            const VRegElem &vm);
   void Crypto3RegImm2(uint32_t opcode, const VRegVec &vd, const VRegVec &vn,
-                      const VRegElem &vm) {
-    uint32_t imm2 = vm.getElemIdx();
-    uint32_t code =
-        concat({F(0x672, 21), F(vm.getIdx(), 16), F(2, 14), F(imm2, 12),
-                F(opcode, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Cryptographic three-register SHA 512
+                      const VRegElem &vm);
   void Crypto3RegSHA512(uint32_t O, uint32_t opcode, const VRegSc &vd,
-                        const VRegSc &vn, const VRegVec &vm) {
-    uint32_t code =
-        concat({F(0x673, 21), F(vm.getIdx(), 16), F(1, 15), F(O, 14),
-                F(opcode, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Cryptographic three-register SHA 512
+                        const VRegSc &vn, const VRegVec &vm);
   void Crypto3RegSHA512(uint32_t O, uint32_t opcode, const VRegVec &vd,
-                        const VRegVec &vn, const VRegVec &vm) {
-    uint32_t code =
-        concat({F(0x673, 21), F(vm.getIdx(), 16), F(1, 15), F(O, 14),
-                F(opcode, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // XAR
+                        const VRegVec &vn, const VRegVec &vm);
   void CryptoSHA(const VRegVec &vd, const VRegVec &vn, const VRegVec &vm,
-                 uint32_t imm6) {
-    verifyIncRange(imm6, 0, ones(6), ERR_ILLEGAL_IMM_RANGE);
-    uint32_t code = concat({F(0x674, 21), F(vm.getIdx(), 16), F(imm6, 10),
-                            F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Cryptographic four-register
+                 uint32_t imm6);
   void Crypto4Reg(uint32_t Op0, const VRegVec &vd, const VRegVec &vn,
-                  const VRegVec &vm, const VRegVec &va) {
-    uint32_t code =
-        concat({F(0x19c, 23), F(Op0, 21), F(vm.getIdx(), 16),
-                F(va.getIdx(), 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Cryptographic two-register SHA512
-  void Crypto2RegSHA512(uint32_t opcode, const VRegVec &vd, const VRegVec &vn) {
-    uint32_t code = concat(
-        {F(0xcec08, 12), F(opcode, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // conversion between floating-point and fixed-point
+                  const VRegVec &vm, const VRegVec &va);
+  void Crypto2RegSHA512(uint32_t opcode, const VRegVec &vd, const VRegVec &vn);
   void ConversionFpFix(uint32_t S, uint32_t type, uint32_t rmode,
                        uint32_t opcode, const VRegSc &vd, const RReg &rn,
-                       uint32_t fbits) {
-    uint32_t sf = genSf(rn);
-    uint32_t scale = 64 - fbits;
-
-    verifyIncRange(fbits, 1, (32 << sf), ERR_ILLEGAL_CONST_RANGE);
-
-    uint32_t code = concat({F(sf, 31), F(S, 29), F(0xf, 25), F(type, 22),
-                            F(rmode, 19), F(opcode, 16), F(scale, 10),
-                            F(rn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // conversion between floating-point and fixed-point
+                       uint32_t fbits);
   void ConversionFpFix(uint32_t S, uint32_t type, uint32_t rmode,
                        uint32_t opcode, const RReg &rd, const VRegSc &vn,
-                       uint32_t fbits) {
-    uint32_t sf = genSf(rd);
-    uint32_t scale = 64 - fbits;
-
-    verifyIncRange(fbits, 1, (32 << sf), ERR_ILLEGAL_CONST_RANGE);
-
-    uint32_t code = concat({F(sf, 31), F(S, 29), F(0xf, 25), F(type, 22),
-                            F(rmode, 19), F(opcode, 16), F(scale, 10),
-                            F(vn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // conversion between floating-point and integer
+                       uint32_t fbits);
   void ConversionFpInt(uint32_t sf, uint32_t S, uint32_t type, uint32_t rmode,
-                       uint32_t opcode, const RReg &rd, const VRegSc &vn) {
-    uint32_t code = concat({F(sf, 31), F(S, 29), F(0xf, 25), F(type, 22),
-                            F(1, 21), F(rmode, 19), F(opcode, 16),
-                            F(vn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // conversion between floating-point and integer
+                       uint32_t opcode, const RReg &rd, const VRegSc &vn);
   void ConversionFpInt(uint32_t sf, uint32_t S, uint32_t type, uint32_t rmode,
-                       uint32_t opcode, const VRegSc &vd, const RReg &rn) {
-    uint32_t code = concat({F(sf, 31), F(S, 29), F(0xf, 25), F(type, 22),
-                            F(1, 21), F(rmode, 19), F(opcode, 16),
-                            F(rn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // conversion between floating-point and integer
+                       uint32_t opcode, const VRegSc &vd, const RReg &rn);
   void ConversionFpInt(uint32_t sf, uint32_t S, uint32_t type, uint32_t rmode,
-                       uint32_t opcode, const RReg &rd, const VRegElem &vn) {
-    uint32_t code = concat({F(sf, 31), F(S, 29), F(0xf, 25), F(type, 22),
-                            F(1, 21), F(rmode, 19), F(opcode, 16),
-                            F(vn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // conversion between floating-point and integer
+                       uint32_t opcode, const RReg &rd, const VRegElem &vn);
   void ConversionFpInt(uint32_t sf, uint32_t S, uint32_t type, uint32_t rmode,
-                       uint32_t opcode, const VRegElem &vd, const RReg &rn) {
-    uint32_t code = concat({F(sf, 31), F(S, 29), F(0xf, 25), F(type, 22),
-                            F(1, 21), F(rmode, 19), F(opcode, 16),
-                            F(rn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Floating-piont data-processing (1 source)
+                       uint32_t opcode, const VRegElem &vd, const RReg &rn);
   void FpDataProc1Reg(uint32_t M, uint32_t S, uint32_t type, uint32_t opcode,
-                      const VRegSc &vd, const VRegSc &vn) {
-    uint32_t code =
-        concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21),
-                F(opcode, 15), F(1, 14), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Floating-piont compare
+                      const VRegSc &vd, const VRegSc &vn);
   void FpComp(uint32_t M, uint32_t S, uint32_t type, uint32_t op,
-              uint32_t opcode2, const VRegSc &vn, const VRegSc &vm) {
-    uint32_t code = concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22),
-                            F(1, 21), F(vm.getIdx(), 16), F(op, 14), F(1, 13),
-                            F(vn.getIdx(), 5), F(opcode2, 0)});
-    dd(code);
-  }
-
-  // Floating-piont compare
+              uint32_t opcode2, const VRegSc &vn, const VRegSc &vm);
   void FpComp(uint32_t M, uint32_t S, uint32_t type, uint32_t op,
-              uint32_t opcode2, const VRegSc &vn, double imm) {
-    verifyIncList(std::lround(imm), {0}, ERR_ILLEGAL_CONST_VALUE);
-    uint32_t code =
-        concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21),
-                F(op, 14), F(1, 13), F(vn.getIdx(), 5), F(opcode2, 0)});
-    dd(code);
-  }
-
-  // Floating-piont immediate
+              uint32_t opcode2, const VRegSc &vn, double imm);
   void FpImm(uint32_t M, uint32_t S, uint32_t type, const VRegSc &vd,
-             double imm) {
-    uint32_t imm8 = compactImm(imm, vd.getBit());
-    uint32_t code =
-        concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21),
-                F(imm8, 13), F(1, 12), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Floating-piont conditional compare
+             double imm);
   void FpCondComp(uint32_t M, uint32_t S, uint32_t type, uint32_t op,
-                  const VRegSc &vn, const VRegSc &vm, uint32_t nzcv,
-                  Cond cond) {
-    uint32_t code = concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22),
-                            F(1, 21), F(vm.getIdx(), 16), F(cond, 12), F(1, 10),
-                            F(vn.getIdx(), 5), F(op, 4), F(nzcv, 0)});
-    dd(code);
-  }
-
-  // Floating-piont data-processing (2 source)
+                  const VRegSc &vn, const VRegSc &vm, uint32_t nzcv, Cond cond);
   void FpDataProc2Reg(uint32_t M, uint32_t S, uint32_t type, uint32_t opcode,
-                      const VRegSc &vd, const VRegSc &vn, const VRegSc &vm) {
-    uint32_t code = concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22),
-                            F(1, 21), F(vm.getIdx(), 16), F(opcode, 12),
-                            F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Floating-piont conditional select
+                      const VRegSc &vd, const VRegSc &vn, const VRegSc &vm);
   void FpCondSel(uint32_t M, uint32_t S, uint32_t type, const VRegSc &vd,
-                 const VRegSc &vn, const VRegSc &vm, Cond cond) {
-    uint32_t code = concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22),
-                            F(1, 21), F(vm.getIdx(), 16), F(cond, 12), F(3, 10),
-                            F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Floating-piont data-processing (3 source)
+                 const VRegSc &vn, const VRegSc &vm, Cond cond);
   void FpDataProc3Reg(uint32_t M, uint32_t S, uint32_t type, uint32_t o1,
                       uint32_t o0, const VRegSc &vd, const VRegSc &vn,
-                      const VRegSc &vm, const VRegSc &va) {
-    uint32_t code =
-        concat({F(M, 31), F(S, 29), F(0x1f, 24), F(type, 22), F(o1, 21),
-                F(vm.getIdx(), 16), F(o0, 15), F(va.getIdx(), 10),
-                F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // ########################### System instruction
-  // #################################
-  // Instruction cache maintenance
-  void InstCache(IcOp icop, const XReg &xt) {
-    uint32_t code =
-        concat({F(0xd5, 24), F(1, 19), F(icop, 5), F(xt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Data cache maintenance
-  void DataCache(DcOp dcop, const XReg &xt) {
-    uint32_t code =
-        concat({F(0xd5, 24), F(1, 19), F(dcop, 5), F(xt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // Addresss Translate
-  void AddressTrans(AtOp atop, const XReg &xt) {
-    uint32_t code =
-        concat({F(0xd5, 24), F(1, 19), F(atop, 5), F(xt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // TLB Invaidate operation
-  void TLBInv(TlbiOp tlbiop, const XReg &xt) {
-    uint32_t code =
-        concat({F(0xd5, 24), F(1, 19), F(tlbiop, 5), F(xt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // ################################### SVE
-  // #########################################
-
-  // SVE Integer Binary Arithmetic - Predicated Group
+                      const VRegSc &vm, const VRegSc &va);
+  void InstCache(IcOp icop, const XReg &xt);
+  void DataCache(DcOp dcop, const XReg &xt);
+  void AddressTrans(AtOp atop, const XReg &xt);
+  void TLBInv(TlbiOp tlbiop, const XReg &xt);
   void SveIntBinArPred(uint32_t opc, uint32_t type, const _ZReg &zd,
-                       const _PReg &pg, const _ZReg &zn) {
-    uint32_t size = genSize(zd);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x4, 24), F(size, 22), F(type, 19), F(opc, 16),
-                F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE bitwize Logical Operation (predicated)
+                       const _PReg &pg, const _ZReg &zn);
   void SveBitwiseLOpPred(uint32_t opc, const _ZReg &zd, const _PReg &pg,
-                         const _ZReg &zn) {
-    SveIntBinArPred(opc, 3, zd, pg, zn);
-  }
-
-  // SVE Integer add/subtract vectors (predicated)
+                         const _ZReg &zn);
   void SveIntAddSubVecPred(uint32_t opc, const _ZReg &zd, const _PReg &pg,
-                           const _ZReg &zn) {
-    SveIntBinArPred(opc, 0, zd, pg, zn);
-  }
-
-  // SVE Integer min/max/diffrence (predicated)
+                           const _ZReg &zn);
   void SveIntMinMaxDiffPred(uint32_t opc, uint32_t U, const _ZReg &zd,
-                            const _PReg &pg, const _ZReg &zn) {
-    SveIntBinArPred((opc << 1 | U), 1, zd, pg, zn);
-  }
-
-  // SVE Integer multiply/divide vectors (predicated)
+                            const _PReg &pg, const _ZReg &zn);
   void SveIntMultDivVecPred(uint32_t opc, uint32_t U, const _ZReg &zd,
-                            const _PReg &pg, const _ZReg &zn) {
-    SveIntBinArPred((opc << 1 | U), 2, zd, pg, zn);
-  }
-
-  // SVE Integer Reduction Group
+                            const _PReg &pg, const _ZReg &zn);
   void SveIntReduction(uint32_t opc, uint32_t type, const Reg &rd,
-                       const _PReg &pg, const Reg &rn) {
-    uint32_t size = genSize(rn);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x4, 24), F(size, 22), F(type, 19), F(opc, 16), F(1, 13),
-                F(pg.getIdx(), 10), F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE bitwise logical reduction (predicated)
+                       const _PReg &pg, const Reg &rn);
   void SveBitwiseLReductPred(uint32_t opc, const VRegSc &vd, const _PReg &pg,
-                             const _ZReg &zn) {
-    SveIntReduction(opc, 3, vd, pg, zn);
-  }
-
-  // SVE constructive prefix (predicated)
+                             const _ZReg &zn);
   void SveConstPrefPred(uint32_t opc, const _ZReg &zd, const _PReg &pg,
-                        const _ZReg &zn) {
-    SveIntReduction((opc << 1 | (static_cast<uint32_t>(pg.isM()))), 2, zd, pg,
-                    zn);
-  }
-
-  // SVE integer add reduction (predicated)
+                        const _ZReg &zn);
   void SveIntAddReductPred(uint32_t opc, uint32_t U, const VRegSc &vd,
-                           const _PReg &pg, const _ZReg &zn) {
-    SveIntReduction((opc << 1 | U), 0, vd, pg, zn);
-  }
-
-  // SVE integer min/max reduction (predicated)
+                           const _PReg &pg, const _ZReg &zn);
   void SveIntMinMaxReductPred(uint32_t opc, uint32_t U, const VRegSc &vd,
-                              const _PReg &pg, const _ZReg &zn) {
-    SveIntReduction((opc << 1 | U), 1, vd, pg, zn);
-  }
-
-  // SVE Bitwise Shift - Predicate Group
+                              const _PReg &pg, const _ZReg &zn);
   void SveBitShPred(uint32_t opc, uint32_t type, const _ZReg &zdn,
-                    const _PReg &pg, const _ZReg &zm) {
-    uint32_t size = genSize(zdn);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x4, 24), F(size, 22), F(type, 19), F(opc, 16), F(4, 13),
-                F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE bitwise shift by immediate (predicated)
+                    const _PReg &pg, const _ZReg &zm);
   void SveBitwiseShByImmPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg,
-                             uint32_t amount) {
-    bool lsl = (opc == 3);
-    uint32_t size = genSize(zdn);
-    uint32_t imm =
-        (lsl) ? (amount + zdn.getBit()) : (2 * zdn.getBit() - amount);
-    uint32_t imm3 = imm & ones(3);
-    uint32_t tsz = (1 << size) | field(imm, size + 2, 3);
-    uint32_t tszh = field(tsz, 3, 2);
-    uint32_t tszl = field(tsz, 1, 0);
-
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(amount, (1 - lsl), (zdn.getBit() - lsl),
-                   ERR_ILLEGAL_CONST_RANGE);
-
-    uint32_t code = concat({F(0x4, 24), F(tszh, 22), F(0, 19), F(opc, 16),
-                            F(4, 13), F(pg.getIdx(), 10), F(tszl, 8),
-                            F(imm3, 5), F(zdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE bitwise shift by vector (predicated)
+                             uint32_t amount);
   void SveBitwiseShVecPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg,
-                           const _ZReg &zm) {
-    SveBitShPred(opc, 2, zdn, pg, zm);
-  }
-
-  // SVE bitwise shift by wide elements (predicated)
+                           const _ZReg &zm);
   void SveBitwiseShWElemPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg,
-                             const _ZReg &zm) {
-    SveBitShPred(opc, 3, zdn, pg, zm);
-  }
-
-  // SVE Integer Unary Arithmetic - Predicated Group
+                             const _ZReg &zm);
   void SveIntUnaryArPred(uint32_t opc, uint32_t type, const _ZReg &zd,
-                         const _PReg &pg, const _ZReg &zn) {
-    uint32_t size = genSize(zd);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x4, 24), F(size, 22), F(type, 19), F(opc, 16), F(5, 13),
-                F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE bitwise unary operations (predicated)
+                         const _PReg &pg, const _ZReg &zn);
   void SveBitwiseUnaryOpPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg,
-                             const _ZReg &zm) {
-    SveIntUnaryArPred(opc, 3, zdn, pg, zm);
-  }
-
-  // SVE integer unary operations (predicated)
+                             const _ZReg &zm);
   void SveIntUnaryOpPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg,
-                         const _ZReg &zm) {
-    SveIntUnaryArPred(opc, 2, zdn, pg, zm);
-  }
-
-  // SVE integer multiply-accumulate writing addend (predicated)
+                         const _ZReg &zm);
   void SveIntMultAccumPred(uint32_t opc, const _ZReg &zda, const _PReg &pg,
-                           const _ZReg &zn, const _ZReg &zm) {
-    uint32_t size = genSize(zda);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x4, 24), F(size, 22), F(zm.getIdx(), 16),
-                            F(1, 14), F(opc, 13), F(pg.getIdx(), 10),
-                            F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE integer multiply-add writeing multiplicand (predicated)
+                           const _ZReg &zn, const _ZReg &zm);
   void SveIntMultAddPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg,
-                         const _ZReg &zm, const _ZReg &za) {
-    uint32_t size = genSize(zdn);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x4, 24), F(size, 22), F(zm.getIdx(), 16),
-                            F(3, 14), F(opc, 13), F(pg.getIdx(), 10),
-                            F(za.getIdx(), 5), F(zdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE integer add/subtract vectors (unpredicated)
+                         const _ZReg &zm, const _ZReg &za);
   void SveIntAddSubUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn,
-                          const _ZReg &zm) {
-    uint32_t size = genSize(zd);
-    uint32_t code =
-        concat({F(0x4, 24), F(size, 22), F(1, 21), F(zm.getIdx(), 16),
-                F(opc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE bitwise logical operations (unpredicated)
+                          const _ZReg &zm);
   void SveBitwiseLOpUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn,
-                           const _ZReg &zm) {
-    uint32_t code =
-        concat({F(0x4, 24), F(opc, 22), F(1, 21), F(zm.getIdx(), 16),
-                F(0xc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE index generation (immediate start, immediate increment)
-  void SveIndexGenImmImmInc(const _ZReg &zd, int32_t imm1, int32_t imm2) {
-    uint32_t size = genSize(zd);
-    uint32_t imm5b = imm2 & ones(5);
-    uint32_t imm5 = imm1 & ones(5);
-
-    verifyIncRange(imm1, -16, 15, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyIncRange(imm2, -16, 15, ERR_ILLEGAL_IMM_RANGE, true);
-
-    uint32_t code = concat({F(0x4, 24), F(size, 22), F(1, 21), F(imm5b, 16),
-                            F(0x10, 10), F(imm5, 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE index generation (immediate start, register increment)
-  void SveIndexGenImmRegInc(const _ZReg &zd, int32_t imm, const RReg &rm) {
-    uint32_t size = genSize(zd);
-    uint32_t imm5 = imm & ones(5);
-
-    verifyIncRange(imm, -16, 15, ERR_ILLEGAL_IMM_RANGE, true);
-
-    uint32_t code =
-        concat({F(0x4, 24), F(size, 22), F(1, 21), F(rm.getIdx(), 16),
-                F(0x12, 10), F(imm5, 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE index generation (register start, immediate increment)
-  void SveIndexGenRegImmInc(const _ZReg &zd, const RReg &rn, int32_t imm) {
-    uint32_t size = genSize(zd);
-    uint32_t imm5 = imm & ones(5);
-
-    verifyIncRange(imm, -16, 15, ERR_ILLEGAL_IMM_RANGE, true);
-
-    uint32_t code = concat({F(0x4, 24), F(size, 22), F(1, 21), F(imm5, 16),
-                            F(0x11, 10), F(rn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE index generation (register start, register increment)
-  void SveIndexGenRegRegInc(const _ZReg &zd, const RReg &rn, const RReg &rm) {
-    uint32_t size = genSize(zd);
-    uint32_t code =
-        concat({F(0x4, 24), F(size, 22), F(1, 21), F(rm.getIdx(), 16),
-                F(0x13, 10), F(rn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE stack frame adjustment
+                           const _ZReg &zm);
+  void SveIndexGenImmImmInc(const _ZReg &zd, int32_t imm1, int32_t imm2);
+  void SveIndexGenImmRegInc(const _ZReg &zd, int32_t imm, const RReg &rm);
+  void SveIndexGenRegImmInc(const _ZReg &zd, const RReg &rn, int32_t imm);
+  void SveIndexGenRegRegInc(const _ZReg &zd, const RReg &rn, const RReg &rm);
   void SveStackFrameAdjust(uint32_t op, const XReg &xd, const XReg &xn,
-                           int32_t imm) {
-    uint32_t imm6 = imm & ones(6);
-
-    verifyIncRange(imm, -32, 31, ERR_ILLEGAL_IMM_RANGE, true);
-
-    uint32_t code = concat({F(0x8, 23), F(op, 22), F(1, 21), F(xn.getIdx(), 16),
-                            F(0xa, 11), F(imm6, 5), F(xd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE stack frame size
+                           int32_t imm);
   void SveStackFrameSize(uint32_t op, uint32_t opc2, const XReg &xd,
-                         int32_t imm) {
-    uint32_t imm6 = imm & ones(6);
-
-    verifyIncRange(imm, -32, 31, ERR_ILLEGAL_IMM_RANGE, true);
-
-    uint32_t code = concat({F(0x9, 23), F(op, 22), F(1, 21), F(opc2, 16),
-                            F(0xa, 11), F(imm6, 5), F(xd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE bitwise shift by immediate (unpredicated)
+                         int32_t imm);
   void SveBitwiseShByImmUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn,
-                               uint32_t amount) {
-    bool lsl = (opc == 3);
-    uint32_t size = genSize(zd);
-    uint32_t imm = (lsl) ? (amount + zd.getBit()) : (2 * zd.getBit() - amount);
-    uint32_t imm3 = imm & ones(3);
-    uint32_t tsz = (1 << size) | field(imm, size + 2, 3);
-    uint32_t tszh = field(tsz, 3, 2);
-    uint32_t tszl = field(tsz, 1, 0);
-
-    verifyIncRange(amount, (1 - lsl), (zd.getBit() - lsl),
-                   ERR_ILLEGAL_CONST_RANGE);
-
-    uint32_t code =
-        concat({F(0x4, 24), F(tszh, 22), F(1, 21), F(tszl, 19), F(imm3, 16),
-                F(0x9, 12), F(opc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE bitwise shift by wide elements (unpredicated)
+                               uint32_t amount);
   void SveBitwiseShByWideElemUnPred(uint32_t opc, const _ZReg &zd,
-                                    const _ZReg &zn, const _ZReg &zm) {
-    uint32_t size = genSize(zd);
-    uint32_t code =
-        concat({F(0x4, 24), F(size, 22), F(1, 21), F(zm.getIdx(), 16),
-                F(0x8, 12), F(opc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE address generation
-  void SveAddressGen(const _ZReg &zd, const AdrVec &adr) {
-    ShMod mod = adr.getMod();
-    uint32_t sh = adr.getSh();
-    uint32_t opc = 2 | (genSize(zd) & 0x1);
-    uint32_t msz = sh & ones(2);
-
-    verifyIncList(mod, {LSL, NONE}, ERR_ILLEGAL_SHMOD);
-    verifyIncRange(sh, 0, 3, ERR_ILLEGAL_CONST_RANGE);
-
-    uint32_t code = concat({F(0x4, 24), F(opc, 22), F(1, 21),
-                            F(adr.getZm().getIdx(), 16), F(0xa, 12), F(msz, 10),
-                            F(adr.getZn().getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE address generation
-  void SveAddressGen(const _ZReg &zd, const AdrVecU &adr) {
-    ExtMod mod = adr.getMod();
-    uint32_t sh = adr.getSh();
-    uint32_t opc = (mod == SXTW) ? 0 : 1;
-    uint32_t msz = sh & ones(2);
-
-    verifyIncList(mod, {UXTW, SXTW}, ERR_ILLEGAL_EXTMOD);
-    verifyIncRange(sh, 0, 3, ERR_ILLEGAL_CONST_RANGE);
-
-    uint32_t code = concat({F(0x4, 24), F(opc, 22), F(1, 21),
-                            F(adr.getZm().getIdx(), 16), F(0xa, 12), F(msz, 10),
-                            F(adr.getZn().getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE Integer Misc - Unpredicated Group
+                                    const _ZReg &zn, const _ZReg &zm);
+  void SveAddressGen(const _ZReg &zd, const AdrVec &adr);
+  void SveAddressGen(const _ZReg &zd, const AdrVecU &adr);
   void SveIntMiscUnpred(uint32_t size, uint32_t opc, uint32_t type,
-                        const _ZReg &zd, const _ZReg &zn) {
-    uint32_t code =
-        concat({F(0x4, 24), F(size, 22), F(1, 21), F(opc, 16), F(0xb, 12),
-                F(type, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE constructive prefix (unpredicated)
+                        const _ZReg &zd, const _ZReg &zn);
   void SveConstPrefUnpred(uint32_t opc, uint32_t opc2, const _ZReg &zd,
-                          const _ZReg &zn) {
-    SveIntMiscUnpred(opc, opc2, 3, zd, zn);
-  }
-
-  // SVE floating-point exponential accelerator
-  void SveFpExpAccel(uint32_t opc, const _ZReg &zd, const _ZReg &zn) {
-    uint32_t size = genSize(zd);
-    SveIntMiscUnpred(size, opc, 2, zd, zn);
-  }
-
-  // SVE floating-point trig select coefficient
+                          const _ZReg &zn);
+  void SveFpExpAccel(uint32_t opc, const _ZReg &zd, const _ZReg &zn);
   void SveFpTrigSelCoef(uint32_t opc, const _ZReg &zd, const _ZReg &zn,
-                        const _ZReg &zm) {
-    uint32_t size = genSize(zd);
-    SveIntMiscUnpred(size, zm.getIdx(), opc, zd, zn);
-  }
-
-  // SVE Element Count Group
+                        const _ZReg &zm);
   void SveElemCountGrp(uint32_t size, uint32_t op, uint32_t type1,
                        uint32_t type2, const Reg &rd, Pattern pat, ExtMod mod,
-                       uint32_t imm) {
-    uint32_t imm4 = (imm - 1) & ones(4);
-    verifyIncList(mod, {MUL}, ERR_ILLEGAL_EXTMOD);
-    verifyIncRange(imm, 1, 16, ERR_ILLEGAL_IMM_RANGE);
-    uint32_t code =
-        concat({F(0x4, 24), F(size, 22), F(type1, 20), F(imm4, 16),
-                F(type2, 11), F(op, 10), F(pat, 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE element count
+                       uint32_t imm);
   void SveElemCount(uint32_t size, uint32_t op, const XReg &xd, Pattern pat,
-                    ExtMod mod, uint32_t imm) {
-    SveElemCountGrp(size, op, 2, 0x1c, xd, pat, mod, imm);
-  }
-
-  // SVE inc/dec register by element count
+                    ExtMod mod, uint32_t imm);
   void SveIncDecRegByElemCount(uint32_t size, uint32_t D, const XReg &xd,
-                               Pattern pat, ExtMod mod, uint32_t imm) {
-    SveElemCountGrp(size, D, 3, 0x1c, xd, pat, mod, imm);
-  }
-
-  // SVE inc/dec vector by element count
+                               Pattern pat, ExtMod mod, uint32_t imm);
   void SveIncDecVecByElemCount(uint32_t size, uint32_t D, const _ZReg &zd,
-                               Pattern pat, ExtMod mod, uint32_t imm) {
-    SveElemCountGrp(size, D, 3, 0x18, zd, pat, mod, imm);
-  }
-
-  // SVE saturating inc/dec register by element count
+                               Pattern pat, ExtMod mod, uint32_t imm);
   void SveSatuIncDecRegByElemCount(uint32_t size, uint32_t D, uint32_t U,
                                    const RReg &rdn, Pattern pat, ExtMod mod,
-                                   uint32_t imm) {
-    uint32_t sf = genSf(rdn);
-    SveElemCountGrp(size, U, (2 | sf), (0x1e | D), rdn, pat, mod, imm);
-  }
-
-  // SVE saturating inc/dec vector by element count
+                                   uint32_t imm);
   void SveSatuIncDecVecByElemCount(uint32_t size, uint32_t D, uint32_t U,
                                    const _ZReg &zdn, Pattern pat, ExtMod mod,
-                                   uint32_t imm) {
-    SveElemCountGrp(size, U, 2, (0x18 | D), zdn, pat, mod, imm);
-  }
-
-  // SVE Bitwise Immeidate Group
-  void SveBitwiseImm(uint32_t opc, const _ZReg &zd, uint64_t imm) {
-    uint32_t imm13 = genNImmrImms(imm, zd.getBit());
-    uint32_t code =
-        concat({F(0x5, 24), F(opc, 22), F(imm13, 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE bitwise logical with immediate (unpredicated)
-  void SveBitwiseLogicalImmUnpred(uint32_t opc, const _ZReg &zdn,
-                                  uint64_t imm) {
-    SveBitwiseImm(opc, zdn, imm);
-  }
-
-  // SVE broadcast bitmask immediate
-  void SveBcBitmaskImm(const _ZReg &zdn, uint64_t imm) {
-    SveBitwiseImm(3, zdn, imm);
-  }
-
-  // SVE copy floating-point immediate (predicated)
-  void SveCopyFpImmPred(const _ZReg &zd, const _PReg &pg, double imm) {
-    uint32_t size = genSize(zd);
-    uint32_t imm8 = compactImm(imm, zd.getBit());
-    uint32_t code =
-        concat({F(0x5, 24), F(size, 22), F(1, 20), F(pg.getIdx(), 16), F(6, 13),
-                F(imm8, 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE copy integer immediate (predicated)
+                                   uint32_t imm);
+  void SveBitwiseImm(uint32_t opc, const _ZReg &zd, uint64_t imm);
+  void SveBitwiseLogicalImmUnpred(uint32_t opc, const _ZReg &zdn, uint64_t imm);
+  void SveBcBitmaskImm(const _ZReg &zdn, uint64_t imm);
+  void SveCopyFpImmPred(const _ZReg &zd, const _PReg &pg, double imm);
   void SveCopyIntImmPred(const _ZReg &zd, const _PReg &pg, uint32_t imm,
-                         ShMod mod, uint32_t sh) {
-    verifyIncList(mod, {LSL}, ERR_ILLEGAL_SHMOD);
-    verifyIncList(sh, {0, 8}, ERR_ILLEGAL_CONST_VALUE);
-    uint32_t size = genSize(zd);
-    uint32_t imm8 = imm & ones(8);
-    uint32_t type = (pg.isM() << 1) | (sh == 8);
-    uint32_t code =
-        concat({F(0x5, 24), F(size, 22), F(1, 20), F(pg.getIdx(), 16),
-                F(type, 13), F(imm8, 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE extract vector (immediate offset)
-  void SveExtVec(const _ZReg &zdn, const _ZReg &zm, uint32_t imm) {
-    uint32_t imm8h = field(imm, 7, 3);
-    uint32_t imm8l = field(imm, 2, 0);
-    verifyIncRange(imm, 0, 255, ERR_ILLEGAL_IMM_RANGE);
-    uint32_t code = concat({F(0x5, 24), F(1, 21), F(imm8h, 16), F(imm8l, 10),
-                            F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE Permute Vector - Unpredicate Group
+                         ShMod mod, uint32_t sh);
+  void SveExtVec(const _ZReg &zdn, const _ZReg &zm, uint32_t imm);
   void SvePerVecUnpred(uint32_t size, uint32_t type1, uint32_t type2,
-                       const _ZReg &zd, const Reg &rn) {
-    uint32_t code =
-        concat({F(0x5, 24), F(size, 22), F(1, 21), F(type1, 16), F(type2, 10),
-                F(rn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE broadcast general register
-  void SveBcGeneralReg(const _ZReg &zd, const RReg &rn) {
-    uint32_t size = genSize(zd);
-    SvePerVecUnpred(size, 0, 0xe, zd, rn);
-  }
-
-  // SVE broadcast indexed element
-  void SveBcIndexedElem(const _ZReg &zd, const ZRegElem &zn) {
-    uint32_t eidx = zn.getElemIdx();
-    uint32_t pos = static_cast<uint32_t>(std::log2(zn.getBit()) - 2);
-    uint32_t imm = (eidx << pos) | (1 << (pos - 1));
-    uint32_t imm2 = field(imm, 6, 5);
-    uint32_t tsz = field(imm, 4, 0);
-
-    if (zd.getBit() == 128)
-      verifyIncList(field(tsz, 4, 0), {0x10}, ERR_ILLEGAL_IMM_COND);
-    else if (zd.getBit() == 64)
-      verifyIncList(field(tsz, 3, 0), {0x8}, ERR_ILLEGAL_IMM_COND);
-    else if (zd.getBit() == 32)
-      verifyIncList(field(tsz, 2, 0), {0x4}, ERR_ILLEGAL_IMM_COND);
-    else if (zd.getBit() == 16)
-      verifyIncList(field(tsz, 1, 0), {0x2}, ERR_ILLEGAL_IMM_COND);
-    else if (zd.getBit() == 8)
-      verifyIncList(field(tsz, 0, 0), {0x1}, ERR_ILLEGAL_IMM_COND);
-
-    SvePerVecUnpred(imm2, tsz, 0x8, zd, zn);
-  }
-
-  // SVE insert SIMD&FP scalar register
-  void SveInsSimdFpSclarReg(const _ZReg &zdn, const VRegSc &vm) {
-    uint32_t size = genSize(zdn);
-    SvePerVecUnpred(size, 0x14, 0xe, zdn, vm);
-  }
-
-  // SVE insert general register
-  void SveInsGeneralReg(const _ZReg &zdn, const RReg &rm) {
-    uint32_t size = genSize(zdn);
-    SvePerVecUnpred(size, 0x4, 0xe, zdn, rm);
-  }
-
-  // SVE reverse vector elements
-  void SveRevVecElem(const _ZReg &zd, const _ZReg &zn) {
-    uint32_t size = genSize(zd);
-    SvePerVecUnpred(size, 0x18, 0xe, zd, zn);
-  }
-
-  // SVE table lookup
-  void SveTableLookup(const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
-    uint32_t size = genSize(zd);
-    SvePerVecUnpred(size, zm.getIdx(), 0xc, zd, zn);
-  }
-
-  // SVE unpack vector elements
+                       const _ZReg &zd, const Reg &rn);
+  void SveBcGeneralReg(const _ZReg &zd, const RReg &rn);
+  void SveBcIndexedElem(const _ZReg &zd, const ZRegElem &zn);
+  void SveInsSimdFpSclarReg(const _ZReg &zdn, const VRegSc &vm);
+  void SveInsGeneralReg(const _ZReg &zdn, const RReg &rm);
+  void SveRevVecElem(const _ZReg &zd, const _ZReg &zn);
+  void SveTableLookup(const _ZReg &zd, const _ZReg &zn, const _ZReg &zm);
   void SveUnpackVecElem(uint32_t U, uint32_t H, const _ZReg &zd,
-                        const _ZReg &zn) {
-    uint32_t size = genSize(zd);
-    SvePerVecUnpred(size, (0x10 | (U << 1) | H), 0xe, zd, zn);
-  }
-
-  // SVE permute predicate elements
+                        const _ZReg &zn);
   void SvePermutePredElem(uint32_t opc, uint32_t H, const _PReg &pd,
-                          const _PReg &pn, const _PReg &pm) {
-    uint32_t size = genSize(pd);
-    uint32_t code =
-        concat({F(0x5, 24), F(size, 22), F(1, 21), F(pm.getIdx(), 16), F(2, 13),
-                F(opc, 11), F(H, 10), F(pn.getIdx(), 5), F(pd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE reverse predicate elements
-  void SveRevPredElem(const _PReg &pd, const _PReg &pn) {
-    uint32_t size = genSize(pd);
-    uint32_t code = concat({F(0x5, 24), F(size, 22), F(0xd1, 14),
-                            F(pn.getIdx(), 5), F(pd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE unpack predicate elements
-  void SveUnpackPredElem(uint32_t H, const _PReg &pd, const _PReg &pn) {
-    uint32_t code = concat({F(0x5, 24), F(3, 20), F(H, 16), F(1, 14),
-                            F(pn.getIdx(), 5), F(pd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE permute vector elements
+                          const _PReg &pn, const _PReg &pm);
+  void SveRevPredElem(const _PReg &pd, const _PReg &pn);
+  void SveUnpackPredElem(uint32_t H, const _PReg &pd, const _PReg &pn);
   void SvePermuteVecElem(uint32_t opc, const _ZReg &zd, const _ZReg &zn,
-                         const _ZReg &zm) {
-    uint32_t size = genSize(zd);
-    uint32_t code =
-        concat({F(0x5, 24), F(size, 22), F(1, 21), F(zm.getIdx(), 16), F(3, 13),
-                F(opc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE compress active elements
-  void SveCompressActElem(const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
-    uint32_t size = genSize(zd);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x5, 24), F(size, 22), F(1, 21), F(0xc, 13),
-                F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE conditionally broaccast element to vector
+                         const _ZReg &zm);
+  void SveCompressActElem(const _ZReg &zd, const _PReg &pg, const _ZReg &zn);
   void SveCondBcElemToVec(uint32_t B, const _ZReg &zdn, const _PReg &pg,
-                          const _ZReg &zm) {
-    uint32_t size = genSize(zdn);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x5, 24), F(size, 22), F(0x14, 17), F(B, 16), F(0x4, 13),
-                F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE conditionally extract element to SIMD&FP scalar
+                          const _ZReg &zm);
   void SveCondExtElemToSimdFpScalar(uint32_t B, const VRegSc &vdn,
-                                    const _PReg &pg, const _ZReg &zm) {
-    uint32_t size = genSize(vdn);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x5, 24), F(size, 22), F(0x15, 17), F(B, 16), F(0x4, 13),
-                F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(vdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE conditionally extract element to general Reg
+                                    const _PReg &pg, const _ZReg &zm);
   void SveCondExtElemToGeneralReg(uint32_t B, const RReg &rdn, const _PReg &pg,
-                                  const _ZReg &zm) {
-    uint32_t size = genSize(zm);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x5, 24), F(size, 22), F(0x18, 17), F(B, 16), F(0x5, 13),
-                F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(rdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE copy SIMD&FP scalar register to vector (predicated)
+                                  const _ZReg &zm);
   void SveCopySimdFpScalarToVecPred(const _ZReg &zd, const _PReg &pg,
-                                    const VRegSc &vn) {
-    uint32_t size = genSize(zd);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x5, 24), F(size, 22), F(0x10, 17), F(0x4, 13),
-                F(pg.getIdx(), 10), F(vn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE copy general register to vector (predicated)
+                                    const VRegSc &vn);
   void SveCopyGeneralRegToVecPred(const _ZReg &zd, const _PReg &pg,
-                                  const RReg &rn) {
-    uint32_t size = genSize(zd);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x5, 24), F(size, 22), F(0x14, 17), F(0x5, 13),
-                F(pg.getIdx(), 10), F(rn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE extract element to SIMD&FP scalar register
+                                  const RReg &rn);
   void SveExtElemToSimdFpScalar(uint32_t B, const VRegSc &vd, const _PReg &pg,
-                                const _ZReg &zn) {
-    uint32_t size = genSize(vd);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x5, 24), F(size, 22), F(0x11, 17), F(B, 16), F(0x4, 13),
-                F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE extract element to general register
+                                const _ZReg &zn);
   void SveExtElemToGeneralReg(uint32_t B, const RReg &rd, const _PReg &pg,
-                              const _ZReg &zn) {
-    uint32_t size = genSize(zn);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x5, 24), F(size, 22), F(0x10, 17), F(B, 16), F(0x5, 13),
-                F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE reverse within elements
+                              const _ZReg &zn);
   void SveRevWithinElem(uint32_t opc, const _ZReg &zd, const _PReg &pg,
-                        const _ZReg &zn) {
-    uint32_t size = genSize(zd);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x5, 24), F(size, 22), F(0x9, 18), F(opc, 16), F(0x4, 13),
-                F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE vector splice
-  void SveSelVecSplice(const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
-    uint32_t size = genSize(zd);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x5, 24), F(size, 22), F(0xb, 18), F(0x4, 13),
-                F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE select vector elements (predicated)
+                        const _ZReg &zn);
+  void SveSelVecSplice(const _ZReg &zd, const _PReg &pg, const _ZReg &zn);
   void SveSelVecElemPred(const _ZReg &zd, const _PReg &pg, const _ZReg &zn,
-                         const _ZReg &zm) {
-    uint32_t size = genSize(zd);
-    uint32_t code = concat({F(0x5, 24), F(size, 22), F(1, 21),
-                            F(zm.getIdx(), 16), F(0x3, 14), F(pg.getIdx(), 10),
-                            F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE Integer Compare - Vector Group
+                         const _ZReg &zm);
   void SveIntCompVecGrp(uint32_t opc, uint32_t ne, const _PReg &pd,
-                        const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
-    uint32_t size = genSize(pd);
-    uint32_t code = concat({F(0x24, 24), F(size, 22), F(zm.getIdx(), 16),
-                            F(opc, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5),
-                            F(ne, 4), F(pd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE integer compare vectors
+                        const _PReg &pg, const _ZReg &zn, const _ZReg &zm);
   void SveIntCompVec(uint32_t op, uint32_t o2, uint32_t ne, const _PReg &pd,
-                     const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
-    uint32_t opc = (op << 2) | o2;
-    SveIntCompVecGrp(opc, ne, pd, pg, zn, zm);
-  }
-
-  // SVE integer compare with wide elements
+                     const _PReg &pg, const _ZReg &zn, const _ZReg &zm);
   void SveIntCompWideElem(uint32_t op, uint32_t o2, uint32_t ne,
                           const _PReg &pd, const _PReg &pg, const _ZReg &zn,
-                          const _ZReg &zm) {
-    uint32_t opc = (op << 2) | 2 | o2;
-    SveIntCompVecGrp(opc, ne, pd, pg, zn, zm);
-  }
-
-  // SVE integer compare with unsigned immediate
+                          const _ZReg &zm);
   void SveIntCompUImm(uint32_t lt, uint32_t ne, const _PReg &pd,
-                      const _PReg &pg, const _ZReg &zn, uint32_t imm) {
-    uint32_t size = genSize(pd);
-    uint32_t imm7 = imm & ones(7);
-    verifyIncRange(imm, 0, 127, ERR_ILLEGAL_IMM_RANGE);
-    uint32_t code = concat({F(0x24, 24), F(size, 22), F(1, 21), F(imm7, 14),
-                            F(lt, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5),
-                            F(ne, 4), F(pd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE predicate logical operations
+                      const _PReg &pg, const _ZReg &zn, uint32_t imm);
   void SvePredLOp(uint32_t op, uint32_t S, uint32_t o2, uint32_t o3,
                   const _PReg &pd, const _PReg &pg, const _PReg &pn,
-                  const _PReg &pm) {
-    uint32_t code =
-        concat({F(0x25, 24), F(op, 23), F(S, 22), F(pm.getIdx(), 16), F(1, 14),
-                F(pg.getIdx(), 10), F(o2, 9), F(pn.getIdx(), 5), F(o3, 4),
-                F(pd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE propagate break from previous partition
+                  const _PReg &pm);
   void SvePropagateBreakPrevPtn(uint32_t op, uint32_t S, uint32_t B,
                                 const _PReg &pd, const _PReg &pg,
-                                const _PReg &pn, const _PReg &pm) {
-    uint32_t code = concat({F(0x25, 24), F(op, 23), F(S, 22),
-                            F(pm.getIdx(), 16), F(3, 14), F(pg.getIdx(), 10),
-                            F(pn.getIdx(), 5), F(B, 4), F(pd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE partition break condition
+                                const _PReg &pn, const _PReg &pm);
   void SvePartitionBreakCond(uint32_t B, uint32_t S, const _PReg &pd,
-                             const _PReg &pg, const _PReg &pn) {
-    uint32_t M = (S == 1) ? 0 : pg.isM();
-    uint32_t code = concat({F(0x25, 24), F(B, 23), F(S, 22), F(2, 19), F(1, 14),
-                            F(pg.getIdx(), 10), F(pn.getIdx(), 5), F(M, 4),
-                            F(pd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE propagate break to next partition
+                             const _PReg &pg, const _PReg &pn);
   void SvePropagateBreakNextPart(uint32_t S, const _PReg &pdm, const _PReg &pg,
-                                 const _PReg &pn) {
-    uint32_t code =
-        concat({F(0x25, 24), F(S, 22), F(3, 19), F(1, 14), F(pg.getIdx(), 10),
-                F(pn.getIdx(), 5), F(pdm.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE predicate first active
+                                 const _PReg &pn);
   void SvePredFirstAct(uint32_t op, uint32_t S, const _PReg &pdn,
-                       const _PReg &pg) {
-    uint32_t code = concat({F(0x25, 24), F(op, 23), F(S, 22), F(3, 19),
-                            F(3, 14), F(pg.getIdx(), 5), F(pdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE predicate initialize
-  void SvePredInit(uint32_t S, const _PReg &pd, Pattern pat) {
-    uint32_t size = genSize(pd);
-    uint32_t code = concat({F(0x25, 24), F(size, 22), F(3, 19), F(S, 16),
-                            F(7, 13), F(pat, 5), F(pd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE predicate next active
-  void SvePredNextAct(const _PReg &pdn, const _PReg &pg) {
-    uint32_t size = genSize(pdn);
-    uint32_t code = concat({F(0x25, 24), F(size, 22), F(3, 19), F(0xe, 13),
-                            F(1, 10), F(pg.getIdx(), 5), F(pdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE predicate read from FFR (predicate)
+                       const _PReg &pg);
+  void SvePredInit(uint32_t S, const _PReg &pd, Pattern pat);
+  void SvePredNextAct(const _PReg &pdn, const _PReg &pg);
   void SvePredReadFFRPred(uint32_t op, uint32_t S, const _PReg &pd,
-                          const _PReg &pg) {
-    uint32_t code = concat({F(0x25, 24), F(op, 23), F(S, 22), F(3, 19),
-                            F(0xf, 12), F(pg.getIdx(), 5), F(pd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE predicate read from FFR (unpredicate)
-  void SvePredReadFFRUnpred(uint32_t op, uint32_t S, const _PReg &pd) {
-    uint32_t code = concat({F(0x25, 24), F(op, 23), F(S, 22), F(3, 19),
-                            F(0x1f, 12), F(pd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE predicate test
+                          const _PReg &pg);
+  void SvePredReadFFRUnpred(uint32_t op, uint32_t S, const _PReg &pd);
   void SvePredTest(uint32_t op, uint32_t S, uint32_t opc2, const _PReg &pg,
-                   const _PReg &pn) {
-    uint32_t code =
-        concat({F(0x25, 24), F(op, 23), F(S, 22), F(2, 19), F(3, 14),
-                F(pg.getIdx(), 10), F(pn.getIdx(), 5), F(opc2, 0)});
-    dd(code);
-  }
-
-  // SVE predicate zero
-  void SvePredZero(uint32_t op, uint32_t S, const _PReg &pd) {
-    uint32_t code = concat({F(0x25, 24), F(op, 23), F(S, 22), F(3, 19),
-                            F(7, 13), F(1, 10), F(pd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE integer compare with signed immediate
+                   const _PReg &pn);
+  void SvePredZero(uint32_t op, uint32_t S, const _PReg &pd);
   void SveIntCompSImm(uint32_t op, uint32_t o2, uint32_t ne, const _PReg &pd,
-                      const _PReg &pg, const _ZReg &zn, int32_t imm) {
-    uint32_t size = genSize(pd);
-    uint32_t imm5 = imm & ones(5);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(imm, -16, 15, ERR_ILLEGAL_IMM_RANGE, true);
-    uint32_t code = concat({F(0x25, 24), F(size, 22), F(imm5, 16), F(op, 15),
-                            F(o2, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5),
-                            F(ne, 4), F(pd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE predicate count
+                      const _PReg &pg, const _ZReg &zn, int32_t imm);
   void SvePredCount(uint32_t opc, uint32_t o2, const RReg &rd, const _PReg &pg,
-                    const _PReg &pn) {
-    uint32_t size = genSize(pn);
-    uint32_t code = concat({F(0x25, 24), F(size, 22), F(1, 21), F(opc, 16),
-                            F(2, 14), F(pg.getIdx(), 10), F(o2, 9),
-                            F(pn.getIdx(), 5), F(rd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE Inc/Dec by Predicate Count Group
+                    const _PReg &pn);
   void SveIncDecPredCount(uint32_t size, uint32_t op, uint32_t D, uint32_t opc2,
                           uint32_t type1, uint32_t type2, const Reg &rdn,
-                          const _PReg &pg) {
-    uint32_t code = concat({F(0x25, 24), F(size, 22), F(type1, 18), F(op, 17),
-                            F(D, 16), F(type2, 11), F(opc2, 9),
-                            F(pg.getIdx(), 5), F(rdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE inc/dec register by predicate count
+                          const _PReg &pg);
   void SveIncDecRegByPredCount(uint32_t op, uint32_t D, uint32_t opc2,
-                               const RReg &rdn, const _PReg &pg) {
-    uint32_t size = genSize(pg);
-    SveIncDecPredCount(size, op, D, opc2, 0xb, 0x11, rdn, pg);
-  }
-
-  // SVE inc/dec vector by predicate count
+                               const RReg &rdn, const _PReg &pg);
   void SveIncDecVecByPredCount(uint32_t op, uint32_t D, uint32_t opc2,
-                               const _ZReg &zdn, const _PReg &pg) {
-    uint32_t size = genSize(zdn);
-    SveIncDecPredCount(size, op, D, opc2, 0xb, 0x10, zdn, pg);
-  }
-
-  // SVE saturating inc/dec register by predicate count
+                               const _ZReg &zdn, const _PReg &pg);
   void SveSatuIncDecRegByPredCount(uint32_t D, uint32_t U, uint32_t op,
-                                   const RReg &rdn, const _PReg &pg) {
-    uint32_t sf = genSf(rdn);
-    uint32_t size = genSize(pg);
-    SveIncDecPredCount(size, D, U, ((sf << 1) | op), 0xa, 0x11, rdn, pg);
-  }
-
-  // SVE saturating inc/dec vector by predicate count
+                                   const RReg &rdn, const _PReg &pg);
   void SveSatuIncDecVecByPredCount(uint32_t D, uint32_t U, uint32_t opc,
-                                   const _ZReg &zdn, const _PReg &pg) {
-    uint32_t size = genSize(zdn);
-    SveIncDecPredCount(size, D, U, opc, 0xa, 0x10, zdn, pg);
-  }
-
-  // SVE FFR initialise
-  void SveFFRInit(uint32_t opc) {
-    uint32_t code = concat({F(0x25, 24), F(opc, 22), F(0xb, 18), F(0x24, 10)});
-    dd(code);
-  }
-
-  // SVE FFR write from predicate
-  void SveFFRWritePred(uint32_t opc, const _PReg &pn) {
-    uint32_t code = concat(
-        {F(0x25, 24), F(opc, 22), F(0xa, 18), F(0x24, 10), F(pn.getIdx(), 5)});
-    dd(code);
-  }
-
-  // SVE conditionally terminate scalars
+                                   const _ZReg &zdn, const _PReg &pg);
+  void SveFFRInit(uint32_t opc);
+  void SveFFRWritePred(uint32_t opc, const _PReg &pn);
   void SveCondTermScalars(uint32_t op, uint32_t ne, const RReg &rn,
-                          const RReg &rm) {
-    uint32_t sz = genSf(rn);
-    uint32_t code =
-        concat({F(0x25, 24), F(op, 23), F(sz, 22), F(1, 21), F(rm.getIdx(), 16),
-                F(0x8, 10), F(rn.getIdx(), 5), F(ne, 4)});
-    dd(code);
-  }
-
-  // SVE integer compare scalar count and limit
+                          const RReg &rm);
   void SveIntCompScalarCountAndLimit(uint32_t U, uint32_t lt, uint32_t eq,
                                      const _PReg &pd, const RReg &rn,
-                                     const RReg &rm) {
-    uint32_t size = genSize(pd);
-    uint32_t sf = genSf(rn);
-    uint32_t code = concat({F(0x25, 24), F(size, 22), F(1, 21),
-                            F(rm.getIdx(), 16), F(sf, 12), F(U, 11), F(lt, 10),
-                            F(rn.getIdx(), 5), F(eq, 4), F(pd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE broadcast floating-point immediate (unpredicated)
-  void SveBcFpImmUnpred(uint32_t opc, uint32_t o2, const _ZReg &zd,
-                        double imm) {
-    uint32_t size = genSize(zd);
-    uint32_t imm8 = compactImm(imm, zd.getBit());
-    uint32_t code =
-        concat({F(0x25, 24), F(size, 22), F(7, 19), F(opc, 17), F(7, 14),
-                F(o2, 13), F(imm8, 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE broadcast integer immediate (unpredicated)
+                                     const RReg &rm);
+  void SveBcFpImmUnpred(uint32_t opc, uint32_t o2, const _ZReg &zd, double imm);
   void SveBcIntImmUnpred(uint32_t opc, const _ZReg &zd, int32_t imm, ShMod mod,
-                         uint32_t sh) {
-    verifyIncList(mod, {LSL}, ERR_ILLEGAL_SHMOD);
-    verifyIncList(sh, {0, 8}, ERR_ILLEGAL_CONST_VALUE);
-    verifyIncRange(imm, -128, 127, ERR_ILLEGAL_IMM_RANGE, true);
-
-    uint32_t size = genSize(zd);
-    uint32_t imm8 = imm & ones(8);
-    uint32_t code =
-        concat({F(0x25, 24), F(size, 22), F(7, 19), F(opc, 17), F(3, 14),
-                F((sh == 8), 13), F(imm8, 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE integer add/subtract immediate (unpredicated)
+                         uint32_t sh);
   void SveIntAddSubImmUnpred(uint32_t opc, const _ZReg &zdn, uint32_t imm,
-                             ShMod mod, uint32_t sh) {
-    verifyIncList(mod, {LSL}, ERR_ILLEGAL_SHMOD);
-    verifyIncList(sh, {0, 8}, ERR_ILLEGAL_CONST_VALUE);
-    verifyIncRange(imm, 0, 255, ERR_ILLEGAL_IMM_RANGE);
-
-    uint32_t size = genSize(zdn);
-    uint32_t imm8 = imm & ones(8);
-    uint32_t code =
-        concat({F(0x25, 24), F(size, 22), F(4, 19), F(opc, 16), F(3, 14),
-                F((sh == 8), 13), F(imm8, 5), F(zdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE integer min/max immediate (unpredicated)
+                             ShMod mod, uint32_t sh);
   void SveIntMinMaxImmUnpred(uint32_t opc, uint32_t o2, const _ZReg &zdn,
-                             int32_t imm) {
-    if ((opc & 0x1))
-      verifyIncRange(imm, 0, 255, ERR_ILLEGAL_IMM_RANGE);
-    else
-      verifyIncRange(imm, -128, 127, ERR_ILLEGAL_IMM_RANGE, true);
-
-    uint32_t size = genSize(zdn);
-    uint32_t imm8 = imm & ones(8);
-    uint32_t code =
-        concat({F(0x25, 24), F(size, 22), F(5, 19), F(opc, 16), F(3, 14),
-                F(o2, 13), F(imm8, 5), F(zdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE integer multiply immediate (unpredicated)
+                             int32_t imm);
   void SveIntMultImmUnpred(uint32_t opc, uint32_t o2, const _ZReg &zdn,
-                           int32_t imm) {
-    uint32_t size = genSize(zdn);
-    uint32_t imm8 = imm & ones(8);
-    verifyIncRange(imm, -128, 127, ERR_ILLEGAL_IMM_RANGE, true);
-    uint32_t code =
-        concat({F(0x25, 24), F(size, 22), F(6, 19), F(opc, 16), F(3, 14),
-                F(o2, 13), F(imm8, 5), F(zdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE integer dot product (unpredicated)
+                           int32_t imm);
   void SveIntDotProdcutUnpred(uint32_t U, const _ZReg &zda, const _ZReg &zn,
-                              const _ZReg &zm) {
-    uint32_t size = genSize(zda);
-    uint32_t code = concat({F(0x44, 24), F(size, 22), F(zm.getIdx(), 16),
-                            F(U, 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE integer dot product (indexed)
+                              const _ZReg &zm);
   void SveIntDotProdcutIndexed(uint32_t size, uint32_t U, const _ZReg &zda,
-                               const _ZReg &zn, const ZRegElem &zm) {
-    uint32_t zm_idx = zm.getIdx();
-    uint32_t zm_eidx = zm.getElemIdx();
-    uint32_t opc = (size == 2) ? (((zm_eidx & ones(2)) << 3) | zm_idx)
-                               : (((zm_eidx & ones(1)) << 4) | zm_idx);
-
-    verifyIncRange(zm_eidx, 0, (size == 2) ? 3 : 1, ERR_ILLEGAL_REG_ELEM_IDX);
-    verifyIncRange(zm_idx, 0, (size == 2) ? 7 : 15, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(0x44, 24), F(size, 22), F(1, 21), F(opc, 16),
-                            F(U, 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floating-point complex add (predicated)
+                               const _ZReg &zn, const ZRegElem &zm);
   void SveFpComplexAddPred(const _ZReg &zdn, const _PReg &pg, const _ZReg &zm,
-                           uint32_t ct) {
-    uint32_t size = genSize(zdn);
-    uint32_t rot = (ct == 270) ? 1 : 0;
-    verifyIncList(ct, {90, 270}, ERR_ILLEGAL_CONST_VALUE);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x64, 24), F(size, 22), F(rot, 16), F(1, 15),
-                F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floating-point complex multiply-add (predicated)
+                           uint32_t ct);
   void SveFpComplexMultAddPred(const _ZReg &zda, const _PReg &pg,
-                               const _ZReg &zn, const _ZReg &zm, uint32_t ct) {
-    uint32_t size = genSize(zda);
-    uint32_t rot = (ct / 90);
-    verifyIncList(ct, {0, 90, 180, 270}, ERR_ILLEGAL_CONST_VALUE);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x64, 24), F(size, 22), F(zm.getIdx(), 16), F(rot, 13),
-                F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floating-point multiply-add (indexed)
+                               const _ZReg &zn, const _ZReg &zm, uint32_t ct);
   void SveFpMultAddIndexed(uint32_t op, const _ZReg &zda, const _ZReg &zn,
-                           const ZRegElem &zm) {
-    uint32_t zm_idx = zm.getIdx();
-    uint32_t zm_bit = zm.getBit();
-    uint32_t zm_eidx = zm.getElemIdx();
-    uint32_t size = (zm_bit == 16) ? (0 | field(zm_eidx, 2, 2)) : genSize(zda);
-    uint32_t opc = (zm_bit == 64) ? (((zm_eidx & ones(1)) << 4) | zm_idx)
-                                  : (((zm_eidx & ones(2)) << 3) | zm_idx);
-
-    verifyIncRange(zm_eidx, 0, ((zm_bit == 16) ? 7 : (zm_bit == 32) ? 3 : 1),
-                   ERR_ILLEGAL_REG_ELEM_IDX);
-    verifyIncRange(zm_eidx, 0, ((zm_bit == 64) ? 15 : 7),
-                   ERR_ILLEGAL_REG_ELEM_IDX);
-
-    uint32_t code = concat({F(0x64, 24), F(size, 22), F(1, 21), F(opc, 16),
-                            F(op, 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floating-point complex multiply-add (indexed)
+                           const ZRegElem &zm);
   void SveFpComplexMultAddIndexed(const _ZReg &zda, const _ZReg &zn,
-                                  const ZRegElem &zm, uint32_t ct) {
-    uint32_t size = genSize(zda) + 1;
-    uint32_t zm_idx = zm.getIdx();
-    uint32_t zm_eidx = zm.getElemIdx();
-    uint32_t opc = (size == 2) ? (((zm_eidx & ones(2)) << 3) | zm_idx)
-                               : (((zm_eidx & ones(1)) << 4) | zm_idx);
-
-    verifyIncRange(zm_eidx, 0, (size == 2) ? 3 : 1, ERR_ILLEGAL_REG_ELEM_IDX);
-    verifyIncRange(zm_idx, 0, (size == 2) ? 7 : 15, ERR_ILLEGAL_REG_IDX);
-    verifyIncList(ct, {0, 90, 180, 270}, ERR_ILLEGAL_CONST_VALUE);
-
-    uint32_t rot = (ct / 90);
-    uint32_t code =
-        concat({F(0x64, 24), F(size, 22), F(1, 21), F(opc, 16), F(1, 12),
-                F(rot, 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floating-point multiply (indexed)
-  void SveFpMultIndexed(const _ZReg &zd, const _ZReg &zn, const ZRegElem &zm) {
-    uint32_t zm_idx = zm.getIdx();
-    uint32_t zm_bit = zm.getBit();
-    uint32_t zm_eidx = zm.getElemIdx();
-    uint32_t size = (zm_bit == 16) ? (0 | field(zm_eidx, 2, 2)) : genSize(zd);
-    uint32_t opc = (zm_bit == 64) ? (((zm_eidx & ones(1)) << 4) | zm_idx)
-                                  : (((zm_eidx & ones(2)) << 3) | zm_idx);
-
-    verifyIncRange(zm_eidx, 0, ((zm_bit == 16) ? 7 : (zm_bit == 32) ? 3 : 1),
-                   ERR_ILLEGAL_REG_ELEM_IDX);
-    verifyIncRange(zm_eidx, 0, ((zm_bit == 64) ? 15 : 7),
-                   ERR_ILLEGAL_REG_ELEM_IDX);
-
-    uint32_t code = concat({F(0x64, 24), F(size, 22), F(1, 21), F(opc, 16),
-                            F(1, 13), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floating-point recursive reduction
+                                  const ZRegElem &zm, uint32_t ct);
+  void SveFpMultIndexed(const _ZReg &zd, const _ZReg &zn, const ZRegElem &zm);
   void SveFpRecurReduct(uint32_t opc, const VRegSc vd, const _PReg &pg,
-                        const _ZReg &zn) {
-    uint32_t size = genSize(vd);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x65, 24), F(size, 22), F(opc, 16), F(1, 13),
-                F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(vd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floating-point reciprocal estimate unpredicated
-  void SveFpReciproEstUnPred(uint32_t opc, const _ZReg &zd, const _ZReg &zn) {
-    uint32_t size = genSize(zd);
-    uint32_t code = concat({F(0x65, 24), F(size, 22), F(1, 19), F(opc, 16),
-                            F(3, 12), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floating-point compare with zero
+                        const _ZReg &zn);
+  void SveFpReciproEstUnPred(uint32_t opc, const _ZReg &zd, const _ZReg &zn);
   void SveFpCompWithZero(uint32_t eq, uint32_t lt, uint32_t ne, const _PReg &pd,
-                         const _PReg &pg, const _ZReg &zn, double zero) {
-    uint32_t size = genSize(pd);
-    verifyIncList(std::lround(zero * 10), {0}, ERR_ILLEGAL_CONST_VALUE);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x65, 24), F(size, 22), F(1, 20), F(eq, 17),
-                            F(lt, 16), F(1, 13), F(pg.getIdx(), 10),
-                            F(zn.getIdx(), 5), F(ne, 4), F(pd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floating-point serial resuction (predicated)
+                         const _PReg &pg, const _ZReg &zn, double zero);
   void SveFpSerialReductPred(uint32_t opc, const VRegSc vdn, const _PReg &pg,
-                             const _ZReg &zm) {
-    uint32_t size = genSize(vdn);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x65, 24), F(size, 22), F(3, 19), F(opc, 16), F(1, 13),
-                F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(vdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floating-point arithmetic (unpredicated)
+                             const _ZReg &zm);
   void SveFpArithmeticUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn,
-                             const _ZReg &zm) {
-    uint32_t size = genSize(zd);
-    uint32_t code = concat({F(0x65, 24), F(size, 22), F(zm.getIdx(), 16),
-                            F(opc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floating-point arithmetic (predicated)
+                             const _ZReg &zm);
   void SveFpArithmeticPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg,
-                           const _ZReg &zm) {
-    uint32_t size = genSize(zdn);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x65, 24), F(size, 22), F(opc, 16), F(4, 13),
-                F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floating-point arithmetic with immediate (predicated)
+                           const _ZReg &zm);
   void SveFpArithmeticImmPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg,
-                              float ct) {
-    uint32_t size = genSize(zdn);
-    uint32_t i1 = (std::lround(ct * 10) < 10) ? 0 : 1;
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-
-    if (opc == 0 || opc == 1 || opc == 3)
-      verifyIncList(std::lround(ct * 10), {5, 10}, ERR_ILLEGAL_CONST_VALUE);
-    else if (opc == 2)
-      verifyIncList(std::lround(ct * 10), {5, 20}, ERR_ILLEGAL_CONST_VALUE);
-    else
-      verifyIncList(std::lround(ct * 10), {0, 10}, ERR_ILLEGAL_CONST_VALUE);
-
-    uint32_t code =
-        concat({F(0x65, 24), F(size, 22), F(3, 19), F(opc, 16), F(4, 13),
-                F(pg.getIdx(), 10), F(i1, 5), F(zdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floating-point trig multiply-add coefficient
-  void SveFpTrigMultAddCoef(const _ZReg &zdn, const _ZReg &zm, uint32_t imm) {
-    uint32_t size = genSize(zdn);
-    uint32_t imm3 = imm & ones(3);
-    verifyIncRange(imm, 0, 7, ERR_ILLEGAL_IMM_RANGE);
-    uint32_t code = concat({F(0x65, 24), F(size, 22), F(2, 19), F(imm3, 16),
-                            F(1, 15), F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floating-point convert precision
+                              float ct);
+  void SveFpTrigMultAddCoef(const _ZReg &zdn, const _ZReg &zm, uint32_t imm);
   void SveFpCvtPrecision(uint32_t opc, uint32_t opc2, const _ZReg &zd,
-                         const _PReg &pg, const _ZReg &zn) {
-    uint32_t code =
-        concat({F(0x65, 24), F(opc, 22), F(1, 19), F(opc2, 16), F(5, 13),
-                F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floating-point convert to integer
+                         const _PReg &pg, const _ZReg &zn);
   void SveFpCvtToInt(uint32_t opc, uint32_t opc2, uint32_t U, const _ZReg &zd,
-                     const _PReg &pg, const _ZReg &zn) {
-    uint32_t code = concat({F(0x65, 24), F(opc, 22), F(3, 19), F(opc2, 17),
-                            F(U, 16), F(5, 13), F(pg.getIdx(), 10),
-                            F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floating-point round to integral value
+                     const _PReg &pg, const _ZReg &zn);
   void SveFpRoundToIntegral(uint32_t opc, const _ZReg &zd, const _PReg &pg,
-                            const _ZReg &zn) {
-    uint32_t size = genSize(zd);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x65, 24), F(size, 22), F(opc, 16), F(5, 13),
-                F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floating-point unary operations
+                            const _ZReg &zn);
   void SveFpUnaryOp(uint32_t opc, const _ZReg &zd, const _PReg &pg,
-                    const _ZReg &zn) {
-    uint32_t size = genSize(zd);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x65, 24), F(size, 22), F(3, 18), F(opc, 16), F(5, 13),
-                F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE integer convert to floationg-point
+                    const _ZReg &zn);
   void SveIntCvtToFp(uint32_t opc, uint32_t opc2, uint32_t U, const _ZReg &zd,
-                     const _PReg &pg, const _ZReg &zn) {
-    uint32_t code = concat({F(0x65, 24), F(opc, 22), F(2, 19), F(opc2, 17),
-                            F(U, 16), F(5, 13), F(pg.getIdx(), 10),
-                            F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floationg-point compare vectors
+                     const _PReg &pg, const _ZReg &zn);
   void SveFpCompVec(uint32_t op, uint32_t o2, uint32_t o3, const _PReg &pd,
-                    const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
-    uint32_t size = genSize(pd);
-    uint32_t code = concat({F(0x65, 24), F(size, 22), F(zm.getIdx(), 16),
-                            F(op, 15), F(1, 14), F(o2, 13), F(pg.getIdx(), 10),
-                            F(zn.getIdx(), 5), F(o3, 4), F(pd.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floationg-point multiply-accumulate writing addend
+                    const _PReg &pg, const _ZReg &zn, const _ZReg &zm);
   void SveFpMultAccumAddend(uint32_t opc, const _ZReg &zda, const _PReg &pg,
-                            const _ZReg &zn, const _ZReg &zm) {
-    uint32_t size = genSize(zda);
-    uint32_t code = concat({F(0x65, 24), F(size, 22), F(1, 21),
-                            F(zm.getIdx(), 16), F(opc, 13), F(pg.getIdx(), 10),
-                            F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE floationg-point multiply-accumulate writing multiplicand
+                            const _ZReg &zn, const _ZReg &zm);
   void SveFpMultAccumMulti(uint32_t opc, const _ZReg &zdn, const _PReg &pg,
-                           const _ZReg &zm, const _ZReg &za) {
-    uint32_t size = genSize(zdn);
-    uint32_t code =
-        concat({F(0x65, 24), F(size, 22), F(1, 21), F(za.getIdx(), 16),
-                F(1, 15), F(opc, 13), F(pg.getIdx(), 10), F(zm.getIdx(), 5),
-                F(zdn.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 32-bit gather load (scalar plus 32-bit unscaled offsets)
+                           const _ZReg &zm, const _ZReg &za);
   void Sve32GatherLdSc32U(uint32_t msz, uint32_t U, uint32_t ff,
                           const _ZReg &zt, const _PReg &pg,
-                          const AdrSc32U &adr) {
-    uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x42, 25), F(msz, 23), F(xs, 22), F(adr.getZm().getIdx(), 16),
-                F(U, 14), F(ff, 13), F(pg.getIdx(), 10),
-                F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 32-bit gather load (vector plus immediate)
+                          const AdrSc32U &adr);
   void Sve32GatherLdVecImm(uint32_t msz, uint32_t U, uint32_t ff,
                            const _ZReg &zt, const _PReg &pg,
-                           const AdrVecImm32 &adr) {
-    uint32_t imm5 = (adr.getImm() >> msz) & ones(5);
-
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(adr.getImm(), 0, 31 * (1 << msz), ERR_ILLEGAL_IMM_RANGE);
-
-    uint32_t code = concat({F(0x42, 25), F(msz, 23), F(1, 21), F(imm5, 16),
-                            F(1, 15), F(U, 14), F(ff, 13), F(pg.getIdx(), 10),
-                            F(adr.getZn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 32-bit gather load halfwords (scalar plus 32-bit scaled offsets)
+                           const AdrVecImm32 &adr);
   void Sve32GatherLdHSc32S(uint32_t U, uint32_t ff, const _ZReg &zt,
-                           const _PReg &pg, const AdrSc32S &adr) {
-    uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x42, 25), F(1, 23), F(xs, 22), F(1, 21),
-                            F(adr.getZm().getIdx(), 16), F(U, 14), F(ff, 13),
-                            F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
-                            F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 32-bit gather load words (scalar plus 32-bit scaled offsets)
+                           const _PReg &pg, const AdrSc32S &adr);
   void Sve32GatherLdWSc32S(uint32_t U, uint32_t ff, const _ZReg &zt,
-                           const _PReg &pg, const AdrSc32S &adr) {
-    uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x42, 25), F(2, 23), F(xs, 22), F(1, 21),
-                            F(adr.getZm().getIdx(), 16), F(U, 14), F(ff, 13),
-                            F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
-                            F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 32-bit gather prefetch (scalar plus 32-bit scaled offsets)
+                           const _PReg &pg, const AdrSc32S &adr);
   void Sve32GatherPfSc32S(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg,
-                          const AdrSc32S &adr) {
-    uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x42, 25), F(xs, 22), F(1, 21), F(adr.getZm().getIdx(), 16),
-                F(msz, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
-                F(prfop_sve, 0)});
-    dd(code);
-  }
-
-  // SVE 32-bit gather prefetch (vector plus immediate)
+                          const AdrSc32S &adr);
   void Sve32GatherPfVecImm(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg,
-                           const AdrVecImm32 &adr) {
-    uint32_t imm5 = (adr.getImm() >> msz) & ones(5);
-
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    verifyIncRange(adr.getImm(), 0, 31 * (1 << msz), ERR_ILLEGAL_IMM_RANGE);
-
-    uint32_t code = concat({F(0x42, 25), F(msz, 23), F(imm5, 16), F(7, 13),
-                            F(pg.getIdx(), 10), F(adr.getZn().getIdx(), 5),
-                            F(prfop_sve, 0)});
-    dd(code);
-  }
-
-  // SVE 32-bit contiguous prefetch (scalar plus immediate)
+                           const AdrVecImm32 &adr);
   void Sve32ContiPfScImm(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg,
-                         const AdrScImm &adr) {
-    int32_t simm = adr.getSimm();
-    uint32_t imm6 = simm & ones(6);
-    verifyIncRange(simm, -32, 31, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x42, 25), F(7, 22), F(imm6, 16), F(msz, 13),
-                            F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
-                            F(prfop_sve, 0)});
-    dd(code);
-  }
-
+                         const AdrScImm &adr);
   void Sve32ContiPfScImm(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg,
-                         const AdrNoOfs &adr) {
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x42, 25), F(7, 22), F(0, 16), F(msz, 13), F(pg.getIdx(), 10),
-                F(adr.getXn().getIdx(), 5), F(prfop_sve, 0)});
-    dd(code);
-  }
-
-  // SVE 32-bit contiguous prefetch (scalar plus scalar)
+                         const AdrNoOfs &adr);
   void Sve32ContiPfScSc(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg,
-                        const AdrScSc &adr) {
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
-    uint32_t code = concat(
-        {F(0x42, 25), F(msz, 23), F(adr.getXm().getIdx(), 16), F(6, 13),
-         F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(prfop_sve, 0)});
-    dd(code);
-  }
-
-  // SVE load and broadcast element
+                        const AdrScSc &adr);
   void SveLoadAndBcElem(uint32_t dtypeh, uint32_t dtypel, const _ZReg &zt,
-                        const _PReg &pg, const AdrScImm &adr) {
-    uint32_t uimm = adr.getSimm();
-    uint32_t dtype = dtypeh << 2 | dtypel;
-    uint32_t size = genSize(dtype);
-    uint32_t imm6 = (uimm >> size) & ones(6);
-
-    verifyIncRange(uimm, 0, 63 * (1 << size), ERR_ILLEGAL_IMM_RANGE);
-    verifyCond(
-        uimm,
-        [=](uint64_t x) {
-          return (x % ((static_cast<uint64_t>(1)) << size)) == 0;
-        },
-        ERR_ILLEGAL_IMM_COND);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(0x42, 25), F(dtypeh, 23), F(1, 22), F(imm6, 16),
-                            F(1, 15), F(dtypel, 13), F(pg.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
+                        const _PReg &pg, const AdrScImm &adr);
   void SveLoadAndBcElem(uint32_t dtypeh, uint32_t dtypel, const _ZReg &zt,
-                        const _PReg &pg, const AdrNoOfs &adr) {
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x42, 25), F(dtypeh, 23), F(1, 22), F(0, 16),
-                            F(1, 15), F(dtypel, 13), F(pg.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE load predicate register
-  void SveLoadPredReg(const _PReg &pt, const AdrScImm &adr) {
-    int32_t imm = adr.getSimm();
-    uint32_t imm9h = field(imm, 8, 3);
-    uint32_t imm9l = field(imm, 2, 0);
-    verifyIncRange(imm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-    uint32_t code = concat({F(0x42, 25), F(3, 23), F(imm9h, 16), F(imm9l, 10),
-                            F(adr.getXn().getIdx(), 5), F(pt.getIdx(), 0)});
-    dd(code);
-  }
-
-  void SveLoadPredReg(const _PReg &pt, const AdrNoOfs &adr) {
-    uint32_t code = concat({F(0x42, 25), F(3, 23), F(0, 16), F(0, 10),
-                            F(adr.getXn().getIdx(), 5), F(pt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE load predicate vector
-  void SveLoadPredVec(const _ZReg &zt, const AdrScImm &adr) {
-    int32_t imm = adr.getSimm();
-    uint32_t imm9h = field(imm, 8, 3);
-    uint32_t imm9l = field(imm, 2, 0);
-
-    verifyIncRange(imm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-
-    uint32_t code =
-        concat({F(0x42, 25), F(3, 23), F(imm9h, 16), F(1, 14), F(imm9l, 10),
-                F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  void SveLoadPredVec(const _ZReg &zt, const AdrNoOfs &adr) {
-    uint32_t code = concat({F(0x42, 25), F(3, 23), F(0, 16), F(1, 14), F(0, 10),
-                            F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE contiguous first-fault load (scalar plus scalar)
+                        const _PReg &pg, const AdrNoOfs &adr);
+  void SveLoadPredReg(const _PReg &pt, const AdrScImm &adr);
+  void SveLoadPredReg(const _PReg &pt, const AdrNoOfs &adr);
+  void SveLoadPredVec(const _ZReg &zt, const AdrScImm &adr);
+  void SveLoadPredVec(const _ZReg &zt, const AdrNoOfs &adr);
   void SveContiFFLdScSc(uint32_t dtype, const _ZReg &zt, const _PReg &pg,
-                        const AdrScSc &adr) {
-    if (adr.getInitMod()) {
-      verifyIncList(adr.getSh(), {genSize(dtype)}, ERR_ILLEGAL_CONST_VALUE);
-      verifyIncList(adr.getMod(), {LSL}, ERR_ILLEGAL_SHMOD);
-    }
-
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat(
-        {F(0x52, 25), F(dtype, 21), F(adr.getXm().getIdx(), 16), F(3, 13),
-         F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
+                        const AdrScSc &adr);
   void SveContiFFLdScSc(uint32_t dtype, const _ZReg &zt, const _PReg &pg,
-                        const AdrNoOfs &adr) {
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x52, 25), F(dtype, 21), F(31, 16), F(3, 13),
-                            F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
-                            F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE contiguous load (scalar plus immediate)
+                        const AdrNoOfs &adr);
   void SveContiLdScImm(uint32_t dtype, const _ZReg &zt, const _PReg &pg,
-                       const AdrScImm &adr) {
-    int32_t imm = adr.getSimm();
-    uint32_t imm4 = imm & ones(4);
-    verifyIncRange(imm, -8, 7, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x52, 25), F(dtype, 21), F(imm4, 16), F(5, 13),
-                            F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
-                            F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
+                       const AdrScImm &adr);
   void SveContiLdScImm(uint32_t dtype, const _ZReg &zt, const _PReg &pg,
-                       const AdrNoOfs &adr) {
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x52, 25), F(dtype, 21), F(0, 16), F(5, 13),
-                            F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
-                            F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE contiguous load (scalar plus scalar)
+                       const AdrNoOfs &adr);
   void SveContiLdScSc(uint32_t dtype, const _ZReg &zt, const _PReg &pg,
-                      const AdrScSc &adr) {
-    verifyIncList(adr.getSh(), {genSize(dtype)}, ERR_ILLEGAL_CONST_VALUE);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat(
-        {F(0x52, 25), F(dtype, 21), F(adr.getXm().getIdx(), 16), F(2, 13),
-         F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE contiguous non-fault load (scalar plus immediate)
+                      const AdrScSc &adr);
   void SveContiNFLdScImm(uint32_t dtype, const _ZReg &zt, const _PReg &pg,
-                         const AdrScImm &adr) {
-    int32_t imm = adr.getSimm();
-    uint32_t imm4 = imm & ones(4);
-    verifyIncRange(imm, -8, 7, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x52, 25), F(dtype, 21), F(1, 20), F(imm4, 16),
-                            F(5, 13), F(pg.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
+                         const AdrScImm &adr);
   void SveContiNFLdScImm(uint32_t dtype, const _ZReg &zt, const _PReg &pg,
-                         const AdrNoOfs &adr) {
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x52, 25), F(dtype, 21), F(1, 20), F(0, 16),
-                            F(5, 13), F(pg.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE contiguous non-temporal load (scalar plus immediate)
+                         const AdrNoOfs &adr);
   void SveContiNTLdScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg,
-                         const AdrScImm &adr) {
-    int32_t imm = adr.getSimm();
-    uint32_t imm4 = imm & ones(4);
-    verifyIncRange(imm, -8, 7, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x52, 25), F(msz, 23), F(imm4, 16), F(7, 13),
-                            F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
-                            F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
+                         const AdrScImm &adr);
   void SveContiNTLdScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg,
-                         const AdrNoOfs &adr) {
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x52, 25), F(msz, 23), F(0, 16), F(7, 13), F(pg.getIdx(), 10),
-                F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE contiguous non-temporal load (scalar plus scalar)
+                         const AdrNoOfs &adr);
   void SveContiNTLdScSc(uint32_t msz, const _ZReg &zt, const _PReg &pg,
-                        const AdrScSc &adr) {
-    verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat(
-        {F(0x52, 25), F(msz, 23), F(adr.getXm().getIdx(), 16), F(6, 13),
-         F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE load and broadcast quadword (scalar plus immediate)
+                        const AdrScSc &adr);
   void SveLdBcQuadScImm(uint32_t msz, uint32_t num, const _ZReg &zt,
-                        const _PReg &pg, const AdrScImm &adr) {
-    int32_t imm = adr.getSimm();
-    uint32_t imm4 = (imm >> 4) & ones(4);
-    verifyIncRange(imm, -128, 127, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyCond(
-        imm, [](uint64_t x) { return (x % 16) == 0; }, ERR_ILLEGAL_IMM_COND);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x52, 25), F(msz, 23), F(num, 21), F(imm4, 16),
-                            F(1, 13), F(pg.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
+                        const _PReg &pg, const AdrScImm &adr);
   void SveLdBcQuadScImm(uint32_t msz, uint32_t num, const _ZReg &zt,
-                        const _PReg &pg, const AdrNoOfs &adr) {
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x52, 25), F(msz, 23), F(num, 21), F(0, 16),
-                            F(1, 13), F(pg.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE load and broadcast quadword (scalar plus scalar)
+                        const _PReg &pg, const AdrNoOfs &adr);
   void SveLdBcQuadScSc(uint32_t msz, uint32_t num, const _ZReg &zt,
-                       const _PReg &pg, const AdrScSc &adr) {
-    verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x52, 25), F(msz, 23), F(num, 21),
-                            F(adr.getXm().getIdx(), 16), F(pg.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE load multiple structures (scalar plus immediate)
+                       const _PReg &pg, const AdrScSc &adr);
   void SveLdMultiStructScImm(uint32_t msz, uint32_t num, const _ZReg &zt,
-                             const _PReg &pg, const AdrScImm &adr) {
-    int32_t imm = adr.getSimm();
-    uint32_t imm4 = (imm / ((int32_t)num + 1)) & ones(4);
-
-    verifyIncRange(imm, -8 * ((int32_t)num + 1), 7 * ((int32_t)num + 1),
-                   ERR_ILLEGAL_IMM_RANGE, true);
-    verifyCond(
-        std::abs(imm), [=](uint64_t x) { return (x % (num + 1)) == 0; },
-        ERR_ILLEGAL_IMM_COND);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(0x52, 25), F(msz, 23), F(num, 21), F(imm4, 16),
-                            F(7, 13), F(pg.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
+                             const _PReg &pg, const AdrScImm &adr);
   void SveLdMultiStructScImm(uint32_t msz, uint32_t num, const _ZReg &zt,
-                             const _PReg &pg, const AdrNoOfs &adr) {
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x52, 25), F(msz, 23), F(num, 21), F(0, 16),
-                            F(7, 13), F(pg.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE load multiple structures (scalar plus scalar)
+                             const _PReg &pg, const AdrNoOfs &adr);
   void SveLdMultiStructScSc(uint32_t msz, uint32_t num, const _ZReg &zt,
-                            const _PReg &pg, const AdrScSc &adr) {
-    verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x52, 25), F(msz, 23), F(num, 21),
-                F(adr.getXm().getIdx(), 16), F(6, 13), F(pg.getIdx(), 10),
-                F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 64-bit gather load (scalar plus unpacked 32-bit scaled offsets)
+                            const _PReg &pg, const AdrScSc &adr);
   void Sve64GatherLdSc32US(uint32_t msz, uint32_t U, uint32_t ff,
                            const _ZReg &zt, const _PReg &pg,
-                           const AdrSc32US &adr) {
-    verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
-    uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x62, 25), F(msz, 23), F(xs, 22), F(1, 21),
-                            F(adr.getZm().getIdx(), 16), F(U, 14), F(ff, 13),
-                            F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
-                            F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 64-bit gather load (scalar plus 64-bit scaled offsets)
+                           const AdrSc32US &adr);
   void Sve64GatherLdSc64S(uint32_t msz, uint32_t U, uint32_t ff,
                           const _ZReg &zt, const _PReg &pg,
-                          const AdrSc64S &adr) {
-    verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x62, 25), F(msz, 23), F(3, 21), F(adr.getZm().getIdx(), 16),
-                F(1, 15), F(U, 14), F(ff, 13), F(pg.getIdx(), 10),
-                F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 64-bit gather load (scalar plus 64-bit unscaled offsets)
+                          const AdrSc64S &adr);
   void Sve64GatherLdSc64U(uint32_t msz, uint32_t U, uint32_t ff,
                           const _ZReg &zt, const _PReg &pg,
-                          const AdrSc64U &adr) {
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x62, 25), F(msz, 23), F(2, 21), F(adr.getZm().getIdx(), 16),
-                F(1, 15), F(U, 14), F(ff, 13), F(pg.getIdx(), 10),
-                F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 64-bit gather load (scalar plus unpacked 32-bit unscaled offsets)
+                          const AdrSc64U &adr);
   void Sve64GatherLdSc32UU(uint32_t msz, uint32_t U, uint32_t ff,
                            const _ZReg &zt, const _PReg &pg,
-                           const AdrSc32UU &adr) {
-    uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x62, 25), F(msz, 23), F(xs, 22), F(adr.getZm().getIdx(), 16),
-                F(U, 14), F(ff, 13), F(pg.getIdx(), 10),
-                F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 64-bit gather load (vector plus immeidate)
+                           const AdrSc32UU &adr);
   void Sve64GatherLdVecImm(uint32_t msz, uint32_t U, uint32_t ff,
                            const _ZReg &zt, const _PReg &pg,
-                           const AdrVecImm64 &adr) {
-    uint32_t imm = adr.getImm();
-    uint32_t imm5 = (imm >> msz) & ones(5);
-
-    verifyIncRange(imm, 0, 31 * (1 << msz), ERR_ILLEGAL_IMM_RANGE);
-    verifyCond(
-        imm,
-        [=](uint64_t x) {
-          return (x % ((static_cast<uint64_t>(1)) << msz)) == 0;
-        },
-        ERR_ILLEGAL_IMM_COND);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(0x62, 25), F(msz, 23), F(1, 21), F(imm5, 16),
-                            F(1, 15), F(U, 14), F(ff, 13), F(pg.getIdx(), 10),
-                            F(adr.getZn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 64-bit gather load (scalar plus 64-bit scaled offsets)
+                           const AdrVecImm64 &adr);
   void Sve64GatherPfSc64S(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg,
-                          const AdrSc64S &adr) {
-    verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x62, 25), F(3, 21), F(adr.getZm().getIdx(), 16),
-                            F(1, 15), F(msz, 13), F(pg.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(prfop_sve, 0)});
-    dd(code);
-  }
-
-  // SVE 64-bit gather load (scalar plus unpacked 32-bit scaled offsets)
+                          const AdrSc64S &adr);
   void Sve64GatherPfSc32US(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg,
-                           const AdrSc32US &adr) {
-    verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
-    uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x62, 25), F(xs, 22), F(1, 21), F(adr.getZm().getIdx(), 16),
-                F(msz, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
-                F(prfop_sve, 0)});
-    dd(code);
-  }
-
-  // SVE 64-bit gather load (vector plus immediate)
+                           const AdrSc32US &adr);
   void Sve64GatherPfVecImm(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg,
-                           const AdrVecImm64 &adr) {
-    uint32_t imm = adr.getImm();
-    uint32_t imm5 = (imm >> msz) & ones(5);
-
-    verifyIncRange(imm, 0, 31 * (1 << msz), ERR_ILLEGAL_IMM_RANGE);
-    verifyCond(
-        imm,
-        [=](uint64_t x) {
-          return (x % ((static_cast<uint64_t>(1)) << msz)) == 0;
-        },
-        ERR_ILLEGAL_IMM_COND);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(0x62, 25), F(msz, 23), F(imm5, 16), F(7, 13),
-                            F(pg.getIdx(), 10), F(adr.getZn().getIdx(), 5),
-                            F(prfop_sve, 0)});
-    dd(code);
-  }
-
-  // SVE 32-bit scatter store (sclar plus 32-bit scaled offsets)
+                           const AdrVecImm64 &adr);
   void Sve32ScatterStSc32S(uint32_t msz, const _ZReg &zt, const _PReg &pg,
-                           const AdrSc32S &adr) {
-    verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
-    uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x72, 25), F(msz, 23), F(3, 21), F(adr.getZm().getIdx(), 16),
-                F(1, 15), F(xs, 14), F(pg.getIdx(), 10),
-                F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 32-bit scatter store (sclar plus 32-bit unscaled offsets)
+                           const AdrSc32S &adr);
   void Sve32ScatterStSc32U(uint32_t msz, const _ZReg &zt, const _PReg &pg,
-                           const AdrSc32U &adr) {
-    uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x72, 25), F(msz, 23), F(2, 21), F(adr.getZm().getIdx(), 16),
-                F(1, 15), F(xs, 14), F(pg.getIdx(), 10),
-                F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 32-bit scatter store (vector plus immediate)
+                           const AdrSc32U &adr);
   void Sve32ScatterStVecImm(uint32_t msz, const _ZReg &zt, const _PReg &pg,
-                            const AdrVecImm32 &adr) {
-    uint32_t imm = adr.getImm();
-    uint32_t imm5 = (imm >> msz) & ones(5);
-
-    verifyIncRange(imm, 0, 31 * (1 << msz), ERR_ILLEGAL_IMM_RANGE);
-    verifyCond(
-        imm,
-        [=](uint64_t x) {
-          return (x % ((static_cast<uint64_t>(1)) << msz)) == 0;
-        },
-        ERR_ILLEGAL_IMM_COND);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(0x72, 25), F(msz, 23), F(3, 21), F(imm5, 16),
-                            F(5, 13), F(pg.getIdx(), 10),
-                            F(adr.getZn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 64-bit scatter store (scalar plus 64-bit scaled offsets)
+                            const AdrVecImm32 &adr);
   void Sve64ScatterStSc64S(uint32_t msz, const _ZReg &zt, const _PReg &pg,
-                           const AdrSc64S &adr) {
-    verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x72, 25), F(msz, 23), F(1, 21), F(adr.getZm().getIdx(), 16),
-                F(5, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
-                F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 64-bit scatter store (scalar plus 64-bit unscaled offsets)
+                           const AdrSc64S &adr);
   void Sve64ScatterStSc64U(uint32_t msz, const _ZReg &zt, const _PReg &pg,
-                           const AdrSc64U &adr) {
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat(
-        {F(0x72, 25), F(msz, 23), F(adr.getZm().getIdx(), 16), F(5, 13),
-         F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 64-bit scatter store (scalar plus unpacked 32-bit scaled offsets)
+                           const AdrSc64U &adr);
   void Sve64ScatterStSc32US(uint32_t msz, const _ZReg &zt, const _PReg &pg,
-                            const AdrSc32US &adr) {
-    verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
-    uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x72, 25), F(msz, 23), F(1, 21), F(adr.getZm().getIdx(), 16),
-                F(1, 15), F(xs, 14), F(pg.getIdx(), 10),
-                F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 64-bit scatter store (scalar plus unpacked 32-bit unscaled offsets)
+                            const AdrSc32US &adr);
   void Sve64ScatterStSc32UU(uint32_t msz, const _ZReg &zt, const _PReg &pg,
-                            const AdrSc32UU &adr) {
-    uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x72, 25), F(msz, 23), F(adr.getZm().getIdx(), 16), F(1, 15),
-                F(xs, 14), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5),
-                F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE 64-bit scatter store (vector plus immediate)
+                            const AdrSc32UU &adr);
   void Sve64ScatterStVecImm(uint32_t msz, const _ZReg &zt, const _PReg &pg,
-                            const AdrVecImm64 &adr) {
-    uint32_t imm = adr.getImm();
-    uint32_t imm5 = (imm >> msz) & ones(5);
-
-    verifyIncRange(imm, 0, 31 * (1 << msz), ERR_ILLEGAL_IMM_RANGE);
-    verifyCond(
-        imm,
-        [=](uint64_t x) {
-          return (x % ((static_cast<uint64_t>(1)) << msz)) == 0;
-        },
-        ERR_ILLEGAL_IMM_COND);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(0x72, 25), F(msz, 23), F(2, 21), F(imm5, 16),
-                            F(5, 13), F(pg.getIdx(), 10),
-                            F(adr.getZn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE contiguous non-temporal store (scalar plus immediate)
+                            const AdrVecImm64 &adr);
   void SveContiNTStScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg,
-                         const AdrScImm &adr) {
-    int32_t imm = adr.getSimm();
-    uint32_t imm4 = imm & ones(4);
-    verifyIncRange(imm, -8, 7, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x72, 25), F(msz, 23), F(1, 20), F(imm4, 16),
-                            F(7, 13), F(pg.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
+                         const AdrScImm &adr);
   void SveContiNTStScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg,
-                         const AdrNoOfs &adr) {
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x72, 25), F(msz, 23), F(1, 20), F(0, 16),
-                            F(7, 13), F(pg.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE contiguous non-temporal store (scalar plus scalar)
+                         const AdrNoOfs &adr);
   void SveContiNTStScSc(uint32_t msz, const _ZReg &zt, const _PReg &pg,
-                        const AdrScSc &adr) {
-    verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat(
-        {F(0x72, 25), F(msz, 23), F(adr.getXm().getIdx(), 16), F(3, 13),
-         F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE contiguous store (scalar plus immediate)
+                        const AdrScSc &adr);
   void SveContiStScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg,
-                       const AdrScImm &adr) {
-    uint32_t size = genSize(zt);
-    int32_t imm = adr.getSimm();
-    uint32_t imm4 = imm & ones(4);
-    verifyIncRange(imm, -8, 7, ERR_ILLEGAL_IMM_RANGE, true);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x72, 25), F(msz, 23), F(size, 21), F(imm4, 16),
-                            F(7, 13), F(pg.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
+                       const AdrScImm &adr);
   void SveContiStScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg,
-                       const AdrNoOfs &adr) {
-    uint32_t size = genSize(zt);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x72, 25), F(msz, 23), F(size, 21), F(0, 16),
-                            F(7, 13), F(pg.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE contiguous store (scalar plus scalar)
+                       const AdrNoOfs &adr);
   void SveContiStScSc(uint32_t msz, const _ZReg &zt, const _PReg &pg,
-                      const AdrScSc &adr) {
-    verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
-    uint32_t size = genSize(zt);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x72, 25), F(msz, 23), F(size, 21),
-                F(adr.getXm().getIdx(), 16), F(2, 13), F(pg.getIdx(), 10),
-                F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE store multipule structures (scalar plus immediate)
+                      const AdrScSc &adr);
   void SveStMultiStructScImm(uint32_t msz, uint32_t num, const _ZReg &zt,
-                             const _PReg &pg, const AdrScImm &adr) {
-    int32_t imm = adr.getSimm();
-    uint32_t imm4 = (imm / ((int32_t)num + 1)) & ones(4);
-
-    verifyIncRange(imm, -8 * ((int32_t)num + 1), 7 * ((int32_t)num + 1),
-                   ERR_ILLEGAL_IMM_RANGE, true);
-    verifyCond(
-        std::abs(imm), [=](uint64_t x) { return (x % (num + 1)) == 0; },
-        ERR_ILLEGAL_IMM_COND);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-
-    uint32_t code = concat({F(0x72, 25), F(msz, 23), F(num, 21), F(1, 20),
-                            F(imm4, 16), F(7, 13), F(pg.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
+                             const _PReg &pg, const AdrScImm &adr);
   void SveStMultiStructScImm(uint32_t msz, uint32_t num, const _ZReg &zt,
-                             const _PReg &pg, const AdrNoOfs &adr) {
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code = concat({F(0x72, 25), F(msz, 23), F(num, 21), F(1, 20),
-                            F(0, 16), F(7, 13), F(pg.getIdx(), 10),
-                            F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE store multipule structures (scalar plus scalar)
+                             const _PReg &pg, const AdrNoOfs &adr);
   void SveStMultiStructScSc(uint32_t msz, uint32_t num, const _ZReg &zt,
-                            const _PReg &pg, const AdrScSc &adr) {
-    verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
-    verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
-    uint32_t code =
-        concat({F(0x72, 25), F(msz, 23), F(num, 21),
-                F(adr.getXm().getIdx(), 16), F(3, 13), F(pg.getIdx(), 10),
-                F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE store predicate register
-  void SveStorePredReg(const _PReg &pt, const AdrScImm &adr) {
-    int32_t imm = adr.getSimm();
-    uint32_t imm9h = field(imm, 8, 3);
-    uint32_t imm9l = field(imm, 2, 0);
-
-    verifyIncRange(imm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-
-    uint32_t code = concat({F(0x72, 25), F(3, 23), F(imm9h, 16), F(imm9l, 10),
-                            F(adr.getXn().getIdx(), 5), F(pt.getIdx(), 0)});
-    dd(code);
-  }
-
-  void SveStorePredReg(const _PReg &pt, const AdrNoOfs &adr) {
-    uint32_t code = concat({F(0x72, 25), F(3, 23), F(0, 16), F(0, 10),
-                            F(adr.getXn().getIdx(), 5), F(pt.getIdx(), 0)});
-    dd(code);
-  }
-
-  // SVE store predicate vector
-  void SveStorePredVec(const _ZReg &zt, const AdrScImm &adr) {
-    int32_t imm = adr.getSimm();
-    uint32_t imm9h = field(imm, 8, 3);
-    uint32_t imm9l = field(imm, 2, 0);
-
-    verifyIncRange(imm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-
-    uint32_t code =
-        concat({F(0x72, 25), F(3, 23), F(imm9h, 16), F(2, 13), F(imm9l, 10),
-                F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
-
-  void SveStorePredVec(const _ZReg &zt, const AdrNoOfs &adr) {
-    uint32_t code = concat({F(0x72, 25), F(3, 23), F(0, 16), F(2, 13), F(0, 10),
-                            F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
-    dd(code);
-  }
+                            const _PReg &pg, const AdrScSc &adr);
+  void SveStorePredReg(const _PReg &pt, const AdrScImm &adr);
+  void SveStorePredReg(const _PReg &pt, const AdrNoOfs &adr);
+  void SveStorePredVec(const _ZReg &zt, const AdrScImm &adr);
+  void SveStorePredVec(const _ZReg &zt, const AdrNoOfs &adr);
+  // QQQ
 
 #ifdef XBYAK_TRANSLATE_AARCH64
 
@@ -5539,3 +1643,7 @@ public:
     }
   }
 };
+
+#ifndef XBYAK_AARCH64_COMPILED
+#include "xbyak_aarch64_impl.h"
+#endif
