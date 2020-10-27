@@ -90,8 +90,7 @@ public:
       sveLen_ = static_cast<sveLen_t>(prctl(51));
 #endif
     }
-
-  } // namespace util
+  }
 #undef SYS_REG_FIELD
 
   Type getType() const { return type_; }
