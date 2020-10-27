@@ -1,6 +1,6 @@
 #pragma once
 /*******************************************************************************
- * Copyright 2019 FUJITSU LIMITED
+ * Copyright 2019-2020 FUJITSU LIMITED
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,11 +15,7 @@
  * limitations under the License.
  *******************************************************************************/
 
-#ifdef _WIN32
-//#include <assert.h>
-#else
 #include <cassert>
-#endif
 
 class Operand {
 public:
@@ -27,7 +23,6 @@ public:
   enum Kind { NONE, RREG, VREG_SC, VREG_VEC, ZREG, PREG_Z, PREG_M, OPMASK };
 
   enum Code {
-#ifdef XBYAK64
     X0 = 0,
     X1,
     X2,
@@ -61,7 +56,6 @@ public:
     X30,
     SP = 31,
     XZR = 31,
-#endif
     W0 = 0,
     W1,
     W2,

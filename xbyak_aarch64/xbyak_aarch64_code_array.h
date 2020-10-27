@@ -1,6 +1,6 @@
 #pragma once
 /*******************************************************************************
- * Copyright 2019 FUJITSU LIMITED
+ * Copyright 2019-2020 FUJITSU LIMITED
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,22 +21,12 @@
 static const size_t CSIZE = sizeof(uint32_t);
 
 inline void *AlignedMalloc(size_t size, size_t alignment) {
-#ifdef __MINGW32__
-  return __mingw_aligned_malloc(size, alignment);
-#elif defined(_WIN32)
-  return _aligned_malloc(size, alignment);
-#else
   void *p;
   int ret = posix_memalign(&p, alignment, size);
   return (ret == 0) ? p : 0;
-#endif
 }
 
-#if defined(_WIN32)
-inline void AlignedFree(void *p) { _aligned_free(p); }
-#else
 inline void AlignedFree(void *p) { free(p); }
-#endif
 
 template <class To, class From> inline const To CastTo(From p) throw() {
   return (const To)(size_t)(p);
@@ -285,17 +275,11 @@ public:
      @return true(success), false(failure)
   */
   static inline bool protect(const void *addr, size_t size, int protectMode) {
-#if defined(_WIN32)
-    const DWORD c_rw = PAGE_READWRITE;
-    const DWORD c_rwe = PAGE_EXECUTE_READWRITE;
-    const DWORD c_re = PAGE_EXECUTE_READ;
-    DWORD mode;
-#else
     const int c_rw = PROT_READ | PROT_WRITE;
     const int c_rwe = PROT_READ | PROT_WRITE | PROT_EXEC;
     const int c_re = PROT_READ | PROT_EXEC;
     int mode;
-#endif
+
     switch (protectMode) {
     case PROTECT_RW:
       mode = c_rw;
@@ -309,11 +293,7 @@ public:
     default:
       return false;
     }
-#if defined(_WIN32)
-    DWORD oldProtect;
-    return VirtualProtect(const_cast<void *>(addr), size, mode, &oldProtect) !=
-           0;
-#elif defined(__GNUC__)
+#if defined(__GNUC__)
     size_t pageSize = inner::getPageSize();
     size_t iaddr = reinterpret_cast<size_t>(addr);
     size_t roundAddr = iaddr & ~(pageSize - static_cast<size_t>(1));
