@@ -1,6 +1,6 @@
 #pragma once
 /*******************************************************************************
- * Copyright 2019 FUJITSU LIMITED
+ * Copyright 2019-2020 FUJITSU LIMITED
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,19 +26,14 @@
 #include <vector>
 
 //#define XBYAK_USE_MMAP_ALLOCATOR
-#if !defined(__GNUC__) || defined(__MINGW32__)
+#if !defined(__GNUC__)
 #undef XBYAK_USE_MMAP_ALLOCATOR
 #endif
 
 #include <cmath>
 #include <functional>
 
-#ifdef _WIN32
-#include <assert.h>
-#include <malloc.h>
-#include <windows.h>
-//#include <winsock2.h>
-#elif defined(__GNUC__)
+#if defined(__GNUC__)
 #include <cassert>
 #include <stdlib.h>
 #include <sys/mman.h>

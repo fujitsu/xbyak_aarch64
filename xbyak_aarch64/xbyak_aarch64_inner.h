@@ -1,6 +1,6 @@
 #pragma once
 /*******************************************************************************
- * Copyright 2019 FUJITSU LIMITED
+ * Copyright 2019-2020 FUJITSU LIMITED
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,10 +37,8 @@ inline bool IsInInt32(uint64_t x) {
 }
 
 inline uint32_t VerifyInInt32(uint64_t x) {
-#ifdef XBYAK64
   if (!IsInInt32(x))
     throw Error(ERR_OFFSET_IS_TOO_BIG);
-#endif
   return static_cast<uint32_t>(x);
 }
 
