@@ -1620,7 +1620,7 @@ public:
   }
 
 #include "xbyak_aarch64_meta_mnemonic.h"
-#include "xbyak_aarch64_mnemonic.h"
+#include "xbyak_aarch64_mnemonic_def.h"
 
   void align(size_t x) {
     if (x == 4)
@@ -1644,6 +1644,14 @@ public:
   }
 };
 
-#if !(defined(XBYAK_AARCH64_LIB) && XBYAK_AARCH64_LIB == 1)
+#if XBYAK_AARCH64_LIB != 1
+
+#ifdef XBYAK_AARCH64_MAKE_INSTANCE
+#define XBYAK_AARCH64_INLINE
+#else
+#define XBYAK_AARCH64_INLINE inline
+#endif
+
 #include "xbyak_aarch64_impl.h"
+#include "xbyak_aarch64_mnemonic.h"
 #endif

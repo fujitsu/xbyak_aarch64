@@ -1,9 +1,3 @@
-#ifdef XBYAK_AARCH64_MAKE_INSTANCE
-#define XBYAK_AARCH64_INLINE
-#else
-#define XBYAK_AARCH64_INLINE inline
-#endif
-
 XBYAK_AARCH64_INLINE uint32_t CodeGenerator::PCrelAddrEnc(uint32_t op,
                                                        const XReg &rd,
                                                        int64_t labelOffset) {
