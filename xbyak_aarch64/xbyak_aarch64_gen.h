@@ -1644,6 +1644,6 @@ public:
   }
 };
 
-#ifndef XBYAK_AARCH64_COMPILED
+#if !(defined(XBYAK_AARCH64_LIB) && XBYAK_AARCH64_LIB == 1)
 #include "xbyak_aarch64_impl.h"
 #endif

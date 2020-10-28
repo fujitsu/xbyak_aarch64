@@ -78,6 +78,11 @@ aarch64-linux-gnu-g++ add.cpp
 env QEMU_LD_PREFIX=/usr/aarch64-linux-gnu qemu-aarch64 ./a.out
 ```
 
+## How to use lib
+To reduce compile time, compile a source with `-DXBYAK_AARCH64_LIB=1` and link `lib/libxbyak_aarch64.a`.
+
+`lib/libxbyak_aarch64.a` is built by `make`.
+
 ## How to use Xbyak_aarch64
 
 Inherit `Xbyak::CodeGenerator` class and make the class method.
