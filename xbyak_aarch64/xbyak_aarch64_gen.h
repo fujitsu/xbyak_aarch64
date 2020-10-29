@@ -524,59 +524,8 @@ public:
 };
 
 class CodeGenerator : public CodeGenUtil, public CodeArray {
-  struct CodeInfo {
-    size_t code_idx;
-    std::string file;
-    size_t line;
-    std::string func;
-
-    void set(size_t idx, const std::string &file, size_t line,
-             const std::string &func) {
-      this->code_idx = idx;
-      this->file = file;
-      this->line = line;
-      this->func = func;
-    }
-
-    std::string header() { return "index:   mnemonic location of define\n"; }
-
-    std::string str() {
-      std::stringstream ss("");
-      ss << std::setw(5) << code_idx << ": " << std::setw(10) << std::right
-         << func << " (" << file << ":" << line << ")\n";
-      return ss.str();
-    }
-  };
-
-  CodeInfo cinfo_;
-  std::deque<CodeInfo> codeInfoHist_;
 
   LabelManager labelMgr_;
-
-  // set infomation of instruction code
-  void setCodeInfo(const std::string &file, size_t line,
-                   const std::string &func) {
-    cinfo_.set(size_, file, line, func);
-    updateCodeInfoHist();
-  }
-
-  // update history of instruction code
-  void updateCodeInfoHist() {
-    codeInfoHist_.push_back(cinfo_);
-    if (codeInfoHist_.size() > 5) {
-      codeInfoHist_.pop_front();
-    }
-  }
-
-  // code history to string
-  std::string genCodeHistStr() {
-    std::string str = cinfo_.header();
-    for (auto info : codeInfoHist_) {
-      str += info.str();
-    }
-    str.replace(str.rfind("\n"), 1, " <---- Error\n");
-    return str;
-  }
 
   // ################### check function #################
   // check val (list)
@@ -599,9 +548,9 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
   void verifyIncRange(uint64_t val, uint64_t min, uint64_t max, int err_type,
                       bool to_i = false) {
     if (to_i && !chkVal((int64_t)val, (int64_t)min, (int64_t)max)) {
-      throw Error(err_type, genErrMsg());
+      throw Error(err_type);
     } else if (!to_i && !chkVal(val, min, max)) {
-      throw Error(err_type, genErrMsg());
+      throw Error(err_type);
     }
   }
 
@@ -609,9 +558,9 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
   void verifyNotIncRange(uint64_t val, uint64_t min, uint64_t max, int err_type,
                          bool to_i = false) {
     if (to_i && chkVal((uint64_t)val, (uint64_t)min, (uint64_t)max)) {
-      throw Error(err_type, genErrMsg());
+      throw Error(err_type);
     } else if (!to_i && chkVal(val, min, max)) {
-      throw Error(err_type, genErrMsg());
+      throw Error(err_type);
     }
   }
 
@@ -619,7 +568,7 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
   void verifyIncList(uint64_t val, const std::initializer_list<uint64_t> &list,
                      int err_type) {
     if (!chkVal(val, list)) {
-      throw Error(err_type, genErrMsg());
+      throw Error(err_type);
     }
   }
 
@@ -628,7 +577,7 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
                         const std::initializer_list<uint64_t> &list,
                         int err_type) {
     if (chkVal(val, list)) {
-      throw Error(err_type, genErrMsg());
+      throw Error(err_type);
     }
   }
 
@@ -636,7 +585,7 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
   void verifyCond(uint64_t val, const std::function<bool(uint64_t)> &func,
                   int err_type) {
     if (!chkVal(val, func)) {
-      throw Error(err_type, genErrMsg());
+      throw Error(err_type);
     }
   }
 
@@ -644,15 +593,8 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
   void verifyNotCond(uint64_t val, const std::function<bool(uint64_t)> &func,
                      int err_type) {
     if (chkVal(val, func)) {
-      throw Error(err_type, genErrMsg());
+      throw Error(err_type);
     }
-  }
-
-  // optional error message
-  std::string genErrMsg() {
-    std::string msg = "-----------------------------------------\n";
-    msg += genCodeHistStr();
-    return msg;
   }
 
   // ############### encoding helper function #############
@@ -660,7 +602,7 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
   uint32_t genNImmrImms(uint64_t imm, uint32_t size) {
     // check imm
     if (imm == 0 || imm == ones(size)) {
-      throw Error(ERR_ILLEGAL_IMM_VALUE, genErrMsg());
+      throw Error(ERR_ILLEGAL_IMM_VALUE);
     }
 
     auto ptn_size = getPtnSize(imm, size);
@@ -672,7 +614,7 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
 
     // check ptn
     if (one_bit_num != seq_one_bit_num) {
-      throw Error(ERR_ILLEGAL_IMM_VALUE, genErrMsg());
+      throw Error(ERR_ILLEGAL_IMM_VALUE);
     }
 
     uint32_t N = (ptn_size > 32) ? 1 : 0;

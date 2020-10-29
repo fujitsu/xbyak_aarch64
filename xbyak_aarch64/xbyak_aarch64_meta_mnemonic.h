@@ -455,7 +455,7 @@ void mov_imm(const WReg &dst, T imm) {
   }
 
   if (uint64_t(0xFFFFFFFF) < imm && imm < uint64_t(0xFFFFFFFF80000000)) {
-    throw Error(ERR_ILLEGAL_IMM_RANGE, genErrMsg());
+    throw Error(ERR_ILLEGAL_IMM_RANGE);
   }
 
   if (isBitMask(imm)) {
@@ -491,7 +491,7 @@ void mov_imm(const WReg &dst, T imm) {
   }
 
   if (imm < std::numeric_limits<int32_t>::min()) {
-    throw Error(ERR_ILLEGAL_IMM_RANGE, genErrMsg());
+    throw Error(ERR_ILLEGAL_IMM_RANGE);
   }
 
   if (isBitMask(bit_ptn)) {
