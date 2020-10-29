@@ -29,9 +29,10 @@
 #define XBYAK_AARCH64_LIB 0
 #endif
 
-//#define XBYAK_USE_MMAP_ALLOCATOR
-#if !defined(__GNUC__)
-#undef XBYAK_USE_MMAP_ALLOCATOR
+#ifdef __GNUC__
+#ifndef XBYAK_USE_MMAP_ALLOCATOR
+#define XBYAK_USE_MMAP_ALLOCATOR
+#endif
 #endif
 
 #include <cmath>
