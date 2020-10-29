@@ -25,4 +25,5 @@ addons:
 #      - qemu-user-static
 #      - qemu-utils
 script:
+  - make
   - make -C test test

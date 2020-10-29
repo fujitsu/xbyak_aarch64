@@ -132,7 +132,7 @@ if [ $? != 0 ] ;then
     dumpNG "Generating source file using xbyak"
     exit 1
 fi
-${GPP} ${CXX_FLAGS2} -o nm_frame nm_frame.cpp
+${GPP} ${CXX_FLAGS2} -o nm_frame nm_frame.cpp -DXBYAK_AARCH64_LIB=1 ../lib/libxbyak_aarch64.a
 if [ $? != 0 ] ;then
     dumpNG "Compiling source file using xbyak"
     exit 1
