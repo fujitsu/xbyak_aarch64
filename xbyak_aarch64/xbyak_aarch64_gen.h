@@ -639,7 +639,6 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
 
   // ################## encoding function ##################
   // PC-rel. addressing
-  // QQQ
   uint32_t PCrelAddrEnc(uint32_t op, const XReg &rd, int64_t labelOffset);
   void PCrelAddr(uint32_t op, const XReg &rd, const Label &label);
   void PCrelAddr(uint32_t op, const XReg &rd, int64_t label);
@@ -1339,12 +1338,7 @@ class CodeGenerator : public CodeGenUtil, public CodeArray {
   void SveStorePredReg(const _PReg &pt, const AdrNoOfs &adr);
   void SveStorePredVec(const _ZReg &zt, const AdrScImm &adr);
   void SveStorePredVec(const _ZReg &zt, const AdrNoOfs &adr);
-  // QQQ
-
-#ifdef XBYAK_TRANSLATE_AARCH64
-
   void mov(const XReg &rd, const Label &label) { adr(rd, label); }
-#endif
 
   template <class T> void putL_inner(T &label) {
     if (isAutoGrow() && size_ >= maxSize_)
