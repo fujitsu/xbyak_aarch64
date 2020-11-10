@@ -32,9 +32,7 @@ inline size_t getPageSize() {
 }
 
 inline bool IsInDisp8(uint32_t x) { return 0xFFFFFF80 <= x || x <= 0x7F; }
-inline bool IsInInt32(uint64_t x) {
-  return ~uint64_t(0x7fffffffu) <= x || x <= 0x7FFFFFFFU;
-}
+inline bool IsInInt32(uint64_t x) { return ~uint64_t(0x7fffffffu) <= x || x <= 0x7FFFFFFFU; }
 
 inline uint32_t VerifyInInt32(uint64_t x) {
   if (!IsInInt32(x))
@@ -42,9 +40,6 @@ inline uint32_t VerifyInInt32(uint64_t x) {
   return static_cast<uint32_t>(x);
 }
 
-constexpr uint32_t genSysInstOp(uint32_t op1, uint32_t CRn, uint32_t CRm,
-                                uint32_t op2) {
-  return (op1 << 11) | (CRn << 7) | (CRm << 3) | op2;
-}
+constexpr uint32_t genSysInstOp(uint32_t op1, uint32_t CRn, uint32_t CRm, uint32_t op2) { return (op1 << 11) | (CRn << 7) | (CRm << 3) | op2; }
 
 } // namespace inner
