@@ -68,8 +68,7 @@ public:
   static const uint64_t ZCR_EL1_LEN_SHIFT = 0;
   static const uint64_t ZCR_EL1_LEN_MASK = 0xf;
 
-#define SYS_REG_FIELD(val, regName, fieldName)                                 \
-  ((val >> regName##_##fieldName##_SHIFT) & regName##_##fieldName##_MASK)
+#define SYS_REG_FIELD(val, regName, fieldName) ((val >> regName##_##fieldName##_SHIFT) & regName##_##fieldName##_MASK)
 
   Cpu() : type_(tNONE), sveLen_(SVE_NONE) {
     uint64_t regVal = 0;

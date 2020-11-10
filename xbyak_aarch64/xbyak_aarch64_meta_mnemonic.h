@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
+template <typename T, typename std::enable_if<std::is_unsigned<T>::value, std::nullptr_t>::type = nullptr> void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -35,9 +33,7 @@ void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   return;
 }
 
-template <typename T, typename std::enable_if<std::is_signed<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
+template <typename T, typename std::enable_if<std::is_signed<T>::value, std::nullptr_t>::type = nullptr> void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -60,9 +56,7 @@ void add_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   return;
 }
 
-template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
+template <typename T, typename std::enable_if<std::is_unsigned<T>::value, std::nullptr_t>::type = nullptr> void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -82,9 +76,7 @@ void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   return;
 }
 
-template <typename T, typename std::enable_if<std::is_signed<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
+template <typename T, typename std::enable_if<std::is_signed<T>::value, std::nullptr_t>::type = nullptr> void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -107,9 +99,7 @@ void add_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   return;
 }
 
-template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
+template <typename T, typename std::enable_if<std::is_unsigned<T>::value, std::nullptr_t>::type = nullptr> void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   /* This sub_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -129,9 +119,7 @@ void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   return;
 }
 
-template <typename T, typename std::enable_if<std::is_signed<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
+template <typename T, typename std::enable_if<std::is_signed<T>::value, std::nullptr_t>::type = nullptr> void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   /* This sub_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -154,9 +142,7 @@ void sub_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   return;
 }
 
-template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
+template <typename T, typename std::enable_if<std::is_unsigned<T>::value, std::nullptr_t>::type = nullptr> void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -176,9 +162,7 @@ void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   return;
 }
 
-template <typename T, typename std::enable_if<std::is_signed<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
+template <typename T, typename std::enable_if<std::is_signed<T>::value, std::nullptr_t>::type = nullptr> void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -201,9 +185,7 @@ void sub_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   return;
 }
 
-template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
+template <typename T, typename std::enable_if<std::is_unsigned<T>::value, std::nullptr_t>::type = nullptr> void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -223,9 +205,7 @@ void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   return;
 }
 
-template <typename T, typename std::enable_if<std::is_signed<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
+template <typename T, typename std::enable_if<std::is_signed<T>::value, std::nullptr_t>::type = nullptr> void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -248,9 +228,7 @@ void adds_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   return;
 }
 
-template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
+template <typename T, typename std::enable_if<std::is_unsigned<T>::value, std::nullptr_t>::type = nullptr> void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -270,9 +248,7 @@ void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   return;
 }
 
-template <typename T, typename std::enable_if<std::is_signed<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
+template <typename T, typename std::enable_if<std::is_signed<T>::value, std::nullptr_t>::type = nullptr> void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -295,9 +271,7 @@ void adds_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   return;
 }
 
-template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
+template <typename T, typename std::enable_if<std::is_unsigned<T>::value, std::nullptr_t>::type = nullptr> void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   /* This sub_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -317,9 +291,7 @@ void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   return;
 }
 
-template <typename T, typename std::enable_if<std::is_signed<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
+template <typename T, typename std::enable_if<std::is_signed<T>::value, std::nullptr_t>::type = nullptr> void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   /* This sub_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -342,9 +314,7 @@ void subs_imm(const XReg &dst, const XReg &src, T imm, const XReg &tmp) {
   return;
 }
 
-template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
+template <typename T, typename std::enable_if<std::is_unsigned<T>::value, std::nullptr_t>::type = nullptr> void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -364,9 +334,7 @@ void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   return;
 }
 
-template <typename T, typename std::enable_if<std::is_signed<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
+template <typename T, typename std::enable_if<std::is_signed<T>::value, std::nullptr_t>::type = nullptr> void subs_imm(const WReg &dst, const WReg &src, T imm, const WReg &tmp) {
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
@@ -415,8 +383,7 @@ template <typename T> void mov_imm(const XReg &dst, T imm) {
 
   /* Check if movn is applicable. */
   for (int i = 0; i < 4; i++) {
-    uint32_t tag_bit =
-        static_cast<uint32_t>((inv_bit_ptn >> (16 * i)) & 0xFFFF);
+    uint32_t tag_bit = static_cast<uint32_t>((inv_bit_ptn >> (16 * i)) & 0xFFFF);
     if (tag_bit) {
       ptn = tag_bit;
       pos = i;
@@ -443,9 +410,7 @@ template <typename T> void mov_imm(const XReg &dst, T imm) {
   return;
 }
 
-template <typename T, typename std::enable_if<std::is_unsigned<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void mov_imm(const WReg &dst, T imm) {
+template <typename T, typename std::enable_if<std::is_unsigned<T>::value, std::nullptr_t>::type = nullptr> void mov_imm(const WReg &dst, T imm) {
   bool flag = false;
   uint32_t bit_ptn = static_cast<uint32_t>(imm);
 
@@ -477,9 +442,7 @@ void mov_imm(const WReg &dst, T imm) {
   return;
 }
 
-template <typename T, typename std::enable_if<std::is_signed<T>::value,
-                                              std::nullptr_t>::type = nullptr>
-void mov_imm(const WReg &dst, T imm) {
+template <typename T, typename std::enable_if<std::is_signed<T>::value, std::nullptr_t>::type = nullptr> void mov_imm(const WReg &dst, T imm) {
   bool flag = false;
 
   /* T may be int32_t or int64_t. */
