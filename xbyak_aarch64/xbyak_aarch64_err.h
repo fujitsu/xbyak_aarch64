@@ -85,7 +85,7 @@ public:
         "illegal const parameter (unavailable error)",
         "illegal const parameter (condition error)",
     };
-    if (err_ >= sizeof(tbl) / sizeof(tbl[0])) {
+    if ((size_t)err_ >= sizeof(tbl) / sizeof(tbl[0])) {
       msg_ = "bad err num";
     } else {
       msg_ = tbl[err_];
