@@ -333,7 +333,7 @@ public:
   }
 
   /////////////// ARM8/SVE encoding helper function ////////////////
-  constexpr const uint32_t F(uint32_t val, uint32_t pos) const { return val << pos; }
+  constexpr uint32_t F(uint32_t val, uint32_t pos) const { return val << pos; }
 
   uint32_t concat(const std::initializer_list<uint32_t> list) {
     uint32_t result = 0;
