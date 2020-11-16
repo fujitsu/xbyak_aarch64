@@ -20,6 +20,7 @@ so that we believe Xbyak_aarch64 works various environment with various compiler
 
 ### News
 Break backward compatibility:
+- To link xbyak_aarch64 is always necessary.
 - namespace Xbyak is renamed to Xbyak_aarch64.
 - Some class are renamed (e.g. CodeGeneratorAArch64 -> CodeGenerator).
 - L_aarch64() is renamed to L().
@@ -78,10 +79,12 @@ aarch64-linux-gnu-g++ add.cpp
 env QEMU_LD_PREFIX=/usr/aarch64-linux-gnu qemu-aarch64 ./a.out
 ```
 
-## How to use lib
-To reduce compile time, compile a source with `-DXBYAK_AARCH64_LIB=1` and link `lib/libxbyak_aarch64.a`.
+## How to make lib
 
-`lib/libxbyak_aarch64.a` is built by `make`.
+```
+make
+```
+makes `lib/libxbyak_aarch64.a`.
 
 ## How to use Xbyak_aarch64
 
@@ -91,9 +94,12 @@ pointer by calling `getCode()` and call it.
 The following example 1) generates a JIT-ed function which simply adds two integer values passed as arguments and return result as an integer value,
 and 2) call the function. This example outputs "7" to STDOUT. 
 
+compile options:
+- `-I <xbyak_aarch64 dir>/xbyak_aarch64`.
+- `-L <xbyak_aarch64 dir>/lib -lxbyak_aarch64`.
 
 ```
-#include "../xbyak_aarch64/xbyak_aarch64.h"
+#include "xbyak_aarch64.h"
 using namespace Xbyak_aarch64;
 class Generator : public CodeGenerator {
 public:

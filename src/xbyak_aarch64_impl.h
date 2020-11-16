@@ -1,4 +1,4 @@
-XBYAK_AARCH64_INLINE uint32_t CodeGenerator::PCrelAddrEnc(uint32_t op, const XReg &rd, int64_t labelOffset) {
+uint32_t CodeGenerator::PCrelAddrEnc(uint32_t op, const XReg &rd, int64_t labelOffset) {
   int32_t imm = static_cast<uint32_t>((op == 1) ? labelOffset >> 12 : labelOffset);
   uint32_t immlo = field(imm, 1, 0);
   uint32_t immhi = field(imm, 20, 2);
@@ -7,20 +7,20 @@ XBYAK_AARCH64_INLINE uint32_t CodeGenerator::PCrelAddrEnc(uint32_t op, const XRe
   return concat({F(op, 31), F(immlo, 29), F(0x10, 24), F(immhi, 5), F(rd.getIdx(), 0)});
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::PCrelAddr(uint32_t op, const XReg &rd, const Label &label) {
+void CodeGenerator::PCrelAddr(uint32_t op, const XReg &rd, const Label &label) {
   auto encFunc = [&, op, rd](int64_t labelOffset) { return PCrelAddrEnc(op, rd, labelOffset); };
   JmpLabel jmpL = JmpLabel(encFunc, size_);
   uint32_t code = PCrelAddrEnc(op, rd, genLabelOffset(label, jmpL));
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::PCrelAddr(uint32_t op, const XReg &rd, int64_t label) {
+void CodeGenerator::PCrelAddr(uint32_t op, const XReg &rd, int64_t label) {
   uint32_t code = PCrelAddrEnc(op, rd, label);
   dd(code);
 }
 
 // Add/subtract (immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::AddSubImm(uint32_t op, uint32_t S, const RReg &rd, const RReg &rn, uint32_t imm, uint32_t sh) {
+void CodeGenerator::AddSubImm(uint32_t op, uint32_t S, const RReg &rd, const RReg &rn, uint32_t imm, uint32_t sh) {
   uint32_t sf = genSf(rd);
   uint32_t imm12 = imm & ones(12);
   uint32_t sh_f = (sh == 12) ? 1 : 0;
@@ -33,7 +33,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AddSubImm(uint32_t op, uint32_t S, cons
 }
 
 // Logical (immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::LogicalImm(uint32_t opc, const RReg &rd, const RReg &rn, uint64_t imm, bool alias) {
+void CodeGenerator::LogicalImm(uint32_t opc, const RReg &rd, const RReg &rn, uint64_t imm, bool alias) {
   uint32_t sf = genSf(rd);
   uint32_t n_immr_imms = genNImmrImms(imm, rd.getBit());
 
@@ -47,7 +47,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LogicalImm(uint32_t opc, const RReg &rd
 }
 
 // Move wide(immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::MvWideImm(uint32_t opc, const RReg &rd, uint32_t imm, uint32_t sh) {
+void CodeGenerator::MvWideImm(uint32_t opc, const RReg &rd, uint32_t imm, uint32_t sh) {
   uint32_t sf = genSf(rd);
   uint32_t hw = field(sh, 5, 4);
   uint32_t imm16 = imm & 0xffff;
@@ -64,7 +64,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::MvWideImm(uint32_t opc, const RReg &rd,
 }
 
 // Move (immediate) alias of ORR,MOVN,MOVZ
-XBYAK_AARCH64_INLINE void CodeGenerator::MvImm(const RReg &rd, uint64_t imm) {
+void CodeGenerator::MvImm(const RReg &rd, uint64_t imm) {
   uint32_t rd_bit = rd.getBit();
   uint32_t hw = 0;
   uint32_t inv_hw = 0;
@@ -150,7 +150,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::MvImm(const RReg &rd, uint64_t imm) {
 }
 
 // Bitfield
-XBYAK_AARCH64_INLINE void CodeGenerator::Bitfield(uint32_t opc, const RReg &rd, const RReg &rn, uint32_t immr, uint32_t imms, bool rn_chk) {
+void CodeGenerator::Bitfield(uint32_t opc, const RReg &rd, const RReg &rn, uint32_t immr, uint32_t imms, bool rn_chk) {
   uint32_t sf = genSf(rd);
   uint32_t N = sf;
 
@@ -165,7 +165,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Bitfield(uint32_t opc, const RReg &rd, 
 }
 
 // Extract
-XBYAK_AARCH64_INLINE void CodeGenerator::Extract(uint32_t op21, uint32_t o0, const RReg &rd, const RReg &rn, const RReg &rm, uint32_t imm) {
+void CodeGenerator::Extract(uint32_t op21, uint32_t o0, const RReg &rd, const RReg &rn, const RReg &rm, uint32_t imm) {
   uint32_t sf = genSf(rd);
   uint32_t N = sf;
 
@@ -179,26 +179,26 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Extract(uint32_t op21, uint32_t o0, con
 }
 
 // Conditional branch (immediate)
-XBYAK_AARCH64_INLINE uint32_t CodeGenerator::CondBrImmEnc(uint32_t cond, int64_t labelOffset) {
+uint32_t CodeGenerator::CondBrImmEnc(uint32_t cond, int64_t labelOffset) {
   uint32_t imm19 = static_cast<uint32_t>((labelOffset >> 2) & ones(19));
   verifyIncRange(labelOffset, -1 * (1 << 20), ones(20), ERR_LABEL_IS_TOO_FAR, true);
   return concat({F(0x2a, 25), F(imm19, 5), F(cond, 0)});
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::CondBrImm(Cond cond, const Label &label) {
+void CodeGenerator::CondBrImm(Cond cond, const Label &label) {
   auto encFunc = [&, cond](int64_t labelOffset) { return CondBrImmEnc(cond, labelOffset); };
   JmpLabel jmpL = JmpLabel(encFunc, size_);
   uint32_t code = CondBrImmEnc(cond, genLabelOffset(label, jmpL));
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::CondBrImm(Cond cond, int64_t label) {
+void CodeGenerator::CondBrImm(Cond cond, int64_t label) {
   uint32_t code = CondBrImmEnc(cond, label);
   dd(code);
 }
 
 // Exception generation
-XBYAK_AARCH64_INLINE void CodeGenerator::ExceptionGen(uint32_t opc, uint32_t op2, uint32_t LL, uint32_t imm) {
+void CodeGenerator::ExceptionGen(uint32_t opc, uint32_t op2, uint32_t LL, uint32_t imm) {
   uint32_t imm16 = imm & ones(16);
   verifyIncRange(imm, 0, ones(16), ERR_ILLEGAL_IMM_RANGE);
   uint32_t code = concat({F(0xd4, 24), F(opc, 21), F(imm16, 5), F(op2, 2), F(LL, 0)});
@@ -206,15 +206,15 @@ XBYAK_AARCH64_INLINE void CodeGenerator::ExceptionGen(uint32_t opc, uint32_t op2
 }
 
 // Hints
-XBYAK_AARCH64_INLINE void CodeGenerator::Hints(uint32_t CRm, uint32_t op2) {
+void CodeGenerator::Hints(uint32_t CRm, uint32_t op2) {
   uint32_t code = concat({F(0xd5032, 12), F(CRm, 8), F(op2, 5), F(0x1f, 0)});
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::Hints(uint32_t imm) { Hints(field(imm, 6, 3), field(imm, 2, 0)); }
+void CodeGenerator::Hints(uint32_t imm) { Hints(field(imm, 6, 3), field(imm, 2, 0)); }
 
 // Barriers (option)
-XBYAK_AARCH64_INLINE void CodeGenerator::BarriersOpt(uint32_t op2, BarOpt opt, uint32_t rt) {
+void CodeGenerator::BarriersOpt(uint32_t op2, BarOpt opt, uint32_t rt) {
   if (op2 == 6)
     verifyIncList(opt, {SY}, ERR_ILLEGAL_BARRIER_OPT);
   uint32_t code = concat({F(0xd5033, 12), F(opt, 8), F(op2, 5), F(rt, 0)});
@@ -222,14 +222,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::BarriersOpt(uint32_t op2, BarOpt opt, u
 }
 
 // Barriers (no option)
-XBYAK_AARCH64_INLINE void CodeGenerator::BarriersNoOpt(uint32_t CRm, uint32_t op2, uint32_t rt) {
+void CodeGenerator::BarriersNoOpt(uint32_t CRm, uint32_t op2, uint32_t rt) {
   verifyIncRange(CRm, 0, ones(4), ERR_ILLEGAL_IMM_RANGE);
   uint32_t code = concat({F(0xd5033, 12), F(CRm, 8), F(op2, 5), F(rt, 0)});
   dd(code);
 }
 
 // pstate
-XBYAK_AARCH64_INLINE void CodeGenerator::PState(PStateField psfield, uint32_t imm) {
+void CodeGenerator::PState(PStateField psfield, uint32_t imm) {
   uint32_t CRm = imm & ones(4);
   uint32_t op1, op2;
   switch (psfield) {
@@ -265,60 +265,60 @@ XBYAK_AARCH64_INLINE void CodeGenerator::PState(PStateField psfield, uint32_t im
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::PState(uint32_t op1, uint32_t CRm, uint32_t op2) {
+void CodeGenerator::PState(uint32_t op1, uint32_t CRm, uint32_t op2) {
   uint32_t code = concat({F(0xd5, 24), F(op1, 16), F(0x4, 12), F(CRm, 8), F(op2, 5), F(0x1f, 0)});
   dd(code);
 }
 
 // Systtem instructions
-XBYAK_AARCH64_INLINE void CodeGenerator::SysInst(uint32_t L, uint32_t op1, uint32_t CRn, uint32_t CRm, uint32_t op2, const XReg &rt) {
+void CodeGenerator::SysInst(uint32_t L, uint32_t op1, uint32_t CRn, uint32_t CRm, uint32_t op2, const XReg &rt) {
   uint32_t code = concat({F(0xd5, 24), F(L, 21), F(1, 19), F(op1, 16), F(CRn, 12), F(CRm, 8), F(op2, 5), F(rt.getIdx(), 0)});
   dd(code);
 }
 
 // System register move
-XBYAK_AARCH64_INLINE void CodeGenerator::SysRegMove(uint32_t L, uint32_t op0, uint32_t op1, uint32_t CRn, uint32_t CRm, uint32_t op2, const XReg &rt) {
+void CodeGenerator::SysRegMove(uint32_t L, uint32_t op0, uint32_t op1, uint32_t CRn, uint32_t CRm, uint32_t op2, const XReg &rt) {
   uint32_t code = concat({F(0xd5, 24), F(L, 21), F(1, 20), F(op0, 19), F(op1, 16), F(CRn, 12), F(CRm, 8), F(op2, 5), F(rt.getIdx(), 0)});
   dd(code);
 }
 
 // Unconditional branch
-XBYAK_AARCH64_INLINE void CodeGenerator::UncondBrNoReg(uint32_t opc, uint32_t op2, uint32_t op3, uint32_t rn, uint32_t op4) {
+void CodeGenerator::UncondBrNoReg(uint32_t opc, uint32_t op2, uint32_t op3, uint32_t rn, uint32_t op4) {
   uint32_t code = concat({F(0x6b, 25), F(opc, 21), F(op2, 16), F(op3, 10), F(rn, 5), F(op4, 0)});
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::UncondBr1Reg(uint32_t opc, uint32_t op2, uint32_t op3, const RReg &rn, uint32_t op4) {
+void CodeGenerator::UncondBr1Reg(uint32_t opc, uint32_t op2, uint32_t op3, const RReg &rn, uint32_t op4) {
   uint32_t code = concat({F(0x6b, 25), F(opc, 21), F(op2, 16), F(op3, 10), F(rn.getIdx(), 5), F(op4, 0)});
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::UncondBr2Reg(uint32_t opc, uint32_t op2, uint32_t op3, const RReg &rn, const RReg &rm) {
+void CodeGenerator::UncondBr2Reg(uint32_t opc, uint32_t op2, uint32_t op3, const RReg &rn, const RReg &rm) {
   uint32_t code = concat({F(0x6b, 25), F(opc, 21), F(op2, 16), F(op3, 10), F(rn.getIdx(), 5), F(rm.getIdx(), 0)});
   dd(code);
 }
 
 // Unconditional branch (immediate)
-XBYAK_AARCH64_INLINE uint32_t CodeGenerator::UncondBrImmEnc(uint32_t op, int64_t labelOffset) {
+uint32_t CodeGenerator::UncondBrImmEnc(uint32_t op, int64_t labelOffset) {
   verifyIncRange(labelOffset, -1 * (1 << 27), ones(27), ERR_LABEL_IS_TOO_FAR, true);
   uint32_t imm26 = static_cast<uint32_t>((labelOffset >> 2) & ones(26));
   return concat({F(op, 31), F(5, 26), F(imm26, 0)});
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::UncondBrImm(uint32_t op, const Label &label) {
+void CodeGenerator::UncondBrImm(uint32_t op, const Label &label) {
   auto encFunc = [&, op](int64_t labelOffset) { return UncondBrImmEnc(op, labelOffset); };
   JmpLabel jmpL = JmpLabel(encFunc, size_);
   uint32_t code = UncondBrImmEnc(op, genLabelOffset(label, jmpL));
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::UncondBrImm(uint32_t op, int64_t label) {
+void CodeGenerator::UncondBrImm(uint32_t op, int64_t label) {
   uint32_t code = UncondBrImmEnc(op, label);
   dd(code);
 }
 
 // Compare and branch (immediate)
-XBYAK_AARCH64_INLINE uint32_t CodeGenerator::CompareBrEnc(uint32_t op, const RReg &rt, int64_t labelOffset) {
+uint32_t CodeGenerator::CompareBrEnc(uint32_t op, const RReg &rt, int64_t labelOffset) {
   verifyIncRange(labelOffset, -1 * (1 << 20), ones(20), ERR_LABEL_IS_TOO_FAR, true);
 
   uint32_t sf = genSf(rt);
@@ -326,20 +326,20 @@ XBYAK_AARCH64_INLINE uint32_t CodeGenerator::CompareBrEnc(uint32_t op, const RRe
   return concat({F(sf, 31), F(0x1a, 25), F(op, 24), F(imm19, 5), F(rt.getIdx(), 0)});
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::CompareBr(uint32_t op, const RReg &rt, const Label &label) {
+void CodeGenerator::CompareBr(uint32_t op, const RReg &rt, const Label &label) {
   auto encFunc = [&, op](int64_t labelOffset) { return CompareBrEnc(op, rt, labelOffset); };
   JmpLabel jmpL = JmpLabel(encFunc, size_);
   uint32_t code = CompareBrEnc(op, rt, genLabelOffset(label, jmpL));
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::CompareBr(uint32_t op, const RReg &rt, int64_t label) {
+void CodeGenerator::CompareBr(uint32_t op, const RReg &rt, int64_t label) {
   uint32_t code = CompareBrEnc(op, rt, label);
   dd(code);
 }
 
 // Test and branch (immediate)
-XBYAK_AARCH64_INLINE uint32_t CodeGenerator::TestBrEnc(uint32_t op, const RReg &rt, uint32_t imm, int64_t labelOffset) {
+uint32_t CodeGenerator::TestBrEnc(uint32_t op, const RReg &rt, uint32_t imm, int64_t labelOffset) {
   verifyIncRange(labelOffset, -1 * (1 << 15), ones(15), ERR_LABEL_IS_TOO_FAR, true);
   verifyIncRange(imm, 0, ones(6), ERR_ILLEGAL_IMM_RANGE);
 
@@ -353,20 +353,20 @@ XBYAK_AARCH64_INLINE uint32_t CodeGenerator::TestBrEnc(uint32_t op, const RReg &
   return concat({F(b5, 31), F(0x1b, 25), F(op, 24), F(b40, 19), F(imm14, 5), F(rt.getIdx(), 0)});
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::TestBr(uint32_t op, const RReg &rt, uint32_t imm, const Label &label) {
+void CodeGenerator::TestBr(uint32_t op, const RReg &rt, uint32_t imm, const Label &label) {
   auto encFunc = [&, op, rt, imm](int64_t labelOffset) { return TestBrEnc(op, rt, imm, labelOffset); };
   JmpLabel jmpL = JmpLabel(encFunc, size_);
   uint32_t code = TestBrEnc(op, rt, imm, genLabelOffset(label, jmpL));
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::TestBr(uint32_t op, const RReg &rt, uint32_t imm, int64_t label) {
+void CodeGenerator::TestBr(uint32_t op, const RReg &rt, uint32_t imm, int64_t label) {
   uint32_t code = TestBrEnc(op, rt, imm, label);
   dd(code);
 }
 
 // Advanced SIMD load/store multipule structure
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdStMultiStructExceptLd1St1(uint32_t L, uint32_t opc, const VRegList &vt, const AdrNoOfs &adr) {
+void CodeGenerator::AdvSimdLdStMultiStructExceptLd1St1(uint32_t L, uint32_t opc, const VRegList &vt, const AdrNoOfs &adr) {
   uint32_t Q = genQ(vt);
   uint32_t size = genSize(vt);
   uint32_t len = vt.getLen();
@@ -378,10 +378,10 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdStMultiStructExceptLd1St1(uint
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdStMultiStructForLd1St1(uint32_t L, uint32_t opc, const VRegList &vt, const AdrNoOfs &adr) { AdvSimdLdStMultiStructExceptLd1St1(L, opc, vt, adr); }
+void CodeGenerator::AdvSimdLdStMultiStructForLd1St1(uint32_t L, uint32_t opc, const VRegList &vt, const AdrNoOfs &adr) { AdvSimdLdStMultiStructExceptLd1St1(L, opc, vt, adr); }
 
 // Advanced SIMD load/store multple structures (post-indexed register offset)
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdStMultiStructPostRegExceptLd1St1(uint32_t L, uint32_t opc, const VRegList &vt, const AdrPostReg &adr) {
+void CodeGenerator::AdvSimdLdStMultiStructPostRegExceptLd1St1(uint32_t L, uint32_t opc, const VRegList &vt, const AdrPostReg &adr) {
   uint32_t Q = genQ(vt);
   uint32_t size = genSize(vt);
 
@@ -394,10 +394,10 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdStMultiStructPostRegExceptLd1S
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdStMultiStructPostRegForLd1St1(uint32_t L, uint32_t opc, const VRegList &vt, const AdrPostReg &adr) { AdvSimdLdStMultiStructPostRegExceptLd1St1(L, opc, vt, adr); }
+void CodeGenerator::AdvSimdLdStMultiStructPostRegForLd1St1(uint32_t L, uint32_t opc, const VRegList &vt, const AdrPostReg &adr) { AdvSimdLdStMultiStructPostRegExceptLd1St1(L, opc, vt, adr); }
 
 // Advanced SIMD load/store multple structures (post-indexed immediate offset)
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdStMultiStructPostImmExceptLd1St1(uint32_t L, uint32_t opc, const VRegList &vt, const AdrPostImm &adr) {
+void CodeGenerator::AdvSimdLdStMultiStructPostImmExceptLd1St1(uint32_t L, uint32_t opc, const VRegList &vt, const AdrPostImm &adr) {
   uint32_t Q = genQ(vt);
   uint32_t size = genSize(vt);
   uint32_t len = vt.getLen();
@@ -411,10 +411,10 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdStMultiStructPostImmExceptLd1S
 }
 
 // Advanced SIMD load/store multple structures (post-indexed immediate offset)
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdStMultiStructPostImmForLd1St1(uint32_t L, uint32_t opc, const VRegList &vt, const AdrPostImm &adr) { AdvSimdLdStMultiStructPostImmExceptLd1St1(L, opc, vt, adr); }
+void CodeGenerator::AdvSimdLdStMultiStructPostImmForLd1St1(uint32_t L, uint32_t opc, const VRegList &vt, const AdrPostImm &adr) { AdvSimdLdStMultiStructPostImmExceptLd1St1(L, opc, vt, adr); }
 
 // Advanced SIMD load/store single structures
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdStSingleStruct(uint32_t L, uint32_t R, uint32_t num, const VRegElem &vt, const AdrNoOfs &adr) {
+void CodeGenerator::AdvSimdLdStSingleStruct(uint32_t L, uint32_t R, uint32_t num, const VRegElem &vt, const AdrNoOfs &adr) {
   uint32_t Q = genQ(vt);
   uint32_t S = genS(vt);
   uint32_t size = genSizeEnc(vt);
@@ -424,7 +424,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdStSingleStruct(uint32_t L, uin
 }
 
 // Advanced SIMD load replication single structures
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdRepSingleStruct(uint32_t L, uint32_t R, uint32_t opcode, uint32_t S, const VRegVec &vt, const AdrNoOfs &adr) {
+void CodeGenerator::AdvSimdLdRepSingleStruct(uint32_t L, uint32_t R, uint32_t opcode, uint32_t S, const VRegVec &vt, const AdrNoOfs &adr) {
   uint32_t Q = genQ(vt);
   uint32_t size = genSize(vt);
   uint32_t code = concat({F(Q, 30), F(0x1a, 23), F(L, 22), F(R, 21), F(opcode, 13), F(S, 12), F(size, 10), F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
@@ -432,7 +432,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdRepSingleStruct(uint32_t L, ui
 }
 
 // Advanced SIMD load/store single structures (post-indexed register)
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdStSingleStructPostReg(uint32_t L, uint32_t R, uint32_t num, const VRegElem &vt, const AdrPostReg &adr) {
+void CodeGenerator::AdvSimdLdStSingleStructPostReg(uint32_t L, uint32_t R, uint32_t num, const VRegElem &vt, const AdrPostReg &adr) {
   uint32_t Q = genQ(vt);
   uint32_t S = genS(vt);
   uint32_t size = genSizeEnc(vt);
@@ -443,7 +443,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdStSingleStructPostReg(uint32_t
 
 // Advanced SIMD load/store single structures (post-indexed register,
 // replicate)
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdStSingleStructRepPostReg(uint32_t L, uint32_t R, uint32_t opcode, uint32_t S, const VRegVec &vt, const AdrPostReg &adr) {
+void CodeGenerator::AdvSimdLdStSingleStructRepPostReg(uint32_t L, uint32_t R, uint32_t opcode, uint32_t S, const VRegVec &vt, const AdrPostReg &adr) {
   uint32_t Q = genQ(vt);
   uint32_t size = genSize(vt);
   uint32_t code = concat({F(Q, 30), F(0x1b, 23), F(L, 22), F(R, 21), F(adr.getXm().getIdx(), 16), F(opcode, 13), F(S, 12), F(size, 10), F(adr.getXn().getIdx(), 5), F(vt.getIdx(), 0)});
@@ -451,7 +451,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdStSingleStructRepPostReg(uint3
 }
 
 // Advanced SIMD load/store single structures (post-indexed immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdStSingleStructPostImm(uint32_t L, uint32_t R, uint32_t num, const VRegElem &vt, const AdrPostImm &adr) {
+void CodeGenerator::AdvSimdLdStSingleStructPostImm(uint32_t L, uint32_t R, uint32_t num, const VRegElem &vt, const AdrPostImm &adr) {
   uint32_t Q = genQ(vt);
   uint32_t S = genS(vt);
   uint32_t size = genSizeEnc(vt);
@@ -464,7 +464,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdStSingleStructPostImm(uint32_t
 }
 
 // Advanced SIMD load replication single structures (post-indexed immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdRepSingleStructPostImm(uint32_t L, uint32_t R, uint32_t opcode, uint32_t S, const VRegVec &vt, const AdrPostImm &adr) {
+void CodeGenerator::AdvSimdLdRepSingleStructPostImm(uint32_t L, uint32_t R, uint32_t opcode, uint32_t S, const VRegVec &vt, const AdrPostImm &adr) {
   uint32_t Q = genQ(vt);
   uint32_t size = genSize(vt);
   uint32_t len = (field(opcode, 0, 0) << 1) + R + 1;
@@ -476,7 +476,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdLdRepSingleStructPostImm(uint32_
 }
 
 // store exclusive
-XBYAK_AARCH64_INLINE void CodeGenerator::StExclusive(uint32_t size, uint32_t o0, const WReg ws, const RReg &rt, const AdrImm &adr) {
+void CodeGenerator::StExclusive(uint32_t size, uint32_t o0, const WReg ws, const RReg &rt, const AdrImm &adr) {
   uint32_t L = 0;
   uint32_t o2 = 0;
   uint32_t o1 = 0;
@@ -490,7 +490,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::StExclusive(uint32_t size, uint32_t o0,
 }
 
 // load exclusive
-XBYAK_AARCH64_INLINE void CodeGenerator::LdExclusive(uint32_t size, uint32_t o0, const RReg &rt, const AdrImm &adr) {
+void CodeGenerator::LdExclusive(uint32_t size, uint32_t o0, const RReg &rt, const AdrImm &adr) {
   uint32_t L = 1;
   uint32_t o2 = 0;
   uint32_t o1 = 0;
@@ -503,7 +503,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdExclusive(uint32_t size, uint32_t o0,
 }
 
 // store LORelease
-XBYAK_AARCH64_INLINE void CodeGenerator::StLORelase(uint32_t size, uint32_t o0, const RReg &rt, const AdrImm &adr) {
+void CodeGenerator::StLORelase(uint32_t size, uint32_t o0, const RReg &rt, const AdrImm &adr) {
   uint32_t L = 0;
   uint32_t o2 = 1;
   uint32_t o1 = 0;
@@ -516,7 +516,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::StLORelase(uint32_t size, uint32_t o0, 
 }
 
 // load LOAcquire
-XBYAK_AARCH64_INLINE void CodeGenerator::LdLOAcquire(uint32_t size, uint32_t o0, const RReg &rt, const AdrImm &adr) {
+void CodeGenerator::LdLOAcquire(uint32_t size, uint32_t o0, const RReg &rt, const AdrImm &adr) {
   uint32_t L = 1;
   uint32_t o2 = 1;
   uint32_t o1 = 0;
@@ -529,7 +529,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdLOAcquire(uint32_t size, uint32_t o0,
 }
 
 // compare and swap
-XBYAK_AARCH64_INLINE void CodeGenerator::Cas(uint32_t size, uint32_t o2, uint32_t L, uint32_t o1, uint32_t o0, const RReg &rs, const RReg &rt, const AdrNoOfs &adr) {
+void CodeGenerator::Cas(uint32_t size, uint32_t o2, uint32_t L, uint32_t o1, uint32_t o0, const RReg &rs, const RReg &rt, const AdrNoOfs &adr) {
   verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
   verifyIncRange(rs.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
 
@@ -538,7 +538,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Cas(uint32_t size, uint32_t o2, uint32_
 }
 
 // load/store exclusive pair
-XBYAK_AARCH64_INLINE void CodeGenerator::StExclusivePair(uint32_t L, uint32_t o1, uint32_t o0, const WReg &ws, const RReg &rt1, const RReg &rt2, const AdrImm &adr) {
+void CodeGenerator::StExclusivePair(uint32_t L, uint32_t o1, uint32_t o0, const WReg &ws, const RReg &rt1, const RReg &rt2, const AdrImm &adr) {
   uint32_t sz = (rt1.getBit() == 64) ? 1 : 0;
 
   verifyIncList(adr.getImm(), {0}, ERR_ILLEGAL_IMM_VALUE);
@@ -551,7 +551,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::StExclusivePair(uint32_t L, uint32_t o1
 }
 
 // load/store exclusive pair
-XBYAK_AARCH64_INLINE void CodeGenerator::LdExclusivePair(uint32_t L, uint32_t o1, uint32_t o0, const RReg &rt1, const RReg &rt2, const AdrImm &adr) {
+void CodeGenerator::LdExclusivePair(uint32_t L, uint32_t o1, uint32_t o0, const RReg &rt1, const RReg &rt2, const AdrImm &adr) {
   uint32_t sz = (rt1.getBit() == 64) ? 1 : 0;
 
   verifyIncList(adr.getImm(), {0}, ERR_ILLEGAL_IMM_VALUE);
@@ -563,7 +563,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdExclusivePair(uint32_t L, uint32_t o1
 }
 
 // compare and swap pair
-XBYAK_AARCH64_INLINE void CodeGenerator::CasPair(uint32_t L, uint32_t o1, uint32_t o0, const RReg &rs, const RReg &rt, const AdrNoOfs &adr) {
+void CodeGenerator::CasPair(uint32_t L, uint32_t o1, uint32_t o0, const RReg &rs, const RReg &rt, const AdrNoOfs &adr) {
   uint32_t sz = (rt.getBit() == 64) ? 1 : 0;
 
   verifyIncRange(rs.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
@@ -574,7 +574,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::CasPair(uint32_t L, uint32_t o1, uint32
 }
 
 // LDAPR/STLR (unscaled immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdaprStlr(uint32_t size, uint32_t opc, const RReg &rt, const AdrImm &adr) {
+void CodeGenerator::LdaprStlr(uint32_t size, uint32_t opc, const RReg &rt, const AdrImm &adr) {
   int32_t simm = adr.getImm();
   uint32_t imm9 = simm & ones(9);
 
@@ -586,27 +586,27 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdaprStlr(uint32_t size, uint32_t opc, 
 }
 
 // load register (literal)
-XBYAK_AARCH64_INLINE uint32_t CodeGenerator::LdRegLiteralEnc(uint32_t opc, uint32_t V, const RReg &rt, int64_t labelOffset) {
+uint32_t CodeGenerator::LdRegLiteralEnc(uint32_t opc, uint32_t V, const RReg &rt, int64_t labelOffset) {
   verifyIncRange(labelOffset, (-1) * (1 << 20), ones(20), ERR_LABEL_IS_TOO_FAR, true);
 
   uint32_t imm19 = (static_cast<uint32_t>(labelOffset >> 2)) & ones(19);
   return concat({F(opc, 30), F(0x3, 27), F(V, 26), F(imm19, 5), F(rt.getIdx(), 0)});
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::LdRegLiteral(uint32_t opc, uint32_t V, const RReg &rt, const Label &label) {
+void CodeGenerator::LdRegLiteral(uint32_t opc, uint32_t V, const RReg &rt, const Label &label) {
   auto encFunc = [&, opc, V, rt](int64_t labelOffset) { return LdRegLiteralEnc(opc, V, rt, labelOffset); };
   JmpLabel jmpL = JmpLabel(encFunc, size_);
   uint32_t code = LdRegLiteralEnc(opc, V, rt, genLabelOffset(label, jmpL));
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::LdRegLiteral(uint32_t opc, uint32_t V, const RReg &rt, int64_t label) {
+void CodeGenerator::LdRegLiteral(uint32_t opc, uint32_t V, const RReg &rt, int64_t label) {
   uint32_t code = LdRegLiteralEnc(opc, V, rt, label);
   dd(code);
 }
 
 // load register (SIMD&FP, literal)
-XBYAK_AARCH64_INLINE uint32_t CodeGenerator::LdRegSimdFpLiteralEnc(const VRegSc &vt, int64_t labelOffset) {
+uint32_t CodeGenerator::LdRegSimdFpLiteralEnc(const VRegSc &vt, int64_t labelOffset) {
   verifyIncRange(labelOffset, -1 * (1 << 20), ones(20), ERR_LABEL_IS_TOO_FAR, true);
 
   uint32_t opc = (vt.getBit() == 32) ? 0 : (vt.getBit() == 64) ? 1 : 2;
@@ -615,20 +615,20 @@ XBYAK_AARCH64_INLINE uint32_t CodeGenerator::LdRegSimdFpLiteralEnc(const VRegSc 
   return concat({F(opc, 30), F(0x3, 27), F(V, 26), F(imm19, 5), F(vt.getIdx(), 0)});
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::LdRegSimdFpLiteral(const VRegSc &vt, const Label &label) {
+void CodeGenerator::LdRegSimdFpLiteral(const VRegSc &vt, const Label &label) {
   auto encFunc = [&, vt](int64_t labelOffset) { return LdRegSimdFpLiteralEnc(vt, labelOffset); };
   JmpLabel jmpL = JmpLabel(encFunc, size_);
   uint32_t code = LdRegSimdFpLiteralEnc(vt, genLabelOffset(label, jmpL));
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::LdRegSimdFpLiteral(const VRegSc &vt, int64_t label) {
+void CodeGenerator::LdRegSimdFpLiteral(const VRegSc &vt, int64_t label) {
   uint32_t code = LdRegSimdFpLiteralEnc(vt, label);
   dd(code);
 }
 
 // prefetch (literal)
-XBYAK_AARCH64_INLINE uint32_t CodeGenerator::PfLiteralEnc(Prfop prfop, int64_t labelOffset) {
+uint32_t CodeGenerator::PfLiteralEnc(Prfop prfop, int64_t labelOffset) {
   verifyIncRange(labelOffset, -1 * (1 << 20), ones(20), ERR_LABEL_IS_TOO_FAR, true);
 
   uint32_t opc = 3;
@@ -637,20 +637,20 @@ XBYAK_AARCH64_INLINE uint32_t CodeGenerator::PfLiteralEnc(Prfop prfop, int64_t l
   return concat({F(opc, 30), F(0x3, 27), F(V, 26), F(imm19, 5), F(prfop, 0)});
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::PfLiteral(Prfop prfop, const Label &label) {
+void CodeGenerator::PfLiteral(Prfop prfop, const Label &label) {
   auto encFunc = [&, prfop](int64_t labelOffset) { return PfLiteralEnc(prfop, labelOffset); };
   JmpLabel jmpL = JmpLabel(encFunc, size_);
   uint32_t code = PfLiteralEnc(prfop, genLabelOffset(label, jmpL));
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::PfLiteral(Prfop prfop, int64_t label) {
+void CodeGenerator::PfLiteral(Prfop prfop, int64_t label) {
   uint32_t code = PfLiteralEnc(prfop, label);
   dd(code);
 }
 
 // Load/store no-allocate pair (offset)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStNoAllocPair(uint32_t L, const RReg &rt1, const RReg &rt2, const AdrImm &adr) {
+void CodeGenerator::LdStNoAllocPair(uint32_t L, const RReg &rt1, const RReg &rt2, const AdrImm &adr) {
   int32_t imm = adr.getImm();
   int32_t times = (rt1.getBit() == 32) ? 1 : 2;
 
@@ -670,7 +670,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStNoAllocPair(uint32_t L, const RReg 
 }
 
 // Load/store no-allocate pair (offset)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpNoAllocPair(uint32_t L, const VRegSc &vt1, const VRegSc &vt2, const AdrImm &adr) {
+void CodeGenerator::LdStSimdFpNoAllocPair(uint32_t L, const VRegSc &vt1, const VRegSc &vt2, const AdrImm &adr) {
   int32_t imm = adr.getImm();
   int32_t times = vt1.getBit() / 32;
 
@@ -687,7 +687,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpNoAllocPair(uint32_t L, const
 }
 
 // Load/store pair (post-indexed)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegPairPostImm(uint32_t opc, uint32_t L, const RReg &rt1, const RReg &rt2, const AdrPostImm &adr) {
+void CodeGenerator::LdStRegPairPostImm(uint32_t opc, uint32_t L, const RReg &rt1, const RReg &rt2, const AdrPostImm &adr) {
   int32_t imm = adr.getImm();
   int32_t times = (opc == 2) ? 2 : 1;
 
@@ -706,7 +706,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegPairPostImm(uint32_t opc, uint32
 }
 
 // Load/store pair (post-indexed)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpPairPostImm(uint32_t L, const VRegSc &vt1, const VRegSc &vt2, const AdrPostImm &adr) {
+void CodeGenerator::LdStSimdFpPairPostImm(uint32_t L, const VRegSc &vt1, const VRegSc &vt2, const AdrPostImm &adr) {
   int32_t imm = adr.getImm();
   int32_t times = vt1.getBit() / 32;
 
@@ -723,7 +723,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpPairPostImm(uint32_t L, const
 }
 
 // Load/store pair (offset)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegPair(uint32_t opc, uint32_t L, const RReg &rt1, const RReg &rt2, const AdrImm &adr) {
+void CodeGenerator::LdStRegPair(uint32_t opc, uint32_t L, const RReg &rt1, const RReg &rt2, const AdrImm &adr) {
   int32_t imm = adr.getImm();
   int32_t times = (opc == 2) ? 2 : 1;
 
@@ -742,7 +742,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegPair(uint32_t opc, uint32_t L, c
 }
 
 // Load/store pair (offset)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpPair(uint32_t L, const VRegSc &vt1, const VRegSc &vt2, const AdrImm &adr) {
+void CodeGenerator::LdStSimdFpPair(uint32_t L, const VRegSc &vt1, const VRegSc &vt2, const AdrImm &adr) {
   int32_t imm = adr.getImm();
   int32_t times = vt1.getBit() / 32;
 
@@ -759,7 +759,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpPair(uint32_t L, const VRegSc
 }
 
 // Load/store pair (pre-indexed)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegPairPre(uint32_t opc, uint32_t L, const RReg &rt1, const RReg &rt2, const AdrPreImm &adr) {
+void CodeGenerator::LdStRegPairPre(uint32_t opc, uint32_t L, const RReg &rt1, const RReg &rt2, const AdrPreImm &adr) {
   int32_t imm = adr.getImm();
   int32_t times = (opc == 2) ? 2 : 1;
 
@@ -778,7 +778,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegPairPre(uint32_t opc, uint32_t L
 }
 
 // Load/store pair (pre-indexed)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpPairPre(uint32_t L, const VRegSc &vt1, const VRegSc &vt2, const AdrPreImm &adr) {
+void CodeGenerator::LdStSimdFpPairPre(uint32_t L, const VRegSc &vt1, const VRegSc &vt2, const AdrPreImm &adr) {
   int32_t imm = adr.getImm();
   int32_t times = vt1.getBit() / 32;
 
@@ -795,7 +795,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpPairPre(uint32_t L, const VRe
 }
 
 // Load/store register (unscaled immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegUnsImm(uint32_t size, uint32_t opc, const RReg &rt, const AdrImm &adr) {
+void CodeGenerator::LdStRegUnsImm(uint32_t size, uint32_t opc, const RReg &rt, const AdrImm &adr) {
   int imm = adr.getImm();
   uint32_t imm9 = imm & ones(9);
 
@@ -808,7 +808,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegUnsImm(uint32_t size, uint32_t o
 }
 
 // Load/store register (SIMD&FP, unscaled immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpRegUnsImm(uint32_t opc, const VRegSc &vt, const AdrImm &adr) {
+void CodeGenerator::LdStSimdFpRegUnsImm(uint32_t opc, const VRegSc &vt, const AdrImm &adr) {
   uint32_t size = (vt.getBit() == 16) ? 1 : (vt.getBit() == 32) ? 2 : (vt.getBit() == 64) ? 3 : 0;
 
   int imm = adr.getImm();
@@ -822,7 +822,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpRegUnsImm(uint32_t opc, const
 }
 
 // prefetch register (unscaled immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::PfRegUnsImm(Prfop prfop, const AdrImm &adr) {
+void CodeGenerator::PfRegUnsImm(Prfop prfop, const AdrImm &adr) {
   uint32_t size = 3;
   uint32_t opc = 2;
 
@@ -837,7 +837,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::PfRegUnsImm(Prfop prfop, const AdrImm &
 }
 
 // Load/store register (immediate post-indexed)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegPostImm(uint32_t size, uint32_t opc, const RReg &rt, const AdrPostImm &adr) {
+void CodeGenerator::LdStRegPostImm(uint32_t size, uint32_t opc, const RReg &rt, const AdrPostImm &adr) {
   int imm = adr.getImm();
   uint32_t imm9 = imm & ones(9);
 
@@ -850,7 +850,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegPostImm(uint32_t size, uint32_t 
 }
 
 // Load/store register (SIMD&FP, immediate post-indexed)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpRegPostImm(uint32_t opc, const VRegSc &vt, const AdrPostImm &adr) {
+void CodeGenerator::LdStSimdFpRegPostImm(uint32_t opc, const VRegSc &vt, const AdrPostImm &adr) {
   uint32_t size = (vt.getBit() == 16) ? 1 : (vt.getBit() == 32) ? 2 : (vt.getBit() == 64) ? 3 : 0;
 
   int imm = adr.getImm();
@@ -864,7 +864,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpRegPostImm(uint32_t opc, cons
 }
 
 // Load/store register (unprivileged)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegUnpriv(uint32_t size, uint32_t opc, const RReg &rt, const AdrImm &adr) {
+void CodeGenerator::LdStRegUnpriv(uint32_t size, uint32_t opc, const RReg &rt, const AdrImm &adr) {
   int imm = adr.getImm();
   uint32_t imm9 = imm & ones(9);
 
@@ -877,7 +877,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegUnpriv(uint32_t size, uint32_t o
 }
 
 // Load/store register (immediate pre-indexed)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegPre(uint32_t size, uint32_t opc, const RReg &rt, const AdrPreImm &adr) {
+void CodeGenerator::LdStRegPre(uint32_t size, uint32_t opc, const RReg &rt, const AdrPreImm &adr) {
   int imm = adr.getImm();
   uint32_t imm9 = imm & ones(9);
 
@@ -890,7 +890,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegPre(uint32_t size, uint32_t opc,
 }
 
 // Load/store register (SIMD&FP, immediate pre-indexed)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpRegPre(uint32_t opc, const VRegSc &vt, const AdrPreImm &adr) {
+void CodeGenerator::LdStSimdFpRegPre(uint32_t opc, const VRegSc &vt, const AdrPreImm &adr) {
   uint32_t size = (vt.getBit() == 16) ? 1 : (vt.getBit() == 32) ? 2 : (vt.getBit() == 64) ? 3 : 0;
 
   int imm = adr.getImm();
@@ -904,19 +904,19 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpRegPre(uint32_t opc, const VR
 }
 
 // Atomic memory oprations
-XBYAK_AARCH64_INLINE void CodeGenerator::AtomicMemOp(uint32_t size, uint32_t V, uint32_t A, uint32_t R, uint32_t o3, uint32_t opc, const RReg &rs, const RReg &rt, const AdrNoOfs &adr) {
+void CodeGenerator::AtomicMemOp(uint32_t size, uint32_t V, uint32_t A, uint32_t R, uint32_t o3, uint32_t opc, const RReg &rs, const RReg &rt, const AdrNoOfs &adr) {
   uint32_t code = concat({F(size, 30), F(0x7, 27), F(V, 26), F(A, 23), F(R, 22), F(1, 21), F(rs.getIdx(), 16), F(o3, 15), F(opc, 12), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::AtomicMemOp(uint32_t size, uint32_t V, uint32_t A, uint32_t R, uint32_t o3, uint32_t opc, const RReg &rs, const RReg &rt, const AdrImm &adr) {
+void CodeGenerator::AtomicMemOp(uint32_t size, uint32_t V, uint32_t A, uint32_t R, uint32_t o3, uint32_t opc, const RReg &rs, const RReg &rt, const AdrImm &adr) {
   verifyIncList(adr.getImm(), {0}, ERR_ILLEGAL_IMM_VALUE);
   uint32_t code = concat({F(size, 30), F(0x7, 27), F(V, 26), F(A, 23), F(R, 22), F(1, 21), F(rs.getIdx(), 16), F(o3, 15), F(opc, 12), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
   dd(code);
 }
 
 // load/store register (register offset)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStReg(uint32_t size, uint32_t opc, const RReg &rt, const AdrReg &adr) {
+void CodeGenerator::LdStReg(uint32_t size, uint32_t opc, const RReg &rt, const AdrReg &adr) {
   uint32_t option = 3;
   uint32_t S = ((adr.getInitSh() && size == 0) || (adr.getSh() != 0 && size != 0)) ? 1 : 0;
   uint32_t V = 0;
@@ -929,7 +929,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStReg(uint32_t size, uint32_t opc, co
 }
 
 // load/store register (register offset)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStReg(uint32_t size, uint32_t opc, const RReg &rt, const AdrExt &adr) {
+void CodeGenerator::LdStReg(uint32_t size, uint32_t opc, const RReg &rt, const AdrExt &adr) {
   uint32_t option = adr.getMod();
   uint32_t S = ((adr.getInitSh() && size == 0) || (adr.getSh() != 0 && size != 0)) ? 1 : 0;
   uint32_t V = 0;
@@ -945,7 +945,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStReg(uint32_t size, uint32_t opc, co
 }
 
 // load/store register (register offset)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpReg(uint32_t opc, const VRegSc &vt, const AdrReg &adr) {
+void CodeGenerator::LdStSimdFpReg(uint32_t opc, const VRegSc &vt, const AdrReg &adr) {
   uint32_t size = genSize(vt);
   uint32_t option = 3;
   uint32_t vt_bit = vt.getBit();
@@ -959,7 +959,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpReg(uint32_t opc, const VRegS
 }
 
 // load/store register (register offset)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpReg(uint32_t opc, const VRegSc &vt, const AdrExt &adr) {
+void CodeGenerator::LdStSimdFpReg(uint32_t opc, const VRegSc &vt, const AdrExt &adr) {
   uint32_t size = genSize(vt);
   uint32_t option = adr.getMod();
   uint32_t vt_bit = vt.getBit();
@@ -979,7 +979,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpReg(uint32_t opc, const VRegS
 }
 
 // load/store register (register offset)
-XBYAK_AARCH64_INLINE void CodeGenerator::PfExt(Prfop prfop, const AdrReg &adr) {
+void CodeGenerator::PfExt(Prfop prfop, const AdrReg &adr) {
   uint32_t size = 3;
   uint32_t opc = 2;
   uint32_t option = adr.getMod();
@@ -994,7 +994,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::PfExt(Prfop prfop, const AdrReg &adr) {
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::PfExt(Prfop prfop, const AdrExt &adr) {
+void CodeGenerator::PfExt(Prfop prfop, const AdrExt &adr) {
   uint32_t size = 3;
   uint32_t opc = 2;
   uint32_t option = adr.getMod();
@@ -1013,7 +1013,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::PfExt(Prfop prfop, const AdrExt &adr) {
 }
 
 // loat/store register (pac)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegPac(uint32_t M, uint32_t W, const XReg &xt, const AdrImm &adr) {
+void CodeGenerator::LdStRegPac(uint32_t M, uint32_t W, const XReg &xt, const AdrImm &adr) {
   uint32_t size = 3;
   uint32_t V = 0;
 
@@ -1031,7 +1031,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegPac(uint32_t M, uint32_t W, cons
 }
 
 // loat/store register (pac)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegPac(uint32_t M, uint32_t W, const XReg &xt, const AdrPreImm &adr) {
+void CodeGenerator::LdStRegPac(uint32_t M, uint32_t W, const XReg &xt, const AdrPreImm &adr) {
   uint32_t size = 3;
   uint32_t V = 0;
 
@@ -1049,7 +1049,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegPac(uint32_t M, uint32_t W, cons
 }
 
 // loat/store register (unsigned immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegUnImm(uint32_t size, uint32_t opc, const RReg &rt, const AdrUimm &adr) {
+void CodeGenerator::LdStRegUnImm(uint32_t size, uint32_t opc, const RReg &rt, const AdrUimm &adr) {
   int32_t imm = adr.getImm();
   int32_t times = 1 << size;
   uint32_t imm12 = (imm >> size) & ones(12);
@@ -1066,7 +1066,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStRegUnImm(uint32_t size, uint32_t op
 }
 
 // loat/store register (unsigned immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpUnImm(uint32_t opc, const VRegSc &vt, const AdrUimm &adr) {
+void CodeGenerator::LdStSimdFpUnImm(uint32_t opc, const VRegSc &vt, const AdrUimm &adr) {
   int32_t imm = adr.getImm();
   uint32_t times = vt.getBit() / 8;
   uint32_t sh = (uint32_t)std::log2(times);
@@ -1083,7 +1083,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LdStSimdFpUnImm(uint32_t opc, const VRe
 }
 
 // loat/store register (unsigned immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::PfRegImm(Prfop prfop, const AdrUimm &adr) {
+void CodeGenerator::PfRegImm(Prfop prfop, const AdrUimm &adr) {
   int32_t imm = adr.getImm();
   int32_t times = 8;
   uint32_t imm12 = (imm >> 3) & ones(12);
@@ -1100,7 +1100,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::PfRegImm(Prfop prfop, const AdrUimm &ad
 }
 
 // Data processing (2 source)
-XBYAK_AARCH64_INLINE void CodeGenerator::DataProc2Src(uint32_t opcode, const RReg &rd, const RReg &rn, const RReg &rm) {
+void CodeGenerator::DataProc2Src(uint32_t opcode, const RReg &rd, const RReg &rn, const RReg &rm) {
   uint32_t sf = genSf(rm);
   uint32_t S = 0;
 
@@ -1112,7 +1112,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::DataProc2Src(uint32_t opcode, const RRe
 }
 
 // Data processing (1 source)
-XBYAK_AARCH64_INLINE void CodeGenerator::DataProc1Src(uint32_t opcode2, uint32_t opcode, const RReg &rd, const RReg &rn) {
+void CodeGenerator::DataProc1Src(uint32_t opcode2, uint32_t opcode, const RReg &rd, const RReg &rn) {
   uint32_t sf = genSf(rd);
   uint32_t S = 0;
 
@@ -1124,7 +1124,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::DataProc1Src(uint32_t opcode2, uint32_t
 }
 
 // Data processing (1 source)
-XBYAK_AARCH64_INLINE void CodeGenerator::DataProc1Src(uint32_t opcode2, uint32_t opcode, const RReg &rd) {
+void CodeGenerator::DataProc1Src(uint32_t opcode2, uint32_t opcode, const RReg &rd) {
   uint32_t sf = genSf(rd);
   uint32_t S = 0;
 
@@ -1135,7 +1135,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::DataProc1Src(uint32_t opcode2, uint32_t
 }
 
 // Logical (shifted register)
-XBYAK_AARCH64_INLINE void CodeGenerator::LogicalShiftReg(uint32_t opc, uint32_t N, const RReg &rd, const RReg &rn, const RReg &rm, ShMod shmod, uint32_t sh) {
+void CodeGenerator::LogicalShiftReg(uint32_t opc, uint32_t N, const RReg &rd, const RReg &rn, const RReg &rm, ShMod shmod, uint32_t sh) {
   uint32_t sf = genSf(rd);
   uint32_t imm6 = sh & ones(6);
 
@@ -1148,7 +1148,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::LogicalShiftReg(uint32_t opc, uint32_t 
 }
 
 // Move (register) alias of ADD,ORR
-XBYAK_AARCH64_INLINE void CodeGenerator::MvReg(const RReg &rd, const RReg &rn) {
+void CodeGenerator::MvReg(const RReg &rd, const RReg &rn) {
   if (rd.getIdx() == SP_IDX || rn.getIdx() == SP_IDX) {
     // alias of ADD
     AddSubImm(0, 0, rd, rn, 0, 0);
@@ -1159,7 +1159,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::MvReg(const RReg &rd, const RReg &rn) {
 }
 
 // Add/subtract (shifted register)
-XBYAK_AARCH64_INLINE void CodeGenerator::AddSubShiftReg(uint32_t opc, uint32_t S, const RReg &rd, const RReg &rn, const RReg &rm, ShMod shmod, uint32_t sh, bool alias) {
+void CodeGenerator::AddSubShiftReg(uint32_t opc, uint32_t S, const RReg &rd, const RReg &rn, const RReg &rm, ShMod shmod, uint32_t sh, bool alias) {
   uint32_t rd_sp = (rd.getIdx() == SP_IDX);
   uint32_t rn_sp = (rn.getIdx() == SP_IDX);
   if (((rd_sp + rn_sp) >= 1 + (uint32_t)alias) && shmod == LSL) {
@@ -1185,7 +1185,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AddSubShiftReg(uint32_t opc, uint32_t S
 }
 
 // Add/subtract (extended register)
-XBYAK_AARCH64_INLINE void CodeGenerator::AddSubExtReg(uint32_t opc, uint32_t S, const RReg &rd, const RReg &rn, const RReg &rm, ExtMod extmod, uint32_t sh) {
+void CodeGenerator::AddSubExtReg(uint32_t opc, uint32_t S, const RReg &rd, const RReg &rn, const RReg &rm, ExtMod extmod, uint32_t sh) {
   uint32_t sf = genSf(rd);
   uint32_t opt = 0;
   uint32_t imm3 = sh & ones(3);
@@ -1198,7 +1198,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AddSubExtReg(uint32_t opc, uint32_t S, 
 }
 
 // Add/subtract (with carry)
-XBYAK_AARCH64_INLINE void CodeGenerator::AddSubCarry(uint32_t op, uint32_t S, const RReg &rd, const RReg &rn, const RReg &rm) {
+void CodeGenerator::AddSubCarry(uint32_t op, uint32_t S, const RReg &rd, const RReg &rn, const RReg &rm) {
   uint32_t sf = genSf(rd);
 
   verifyCond(
@@ -1209,7 +1209,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AddSubCarry(uint32_t op, uint32_t S, co
 }
 
 // Rotate right into flags
-XBYAK_AARCH64_INLINE void CodeGenerator::RotateR(uint32_t op, uint32_t S, uint32_t o2, const XReg &xn, uint32_t sh, uint32_t mask) {
+void CodeGenerator::RotateR(uint32_t op, uint32_t S, uint32_t o2, const XReg &xn, uint32_t sh, uint32_t mask) {
   uint32_t sf = genSf(xn);
   uint32_t imm6 = sh & ones(6);
 
@@ -1222,7 +1222,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::RotateR(uint32_t op, uint32_t S, uint32
 }
 
 // Evaluate into flags
-XBYAK_AARCH64_INLINE void CodeGenerator::Evaluate(uint32_t op, uint32_t S, uint32_t opcode2, uint32_t sz, uint32_t o3, uint32_t mask, const WReg &wn) {
+void CodeGenerator::Evaluate(uint32_t op, uint32_t S, uint32_t opcode2, uint32_t sz, uint32_t o3, uint32_t mask, const WReg &wn) {
   uint32_t sf = 0;
 
   verifyIncRange(wn.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
@@ -1233,7 +1233,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Evaluate(uint32_t op, uint32_t S, uint3
 }
 
 // Conditional compare (register)
-XBYAK_AARCH64_INLINE void CodeGenerator::CondCompReg(uint32_t op, uint32_t S, uint32_t o2, uint32_t o3, const RReg &rn, const RReg &rm, uint32_t nczv, Cond cond) {
+void CodeGenerator::CondCompReg(uint32_t op, uint32_t S, uint32_t o2, uint32_t o3, const RReg &rn, const RReg &rm, uint32_t nczv, Cond cond) {
   uint32_t sf = genSf(rn);
 
   verifyCond(
@@ -1245,7 +1245,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::CondCompReg(uint32_t op, uint32_t S, ui
 }
 
 // Conditional compare (imm)
-XBYAK_AARCH64_INLINE void CodeGenerator::CondCompImm(uint32_t op, uint32_t S, uint32_t o2, uint32_t o3, const RReg &rn, uint32_t imm, uint32_t nczv, Cond cond) {
+void CodeGenerator::CondCompImm(uint32_t op, uint32_t S, uint32_t o2, uint32_t o3, const RReg &rn, uint32_t imm, uint32_t nczv, Cond cond) {
   uint32_t sf = genSf(rn);
   uint32_t imm5 = imm & ones(5);
 
@@ -1258,7 +1258,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::CondCompImm(uint32_t op, uint32_t S, ui
 }
 
 // Conditional select
-XBYAK_AARCH64_INLINE void CodeGenerator::CondSel(uint32_t op, uint32_t S, uint32_t op2, const RReg &rd, const RReg &rn, const RReg &rm, Cond cond) {
+void CodeGenerator::CondSel(uint32_t op, uint32_t S, uint32_t op2, const RReg &rd, const RReg &rn, const RReg &rm, Cond cond) {
   uint32_t sf = genSf(rn);
 
   verifyCond(
@@ -1269,7 +1269,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::CondSel(uint32_t op, uint32_t S, uint32
 }
 
 // Conditional select
-XBYAK_AARCH64_INLINE void CodeGenerator::DataProc3Reg(uint32_t op54, uint32_t op31, uint32_t o0, const RReg &rd, const RReg &rn, const RReg &rm, const RReg &ra) {
+void CodeGenerator::DataProc3Reg(uint32_t op54, uint32_t op31, uint32_t o0, const RReg &rd, const RReg &rn, const RReg &rm, const RReg &ra) {
   uint32_t sf = genSf(rd);
 
   verifyCond(
@@ -1280,7 +1280,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::DataProc3Reg(uint32_t op54, uint32_t op
 }
 
 // Conditional select
-XBYAK_AARCH64_INLINE void CodeGenerator::DataProc3Reg(uint32_t op54, uint32_t op31, uint32_t o0, const RReg &rd, const RReg &rn, const RReg &rm) {
+void CodeGenerator::DataProc3Reg(uint32_t op54, uint32_t op31, uint32_t o0, const RReg &rd, const RReg &rn, const RReg &rm) {
   uint32_t sf = genSf(rd);
 
   verifyCond(
@@ -1291,35 +1291,35 @@ XBYAK_AARCH64_INLINE void CodeGenerator::DataProc3Reg(uint32_t op54, uint32_t op
 }
 
 // Cryptographic AES
-XBYAK_AARCH64_INLINE void CodeGenerator::CryptAES(uint32_t opcode, const VRegVec &vd, const VRegVec &vn) {
+void CodeGenerator::CryptAES(uint32_t opcode, const VRegVec &vd, const VRegVec &vn) {
   uint32_t size = genSize(vd);
   uint32_t code = concat({F(0x4e, 24), F(size, 22), F(0x14, 17), F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Cryptographic three-register SHA
-XBYAK_AARCH64_INLINE void CodeGenerator::Crypt3RegSHA(uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegVec &vm) {
+void CodeGenerator::Crypt3RegSHA(uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegVec &vm) {
   uint32_t size = 0;
   uint32_t code = concat({F(0x5e, 24), F(size, 22), F(vm.getIdx(), 16), F(opcode, 12), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Cryptographic three-register SHA
-XBYAK_AARCH64_INLINE void CodeGenerator::Crypt3RegSHA(uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
+void CodeGenerator::Crypt3RegSHA(uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
   uint32_t size = 0;
   uint32_t code = concat({F(0x5e, 24), F(size, 22), F(vm.getIdx(), 16), F(opcode, 12), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Cryptographic two-register SHA
-XBYAK_AARCH64_INLINE void CodeGenerator::Crypt2RegSHA(uint32_t opcode, const Reg &vd, const Reg &vn) {
+void CodeGenerator::Crypt2RegSHA(uint32_t opcode, const Reg &vd, const Reg &vn) {
   uint32_t size = 0;
   uint32_t code = concat({F(0x5e, 24), F(size, 22), F(0x14, 17), F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Advanced SIMD Scalar copy
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdScCopy(uint32_t op, uint32_t imm4, const VRegSc &vd, const VRegElem &vn) {
+void CodeGenerator::AdvSimdScCopy(uint32_t op, uint32_t imm4, const VRegSc &vd, const VRegElem &vn) {
   uint32_t sh = genSize(vd);
   uint32_t imm5 = 1 << sh | vn.getElemIdx() << (sh + 1);
   uint32_t code = concat({F(1, 30), F(op, 29), F(0xf, 25), F(imm5, 16), F(imm4, 11), F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
@@ -1327,96 +1327,96 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdScCopy(uint32_t op, uint32_t imm
 }
 
 // Advanced SIMD Scalar three same FP16
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdSc3SameFp16(uint32_t U, uint32_t a, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm) {
+void CodeGenerator::AdvSimdSc3SameFp16(uint32_t U, uint32_t a, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm) {
   uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(a, 23), F(2, 21), F(vm.getIdx(), 16), F(opcode, 11), F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Advanced SIMD Scalar two-register miscellaneous FP16
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdSc2RegMiscFp16(uint32_t U, uint32_t a, uint32_t opcode, const VRegSc &vd, const VRegSc &vn) {
+void CodeGenerator::AdvSimdSc2RegMiscFp16(uint32_t U, uint32_t a, uint32_t opcode, const VRegSc &vd, const VRegSc &vn) {
   uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(a, 23), F(0xf, 19), F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdSc2RegMiscFp16(uint32_t U, uint32_t a, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, double zero) {
+void CodeGenerator::AdvSimdSc2RegMiscFp16(uint32_t U, uint32_t a, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, double zero) {
   verifyIncList(std::lround(zero * 10), {0}, ERR_ILLEGAL_CONST_VALUE);
   AdvSimdSc2RegMiscFp16(U, a, opcode, vd, vn);
 }
 
 // Advanced SIMD Scalar three same extra
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdSc3SameExtra(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm) {
+void CodeGenerator::AdvSimdSc3SameExtra(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm) {
   uint32_t size = genSize(vd);
   uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22), F(vm.getIdx(), 16), F(1, 15), F(opcode, 11), F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Advanced SIMD Scalar two-register miscellaneous
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdSc2RegMisc(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn) {
+void CodeGenerator::AdvSimdSc2RegMisc(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn) {
   uint32_t size = genSize(vd);
   uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22), F(1, 21), F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdSc2RegMisc(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, uint32_t zero) {
+void CodeGenerator::AdvSimdSc2RegMisc(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, uint32_t zero) {
   verifyIncList(zero, {0}, ERR_ILLEGAL_CONST_VALUE);
   AdvSimdSc2RegMisc(U, opcode, vd, vn);
 }
 
 // Advanced SIMD Scalar two-register miscellaneous
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdSc2RegMiscSz0x(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn) {
+void CodeGenerator::AdvSimdSc2RegMiscSz0x(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn) {
   uint32_t size = genSize(vn) & 1;
   uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22), F(1, 21), F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Advanced SIMD Scalar two-register miscellaneous
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdSc2RegMiscSz1x(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn) {
+void CodeGenerator::AdvSimdSc2RegMiscSz1x(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn) {
   uint32_t size = genSize(vd);
   uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22), F(1, 21), F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdSc2RegMiscSz1x(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, double zero) {
+void CodeGenerator::AdvSimdSc2RegMiscSz1x(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, double zero) {
   verifyIncList(std::lround(zero * 10), {0}, ERR_ILLEGAL_CONST_VALUE);
   AdvSimdSc2RegMiscSz1x(U, opcode, vd, vn);
 }
 
 // Advanced SIMD scalar pairwize
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdScPairwise(uint32_t U, uint32_t size, uint32_t opcode, const VRegSc &vd, const VRegVec &vn) {
+void CodeGenerator::AdvSimdScPairwise(uint32_t U, uint32_t size, uint32_t opcode, const VRegSc &vd, const VRegVec &vn) {
   uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22), F(3, 20), F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Advanced SIMD scalar three different
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdSc3Diff(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm) {
+void CodeGenerator::AdvSimdSc3Diff(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm) {
   uint32_t size = genSize(vn);
   uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22), F(1, 21), F(vm.getIdx(), 16), F(opcode, 12), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Advanced SIMD scalar three same
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdSc3Same(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm) {
+void CodeGenerator::AdvSimdSc3Same(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm) {
   uint32_t size = genSize(vd);
   uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22), F(1, 21), F(vm.getIdx(), 16), F(opcode, 11), F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Advanced SIMD scalar three same
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdSc3SameSz0x(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm) {
+void CodeGenerator::AdvSimdSc3SameSz0x(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm) {
   uint32_t size = genSize(vd) & 1;
   uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22), F(1, 21), F(vm.getIdx(), 16), F(opcode, 11), F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Advanced SIMD scalar three same
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdSc3SameSz1x(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm) {
+void CodeGenerator::AdvSimdSc3SameSz1x(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm) {
   uint32_t size = genSize(vd);
   uint32_t code = concat({F(1, 30), F(U, 29), F(0xf, 25), F(size, 22), F(1, 21), F(vm.getIdx(), 16), F(opcode, 11), F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Advanced SIMD scalar shift by immediate
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdScShImm(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, uint32_t sh) {
+void CodeGenerator::AdvSimdScShImm(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, uint32_t sh) {
   uint32_t size = genSize(vd);
 
   bool lsh = (opcode == 0xa || opcode == 0xc || opcode == 0xe); // left shift
@@ -1432,7 +1432,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdScShImm(uint32_t U, uint32_t opc
 }
 
 // Advanced SIMD scalar x indexed element
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdScXIndElemSz(uint32_t U, uint32_t size, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegElem &vm) {
+void CodeGenerator::AdvSimdScXIndElemSz(uint32_t U, uint32_t size, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegElem &vm) {
   uint32_t bits = vm.getBit();
   uint32_t eidx = vm.getElemIdx();
   uint32_t H = (bits == 16) ? field(eidx, 2, 2) : (bits == 32) ? field(eidx, 1, 1) : field(eidx, 0, 0);
@@ -1447,20 +1447,20 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdScXIndElemSz(uint32_t U, uint32_
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdScXIndElem(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegElem &vm) {
+void CodeGenerator::AdvSimdScXIndElem(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegElem &vm) {
   uint32_t size = genSize(vm);
   AdvSimdScXIndElemSz(U, size, opcode, vd, vn, vm);
 }
 
 // Advanced SIMD table lookup
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdTblLkup(uint32_t op2, uint32_t len, uint32_t op, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
+void CodeGenerator::AdvSimdTblLkup(uint32_t op2, uint32_t len, uint32_t op, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
   uint32_t Q = genQ(vd);
   uint32_t code = concat({F(Q, 30), F(0xe, 24), F(op2, 22), F(vm.getIdx(), 16), F(len - 1, 13), F(op, 12), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Advanced SIMD table lookup
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdTblLkup(uint32_t op2, uint32_t op, const VRegVec &vd, const VRegList &vn, const VRegVec &vm) {
+void CodeGenerator::AdvSimdTblLkup(uint32_t op2, uint32_t op, const VRegVec &vd, const VRegList &vn, const VRegVec &vm) {
   uint32_t Q = genQ(vd);
   uint32_t len = vn.getLen() - 1;
   uint32_t code = concat({F(Q, 30), F(0xe, 24), F(op2, 22), F(vm.getIdx(), 16), F(len, 13), F(op, 12), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
@@ -1468,7 +1468,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdTblLkup(uint32_t op2, uint32_t o
 }
 
 // Advanced SIMD permute
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdPermute(uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
+void CodeGenerator::AdvSimdPermute(uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
   uint32_t Q = genQ(vd);
   uint32_t size = genSize(vd);
   uint32_t code = concat({F(Q, 30), F(0xe, 24), F(size, 22), F(vm.getIdx(), 16), F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
@@ -1476,7 +1476,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdPermute(uint32_t opcode, const V
 }
 
 // Advanced SIMD extract
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdExtract(uint32_t op2, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm, uint32_t index) {
+void CodeGenerator::AdvSimdExtract(uint32_t op2, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm, uint32_t index) {
   uint32_t Q = genQ(vd);
   uint32_t imm4 = index & ones(4);
 
@@ -1490,7 +1490,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdExtract(uint32_t op2, const VReg
 }
 
 // Advanced SIMD copy
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdCopyDupElem(uint32_t op, uint32_t imm4, const VRegVec &vd, const VRegElem &vn) {
+void CodeGenerator::AdvSimdCopyDupElem(uint32_t op, uint32_t imm4, const VRegVec &vd, const VRegElem &vn) {
   uint32_t Q = genQ(vd);
   uint32_t size = genSize(vd);
   uint32_t imm5 = (1 << size) | (vn.getElemIdx() << (size + 1));
@@ -1499,7 +1499,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdCopyDupElem(uint32_t op, uint32_
 }
 
 // Advanced SIMD copy
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdCopyDupGen(uint32_t op, uint32_t imm4, const VRegVec &vd, const RReg &rn) {
+void CodeGenerator::AdvSimdCopyDupGen(uint32_t op, uint32_t imm4, const VRegVec &vd, const RReg &rn) {
   uint32_t Q = genQ(vd);
   uint32_t size = genSize(vd);
   uint32_t imm5 = 1 << size;
@@ -1508,7 +1508,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdCopyDupGen(uint32_t op, uint32_t
 }
 
 // Advanced SIMD copy
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdCopyMov(uint32_t op, uint32_t imm4, const RReg &rd, const VRegElem &vn) {
+void CodeGenerator::AdvSimdCopyMov(uint32_t op, uint32_t imm4, const RReg &rd, const VRegElem &vn) {
   uint32_t Q = genSf(rd);
   uint32_t size = genSize(vn);
   uint32_t imm5 = ((1 << size) | (vn.getElemIdx() << (size + 1))) & ones(5);
@@ -1517,7 +1517,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdCopyMov(uint32_t op, uint32_t im
 }
 
 // Advanced SIMD copy
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdCopyInsGen(uint32_t op, uint32_t imm4, const VRegElem &vd, const RReg &rn) {
+void CodeGenerator::AdvSimdCopyInsGen(uint32_t op, uint32_t imm4, const VRegElem &vd, const RReg &rn) {
   uint32_t Q = 1;
   uint32_t size = genSize(vd);
   uint32_t imm5 = ((1 << size) | (vd.getElemIdx() << (size + 1))) & ones(5);
@@ -1526,7 +1526,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdCopyInsGen(uint32_t op, uint32_t
 }
 
 // Advanced SIMD copy
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdCopyElemIns(uint32_t op, const VRegElem &vd, const VRegElem &vn) {
+void CodeGenerator::AdvSimdCopyElemIns(uint32_t op, const VRegElem &vd, const VRegElem &vn) {
   uint32_t Q = 1;
   uint32_t size = genSize(vd);
   uint32_t imm5 = ((1 << size) | (vd.getElemIdx() << (size + 1))) & ones(5);
@@ -1536,26 +1536,26 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdCopyElemIns(uint32_t op, const V
 }
 
 // Advanced SIMD three same (FP16)
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd3SameFp16(uint32_t U, uint32_t a, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
+void CodeGenerator::AdvSimd3SameFp16(uint32_t U, uint32_t a, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
   uint32_t Q = genQ(vd);
   uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(a, 23), F(2, 21), F(vm.getIdx(), 16), F(opcode, 11), F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Advanced SIMD two-register miscellaneous (FP16)
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd2RegMiscFp16(uint32_t U, uint32_t a, uint32_t opcode, const VRegVec &vd, const VRegVec &vn) {
+void CodeGenerator::AdvSimd2RegMiscFp16(uint32_t U, uint32_t a, uint32_t opcode, const VRegVec &vd, const VRegVec &vn) {
   uint32_t Q = genQ(vd);
   uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(a, 23), F(0xf, 19), F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd2RegMiscFp16(uint32_t U, uint32_t a, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, double zero) {
+void CodeGenerator::AdvSimd2RegMiscFp16(uint32_t U, uint32_t a, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, double zero) {
   verifyIncList(std::lround(zero * 10), {0}, ERR_ILLEGAL_CONST_VALUE);
   AdvSimd2RegMiscFp16(U, a, opcode, vd, vn);
 }
 
 // Advanced SIMD three same extra
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd3SameExtra(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
+void CodeGenerator::AdvSimd3SameExtra(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
   uint32_t Q = genQ(vd);
   uint32_t size = genSize(vd);
   uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(vm.getIdx(), 16), F(1, 15), F(opcode, 11), F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
@@ -1563,7 +1563,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd3SameExtra(uint32_t U, uint32_t 
 }
 
 // Advanced SIMD three same extra
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd3SameExtraRotate(uint32_t U, uint32_t op32, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm, uint32_t rotate) {
+void CodeGenerator::AdvSimd3SameExtraRotate(uint32_t U, uint32_t op32, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm, uint32_t rotate) {
   uint32_t Q = genQ(vd);
   uint32_t size = genSize(vd);
   uint32_t rot = rotate / 90;
@@ -1579,7 +1579,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd3SameExtraRotate(uint32_t U, uin
 }
 
 // Advanced SIMD two-register miscellaneous
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd2RegMisc(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn) {
+void CodeGenerator::AdvSimd2RegMisc(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn) {
   bool sel_vd = (opcode != 0x2 && opcode != 0x6);
   uint32_t Q = (sel_vd) ? genQ(vd) : genQ(vn);
   uint32_t size = (sel_vd) ? genSize(vd) : genSize(vn);
@@ -1588,7 +1588,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd2RegMisc(uint32_t U, uint32_t op
 }
 
 // Advanced SIMD two-register miscellaneous
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd2RegMisc(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, uint32_t sh) {
+void CodeGenerator::AdvSimd2RegMisc(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, uint32_t sh) {
   uint32_t Q = genQ(vn);
   uint32_t size = genSize(vn);
 
@@ -1599,20 +1599,20 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd2RegMisc(uint32_t U, uint32_t op
 }
 
 // Advanced SIMD two-register miscellaneous
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd2RegMiscZero(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, uint32_t zero) {
+void CodeGenerator::AdvSimd2RegMiscZero(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, uint32_t zero) {
   verifyIncList(zero, {0}, ERR_ILLEGAL_CONST_VALUE);
   AdvSimd2RegMisc(U, opcode, vd, vn);
 }
 
 // Advanced SIMD two-register miscellaneous
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd2RegMiscSz(uint32_t U, uint32_t size, uint32_t opcode, const VRegVec &vd, const VRegVec &vn) {
+void CodeGenerator::AdvSimd2RegMiscSz(uint32_t U, uint32_t size, uint32_t opcode, const VRegVec &vd, const VRegVec &vn) {
   uint32_t Q = genQ(vd);
   uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(1, 21), F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Advanced SIMD two-register miscellaneous
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd2RegMiscSz0x(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn) {
+void CodeGenerator::AdvSimd2RegMiscSz0x(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn) {
   bool sel_vd = (opcode == 0x17);
   uint32_t Q = (!sel_vd) ? genQ(vd) : genQ(vn);
   uint32_t size = (sel_vd) ? genSize(vd) : genSize(vn);
@@ -1621,20 +1621,20 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd2RegMiscSz0x(uint32_t U, uint32_
 }
 
 // Advanced SIMD two-register miscellaneous
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd2RegMiscSz1x(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn) {
+void CodeGenerator::AdvSimd2RegMiscSz1x(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn) {
   uint32_t Q = genQ(vd);
   uint32_t size = genSize(vd);
   uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(1, 21), F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd2RegMiscSz1x(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, double zero) {
+void CodeGenerator::AdvSimd2RegMiscSz1x(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, double zero) {
   verifyIncList(std::lround(zero * 10), {0}, ERR_ILLEGAL_CONST_VALUE);
   AdvSimd2RegMiscSz1x(U, opcode, vd, vn);
 }
 
 // Advanced SIMD across lanes
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdAcrossLanes(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegVec &vn) {
+void CodeGenerator::AdvSimdAcrossLanes(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegVec &vn) {
   uint32_t Q = genQ(vn);
   uint32_t size = genSize(vn);
   uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(3, 20), F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
@@ -1642,7 +1642,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdAcrossLanes(uint32_t U, uint32_t
 }
 
 // Advanced SIMD across lanes
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdAcrossLanesSz0x(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegVec &vn) {
+void CodeGenerator::AdvSimdAcrossLanesSz0x(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegVec &vn) {
   uint32_t Q = genQ(vn);
   uint32_t size = 0;
   uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(3, 20), F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
@@ -1650,7 +1650,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdAcrossLanesSz0x(uint32_t U, uint
 }
 
 // Advanced SIMD across lanes
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdAcrossLanesSz1x(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegVec &vn) {
+void CodeGenerator::AdvSimdAcrossLanesSz1x(uint32_t U, uint32_t opcode, const VRegSc &vd, const VRegVec &vn) {
   uint32_t Q = genQ(vn);
   uint32_t size = 2;
   uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(3, 20), F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
@@ -1658,7 +1658,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdAcrossLanesSz1x(uint32_t U, uint
 }
 
 // Advanced SIMD three different
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd3Diff(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
+void CodeGenerator::AdvSimd3Diff(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
   bool vd_sel = (opcode == 0x4 || opcode == 0x6);
   uint32_t Q = (vd_sel) ? genQ(vd) : genQ(vm);
   uint32_t size = (vd_sel) ? genSize(vd) : genSize(vm);
@@ -1667,7 +1667,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd3Diff(uint32_t U, uint32_t opcod
 }
 
 // Advanced SIMD three same
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd3Same(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
+void CodeGenerator::AdvSimd3Same(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
   uint32_t Q = genQ(vd);
   uint32_t size = genSize(vd);
   uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(1, 21), F(vm.getIdx(), 16), F(opcode, 11), F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
@@ -1675,7 +1675,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd3Same(uint32_t U, uint32_t opcod
 }
 
 // Advanced SIMD three same
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd3SameSz0x(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
+void CodeGenerator::AdvSimd3SameSz0x(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
   uint32_t Q = genQ(vd);
   uint32_t size = genSize(vd) & 1;
   uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(1, 21), F(vm.getIdx(), 16), F(opcode, 11), F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
@@ -1683,7 +1683,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd3SameSz0x(uint32_t U, uint32_t o
 }
 
 // Advanced SIMD three same
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd3SameSz1x(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
+void CodeGenerator::AdvSimd3SameSz1x(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
   uint32_t Q = genQ(vd);
   uint32_t size = genSize(vd);
   uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(1, 21), F(vm.getIdx(), 16), F(opcode, 11), F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
@@ -1691,14 +1691,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd3SameSz1x(uint32_t U, uint32_t o
 }
 
 // Advanced SIMD three same
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimd3SameSz(uint32_t U, uint32_t size, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
+void CodeGenerator::AdvSimd3SameSz(uint32_t U, uint32_t size, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
   uint32_t Q = genQ(vd);
   uint32_t code = concat({F(Q, 30), F(U, 29), F(0xe, 24), F(size, 22), F(1, 21), F(vm.getIdx(), 16), F(opcode, 11), F(1, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Advanced SIMD modified immediate (vector)
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdModiImmMoviMvni(uint32_t op, uint32_t o2, const VRegVec &vd, uint32_t imm, ShMod shmod, uint32_t sh) {
+void CodeGenerator::AdvSimdModiImmMoviMvni(uint32_t op, uint32_t o2, const VRegVec &vd, uint32_t imm, ShMod shmod, uint32_t sh) {
   uint32_t Q = genQ(vd);
   uint32_t crmode = (vd.getBit() == 8) ? 0xe : (vd.getBit() == 16) ? 0x8 | (sh >> 2) : (vd.getBit() == 32 && shmod == LSL) ? (sh >> 2) : (vd.getBit() == 32 && shmod == MSL) ? 0xc | (sh >> 4) : 0xe;
 
@@ -1718,7 +1718,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdModiImmMoviMvni(uint32_t op, uin
 }
 
 // Advanced SIMD modified immediate (scalar)
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdModiImmMoviMvniEnc(uint32_t Q, uint32_t op, uint32_t o2, const Reg &vd, uint64_t imm) {
+void CodeGenerator::AdvSimdModiImmMoviMvniEnc(uint32_t Q, uint32_t op, uint32_t o2, const Reg &vd, uint64_t imm) {
   uint32_t crmode = 0xe;
   uint32_t imm8 = compactImm(imm);
 
@@ -1731,18 +1731,18 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdModiImmMoviMvniEnc(uint32_t Q, u
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdModiImmMoviMvni(uint32_t op, uint32_t o2, const VRegSc &vd, uint64_t imm) {
+void CodeGenerator::AdvSimdModiImmMoviMvni(uint32_t op, uint32_t o2, const VRegSc &vd, uint64_t imm) {
   uint32_t Q = 0;
   AdvSimdModiImmMoviMvniEnc(Q, op, o2, vd, imm);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdModiImmMoviMvni(uint32_t op, uint32_t o2, const VRegVec &vd, uint64_t imm) {
+void CodeGenerator::AdvSimdModiImmMoviMvni(uint32_t op, uint32_t o2, const VRegVec &vd, uint64_t imm) {
   uint32_t Q = genQ(vd);
   AdvSimdModiImmMoviMvniEnc(Q, op, o2, vd, imm);
 }
 
 // Advanced SIMD modified immediate
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdModiImmOrrBic(uint32_t op, uint32_t o2, const VRegVec &vd, uint32_t imm, ShMod mod, uint32_t sh) {
+void CodeGenerator::AdvSimdModiImmOrrBic(uint32_t op, uint32_t o2, const VRegVec &vd, uint32_t imm, ShMod mod, uint32_t sh) {
   uint32_t Q = genQ(vd);
   uint32_t crmode = (vd.getBit() == 16) ? (0x9 | (sh >> 2)) : (1 | (sh >> 2));
 
@@ -1759,7 +1759,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdModiImmOrrBic(uint32_t op, uint3
 }
 
 // Advanced SIMD modified immediate
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdModiImmFmov(uint32_t op, uint32_t o2, const VRegVec &vd, double imm) {
+void CodeGenerator::AdvSimdModiImmFmov(uint32_t op, uint32_t o2, const VRegVec &vd, double imm) {
   uint32_t Q = genQ(vd);
   uint32_t crmode = 0xf;
   uint32_t imm8 = compactImm(imm, vd.getBit());
@@ -1770,7 +1770,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdModiImmFmov(uint32_t op, uint32_
 }
 
 // Advanced SIMD shift by immediate
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdShImm(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, uint32_t sh) {
+void CodeGenerator::AdvSimdShImm(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, uint32_t sh) {
   bool vd_sel = (opcode != 0x14);
   uint32_t Q = (vd_sel) ? genQ(vd) : genQ(vn);
   uint32_t size = (vd_sel) ? genSize(vd) : genSize(vn);
@@ -1788,7 +1788,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdShImm(uint32_t U, uint32_t opcod
 }
 
 // Advanced SIMD vector x indexed element
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdVecXindElemEnc(uint32_t Q, uint32_t U, uint32_t size, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegElem &vm) {
+void CodeGenerator::AdvSimdVecXindElemEnc(uint32_t Q, uint32_t U, uint32_t size, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegElem &vm) {
   bool ucmla = (U == 1 && (opcode & 0x9) == 1);
   uint32_t bits = (vm.getBit() == 8) ? 32 : (ucmla) ? vm.getBit() * 2 : vm.getBit();
   uint32_t eidx = vm.getElemIdx();
@@ -1806,7 +1806,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdVecXindElemEnc(uint32_t Q, uint3
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdVecXindElem(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegElem &vm) {
+void CodeGenerator::AdvSimdVecXindElem(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegElem &vm) {
   bool vd_sel = (opcode == 0xe);
   uint32_t Q = (vd_sel) ? genQ(vd) : genQ(vn);
   uint32_t size = (vd_sel) ? genSize(vd) : genSize(vn);
@@ -1814,7 +1814,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdVecXindElem(uint32_t U, uint32_t
 }
 
 // Advanced SIMD vector x indexed element
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdVecXindElem(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegElem &vm, uint32_t rotate) {
+void CodeGenerator::AdvSimdVecXindElem(uint32_t U, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegElem &vm, uint32_t rotate) {
   uint32_t Q = genQ(vd);
   uint32_t size = genSize(vd);
   uint32_t rot = rotate / 90;
@@ -1824,51 +1824,51 @@ XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdVecXindElem(uint32_t U, uint32_t
   AdvSimdVecXindElemEnc(Q, U, size, (rot << 1 | opcode), vd, vn, vm);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::AdvSimdVecXindElemSz(uint32_t U, uint32_t size, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegElem &vm) {
+void CodeGenerator::AdvSimdVecXindElemSz(uint32_t U, uint32_t size, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegElem &vm) {
   uint32_t Q = genQ(vd);
   AdvSimdVecXindElemEnc(Q, U, size, opcode, vd, vn, vm);
 }
 
 // Cryptographic three-register, imm2
-XBYAK_AARCH64_INLINE void CodeGenerator::Crypto3RegImm2(uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegElem &vm) {
+void CodeGenerator::Crypto3RegImm2(uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegElem &vm) {
   uint32_t imm2 = vm.getElemIdx();
   uint32_t code = concat({F(0x672, 21), F(vm.getIdx(), 16), F(2, 14), F(imm2, 12), F(opcode, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Cryptographic three-register SHA 512
-XBYAK_AARCH64_INLINE void CodeGenerator::Crypto3RegSHA512(uint32_t O, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegVec &vm) {
+void CodeGenerator::Crypto3RegSHA512(uint32_t O, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegVec &vm) {
   uint32_t code = concat({F(0x673, 21), F(vm.getIdx(), 16), F(1, 15), F(O, 14), F(opcode, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Cryptographic three-register SHA 512
-XBYAK_AARCH64_INLINE void CodeGenerator::Crypto3RegSHA512(uint32_t O, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
+void CodeGenerator::Crypto3RegSHA512(uint32_t O, uint32_t opcode, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm) {
   uint32_t code = concat({F(0x673, 21), F(vm.getIdx(), 16), F(1, 15), F(O, 14), F(opcode, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // XAR
-XBYAK_AARCH64_INLINE void CodeGenerator::CryptoSHA(const VRegVec &vd, const VRegVec &vn, const VRegVec &vm, uint32_t imm6) {
+void CodeGenerator::CryptoSHA(const VRegVec &vd, const VRegVec &vn, const VRegVec &vm, uint32_t imm6) {
   verifyIncRange(imm6, 0, ones(6), ERR_ILLEGAL_IMM_RANGE);
   uint32_t code = concat({F(0x674, 21), F(vm.getIdx(), 16), F(imm6, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Cryptographic four-register
-XBYAK_AARCH64_INLINE void CodeGenerator::Crypto4Reg(uint32_t Op0, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm, const VRegVec &va) {
+void CodeGenerator::Crypto4Reg(uint32_t Op0, const VRegVec &vd, const VRegVec &vn, const VRegVec &vm, const VRegVec &va) {
   uint32_t code = concat({F(0x19c, 23), F(Op0, 21), F(vm.getIdx(), 16), F(va.getIdx(), 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Cryptographic two-register SHA512
-XBYAK_AARCH64_INLINE void CodeGenerator::Crypto2RegSHA512(uint32_t opcode, const VRegVec &vd, const VRegVec &vn) {
+void CodeGenerator::Crypto2RegSHA512(uint32_t opcode, const VRegVec &vd, const VRegVec &vn) {
   uint32_t code = concat({F(0xcec08, 12), F(opcode, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // conversion between floating-point and fixed-point
-XBYAK_AARCH64_INLINE void CodeGenerator::ConversionFpFix(uint32_t S, uint32_t type, uint32_t rmode, uint32_t opcode, const VRegSc &vd, const RReg &rn, uint32_t fbits) {
+void CodeGenerator::ConversionFpFix(uint32_t S, uint32_t type, uint32_t rmode, uint32_t opcode, const VRegSc &vd, const RReg &rn, uint32_t fbits) {
   uint32_t sf = genSf(rn);
   uint32_t scale = 64 - fbits;
 
@@ -1879,7 +1879,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::ConversionFpFix(uint32_t S, uint32_t ty
 }
 
 // conversion between floating-point and fixed-point
-XBYAK_AARCH64_INLINE void CodeGenerator::ConversionFpFix(uint32_t S, uint32_t type, uint32_t rmode, uint32_t opcode, const RReg &rd, const VRegSc &vn, uint32_t fbits) {
+void CodeGenerator::ConversionFpFix(uint32_t S, uint32_t type, uint32_t rmode, uint32_t opcode, const RReg &rd, const VRegSc &vn, uint32_t fbits) {
   uint32_t sf = genSf(rd);
   uint32_t scale = 64 - fbits;
 
@@ -1890,75 +1890,75 @@ XBYAK_AARCH64_INLINE void CodeGenerator::ConversionFpFix(uint32_t S, uint32_t ty
 }
 
 // conversion between floating-point and integer
-XBYAK_AARCH64_INLINE void CodeGenerator::ConversionFpInt(uint32_t sf, uint32_t S, uint32_t type, uint32_t rmode, uint32_t opcode, const RReg &rd, const VRegSc &vn) {
+void CodeGenerator::ConversionFpInt(uint32_t sf, uint32_t S, uint32_t type, uint32_t rmode, uint32_t opcode, const RReg &rd, const VRegSc &vn) {
   uint32_t code = concat({F(sf, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21), F(rmode, 19), F(opcode, 16), F(vn.getIdx(), 5), F(rd.getIdx(), 0)});
   dd(code);
 }
 
 // conversion between floating-point and integer
-XBYAK_AARCH64_INLINE void CodeGenerator::ConversionFpInt(uint32_t sf, uint32_t S, uint32_t type, uint32_t rmode, uint32_t opcode, const VRegSc &vd, const RReg &rn) {
+void CodeGenerator::ConversionFpInt(uint32_t sf, uint32_t S, uint32_t type, uint32_t rmode, uint32_t opcode, const VRegSc &vd, const RReg &rn) {
   uint32_t code = concat({F(sf, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21), F(rmode, 19), F(opcode, 16), F(rn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // conversion between floating-point and integer
-XBYAK_AARCH64_INLINE void CodeGenerator::ConversionFpInt(uint32_t sf, uint32_t S, uint32_t type, uint32_t rmode, uint32_t opcode, const RReg &rd, const VRegElem &vn) {
+void CodeGenerator::ConversionFpInt(uint32_t sf, uint32_t S, uint32_t type, uint32_t rmode, uint32_t opcode, const RReg &rd, const VRegElem &vn) {
   uint32_t code = concat({F(sf, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21), F(rmode, 19), F(opcode, 16), F(vn.getIdx(), 5), F(rd.getIdx(), 0)});
   dd(code);
 }
 
 // conversion between floating-point and integer
-XBYAK_AARCH64_INLINE void CodeGenerator::ConversionFpInt(uint32_t sf, uint32_t S, uint32_t type, uint32_t rmode, uint32_t opcode, const VRegElem &vd, const RReg &rn) {
+void CodeGenerator::ConversionFpInt(uint32_t sf, uint32_t S, uint32_t type, uint32_t rmode, uint32_t opcode, const VRegElem &vd, const RReg &rn) {
   uint32_t code = concat({F(sf, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21), F(rmode, 19), F(opcode, 16), F(rn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Floating-piont data-processing (1 source)
-XBYAK_AARCH64_INLINE void CodeGenerator::FpDataProc1Reg(uint32_t M, uint32_t S, uint32_t type, uint32_t opcode, const VRegSc &vd, const VRegSc &vn) {
+void CodeGenerator::FpDataProc1Reg(uint32_t M, uint32_t S, uint32_t type, uint32_t opcode, const VRegSc &vd, const VRegSc &vn) {
   uint32_t code = concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21), F(opcode, 15), F(1, 14), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Floating-piont compare
-XBYAK_AARCH64_INLINE void CodeGenerator::FpComp(uint32_t M, uint32_t S, uint32_t type, uint32_t op, uint32_t opcode2, const VRegSc &vn, const VRegSc &vm) {
+void CodeGenerator::FpComp(uint32_t M, uint32_t S, uint32_t type, uint32_t op, uint32_t opcode2, const VRegSc &vn, const VRegSc &vm) {
   uint32_t code = concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21), F(vm.getIdx(), 16), F(op, 14), F(1, 13), F(vn.getIdx(), 5), F(opcode2, 0)});
   dd(code);
 }
 
 // Floating-piont compare
-XBYAK_AARCH64_INLINE void CodeGenerator::FpComp(uint32_t M, uint32_t S, uint32_t type, uint32_t op, uint32_t opcode2, const VRegSc &vn, double imm) {
+void CodeGenerator::FpComp(uint32_t M, uint32_t S, uint32_t type, uint32_t op, uint32_t opcode2, const VRegSc &vn, double imm) {
   verifyIncList(std::lround(imm), {0}, ERR_ILLEGAL_CONST_VALUE);
   uint32_t code = concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21), F(op, 14), F(1, 13), F(vn.getIdx(), 5), F(opcode2, 0)});
   dd(code);
 }
 
 // Floating-piont immediate
-XBYAK_AARCH64_INLINE void CodeGenerator::FpImm(uint32_t M, uint32_t S, uint32_t type, const VRegSc &vd, double imm) {
+void CodeGenerator::FpImm(uint32_t M, uint32_t S, uint32_t type, const VRegSc &vd, double imm) {
   uint32_t imm8 = compactImm(imm, vd.getBit());
   uint32_t code = concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21), F(imm8, 13), F(1, 12), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Floating-piont conditional compare
-XBYAK_AARCH64_INLINE void CodeGenerator::FpCondComp(uint32_t M, uint32_t S, uint32_t type, uint32_t op, const VRegSc &vn, const VRegSc &vm, uint32_t nzcv, Cond cond) {
+void CodeGenerator::FpCondComp(uint32_t M, uint32_t S, uint32_t type, uint32_t op, const VRegSc &vn, const VRegSc &vm, uint32_t nzcv, Cond cond) {
   uint32_t code = concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21), F(vm.getIdx(), 16), F(cond, 12), F(1, 10), F(vn.getIdx(), 5), F(op, 4), F(nzcv, 0)});
   dd(code);
 }
 
 // Floating-piont data-processing (2 source)
-XBYAK_AARCH64_INLINE void CodeGenerator::FpDataProc2Reg(uint32_t M, uint32_t S, uint32_t type, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm) {
+void CodeGenerator::FpDataProc2Reg(uint32_t M, uint32_t S, uint32_t type, uint32_t opcode, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm) {
   uint32_t code = concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21), F(vm.getIdx(), 16), F(opcode, 12), F(2, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Floating-piont conditional select
-XBYAK_AARCH64_INLINE void CodeGenerator::FpCondSel(uint32_t M, uint32_t S, uint32_t type, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm, Cond cond) {
+void CodeGenerator::FpCondSel(uint32_t M, uint32_t S, uint32_t type, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm, Cond cond) {
   uint32_t code = concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21), F(vm.getIdx(), 16), F(cond, 12), F(3, 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
 
 // Floating-piont data-processing (3 source)
-XBYAK_AARCH64_INLINE void CodeGenerator::FpDataProc3Reg(uint32_t M, uint32_t S, uint32_t type, uint32_t o1, uint32_t o0, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm, const VRegSc &va) {
+void CodeGenerator::FpDataProc3Reg(uint32_t M, uint32_t S, uint32_t type, uint32_t o1, uint32_t o0, const VRegSc &vd, const VRegSc &vn, const VRegSc &vm, const VRegSc &va) {
   uint32_t code = concat({F(M, 31), F(S, 29), F(0x1f, 24), F(type, 22), F(o1, 21), F(vm.getIdx(), 16), F(o0, 15), F(va.getIdx(), 10), F(vn.getIdx(), 5), F(vd.getIdx(), 0)});
   dd(code);
 }
@@ -1966,25 +1966,25 @@ XBYAK_AARCH64_INLINE void CodeGenerator::FpDataProc3Reg(uint32_t M, uint32_t S, 
 // ########################### System instruction
 // #################################
 // Instruction cache maintenance
-XBYAK_AARCH64_INLINE void CodeGenerator::InstCache(IcOp icop, const XReg &xt) {
+void CodeGenerator::InstCache(IcOp icop, const XReg &xt) {
   uint32_t code = concat({F(0xd5, 24), F(1, 19), F(icop, 5), F(xt.getIdx(), 0)});
   dd(code);
 }
 
 // Data cache maintenance
-XBYAK_AARCH64_INLINE void CodeGenerator::DataCache(DcOp dcop, const XReg &xt) {
+void CodeGenerator::DataCache(DcOp dcop, const XReg &xt) {
   uint32_t code = concat({F(0xd5, 24), F(1, 19), F(dcop, 5), F(xt.getIdx(), 0)});
   dd(code);
 }
 
 // Addresss Translate
-XBYAK_AARCH64_INLINE void CodeGenerator::AddressTrans(AtOp atop, const XReg &xt) {
+void CodeGenerator::AddressTrans(AtOp atop, const XReg &xt) {
   uint32_t code = concat({F(0xd5, 24), F(1, 19), F(atop, 5), F(xt.getIdx(), 0)});
   dd(code);
 }
 
 // TLB Invaidate operation
-XBYAK_AARCH64_INLINE void CodeGenerator::TLBInv(TlbiOp tlbiop, const XReg &xt) {
+void CodeGenerator::TLBInv(TlbiOp tlbiop, const XReg &xt) {
   uint32_t code = concat({F(0xd5, 24), F(1, 19), F(tlbiop, 5), F(xt.getIdx(), 0)});
   dd(code);
 }
@@ -1993,7 +1993,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::TLBInv(TlbiOp tlbiop, const XReg &xt) {
 // #########################################
 
 // SVE Integer Binary Arithmetic - Predicated Group
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntBinArPred(uint32_t opc, uint32_t type, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
+void CodeGenerator::SveIntBinArPred(uint32_t opc, uint32_t type, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
   uint32_t size = genSize(zd);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x4, 24), F(size, 22), F(type, 19), F(opc, 16), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
@@ -2001,19 +2001,19 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveIntBinArPred(uint32_t opc, uint32_t 
 }
 
 // SVE bitwize Logical Operation (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveBitwiseLOpPred(uint32_t opc, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) { SveIntBinArPred(opc, 3, zd, pg, zn); }
+void CodeGenerator::SveBitwiseLOpPred(uint32_t opc, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) { SveIntBinArPred(opc, 3, zd, pg, zn); }
 
 // SVE Integer add/subtract vectors (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntAddSubVecPred(uint32_t opc, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) { SveIntBinArPred(opc, 0, zd, pg, zn); }
+void CodeGenerator::SveIntAddSubVecPred(uint32_t opc, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) { SveIntBinArPred(opc, 0, zd, pg, zn); }
 
 // SVE Integer min/max/diffrence (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntMinMaxDiffPred(uint32_t opc, uint32_t U, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) { SveIntBinArPred((opc << 1 | U), 1, zd, pg, zn); }
+void CodeGenerator::SveIntMinMaxDiffPred(uint32_t opc, uint32_t U, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) { SveIntBinArPred((opc << 1 | U), 1, zd, pg, zn); }
 
 // SVE Integer multiply/divide vectors (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntMultDivVecPred(uint32_t opc, uint32_t U, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) { SveIntBinArPred((opc << 1 | U), 2, zd, pg, zn); }
+void CodeGenerator::SveIntMultDivVecPred(uint32_t opc, uint32_t U, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) { SveIntBinArPred((opc << 1 | U), 2, zd, pg, zn); }
 
 // SVE Integer Reduction Group
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntReduction(uint32_t opc, uint32_t type, const Reg &rd, const _PReg &pg, const Reg &rn) {
+void CodeGenerator::SveIntReduction(uint32_t opc, uint32_t type, const Reg &rd, const _PReg &pg, const Reg &rn) {
   uint32_t size = genSize(rn);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x4, 24), F(size, 22), F(type, 19), F(opc, 16), F(1, 13), F(pg.getIdx(), 10), F(rn.getIdx(), 5), F(rd.getIdx(), 0)});
@@ -2021,19 +2021,19 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveIntReduction(uint32_t opc, uint32_t 
 }
 
 // SVE bitwise logical reduction (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveBitwiseLReductPred(uint32_t opc, const VRegSc &vd, const _PReg &pg, const _ZReg &zn) { SveIntReduction(opc, 3, vd, pg, zn); }
+void CodeGenerator::SveBitwiseLReductPred(uint32_t opc, const VRegSc &vd, const _PReg &pg, const _ZReg &zn) { SveIntReduction(opc, 3, vd, pg, zn); }
 
 // SVE constructive prefix (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveConstPrefPred(uint32_t opc, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) { SveIntReduction((opc << 1 | (static_cast<uint32_t>(pg.isM()))), 2, zd, pg, zn); }
+void CodeGenerator::SveConstPrefPred(uint32_t opc, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) { SveIntReduction((opc << 1 | (static_cast<uint32_t>(pg.isM()))), 2, zd, pg, zn); }
 
 // SVE integer add reduction (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntAddReductPred(uint32_t opc, uint32_t U, const VRegSc &vd, const _PReg &pg, const _ZReg &zn) { SveIntReduction((opc << 1 | U), 0, vd, pg, zn); }
+void CodeGenerator::SveIntAddReductPred(uint32_t opc, uint32_t U, const VRegSc &vd, const _PReg &pg, const _ZReg &zn) { SveIntReduction((opc << 1 | U), 0, vd, pg, zn); }
 
 // SVE integer min/max reduction (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntMinMaxReductPred(uint32_t opc, uint32_t U, const VRegSc &vd, const _PReg &pg, const _ZReg &zn) { SveIntReduction((opc << 1 | U), 1, vd, pg, zn); }
+void CodeGenerator::SveIntMinMaxReductPred(uint32_t opc, uint32_t U, const VRegSc &vd, const _PReg &pg, const _ZReg &zn) { SveIntReduction((opc << 1 | U), 1, vd, pg, zn); }
 
 // SVE Bitwise Shift - Predicate Group
-XBYAK_AARCH64_INLINE void CodeGenerator::SveBitShPred(uint32_t opc, uint32_t type, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm) {
+void CodeGenerator::SveBitShPred(uint32_t opc, uint32_t type, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm) {
   uint32_t size = genSize(zdn);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x4, 24), F(size, 22), F(type, 19), F(opc, 16), F(4, 13), F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
@@ -2041,7 +2041,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveBitShPred(uint32_t opc, uint32_t typ
 }
 
 // SVE bitwise shift by immediate (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveBitwiseShByImmPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, uint32_t amount) {
+void CodeGenerator::SveBitwiseShByImmPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, uint32_t amount) {
   bool lsl = (opc == 3);
   uint32_t size = genSize(zdn);
   uint32_t imm = (lsl) ? (amount + zdn.getBit()) : (2 * zdn.getBit() - amount);
@@ -2058,13 +2058,13 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveBitwiseShByImmPred(uint32_t opc, con
 }
 
 // SVE bitwise shift by vector (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveBitwiseShVecPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm) { SveBitShPred(opc, 2, zdn, pg, zm); }
+void CodeGenerator::SveBitwiseShVecPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm) { SveBitShPred(opc, 2, zdn, pg, zm); }
 
 // SVE bitwise shift by wide elements (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveBitwiseShWElemPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm) { SveBitShPred(opc, 3, zdn, pg, zm); }
+void CodeGenerator::SveBitwiseShWElemPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm) { SveBitShPred(opc, 3, zdn, pg, zm); }
 
 // SVE Integer Unary Arithmetic - Predicated Group
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntUnaryArPred(uint32_t opc, uint32_t type, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
+void CodeGenerator::SveIntUnaryArPred(uint32_t opc, uint32_t type, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
   uint32_t size = genSize(zd);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x4, 24), F(size, 22), F(type, 19), F(opc, 16), F(5, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
@@ -2072,13 +2072,13 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveIntUnaryArPred(uint32_t opc, uint32_
 }
 
 // SVE bitwise unary operations (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveBitwiseUnaryOpPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm) { SveIntUnaryArPred(opc, 3, zdn, pg, zm); }
+void CodeGenerator::SveBitwiseUnaryOpPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm) { SveIntUnaryArPred(opc, 3, zdn, pg, zm); }
 
 // SVE integer unary operations (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntUnaryOpPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm) { SveIntUnaryArPred(opc, 2, zdn, pg, zm); }
+void CodeGenerator::SveIntUnaryOpPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm) { SveIntUnaryArPred(opc, 2, zdn, pg, zm); }
 
 // SVE integer multiply-accumulate writing addend (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntMultAccumPred(uint32_t opc, const _ZReg &zda, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SveIntMultAccumPred(uint32_t opc, const _ZReg &zda, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
   uint32_t size = genSize(zda);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x4, 24), F(size, 22), F(zm.getIdx(), 16), F(1, 14), F(opc, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
@@ -2086,7 +2086,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveIntMultAccumPred(uint32_t opc, const
 }
 
 // SVE integer multiply-add writeing multiplicand (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntMultAddPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm, const _ZReg &za) {
+void CodeGenerator::SveIntMultAddPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm, const _ZReg &za) {
   uint32_t size = genSize(zdn);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x4, 24), F(size, 22), F(zm.getIdx(), 16), F(3, 14), F(opc, 13), F(pg.getIdx(), 10), F(za.getIdx(), 5), F(zdn.getIdx(), 0)});
@@ -2094,20 +2094,20 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveIntMultAddPred(uint32_t opc, const _
 }
 
 // SVE integer add/subtract vectors (unpredicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntAddSubUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SveIntAddSubUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
   uint32_t size = genSize(zd);
   uint32_t code = concat({F(0x4, 24), F(size, 22), F(1, 21), F(zm.getIdx(), 16), F(opc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE bitwise logical operations (unpredicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveBitwiseLOpUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SveBitwiseLOpUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
   uint32_t code = concat({F(0x4, 24), F(opc, 22), F(1, 21), F(zm.getIdx(), 16), F(0xc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE index generation (immediate start, immediate increment)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIndexGenImmImmInc(const _ZReg &zd, int32_t imm1, int32_t imm2) {
+void CodeGenerator::SveIndexGenImmImmInc(const _ZReg &zd, int32_t imm1, int32_t imm2) {
   uint32_t size = genSize(zd);
   uint32_t imm5b = imm2 & ones(5);
   uint32_t imm5 = imm1 & ones(5);
@@ -2120,7 +2120,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveIndexGenImmImmInc(const _ZReg &zd, i
 }
 
 // SVE index generation (immediate start, register increment)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIndexGenImmRegInc(const _ZReg &zd, int32_t imm, const RReg &rm) {
+void CodeGenerator::SveIndexGenImmRegInc(const _ZReg &zd, int32_t imm, const RReg &rm) {
   uint32_t size = genSize(zd);
   uint32_t imm5 = imm & ones(5);
 
@@ -2131,7 +2131,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveIndexGenImmRegInc(const _ZReg &zd, i
 }
 
 // SVE index generation (register start, immediate increment)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIndexGenRegImmInc(const _ZReg &zd, const RReg &rn, int32_t imm) {
+void CodeGenerator::SveIndexGenRegImmInc(const _ZReg &zd, const RReg &rn, int32_t imm) {
   uint32_t size = genSize(zd);
   uint32_t imm5 = imm & ones(5);
 
@@ -2142,14 +2142,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveIndexGenRegImmInc(const _ZReg &zd, c
 }
 
 // SVE index generation (register start, register increment)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIndexGenRegRegInc(const _ZReg &zd, const RReg &rn, const RReg &rm) {
+void CodeGenerator::SveIndexGenRegRegInc(const _ZReg &zd, const RReg &rn, const RReg &rm) {
   uint32_t size = genSize(zd);
   uint32_t code = concat({F(0x4, 24), F(size, 22), F(1, 21), F(rm.getIdx(), 16), F(0x13, 10), F(rn.getIdx(), 5), F(zd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE stack frame adjustment
-XBYAK_AARCH64_INLINE void CodeGenerator::SveStackFrameAdjust(uint32_t op, const XReg &xd, const XReg &xn, int32_t imm) {
+void CodeGenerator::SveStackFrameAdjust(uint32_t op, const XReg &xd, const XReg &xn, int32_t imm) {
   uint32_t imm6 = imm & ones(6);
 
   verifyIncRange(imm, -32, 31, ERR_ILLEGAL_IMM_RANGE, true);
@@ -2159,7 +2159,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveStackFrameAdjust(uint32_t op, const 
 }
 
 // SVE stack frame size
-XBYAK_AARCH64_INLINE void CodeGenerator::SveStackFrameSize(uint32_t op, uint32_t opc2, const XReg &xd, int32_t imm) {
+void CodeGenerator::SveStackFrameSize(uint32_t op, uint32_t opc2, const XReg &xd, int32_t imm) {
   uint32_t imm6 = imm & ones(6);
 
   verifyIncRange(imm, -32, 31, ERR_ILLEGAL_IMM_RANGE, true);
@@ -2169,7 +2169,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveStackFrameSize(uint32_t op, uint32_t
 }
 
 // SVE bitwise shift by immediate (unpredicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveBitwiseShByImmUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, uint32_t amount) {
+void CodeGenerator::SveBitwiseShByImmUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, uint32_t amount) {
   bool lsl = (opc == 3);
   uint32_t size = genSize(zd);
   uint32_t imm = (lsl) ? (amount + zd.getBit()) : (2 * zd.getBit() - amount);
@@ -2185,14 +2185,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveBitwiseShByImmUnpred(uint32_t opc, c
 }
 
 // SVE bitwise shift by wide elements (unpredicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveBitwiseShByWideElemUnPred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SveBitwiseShByWideElemUnPred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
   uint32_t size = genSize(zd);
   uint32_t code = concat({F(0x4, 24), F(size, 22), F(1, 21), F(zm.getIdx(), 16), F(0x8, 12), F(opc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE address generation
-XBYAK_AARCH64_INLINE void CodeGenerator::SveAddressGen(const _ZReg &zd, const AdrVec &adr) {
+void CodeGenerator::SveAddressGen(const _ZReg &zd, const AdrVec &adr) {
   ShMod mod = adr.getMod();
   uint32_t sh = adr.getSh();
   uint32_t opc = 2 | (genSize(zd) & 0x1);
@@ -2206,7 +2206,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveAddressGen(const _ZReg &zd, const Ad
 }
 
 // SVE address generation
-XBYAK_AARCH64_INLINE void CodeGenerator::SveAddressGen(const _ZReg &zd, const AdrVecU &adr) {
+void CodeGenerator::SveAddressGen(const _ZReg &zd, const AdrVecU &adr) {
   ExtMod mod = adr.getMod();
   uint32_t sh = adr.getSh();
   uint32_t opc = (mod == SXTW) ? 0 : 1;
@@ -2220,28 +2220,28 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveAddressGen(const _ZReg &zd, const Ad
 }
 
 // SVE Integer Misc - Unpredicated Group
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntMiscUnpred(uint32_t size, uint32_t opc, uint32_t type, const _ZReg &zd, const _ZReg &zn) {
+void CodeGenerator::SveIntMiscUnpred(uint32_t size, uint32_t opc, uint32_t type, const _ZReg &zd, const _ZReg &zn) {
   uint32_t code = concat({F(0x4, 24), F(size, 22), F(1, 21), F(opc, 16), F(0xb, 12), F(type, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE constructive prefix (unpredicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveConstPrefUnpred(uint32_t opc, uint32_t opc2, const _ZReg &zd, const _ZReg &zn) { SveIntMiscUnpred(opc, opc2, 3, zd, zn); }
+void CodeGenerator::SveConstPrefUnpred(uint32_t opc, uint32_t opc2, const _ZReg &zd, const _ZReg &zn) { SveIntMiscUnpred(opc, opc2, 3, zd, zn); }
 
 // SVE floating-point exponential accelerator
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpExpAccel(uint32_t opc, const _ZReg &zd, const _ZReg &zn) {
+void CodeGenerator::SveFpExpAccel(uint32_t opc, const _ZReg &zd, const _ZReg &zn) {
   uint32_t size = genSize(zd);
   SveIntMiscUnpred(size, opc, 2, zd, zn);
 }
 
 // SVE floating-point trig select coefficient
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpTrigSelCoef(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SveFpTrigSelCoef(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
   uint32_t size = genSize(zd);
   SveIntMiscUnpred(size, zm.getIdx(), opc, zd, zn);
 }
 
 // SVE Element Count Group
-XBYAK_AARCH64_INLINE void CodeGenerator::SveElemCountGrp(uint32_t size, uint32_t op, uint32_t type1, uint32_t type2, const Reg &rd, Pattern pat, ExtMod mod, uint32_t imm) {
+void CodeGenerator::SveElemCountGrp(uint32_t size, uint32_t op, uint32_t type1, uint32_t type2, const Reg &rd, Pattern pat, ExtMod mod, uint32_t imm) {
   uint32_t imm4 = (imm - 1) & ones(4);
   verifyIncList(mod, {MUL}, ERR_ILLEGAL_EXTMOD);
   verifyIncRange(imm, 1, 16, ERR_ILLEGAL_IMM_RANGE);
@@ -2250,38 +2250,38 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveElemCountGrp(uint32_t size, uint32_t
 }
 
 // SVE element count
-XBYAK_AARCH64_INLINE void CodeGenerator::SveElemCount(uint32_t size, uint32_t op, const XReg &xd, Pattern pat, ExtMod mod, uint32_t imm) { SveElemCountGrp(size, op, 2, 0x1c, xd, pat, mod, imm); }
+void CodeGenerator::SveElemCount(uint32_t size, uint32_t op, const XReg &xd, Pattern pat, ExtMod mod, uint32_t imm) { SveElemCountGrp(size, op, 2, 0x1c, xd, pat, mod, imm); }
 
 // SVE inc/dec register by element count
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIncDecRegByElemCount(uint32_t size, uint32_t D, const XReg &xd, Pattern pat, ExtMod mod, uint32_t imm) { SveElemCountGrp(size, D, 3, 0x1c, xd, pat, mod, imm); }
+void CodeGenerator::SveIncDecRegByElemCount(uint32_t size, uint32_t D, const XReg &xd, Pattern pat, ExtMod mod, uint32_t imm) { SveElemCountGrp(size, D, 3, 0x1c, xd, pat, mod, imm); }
 
 // SVE inc/dec vector by element count
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIncDecVecByElemCount(uint32_t size, uint32_t D, const _ZReg &zd, Pattern pat, ExtMod mod, uint32_t imm) { SveElemCountGrp(size, D, 3, 0x18, zd, pat, mod, imm); }
+void CodeGenerator::SveIncDecVecByElemCount(uint32_t size, uint32_t D, const _ZReg &zd, Pattern pat, ExtMod mod, uint32_t imm) { SveElemCountGrp(size, D, 3, 0x18, zd, pat, mod, imm); }
 
 // SVE saturating inc/dec register by element count
-XBYAK_AARCH64_INLINE void CodeGenerator::SveSatuIncDecRegByElemCount(uint32_t size, uint32_t D, uint32_t U, const RReg &rdn, Pattern pat, ExtMod mod, uint32_t imm) {
+void CodeGenerator::SveSatuIncDecRegByElemCount(uint32_t size, uint32_t D, uint32_t U, const RReg &rdn, Pattern pat, ExtMod mod, uint32_t imm) {
   uint32_t sf = genSf(rdn);
   SveElemCountGrp(size, U, (2 | sf), (0x1e | D), rdn, pat, mod, imm);
 }
 
 // SVE saturating inc/dec vector by element count
-XBYAK_AARCH64_INLINE void CodeGenerator::SveSatuIncDecVecByElemCount(uint32_t size, uint32_t D, uint32_t U, const _ZReg &zdn, Pattern pat, ExtMod mod, uint32_t imm) { SveElemCountGrp(size, U, 2, (0x18 | D), zdn, pat, mod, imm); }
+void CodeGenerator::SveSatuIncDecVecByElemCount(uint32_t size, uint32_t D, uint32_t U, const _ZReg &zdn, Pattern pat, ExtMod mod, uint32_t imm) { SveElemCountGrp(size, U, 2, (0x18 | D), zdn, pat, mod, imm); }
 
 // SVE Bitwise Immeidate Group
-XBYAK_AARCH64_INLINE void CodeGenerator::SveBitwiseImm(uint32_t opc, const _ZReg &zd, uint64_t imm) {
+void CodeGenerator::SveBitwiseImm(uint32_t opc, const _ZReg &zd, uint64_t imm) {
   uint32_t imm13 = genNImmrImms(imm, zd.getBit());
   uint32_t code = concat({F(0x5, 24), F(opc, 22), F(imm13, 5), F(zd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE bitwise logical with immediate (unpredicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveBitwiseLogicalImmUnpred(uint32_t opc, const _ZReg &zdn, uint64_t imm) { SveBitwiseImm(opc, zdn, imm); }
+void CodeGenerator::SveBitwiseLogicalImmUnpred(uint32_t opc, const _ZReg &zdn, uint64_t imm) { SveBitwiseImm(opc, zdn, imm); }
 
 // SVE broadcast bitmask immediate
-XBYAK_AARCH64_INLINE void CodeGenerator::SveBcBitmaskImm(const _ZReg &zdn, uint64_t imm) { SveBitwiseImm(3, zdn, imm); }
+void CodeGenerator::SveBcBitmaskImm(const _ZReg &zdn, uint64_t imm) { SveBitwiseImm(3, zdn, imm); }
 
 // SVE copy floating-point immediate (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveCopyFpImmPred(const _ZReg &zd, const _PReg &pg, double imm) {
+void CodeGenerator::SveCopyFpImmPred(const _ZReg &zd, const _PReg &pg, double imm) {
   uint32_t size = genSize(zd);
   uint32_t imm8 = compactImm(imm, zd.getBit());
   uint32_t code = concat({F(0x5, 24), F(size, 22), F(1, 20), F(pg.getIdx(), 16), F(6, 13), F(imm8, 5), F(zd.getIdx(), 0)});
@@ -2289,7 +2289,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveCopyFpImmPred(const _ZReg &zd, const
 }
 
 // SVE copy integer immediate (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveCopyIntImmPred(const _ZReg &zd, const _PReg &pg, uint32_t imm, ShMod mod, uint32_t sh) {
+void CodeGenerator::SveCopyIntImmPred(const _ZReg &zd, const _PReg &pg, uint32_t imm, ShMod mod, uint32_t sh) {
   verifyIncList(mod, {LSL}, ERR_ILLEGAL_SHMOD);
   verifyIncList(sh, {0, 8}, ERR_ILLEGAL_CONST_VALUE);
   uint32_t size = genSize(zd);
@@ -2300,7 +2300,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveCopyIntImmPred(const _ZReg &zd, cons
 }
 
 // SVE extract vector (immediate offset)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveExtVec(const _ZReg &zdn, const _ZReg &zm, uint32_t imm) {
+void CodeGenerator::SveExtVec(const _ZReg &zdn, const _ZReg &zm, uint32_t imm) {
   uint32_t imm8h = field(imm, 7, 3);
   uint32_t imm8l = field(imm, 2, 0);
   verifyIncRange(imm, 0, 255, ERR_ILLEGAL_IMM_RANGE);
@@ -2309,19 +2309,19 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveExtVec(const _ZReg &zdn, const _ZReg
 }
 
 // SVE Permute Vector - Unpredicate Group
-XBYAK_AARCH64_INLINE void CodeGenerator::SvePerVecUnpred(uint32_t size, uint32_t type1, uint32_t type2, const _ZReg &zd, const Reg &rn) {
+void CodeGenerator::SvePerVecUnpred(uint32_t size, uint32_t type1, uint32_t type2, const _ZReg &zd, const Reg &rn) {
   uint32_t code = concat({F(0x5, 24), F(size, 22), F(1, 21), F(type1, 16), F(type2, 10), F(rn.getIdx(), 5), F(zd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE broadcast general register
-XBYAK_AARCH64_INLINE void CodeGenerator::SveBcGeneralReg(const _ZReg &zd, const RReg &rn) {
+void CodeGenerator::SveBcGeneralReg(const _ZReg &zd, const RReg &rn) {
   uint32_t size = genSize(zd);
   SvePerVecUnpred(size, 0, 0xe, zd, rn);
 }
 
 // SVE broadcast indexed element
-XBYAK_AARCH64_INLINE void CodeGenerator::SveBcIndexedElem(const _ZReg &zd, const ZRegElem &zn) {
+void CodeGenerator::SveBcIndexedElem(const _ZReg &zd, const ZRegElem &zn) {
   uint32_t eidx = zn.getElemIdx();
   uint32_t pos = static_cast<uint32_t>(std::log2(zn.getBit()) - 2);
   uint32_t imm = (eidx << pos) | (1 << (pos - 1));
@@ -2343,64 +2343,64 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveBcIndexedElem(const _ZReg &zd, const
 }
 
 // SVE insert SIMD&FP scalar register
-XBYAK_AARCH64_INLINE void CodeGenerator::SveInsSimdFpSclarReg(const _ZReg &zdn, const VRegSc &vm) {
+void CodeGenerator::SveInsSimdFpSclarReg(const _ZReg &zdn, const VRegSc &vm) {
   uint32_t size = genSize(zdn);
   SvePerVecUnpred(size, 0x14, 0xe, zdn, vm);
 }
 
 // SVE insert general register
-XBYAK_AARCH64_INLINE void CodeGenerator::SveInsGeneralReg(const _ZReg &zdn, const RReg &rm) {
+void CodeGenerator::SveInsGeneralReg(const _ZReg &zdn, const RReg &rm) {
   uint32_t size = genSize(zdn);
   SvePerVecUnpred(size, 0x4, 0xe, zdn, rm);
 }
 
 // SVE reverse vector elements
-XBYAK_AARCH64_INLINE void CodeGenerator::SveRevVecElem(const _ZReg &zd, const _ZReg &zn) {
+void CodeGenerator::SveRevVecElem(const _ZReg &zd, const _ZReg &zn) {
   uint32_t size = genSize(zd);
   SvePerVecUnpred(size, 0x18, 0xe, zd, zn);
 }
 
 // SVE table lookup
-XBYAK_AARCH64_INLINE void CodeGenerator::SveTableLookup(const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SveTableLookup(const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
   uint32_t size = genSize(zd);
   SvePerVecUnpred(size, zm.getIdx(), 0xc, zd, zn);
 }
 
 // SVE unpack vector elements
-XBYAK_AARCH64_INLINE void CodeGenerator::SveUnpackVecElem(uint32_t U, uint32_t H, const _ZReg &zd, const _ZReg &zn) {
+void CodeGenerator::SveUnpackVecElem(uint32_t U, uint32_t H, const _ZReg &zd, const _ZReg &zn) {
   uint32_t size = genSize(zd);
   SvePerVecUnpred(size, (0x10 | (U << 1) | H), 0xe, zd, zn);
 }
 
 // SVE permute predicate elements
-XBYAK_AARCH64_INLINE void CodeGenerator::SvePermutePredElem(uint32_t opc, uint32_t H, const _PReg &pd, const _PReg &pn, const _PReg &pm) {
+void CodeGenerator::SvePermutePredElem(uint32_t opc, uint32_t H, const _PReg &pd, const _PReg &pn, const _PReg &pm) {
   uint32_t size = genSize(pd);
   uint32_t code = concat({F(0x5, 24), F(size, 22), F(1, 21), F(pm.getIdx(), 16), F(2, 13), F(opc, 11), F(H, 10), F(pn.getIdx(), 5), F(pd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE reverse predicate elements
-XBYAK_AARCH64_INLINE void CodeGenerator::SveRevPredElem(const _PReg &pd, const _PReg &pn) {
+void CodeGenerator::SveRevPredElem(const _PReg &pd, const _PReg &pn) {
   uint32_t size = genSize(pd);
   uint32_t code = concat({F(0x5, 24), F(size, 22), F(0xd1, 14), F(pn.getIdx(), 5), F(pd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE unpack predicate elements
-XBYAK_AARCH64_INLINE void CodeGenerator::SveUnpackPredElem(uint32_t H, const _PReg &pd, const _PReg &pn) {
+void CodeGenerator::SveUnpackPredElem(uint32_t H, const _PReg &pd, const _PReg &pn) {
   uint32_t code = concat({F(0x5, 24), F(3, 20), F(H, 16), F(1, 14), F(pn.getIdx(), 5), F(pd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE permute vector elements
-XBYAK_AARCH64_INLINE void CodeGenerator::SvePermuteVecElem(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SvePermuteVecElem(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
   uint32_t size = genSize(zd);
   uint32_t code = concat({F(0x5, 24), F(size, 22), F(1, 21), F(zm.getIdx(), 16), F(3, 13), F(opc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE compress active elements
-XBYAK_AARCH64_INLINE void CodeGenerator::SveCompressActElem(const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
+void CodeGenerator::SveCompressActElem(const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
   uint32_t size = genSize(zd);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x5, 24), F(size, 22), F(1, 21), F(0xc, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
@@ -2408,7 +2408,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveCompressActElem(const _ZReg &zd, con
 }
 
 // SVE conditionally broaccast element to vector
-XBYAK_AARCH64_INLINE void CodeGenerator::SveCondBcElemToVec(uint32_t B, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm) {
+void CodeGenerator::SveCondBcElemToVec(uint32_t B, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm) {
   uint32_t size = genSize(zdn);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x5, 24), F(size, 22), F(0x14, 17), F(B, 16), F(0x4, 13), F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
@@ -2416,7 +2416,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveCondBcElemToVec(uint32_t B, const _Z
 }
 
 // SVE conditionally extract element to SIMD&FP scalar
-XBYAK_AARCH64_INLINE void CodeGenerator::SveCondExtElemToSimdFpScalar(uint32_t B, const VRegSc &vdn, const _PReg &pg, const _ZReg &zm) {
+void CodeGenerator::SveCondExtElemToSimdFpScalar(uint32_t B, const VRegSc &vdn, const _PReg &pg, const _ZReg &zm) {
   uint32_t size = genSize(vdn);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x5, 24), F(size, 22), F(0x15, 17), F(B, 16), F(0x4, 13), F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(vdn.getIdx(), 0)});
@@ -2424,7 +2424,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveCondExtElemToSimdFpScalar(uint32_t B
 }
 
 // SVE conditionally extract element to general Reg
-XBYAK_AARCH64_INLINE void CodeGenerator::SveCondExtElemToGeneralReg(uint32_t B, const RReg &rdn, const _PReg &pg, const _ZReg &zm) {
+void CodeGenerator::SveCondExtElemToGeneralReg(uint32_t B, const RReg &rdn, const _PReg &pg, const _ZReg &zm) {
   uint32_t size = genSize(zm);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x5, 24), F(size, 22), F(0x18, 17), F(B, 16), F(0x5, 13), F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(rdn.getIdx(), 0)});
@@ -2432,7 +2432,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveCondExtElemToGeneralReg(uint32_t B, 
 }
 
 // SVE copy SIMD&FP scalar register to vector (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveCopySimdFpScalarToVecPred(const _ZReg &zd, const _PReg &pg, const VRegSc &vn) {
+void CodeGenerator::SveCopySimdFpScalarToVecPred(const _ZReg &zd, const _PReg &pg, const VRegSc &vn) {
   uint32_t size = genSize(zd);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x5, 24), F(size, 22), F(0x10, 17), F(0x4, 13), F(pg.getIdx(), 10), F(vn.getIdx(), 5), F(zd.getIdx(), 0)});
@@ -2440,7 +2440,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveCopySimdFpScalarToVecPred(const _ZRe
 }
 
 // SVE copy general register to vector (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveCopyGeneralRegToVecPred(const _ZReg &zd, const _PReg &pg, const RReg &rn) {
+void CodeGenerator::SveCopyGeneralRegToVecPred(const _ZReg &zd, const _PReg &pg, const RReg &rn) {
   uint32_t size = genSize(zd);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x5, 24), F(size, 22), F(0x14, 17), F(0x5, 13), F(pg.getIdx(), 10), F(rn.getIdx(), 5), F(zd.getIdx(), 0)});
@@ -2448,7 +2448,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveCopyGeneralRegToVecPred(const _ZReg 
 }
 
 // SVE extract element to SIMD&FP scalar register
-XBYAK_AARCH64_INLINE void CodeGenerator::SveExtElemToSimdFpScalar(uint32_t B, const VRegSc &vd, const _PReg &pg, const _ZReg &zn) {
+void CodeGenerator::SveExtElemToSimdFpScalar(uint32_t B, const VRegSc &vd, const _PReg &pg, const _ZReg &zn) {
   uint32_t size = genSize(vd);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x5, 24), F(size, 22), F(0x11, 17), F(B, 16), F(0x4, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(vd.getIdx(), 0)});
@@ -2456,7 +2456,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveExtElemToSimdFpScalar(uint32_t B, co
 }
 
 // SVE extract element to general register
-XBYAK_AARCH64_INLINE void CodeGenerator::SveExtElemToGeneralReg(uint32_t B, const RReg &rd, const _PReg &pg, const _ZReg &zn) {
+void CodeGenerator::SveExtElemToGeneralReg(uint32_t B, const RReg &rd, const _PReg &pg, const _ZReg &zn) {
   uint32_t size = genSize(zn);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x5, 24), F(size, 22), F(0x10, 17), F(B, 16), F(0x5, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(rd.getIdx(), 0)});
@@ -2464,7 +2464,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveExtElemToGeneralReg(uint32_t B, cons
 }
 
 // SVE reverse within elements
-XBYAK_AARCH64_INLINE void CodeGenerator::SveRevWithinElem(uint32_t opc, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
+void CodeGenerator::SveRevWithinElem(uint32_t opc, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
   uint32_t size = genSize(zd);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x5, 24), F(size, 22), F(0x9, 18), F(opc, 16), F(0x4, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
@@ -2472,7 +2472,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveRevWithinElem(uint32_t opc, const _Z
 }
 
 // SVE vector splice
-XBYAK_AARCH64_INLINE void CodeGenerator::SveSelVecSplice(const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
+void CodeGenerator::SveSelVecSplice(const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
   uint32_t size = genSize(zd);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x5, 24), F(size, 22), F(0xb, 18), F(0x4, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
@@ -2480,33 +2480,33 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveSelVecSplice(const _ZReg &zd, const 
 }
 
 // SVE select vector elements (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveSelVecElemPred(const _ZReg &zd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SveSelVecElemPred(const _ZReg &zd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
   uint32_t size = genSize(zd);
   uint32_t code = concat({F(0x5, 24), F(size, 22), F(1, 21), F(zm.getIdx(), 16), F(0x3, 14), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE Integer Compare - Vector Group
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntCompVecGrp(uint32_t opc, uint32_t ne, const _PReg &pd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SveIntCompVecGrp(uint32_t opc, uint32_t ne, const _PReg &pd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
   uint32_t size = genSize(pd);
   uint32_t code = concat({F(0x24, 24), F(size, 22), F(zm.getIdx(), 16), F(opc, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(ne, 4), F(pd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE integer compare vectors
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntCompVec(uint32_t op, uint32_t o2, uint32_t ne, const _PReg &pd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SveIntCompVec(uint32_t op, uint32_t o2, uint32_t ne, const _PReg &pd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
   uint32_t opc = (op << 2) | o2;
   SveIntCompVecGrp(opc, ne, pd, pg, zn, zm);
 }
 
 // SVE integer compare with wide elements
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntCompWideElem(uint32_t op, uint32_t o2, uint32_t ne, const _PReg &pd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SveIntCompWideElem(uint32_t op, uint32_t o2, uint32_t ne, const _PReg &pd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
   uint32_t opc = (op << 2) | 2 | o2;
   SveIntCompVecGrp(opc, ne, pd, pg, zn, zm);
 }
 
 // SVE integer compare with unsigned immediate
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntCompUImm(uint32_t lt, uint32_t ne, const _PReg &pd, const _PReg &pg, const _ZReg &zn, uint32_t imm) {
+void CodeGenerator::SveIntCompUImm(uint32_t lt, uint32_t ne, const _PReg &pd, const _PReg &pg, const _ZReg &zn, uint32_t imm) {
   uint32_t size = genSize(pd);
   uint32_t imm7 = imm & ones(7);
   verifyIncRange(imm, 0, 127, ERR_ILLEGAL_IMM_RANGE);
@@ -2515,76 +2515,76 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveIntCompUImm(uint32_t lt, uint32_t ne
 }
 
 // SVE predicate logical operations
-XBYAK_AARCH64_INLINE void CodeGenerator::SvePredLOp(uint32_t op, uint32_t S, uint32_t o2, uint32_t o3, const _PReg &pd, const _PReg &pg, const _PReg &pn, const _PReg &pm) {
+void CodeGenerator::SvePredLOp(uint32_t op, uint32_t S, uint32_t o2, uint32_t o3, const _PReg &pd, const _PReg &pg, const _PReg &pn, const _PReg &pm) {
   uint32_t code = concat({F(0x25, 24), F(op, 23), F(S, 22), F(pm.getIdx(), 16), F(1, 14), F(pg.getIdx(), 10), F(o2, 9), F(pn.getIdx(), 5), F(o3, 4), F(pd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE propagate break from previous partition
-XBYAK_AARCH64_INLINE void CodeGenerator::SvePropagateBreakPrevPtn(uint32_t op, uint32_t S, uint32_t B, const _PReg &pd, const _PReg &pg, const _PReg &pn, const _PReg &pm) {
+void CodeGenerator::SvePropagateBreakPrevPtn(uint32_t op, uint32_t S, uint32_t B, const _PReg &pd, const _PReg &pg, const _PReg &pn, const _PReg &pm) {
   uint32_t code = concat({F(0x25, 24), F(op, 23), F(S, 22), F(pm.getIdx(), 16), F(3, 14), F(pg.getIdx(), 10), F(pn.getIdx(), 5), F(B, 4), F(pd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE partition break condition
-XBYAK_AARCH64_INLINE void CodeGenerator::SvePartitionBreakCond(uint32_t B, uint32_t S, const _PReg &pd, const _PReg &pg, const _PReg &pn) {
+void CodeGenerator::SvePartitionBreakCond(uint32_t B, uint32_t S, const _PReg &pd, const _PReg &pg, const _PReg &pn) {
   uint32_t M = (S == 1) ? 0 : pg.isM();
   uint32_t code = concat({F(0x25, 24), F(B, 23), F(S, 22), F(2, 19), F(1, 14), F(pg.getIdx(), 10), F(pn.getIdx(), 5), F(M, 4), F(pd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE propagate break to next partition
-XBYAK_AARCH64_INLINE void CodeGenerator::SvePropagateBreakNextPart(uint32_t S, const _PReg &pdm, const _PReg &pg, const _PReg &pn) {
+void CodeGenerator::SvePropagateBreakNextPart(uint32_t S, const _PReg &pdm, const _PReg &pg, const _PReg &pn) {
   uint32_t code = concat({F(0x25, 24), F(S, 22), F(3, 19), F(1, 14), F(pg.getIdx(), 10), F(pn.getIdx(), 5), F(pdm.getIdx(), 0)});
   dd(code);
 }
 
 // SVE predicate first active
-XBYAK_AARCH64_INLINE void CodeGenerator::SvePredFirstAct(uint32_t op, uint32_t S, const _PReg &pdn, const _PReg &pg) {
+void CodeGenerator::SvePredFirstAct(uint32_t op, uint32_t S, const _PReg &pdn, const _PReg &pg) {
   uint32_t code = concat({F(0x25, 24), F(op, 23), F(S, 22), F(3, 19), F(3, 14), F(pg.getIdx(), 5), F(pdn.getIdx(), 0)});
   dd(code);
 }
 
 // SVE predicate initialize
-XBYAK_AARCH64_INLINE void CodeGenerator::SvePredInit(uint32_t S, const _PReg &pd, Pattern pat) {
+void CodeGenerator::SvePredInit(uint32_t S, const _PReg &pd, Pattern pat) {
   uint32_t size = genSize(pd);
   uint32_t code = concat({F(0x25, 24), F(size, 22), F(3, 19), F(S, 16), F(7, 13), F(pat, 5), F(pd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE predicate next active
-XBYAK_AARCH64_INLINE void CodeGenerator::SvePredNextAct(const _PReg &pdn, const _PReg &pg) {
+void CodeGenerator::SvePredNextAct(const _PReg &pdn, const _PReg &pg) {
   uint32_t size = genSize(pdn);
   uint32_t code = concat({F(0x25, 24), F(size, 22), F(3, 19), F(0xe, 13), F(1, 10), F(pg.getIdx(), 5), F(pdn.getIdx(), 0)});
   dd(code);
 }
 
 // SVE predicate read from FFR (predicate)
-XBYAK_AARCH64_INLINE void CodeGenerator::SvePredReadFFRPred(uint32_t op, uint32_t S, const _PReg &pd, const _PReg &pg) {
+void CodeGenerator::SvePredReadFFRPred(uint32_t op, uint32_t S, const _PReg &pd, const _PReg &pg) {
   uint32_t code = concat({F(0x25, 24), F(op, 23), F(S, 22), F(3, 19), F(0xf, 12), F(pg.getIdx(), 5), F(pd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE predicate read from FFR (unpredicate)
-XBYAK_AARCH64_INLINE void CodeGenerator::SvePredReadFFRUnpred(uint32_t op, uint32_t S, const _PReg &pd) {
+void CodeGenerator::SvePredReadFFRUnpred(uint32_t op, uint32_t S, const _PReg &pd) {
   uint32_t code = concat({F(0x25, 24), F(op, 23), F(S, 22), F(3, 19), F(0x1f, 12), F(pd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE predicate test
-XBYAK_AARCH64_INLINE void CodeGenerator::SvePredTest(uint32_t op, uint32_t S, uint32_t opc2, const _PReg &pg, const _PReg &pn) {
+void CodeGenerator::SvePredTest(uint32_t op, uint32_t S, uint32_t opc2, const _PReg &pg, const _PReg &pn) {
   uint32_t code = concat({F(0x25, 24), F(op, 23), F(S, 22), F(2, 19), F(3, 14), F(pg.getIdx(), 10), F(pn.getIdx(), 5), F(opc2, 0)});
   dd(code);
 }
 
 // SVE predicate zero
-XBYAK_AARCH64_INLINE void CodeGenerator::SvePredZero(uint32_t op, uint32_t S, const _PReg &pd) {
+void CodeGenerator::SvePredZero(uint32_t op, uint32_t S, const _PReg &pd) {
   uint32_t code = concat({F(0x25, 24), F(op, 23), F(S, 22), F(3, 19), F(7, 13), F(1, 10), F(pd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE integer compare with signed immediate
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntCompSImm(uint32_t op, uint32_t o2, uint32_t ne, const _PReg &pd, const _PReg &pg, const _ZReg &zn, int32_t imm) {
+void CodeGenerator::SveIntCompSImm(uint32_t op, uint32_t o2, uint32_t ne, const _PReg &pd, const _PReg &pg, const _ZReg &zn, int32_t imm) {
   uint32_t size = genSize(pd);
   uint32_t imm5 = imm & ones(5);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
@@ -2594,64 +2594,64 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveIntCompSImm(uint32_t op, uint32_t o2
 }
 
 // SVE predicate count
-XBYAK_AARCH64_INLINE void CodeGenerator::SvePredCount(uint32_t opc, uint32_t o2, const RReg &rd, const _PReg &pg, const _PReg &pn) {
+void CodeGenerator::SvePredCount(uint32_t opc, uint32_t o2, const RReg &rd, const _PReg &pg, const _PReg &pn) {
   uint32_t size = genSize(pn);
   uint32_t code = concat({F(0x25, 24), F(size, 22), F(1, 21), F(opc, 16), F(2, 14), F(pg.getIdx(), 10), F(o2, 9), F(pn.getIdx(), 5), F(rd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE Inc/Dec by Predicate Count Group
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIncDecPredCount(uint32_t size, uint32_t op, uint32_t D, uint32_t opc2, uint32_t type1, uint32_t type2, const Reg &rdn, const _PReg &pg) {
+void CodeGenerator::SveIncDecPredCount(uint32_t size, uint32_t op, uint32_t D, uint32_t opc2, uint32_t type1, uint32_t type2, const Reg &rdn, const _PReg &pg) {
   uint32_t code = concat({F(0x25, 24), F(size, 22), F(type1, 18), F(op, 17), F(D, 16), F(type2, 11), F(opc2, 9), F(pg.getIdx(), 5), F(rdn.getIdx(), 0)});
   dd(code);
 }
 
 // SVE inc/dec register by predicate count
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIncDecRegByPredCount(uint32_t op, uint32_t D, uint32_t opc2, const RReg &rdn, const _PReg &pg) {
+void CodeGenerator::SveIncDecRegByPredCount(uint32_t op, uint32_t D, uint32_t opc2, const RReg &rdn, const _PReg &pg) {
   uint32_t size = genSize(pg);
   SveIncDecPredCount(size, op, D, opc2, 0xb, 0x11, rdn, pg);
 }
 
 // SVE inc/dec vector by predicate count
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIncDecVecByPredCount(uint32_t op, uint32_t D, uint32_t opc2, const _ZReg &zdn, const _PReg &pg) {
+void CodeGenerator::SveIncDecVecByPredCount(uint32_t op, uint32_t D, uint32_t opc2, const _ZReg &zdn, const _PReg &pg) {
   uint32_t size = genSize(zdn);
   SveIncDecPredCount(size, op, D, opc2, 0xb, 0x10, zdn, pg);
 }
 
 // SVE saturating inc/dec register by predicate count
-XBYAK_AARCH64_INLINE void CodeGenerator::SveSatuIncDecRegByPredCount(uint32_t D, uint32_t U, uint32_t op, const RReg &rdn, const _PReg &pg) {
+void CodeGenerator::SveSatuIncDecRegByPredCount(uint32_t D, uint32_t U, uint32_t op, const RReg &rdn, const _PReg &pg) {
   uint32_t sf = genSf(rdn);
   uint32_t size = genSize(pg);
   SveIncDecPredCount(size, D, U, ((sf << 1) | op), 0xa, 0x11, rdn, pg);
 }
 
 // SVE saturating inc/dec vector by predicate count
-XBYAK_AARCH64_INLINE void CodeGenerator::SveSatuIncDecVecByPredCount(uint32_t D, uint32_t U, uint32_t opc, const _ZReg &zdn, const _PReg &pg) {
+void CodeGenerator::SveSatuIncDecVecByPredCount(uint32_t D, uint32_t U, uint32_t opc, const _ZReg &zdn, const _PReg &pg) {
   uint32_t size = genSize(zdn);
   SveIncDecPredCount(size, D, U, opc, 0xa, 0x10, zdn, pg);
 }
 
 // SVE FFR initialise
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFFRInit(uint32_t opc) {
+void CodeGenerator::SveFFRInit(uint32_t opc) {
   uint32_t code = concat({F(0x25, 24), F(opc, 22), F(0xb, 18), F(0x24, 10)});
   dd(code);
 }
 
 // SVE FFR write from predicate
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFFRWritePred(uint32_t opc, const _PReg &pn) {
+void CodeGenerator::SveFFRWritePred(uint32_t opc, const _PReg &pn) {
   uint32_t code = concat({F(0x25, 24), F(opc, 22), F(0xa, 18), F(0x24, 10), F(pn.getIdx(), 5)});
   dd(code);
 }
 
 // SVE conditionally terminate scalars
-XBYAK_AARCH64_INLINE void CodeGenerator::SveCondTermScalars(uint32_t op, uint32_t ne, const RReg &rn, const RReg &rm) {
+void CodeGenerator::SveCondTermScalars(uint32_t op, uint32_t ne, const RReg &rn, const RReg &rm) {
   uint32_t sz = genSf(rn);
   uint32_t code = concat({F(0x25, 24), F(op, 23), F(sz, 22), F(1, 21), F(rm.getIdx(), 16), F(0x8, 10), F(rn.getIdx(), 5), F(ne, 4)});
   dd(code);
 }
 
 // SVE integer compare scalar count and limit
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntCompScalarCountAndLimit(uint32_t U, uint32_t lt, uint32_t eq, const _PReg &pd, const RReg &rn, const RReg &rm) {
+void CodeGenerator::SveIntCompScalarCountAndLimit(uint32_t U, uint32_t lt, uint32_t eq, const _PReg &pd, const RReg &rn, const RReg &rm) {
   uint32_t size = genSize(pd);
   uint32_t sf = genSf(rn);
   uint32_t code = concat({F(0x25, 24), F(size, 22), F(1, 21), F(rm.getIdx(), 16), F(sf, 12), F(U, 11), F(lt, 10), F(rn.getIdx(), 5), F(eq, 4), F(pd.getIdx(), 0)});
@@ -2659,7 +2659,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveIntCompScalarCountAndLimit(uint32_t 
 }
 
 // SVE broadcast floating-point immediate (unpredicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveBcFpImmUnpred(uint32_t opc, uint32_t o2, const _ZReg &zd, double imm) {
+void CodeGenerator::SveBcFpImmUnpred(uint32_t opc, uint32_t o2, const _ZReg &zd, double imm) {
   uint32_t size = genSize(zd);
   uint32_t imm8 = compactImm(imm, zd.getBit());
   uint32_t code = concat({F(0x25, 24), F(size, 22), F(7, 19), F(opc, 17), F(7, 14), F(o2, 13), F(imm8, 5), F(zd.getIdx(), 0)});
@@ -2667,7 +2667,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveBcFpImmUnpred(uint32_t opc, uint32_t
 }
 
 // SVE broadcast integer immediate (unpredicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveBcIntImmUnpred(uint32_t opc, const _ZReg &zd, int32_t imm, ShMod mod, uint32_t sh) {
+void CodeGenerator::SveBcIntImmUnpred(uint32_t opc, const _ZReg &zd, int32_t imm, ShMod mod, uint32_t sh) {
   verifyIncList(mod, {LSL}, ERR_ILLEGAL_SHMOD);
   verifyIncList(sh, {0, 8}, ERR_ILLEGAL_CONST_VALUE);
   verifyIncRange(imm, -128, 127, ERR_ILLEGAL_IMM_RANGE, true);
@@ -2679,7 +2679,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveBcIntImmUnpred(uint32_t opc, const _
 }
 
 // SVE integer add/subtract immediate (unpredicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntAddSubImmUnpred(uint32_t opc, const _ZReg &zdn, uint32_t imm, ShMod mod, uint32_t sh) {
+void CodeGenerator::SveIntAddSubImmUnpred(uint32_t opc, const _ZReg &zdn, uint32_t imm, ShMod mod, uint32_t sh) {
   verifyIncList(mod, {LSL}, ERR_ILLEGAL_SHMOD);
   verifyIncList(sh, {0, 8}, ERR_ILLEGAL_CONST_VALUE);
   verifyIncRange(imm, 0, 255, ERR_ILLEGAL_IMM_RANGE);
@@ -2691,7 +2691,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveIntAddSubImmUnpred(uint32_t opc, con
 }
 
 // SVE integer min/max immediate (unpredicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntMinMaxImmUnpred(uint32_t opc, uint32_t o2, const _ZReg &zdn, int32_t imm) {
+void CodeGenerator::SveIntMinMaxImmUnpred(uint32_t opc, uint32_t o2, const _ZReg &zdn, int32_t imm) {
   if ((opc & 0x1))
     verifyIncRange(imm, 0, 255, ERR_ILLEGAL_IMM_RANGE);
   else
@@ -2704,7 +2704,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveIntMinMaxImmUnpred(uint32_t opc, uin
 }
 
 // SVE integer multiply immediate (unpredicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntMultImmUnpred(uint32_t opc, uint32_t o2, const _ZReg &zdn, int32_t imm) {
+void CodeGenerator::SveIntMultImmUnpred(uint32_t opc, uint32_t o2, const _ZReg &zdn, int32_t imm) {
   uint32_t size = genSize(zdn);
   uint32_t imm8 = imm & ones(8);
   verifyIncRange(imm, -128, 127, ERR_ILLEGAL_IMM_RANGE, true);
@@ -2713,14 +2713,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveIntMultImmUnpred(uint32_t opc, uint3
 }
 
 // SVE integer dot product (unpredicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntDotProdcutUnpred(uint32_t U, const _ZReg &zda, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SveIntDotProdcutUnpred(uint32_t U, const _ZReg &zda, const _ZReg &zn, const _ZReg &zm) {
   uint32_t size = genSize(zda);
   uint32_t code = concat({F(0x44, 24), F(size, 22), F(zm.getIdx(), 16), F(U, 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
   dd(code);
 }
 
 // SVE integer dot product (indexed)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntDotProdcutIndexed(uint32_t size, uint32_t U, const _ZReg &zda, const _ZReg &zn, const ZRegElem &zm) {
+void CodeGenerator::SveIntDotProdcutIndexed(uint32_t size, uint32_t U, const _ZReg &zda, const _ZReg &zn, const ZRegElem &zm) {
   uint32_t zm_idx = zm.getIdx();
   uint32_t zm_eidx = zm.getElemIdx();
   uint32_t opc = (size == 2) ? (((zm_eidx & ones(2)) << 3) | zm_idx) : (((zm_eidx & ones(1)) << 4) | zm_idx);
@@ -2733,7 +2733,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveIntDotProdcutIndexed(uint32_t size, 
 }
 
 // SVE floating-point complex add (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpComplexAddPred(const _ZReg &zdn, const _PReg &pg, const _ZReg &zm, uint32_t ct) {
+void CodeGenerator::SveFpComplexAddPred(const _ZReg &zdn, const _PReg &pg, const _ZReg &zm, uint32_t ct) {
   uint32_t size = genSize(zdn);
   uint32_t rot = (ct == 270) ? 1 : 0;
   verifyIncList(ct, {90, 270}, ERR_ILLEGAL_CONST_VALUE);
@@ -2743,7 +2743,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveFpComplexAddPred(const _ZReg &zdn, c
 }
 
 // SVE floating-point complex multiply-add (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpComplexMultAddPred(const _ZReg &zda, const _PReg &pg, const _ZReg &zn, const _ZReg &zm, uint32_t ct) {
+void CodeGenerator::SveFpComplexMultAddPred(const _ZReg &zda, const _PReg &pg, const _ZReg &zn, const _ZReg &zm, uint32_t ct) {
   uint32_t size = genSize(zda);
   uint32_t rot = (ct / 90);
   verifyIncList(ct, {0, 90, 180, 270}, ERR_ILLEGAL_CONST_VALUE);
@@ -2753,7 +2753,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveFpComplexMultAddPred(const _ZReg &zd
 }
 
 // SVE floating-point multiply-add (indexed)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpMultAddIndexed(uint32_t op, const _ZReg &zda, const _ZReg &zn, const ZRegElem &zm) {
+void CodeGenerator::SveFpMultAddIndexed(uint32_t op, const _ZReg &zda, const _ZReg &zn, const ZRegElem &zm) {
   uint32_t zm_idx = zm.getIdx();
   uint32_t zm_bit = zm.getBit();
   uint32_t zm_eidx = zm.getElemIdx();
@@ -2768,7 +2768,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveFpMultAddIndexed(uint32_t op, const 
 }
 
 // SVE floating-point complex multiply-add (indexed)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpComplexMultAddIndexed(const _ZReg &zda, const _ZReg &zn, const ZRegElem &zm, uint32_t ct) {
+void CodeGenerator::SveFpComplexMultAddIndexed(const _ZReg &zda, const _ZReg &zn, const ZRegElem &zm, uint32_t ct) {
   uint32_t size = genSize(zda) + 1;
   uint32_t zm_idx = zm.getIdx();
   uint32_t zm_eidx = zm.getElemIdx();
@@ -2784,7 +2784,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveFpComplexMultAddIndexed(const _ZReg 
 }
 
 // SVE floating-point multiply (indexed)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpMultIndexed(const _ZReg &zd, const _ZReg &zn, const ZRegElem &zm) {
+void CodeGenerator::SveFpMultIndexed(const _ZReg &zd, const _ZReg &zn, const ZRegElem &zm) {
   uint32_t zm_idx = zm.getIdx();
   uint32_t zm_bit = zm.getBit();
   uint32_t zm_eidx = zm.getElemIdx();
@@ -2799,7 +2799,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveFpMultIndexed(const _ZReg &zd, const
 }
 
 // SVE floating-point recursive reduction
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpRecurReduct(uint32_t opc, const VRegSc vd, const _PReg &pg, const _ZReg &zn) {
+void CodeGenerator::SveFpRecurReduct(uint32_t opc, const VRegSc vd, const _PReg &pg, const _ZReg &zn) {
   uint32_t size = genSize(vd);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x65, 24), F(size, 22), F(opc, 16), F(1, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(vd.getIdx(), 0)});
@@ -2807,14 +2807,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveFpRecurReduct(uint32_t opc, const VR
 }
 
 // SVE floating-point reciprocal estimate unpredicated
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpReciproEstUnPred(uint32_t opc, const _ZReg &zd, const _ZReg &zn) {
+void CodeGenerator::SveFpReciproEstUnPred(uint32_t opc, const _ZReg &zd, const _ZReg &zn) {
   uint32_t size = genSize(zd);
   uint32_t code = concat({F(0x65, 24), F(size, 22), F(1, 19), F(opc, 16), F(3, 12), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE floating-point compare with zero
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpCompWithZero(uint32_t eq, uint32_t lt, uint32_t ne, const _PReg &pd, const _PReg &pg, const _ZReg &zn, double zero) {
+void CodeGenerator::SveFpCompWithZero(uint32_t eq, uint32_t lt, uint32_t ne, const _PReg &pd, const _PReg &pg, const _ZReg &zn, double zero) {
   uint32_t size = genSize(pd);
   verifyIncList(std::lround(zero * 10), {0}, ERR_ILLEGAL_CONST_VALUE);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
@@ -2823,7 +2823,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveFpCompWithZero(uint32_t eq, uint32_t
 }
 
 // SVE floating-point serial resuction (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpSerialReductPred(uint32_t opc, const VRegSc vdn, const _PReg &pg, const _ZReg &zm) {
+void CodeGenerator::SveFpSerialReductPred(uint32_t opc, const VRegSc vdn, const _PReg &pg, const _ZReg &zm) {
   uint32_t size = genSize(vdn);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x65, 24), F(size, 22), F(3, 19), F(opc, 16), F(1, 13), F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(vdn.getIdx(), 0)});
@@ -2831,14 +2831,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveFpSerialReductPred(uint32_t opc, con
 }
 
 // SVE floating-point arithmetic (unpredicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpArithmeticUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SveFpArithmeticUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
   uint32_t size = genSize(zd);
   uint32_t code = concat({F(0x65, 24), F(size, 22), F(zm.getIdx(), 16), F(opc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE floating-point arithmetic (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpArithmeticPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm) {
+void CodeGenerator::SveFpArithmeticPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm) {
   uint32_t size = genSize(zdn);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x65, 24), F(size, 22), F(opc, 16), F(4, 13), F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
@@ -2846,7 +2846,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveFpArithmeticPred(uint32_t opc, const
 }
 
 // SVE floating-point arithmetic with immediate (predicated)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpArithmeticImmPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, float ct) {
+void CodeGenerator::SveFpArithmeticImmPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, float ct) {
   uint32_t size = genSize(zdn);
   uint32_t i1 = (std::lround(ct * 10) < 10) ? 0 : 1;
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
@@ -2863,7 +2863,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveFpArithmeticImmPred(uint32_t opc, co
 }
 
 // SVE floating-point trig multiply-add coefficient
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpTrigMultAddCoef(const _ZReg &zdn, const _ZReg &zm, uint32_t imm) {
+void CodeGenerator::SveFpTrigMultAddCoef(const _ZReg &zdn, const _ZReg &zm, uint32_t imm) {
   uint32_t size = genSize(zdn);
   uint32_t imm3 = imm & ones(3);
   verifyIncRange(imm, 0, 7, ERR_ILLEGAL_IMM_RANGE);
@@ -2872,19 +2872,19 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveFpTrigMultAddCoef(const _ZReg &zdn, 
 }
 
 // SVE floating-point convert precision
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpCvtPrecision(uint32_t opc, uint32_t opc2, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
+void CodeGenerator::SveFpCvtPrecision(uint32_t opc, uint32_t opc2, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
   uint32_t code = concat({F(0x65, 24), F(opc, 22), F(1, 19), F(opc2, 16), F(5, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE floating-point convert to integer
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpCvtToInt(uint32_t opc, uint32_t opc2, uint32_t U, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
+void CodeGenerator::SveFpCvtToInt(uint32_t opc, uint32_t opc2, uint32_t U, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
   uint32_t code = concat({F(0x65, 24), F(opc, 22), F(3, 19), F(opc2, 17), F(U, 16), F(5, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE floating-point round to integral value
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpRoundToIntegral(uint32_t opc, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
+void CodeGenerator::SveFpRoundToIntegral(uint32_t opc, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
   uint32_t size = genSize(zd);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x65, 24), F(size, 22), F(opc, 16), F(5, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
@@ -2892,7 +2892,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveFpRoundToIntegral(uint32_t opc, cons
 }
 
 // SVE floating-point unary operations
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpUnaryOp(uint32_t opc, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
+void CodeGenerator::SveFpUnaryOp(uint32_t opc, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
   uint32_t size = genSize(zd);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x65, 24), F(size, 22), F(3, 18), F(opc, 16), F(5, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
@@ -2900,34 +2900,34 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveFpUnaryOp(uint32_t opc, const _ZReg 
 }
 
 // SVE integer convert to floationg-point
-XBYAK_AARCH64_INLINE void CodeGenerator::SveIntCvtToFp(uint32_t opc, uint32_t opc2, uint32_t U, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
+void CodeGenerator::SveIntCvtToFp(uint32_t opc, uint32_t opc2, uint32_t U, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
   uint32_t code = concat({F(0x65, 24), F(opc, 22), F(2, 19), F(opc2, 17), F(U, 16), F(5, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE floationg-point compare vectors
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpCompVec(uint32_t op, uint32_t o2, uint32_t o3, const _PReg &pd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SveFpCompVec(uint32_t op, uint32_t o2, uint32_t o3, const _PReg &pd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
   uint32_t size = genSize(pd);
   uint32_t code = concat({F(0x65, 24), F(size, 22), F(zm.getIdx(), 16), F(op, 15), F(1, 14), F(o2, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(o3, 4), F(pd.getIdx(), 0)});
   dd(code);
 }
 
 // SVE floationg-point multiply-accumulate writing addend
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpMultAccumAddend(uint32_t opc, const _ZReg &zda, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SveFpMultAccumAddend(uint32_t opc, const _ZReg &zda, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
   uint32_t size = genSize(zda);
   uint32_t code = concat({F(0x65, 24), F(size, 22), F(1, 21), F(zm.getIdx(), 16), F(opc, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
   dd(code);
 }
 
 // SVE floationg-point multiply-accumulate writing multiplicand
-XBYAK_AARCH64_INLINE void CodeGenerator::SveFpMultAccumMulti(uint32_t opc, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm, const _ZReg &za) {
+void CodeGenerator::SveFpMultAccumMulti(uint32_t opc, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm, const _ZReg &za) {
   uint32_t size = genSize(zdn);
   uint32_t code = concat({F(0x65, 24), F(size, 22), F(1, 21), F(za.getIdx(), 16), F(1, 15), F(opc, 13), F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
   dd(code);
 }
 
 // SVE 32-bit gather load (scalar plus 32-bit unscaled offsets)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve32GatherLdSc32U(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrSc32U &adr) {
+void CodeGenerator::Sve32GatherLdSc32U(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrSc32U &adr) {
   uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x42, 25), F(msz, 23), F(xs, 22), F(adr.getZm().getIdx(), 16), F(U, 14), F(ff, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
@@ -2935,7 +2935,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve32GatherLdSc32U(uint32_t msz, uint32
 }
 
 // SVE 32-bit gather load (vector plus immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve32GatherLdVecImm(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrVecImm32 &adr) {
+void CodeGenerator::Sve32GatherLdVecImm(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrVecImm32 &adr) {
   uint32_t imm5 = (adr.getImm() >> msz) & ones(5);
 
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
@@ -2946,7 +2946,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve32GatherLdVecImm(uint32_t msz, uint3
 }
 
 // SVE 32-bit gather load halfwords (scalar plus 32-bit scaled offsets)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve32GatherLdHSc32S(uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrSc32S &adr) {
+void CodeGenerator::Sve32GatherLdHSc32S(uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrSc32S &adr) {
   uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x42, 25), F(1, 23), F(xs, 22), F(1, 21), F(adr.getZm().getIdx(), 16), F(U, 14), F(ff, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
@@ -2954,7 +2954,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve32GatherLdHSc32S(uint32_t U, uint32_
 }
 
 // SVE 32-bit gather load words (scalar plus 32-bit scaled offsets)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve32GatherLdWSc32S(uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrSc32S &adr) {
+void CodeGenerator::Sve32GatherLdWSc32S(uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrSc32S &adr) {
   uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x42, 25), F(2, 23), F(xs, 22), F(1, 21), F(adr.getZm().getIdx(), 16), F(U, 14), F(ff, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
@@ -2962,7 +2962,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve32GatherLdWSc32S(uint32_t U, uint32_
 }
 
 // SVE 32-bit gather prefetch (scalar plus 32-bit scaled offsets)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve32GatherPfSc32S(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrSc32S &adr) {
+void CodeGenerator::Sve32GatherPfSc32S(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrSc32S &adr) {
   uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x42, 25), F(xs, 22), F(1, 21), F(adr.getZm().getIdx(), 16), F(msz, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(prfop_sve, 0)});
@@ -2970,7 +2970,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve32GatherPfSc32S(PrfopSve prfop_sve, 
 }
 
 // SVE 32-bit gather prefetch (vector plus immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve32GatherPfVecImm(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrVecImm32 &adr) {
+void CodeGenerator::Sve32GatherPfVecImm(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrVecImm32 &adr) {
   uint32_t imm5 = (adr.getImm() >> msz) & ones(5);
 
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
@@ -2981,7 +2981,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve32GatherPfVecImm(PrfopSve prfop_sve,
 }
 
 // SVE 32-bit contiguous prefetch (scalar plus immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve32ContiPfScImm(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrScImm &adr) {
+void CodeGenerator::Sve32ContiPfScImm(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrScImm &adr) {
   int32_t simm = adr.getSimm();
   uint32_t imm6 = simm & ones(6);
   verifyIncRange(simm, -32, 31, ERR_ILLEGAL_IMM_RANGE, true);
@@ -2990,14 +2990,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve32ContiPfScImm(PrfopSve prfop_sve, u
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve32ContiPfScImm(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrNoOfs &adr) {
+void CodeGenerator::Sve32ContiPfScImm(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrNoOfs &adr) {
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x42, 25), F(7, 22), F(0, 16), F(msz, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(prfop_sve, 0)});
   dd(code);
 }
 
 // SVE 32-bit contiguous prefetch (scalar plus scalar)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve32ContiPfScSc(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrScSc &adr) {
+void CodeGenerator::Sve32ContiPfScSc(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrScSc &adr) {
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
   uint32_t code = concat({F(0x42, 25), F(msz, 23), F(adr.getXm().getIdx(), 16), F(6, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(prfop_sve, 0)});
@@ -3005,7 +3005,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve32ContiPfScSc(PrfopSve prfop_sve, ui
 }
 
 // SVE load and broadcast element
-XBYAK_AARCH64_INLINE void CodeGenerator::SveLoadAndBcElem(uint32_t dtypeh, uint32_t dtypel, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
+void CodeGenerator::SveLoadAndBcElem(uint32_t dtypeh, uint32_t dtypel, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
   uint32_t uimm = adr.getSimm();
   uint32_t dtype = dtypeh << 2 | dtypel;
   uint32_t size = genSize(dtype);
@@ -3020,14 +3020,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveLoadAndBcElem(uint32_t dtypeh, uint3
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::SveLoadAndBcElem(uint32_t dtypeh, uint32_t dtypel, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
+void CodeGenerator::SveLoadAndBcElem(uint32_t dtypeh, uint32_t dtypel, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x42, 25), F(dtypeh, 23), F(1, 22), F(0, 16), F(1, 15), F(dtypel, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
   dd(code);
 }
 
 // SVE load predicate register
-XBYAK_AARCH64_INLINE void CodeGenerator::SveLoadPredReg(const _PReg &pt, const AdrScImm &adr) {
+void CodeGenerator::SveLoadPredReg(const _PReg &pt, const AdrScImm &adr) {
   int32_t imm = adr.getSimm();
   uint32_t imm9h = field(imm, 8, 3);
   uint32_t imm9l = field(imm, 2, 0);
@@ -3036,13 +3036,13 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveLoadPredReg(const _PReg &pt, const A
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::SveLoadPredReg(const _PReg &pt, const AdrNoOfs &adr) {
+void CodeGenerator::SveLoadPredReg(const _PReg &pt, const AdrNoOfs &adr) {
   uint32_t code = concat({F(0x42, 25), F(3, 23), F(0, 16), F(0, 10), F(adr.getXn().getIdx(), 5), F(pt.getIdx(), 0)});
   dd(code);
 }
 
 // SVE load predicate vector
-XBYAK_AARCH64_INLINE void CodeGenerator::SveLoadPredVec(const _ZReg &zt, const AdrScImm &adr) {
+void CodeGenerator::SveLoadPredVec(const _ZReg &zt, const AdrScImm &adr) {
   int32_t imm = adr.getSimm();
   uint32_t imm9h = field(imm, 8, 3);
   uint32_t imm9l = field(imm, 2, 0);
@@ -3053,13 +3053,13 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveLoadPredVec(const _ZReg &zt, const A
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::SveLoadPredVec(const _ZReg &zt, const AdrNoOfs &adr) {
+void CodeGenerator::SveLoadPredVec(const _ZReg &zt, const AdrNoOfs &adr) {
   uint32_t code = concat({F(0x42, 25), F(3, 23), F(0, 16), F(1, 14), F(0, 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
   dd(code);
 }
 
 // SVE contiguous first-fault load (scalar plus scalar)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveContiFFLdScSc(uint32_t dtype, const _ZReg &zt, const _PReg &pg, const AdrScSc &adr) {
+void CodeGenerator::SveContiFFLdScSc(uint32_t dtype, const _ZReg &zt, const _PReg &pg, const AdrScSc &adr) {
   if (adr.getInitMod()) {
     verifyIncList(adr.getSh(), {genSize(dtype)}, ERR_ILLEGAL_CONST_VALUE);
     verifyIncList(adr.getMod(), {LSL}, ERR_ILLEGAL_SHMOD);
@@ -3070,14 +3070,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveContiFFLdScSc(uint32_t dtype, const 
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::SveContiFFLdScSc(uint32_t dtype, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
+void CodeGenerator::SveContiFFLdScSc(uint32_t dtype, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x52, 25), F(dtype, 21), F(31, 16), F(3, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
   dd(code);
 }
 
 // SVE contiguous load (scalar plus immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveContiLdScImm(uint32_t dtype, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
+void CodeGenerator::SveContiLdScImm(uint32_t dtype, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
   int32_t imm = adr.getSimm();
   uint32_t imm4 = imm & ones(4);
   verifyIncRange(imm, -8, 7, ERR_ILLEGAL_IMM_RANGE, true);
@@ -3086,14 +3086,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveContiLdScImm(uint32_t dtype, const _
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::SveContiLdScImm(uint32_t dtype, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
+void CodeGenerator::SveContiLdScImm(uint32_t dtype, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x52, 25), F(dtype, 21), F(0, 16), F(5, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
   dd(code);
 }
 
 // SVE contiguous load (scalar plus scalar)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveContiLdScSc(uint32_t dtype, const _ZReg &zt, const _PReg &pg, const AdrScSc &adr) {
+void CodeGenerator::SveContiLdScSc(uint32_t dtype, const _ZReg &zt, const _PReg &pg, const AdrScSc &adr) {
   verifyIncList(adr.getSh(), {genSize(dtype)}, ERR_ILLEGAL_CONST_VALUE);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x52, 25), F(dtype, 21), F(adr.getXm().getIdx(), 16), F(2, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
@@ -3101,7 +3101,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveContiLdScSc(uint32_t dtype, const _Z
 }
 
 // SVE contiguous non-fault load (scalar plus immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveContiNFLdScImm(uint32_t dtype, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
+void CodeGenerator::SveContiNFLdScImm(uint32_t dtype, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
   int32_t imm = adr.getSimm();
   uint32_t imm4 = imm & ones(4);
   verifyIncRange(imm, -8, 7, ERR_ILLEGAL_IMM_RANGE, true);
@@ -3110,14 +3110,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveContiNFLdScImm(uint32_t dtype, const
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::SveContiNFLdScImm(uint32_t dtype, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
+void CodeGenerator::SveContiNFLdScImm(uint32_t dtype, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x52, 25), F(dtype, 21), F(1, 20), F(0, 16), F(5, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
   dd(code);
 }
 
 // SVE contiguous non-temporal load (scalar plus immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveContiNTLdScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
+void CodeGenerator::SveContiNTLdScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
   int32_t imm = adr.getSimm();
   uint32_t imm4 = imm & ones(4);
   verifyIncRange(imm, -8, 7, ERR_ILLEGAL_IMM_RANGE, true);
@@ -3126,14 +3126,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveContiNTLdScImm(uint32_t msz, const _
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::SveContiNTLdScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
+void CodeGenerator::SveContiNTLdScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x52, 25), F(msz, 23), F(0, 16), F(7, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
   dd(code);
 }
 
 // SVE contiguous non-temporal load (scalar plus scalar)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveContiNTLdScSc(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrScSc &adr) {
+void CodeGenerator::SveContiNTLdScSc(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrScSc &adr) {
   verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x52, 25), F(msz, 23), F(adr.getXm().getIdx(), 16), F(6, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
@@ -3141,7 +3141,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveContiNTLdScSc(uint32_t msz, const _Z
 }
 
 // SVE load and broadcast quadword (scalar plus immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveLdBcQuadScImm(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
+void CodeGenerator::SveLdBcQuadScImm(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
   int32_t imm = adr.getSimm();
   uint32_t imm4 = (imm >> 4) & ones(4);
   verifyIncRange(imm, -128, 127, ERR_ILLEGAL_IMM_RANGE, true);
@@ -3152,14 +3152,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveLdBcQuadScImm(uint32_t msz, uint32_t
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::SveLdBcQuadScImm(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
+void CodeGenerator::SveLdBcQuadScImm(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x52, 25), F(msz, 23), F(num, 21), F(0, 16), F(1, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
   dd(code);
 }
 
 // SVE load and broadcast quadword (scalar plus scalar)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveLdBcQuadScSc(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrScSc &adr) {
+void CodeGenerator::SveLdBcQuadScSc(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrScSc &adr) {
   verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x52, 25), F(msz, 23), F(num, 21), F(adr.getXm().getIdx(), 16), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
@@ -3167,7 +3167,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveLdBcQuadScSc(uint32_t msz, uint32_t 
 }
 
 // SVE load multiple structures (scalar plus immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveLdMultiStructScImm(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
+void CodeGenerator::SveLdMultiStructScImm(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
   int32_t imm = adr.getSimm();
   uint32_t imm4 = (imm / ((int32_t)num + 1)) & ones(4);
 
@@ -3180,14 +3180,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveLdMultiStructScImm(uint32_t msz, uin
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::SveLdMultiStructScImm(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
+void CodeGenerator::SveLdMultiStructScImm(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x52, 25), F(msz, 23), F(num, 21), F(0, 16), F(7, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
   dd(code);
 }
 
 // SVE load multiple structures (scalar plus scalar)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveLdMultiStructScSc(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrScSc &adr) {
+void CodeGenerator::SveLdMultiStructScSc(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrScSc &adr) {
   verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x52, 25), F(msz, 23), F(num, 21), F(adr.getXm().getIdx(), 16), F(6, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
@@ -3195,7 +3195,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveLdMultiStructScSc(uint32_t msz, uint
 }
 
 // SVE 64-bit gather load (scalar plus unpacked 32-bit scaled offsets)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve64GatherLdSc32US(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrSc32US &adr) {
+void CodeGenerator::Sve64GatherLdSc32US(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrSc32US &adr) {
   verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
   uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
@@ -3204,7 +3204,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve64GatherLdSc32US(uint32_t msz, uint3
 }
 
 // SVE 64-bit gather load (scalar plus 64-bit scaled offsets)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve64GatherLdSc64S(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrSc64S &adr) {
+void CodeGenerator::Sve64GatherLdSc64S(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrSc64S &adr) {
   verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x62, 25), F(msz, 23), F(3, 21), F(adr.getZm().getIdx(), 16), F(1, 15), F(U, 14), F(ff, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
@@ -3212,14 +3212,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve64GatherLdSc64S(uint32_t msz, uint32
 }
 
 // SVE 64-bit gather load (scalar plus 64-bit unscaled offsets)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve64GatherLdSc64U(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrSc64U &adr) {
+void CodeGenerator::Sve64GatherLdSc64U(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrSc64U &adr) {
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x62, 25), F(msz, 23), F(2, 21), F(adr.getZm().getIdx(), 16), F(1, 15), F(U, 14), F(ff, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
   dd(code);
 }
 
 // SVE 64-bit gather load (scalar plus unpacked 32-bit unscaled offsets)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve64GatherLdSc32UU(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrSc32UU &adr) {
+void CodeGenerator::Sve64GatherLdSc32UU(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrSc32UU &adr) {
   uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x62, 25), F(msz, 23), F(xs, 22), F(adr.getZm().getIdx(), 16), F(U, 14), F(ff, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
@@ -3227,7 +3227,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve64GatherLdSc32UU(uint32_t msz, uint3
 }
 
 // SVE 64-bit gather load (vector plus immeidate)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve64GatherLdVecImm(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrVecImm64 &adr) {
+void CodeGenerator::Sve64GatherLdVecImm(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrVecImm64 &adr) {
   uint32_t imm = adr.getImm();
   uint32_t imm5 = (imm >> msz) & ones(5);
 
@@ -3241,7 +3241,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve64GatherLdVecImm(uint32_t msz, uint3
 }
 
 // SVE 64-bit gather load (scalar plus 64-bit scaled offsets)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve64GatherPfSc64S(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrSc64S &adr) {
+void CodeGenerator::Sve64GatherPfSc64S(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrSc64S &adr) {
   verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x62, 25), F(3, 21), F(adr.getZm().getIdx(), 16), F(1, 15), F(msz, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(prfop_sve, 0)});
@@ -3249,7 +3249,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve64GatherPfSc64S(PrfopSve prfop_sve, 
 }
 
 // SVE 64-bit gather load (scalar plus unpacked 32-bit scaled offsets)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve64GatherPfSc32US(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrSc32US &adr) {
+void CodeGenerator::Sve64GatherPfSc32US(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrSc32US &adr) {
   verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
   uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
@@ -3258,7 +3258,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve64GatherPfSc32US(PrfopSve prfop_sve,
 }
 
 // SVE 64-bit gather load (vector plus immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve64GatherPfVecImm(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrVecImm64 &adr) {
+void CodeGenerator::Sve64GatherPfVecImm(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrVecImm64 &adr) {
   uint32_t imm = adr.getImm();
   uint32_t imm5 = (imm >> msz) & ones(5);
 
@@ -3272,7 +3272,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve64GatherPfVecImm(PrfopSve prfop_sve,
 }
 
 // SVE 32-bit scatter store (sclar plus 32-bit scaled offsets)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve32ScatterStSc32S(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrSc32S &adr) {
+void CodeGenerator::Sve32ScatterStSc32S(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrSc32S &adr) {
   verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
   uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
@@ -3281,7 +3281,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve32ScatterStSc32S(uint32_t msz, const
 }
 
 // SVE 32-bit scatter store (sclar plus 32-bit unscaled offsets)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve32ScatterStSc32U(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrSc32U &adr) {
+void CodeGenerator::Sve32ScatterStSc32U(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrSc32U &adr) {
   uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x72, 25), F(msz, 23), F(2, 21), F(adr.getZm().getIdx(), 16), F(1, 15), F(xs, 14), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
@@ -3289,7 +3289,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve32ScatterStSc32U(uint32_t msz, const
 }
 
 // SVE 32-bit scatter store (vector plus immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve32ScatterStVecImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrVecImm32 &adr) {
+void CodeGenerator::Sve32ScatterStVecImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrVecImm32 &adr) {
   uint32_t imm = adr.getImm();
   uint32_t imm5 = (imm >> msz) & ones(5);
 
@@ -3303,7 +3303,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve32ScatterStVecImm(uint32_t msz, cons
 }
 
 // SVE 64-bit scatter store (scalar plus 64-bit scaled offsets)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve64ScatterStSc64S(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrSc64S &adr) {
+void CodeGenerator::Sve64ScatterStSc64S(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrSc64S &adr) {
   verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x72, 25), F(msz, 23), F(1, 21), F(adr.getZm().getIdx(), 16), F(5, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
@@ -3311,14 +3311,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve64ScatterStSc64S(uint32_t msz, const
 }
 
 // SVE 64-bit scatter store (scalar plus 64-bit unscaled offsets)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve64ScatterStSc64U(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrSc64U &adr) {
+void CodeGenerator::Sve64ScatterStSc64U(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrSc64U &adr) {
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x72, 25), F(msz, 23), F(adr.getZm().getIdx(), 16), F(5, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
   dd(code);
 }
 
 // SVE 64-bit scatter store (scalar plus unpacked 32-bit scaled offsets)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve64ScatterStSc32US(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrSc32US &adr) {
+void CodeGenerator::Sve64ScatterStSc32US(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrSc32US &adr) {
   verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
   uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
@@ -3327,7 +3327,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve64ScatterStSc32US(uint32_t msz, cons
 }
 
 // SVE 64-bit scatter store (scalar plus unpacked 32-bit unscaled offsets)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve64ScatterStSc32UU(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrSc32UU &adr) {
+void CodeGenerator::Sve64ScatterStSc32UU(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrSc32UU &adr) {
   uint32_t xs = (adr.getMod() == SXTW) ? 1 : 0;
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x72, 25), F(msz, 23), F(adr.getZm().getIdx(), 16), F(1, 15), F(xs, 14), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
@@ -3335,7 +3335,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve64ScatterStSc32UU(uint32_t msz, cons
 }
 
 // SVE 64-bit scatter store (vector plus immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::Sve64ScatterStVecImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrVecImm64 &adr) {
+void CodeGenerator::Sve64ScatterStVecImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrVecImm64 &adr) {
   uint32_t imm = adr.getImm();
   uint32_t imm5 = (imm >> msz) & ones(5);
 
@@ -3349,7 +3349,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::Sve64ScatterStVecImm(uint32_t msz, cons
 }
 
 // SVE contiguous non-temporal store (scalar plus immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveContiNTStScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
+void CodeGenerator::SveContiNTStScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
   int32_t imm = adr.getSimm();
   uint32_t imm4 = imm & ones(4);
   verifyIncRange(imm, -8, 7, ERR_ILLEGAL_IMM_RANGE, true);
@@ -3358,14 +3358,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveContiNTStScImm(uint32_t msz, const _
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::SveContiNTStScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
+void CodeGenerator::SveContiNTStScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x72, 25), F(msz, 23), F(1, 20), F(0, 16), F(7, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
   dd(code);
 }
 
 // SVE contiguous non-temporal store (scalar plus scalar)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveContiNTStScSc(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrScSc &adr) {
+void CodeGenerator::SveContiNTStScSc(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrScSc &adr) {
   verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x72, 25), F(msz, 23), F(adr.getXm().getIdx(), 16), F(3, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
@@ -3373,7 +3373,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveContiNTStScSc(uint32_t msz, const _Z
 }
 
 // SVE contiguous store (scalar plus immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveContiStScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
+void CodeGenerator::SveContiStScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
   uint32_t size = genSize(zt);
   int32_t imm = adr.getSimm();
   uint32_t imm4 = imm & ones(4);
@@ -3383,7 +3383,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveContiStScImm(uint32_t msz, const _ZR
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::SveContiStScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
+void CodeGenerator::SveContiStScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
   uint32_t size = genSize(zt);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x72, 25), F(msz, 23), F(size, 21), F(0, 16), F(7, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
@@ -3391,7 +3391,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveContiStScImm(uint32_t msz, const _ZR
 }
 
 // SVE contiguous store (scalar plus scalar)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveContiStScSc(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrScSc &adr) {
+void CodeGenerator::SveContiStScSc(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrScSc &adr) {
   verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
   uint32_t size = genSize(zt);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
@@ -3400,7 +3400,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveContiStScSc(uint32_t msz, const _ZRe
 }
 
 // SVE store multipule structures (scalar plus immediate)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveStMultiStructScImm(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
+void CodeGenerator::SveStMultiStructScImm(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
   int32_t imm = adr.getSimm();
   uint32_t imm4 = (imm / ((int32_t)num + 1)) & ones(4);
 
@@ -3413,14 +3413,14 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveStMultiStructScImm(uint32_t msz, uin
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::SveStMultiStructScImm(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
+void CodeGenerator::SveStMultiStructScImm(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr) {
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x72, 25), F(msz, 23), F(num, 21), F(1, 20), F(0, 16), F(7, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
   dd(code);
 }
 
 // SVE store multipule structures (scalar plus scalar)
-XBYAK_AARCH64_INLINE void CodeGenerator::SveStMultiStructScSc(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrScSc &adr) {
+void CodeGenerator::SveStMultiStructScSc(uint32_t msz, uint32_t num, const _ZReg &zt, const _PReg &pg, const AdrScSc &adr) {
   verifyIncList(adr.getSh(), {msz}, ERR_ILLEGAL_CONST_VALUE);
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x72, 25), F(msz, 23), F(num, 21), F(adr.getXm().getIdx(), 16), F(3, 13), F(pg.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
@@ -3428,7 +3428,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveStMultiStructScSc(uint32_t msz, uint
 }
 
 // SVE store predicate register
-XBYAK_AARCH64_INLINE void CodeGenerator::SveStorePredReg(const _PReg &pt, const AdrScImm &adr) {
+void CodeGenerator::SveStorePredReg(const _PReg &pt, const AdrScImm &adr) {
   int32_t imm = adr.getSimm();
   uint32_t imm9h = field(imm, 8, 3);
   uint32_t imm9l = field(imm, 2, 0);
@@ -3439,13 +3439,13 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveStorePredReg(const _PReg &pt, const 
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::SveStorePredReg(const _PReg &pt, const AdrNoOfs &adr) {
+void CodeGenerator::SveStorePredReg(const _PReg &pt, const AdrNoOfs &adr) {
   uint32_t code = concat({F(0x72, 25), F(3, 23), F(0, 16), F(0, 10), F(adr.getXn().getIdx(), 5), F(pt.getIdx(), 0)});
   dd(code);
 }
 
 // SVE store predicate vector
-XBYAK_AARCH64_INLINE void CodeGenerator::SveStorePredVec(const _ZReg &zt, const AdrScImm &adr) {
+void CodeGenerator::SveStorePredVec(const _ZReg &zt, const AdrScImm &adr) {
   int32_t imm = adr.getSimm();
   uint32_t imm9h = field(imm, 8, 3);
   uint32_t imm9l = field(imm, 2, 0);
@@ -3456,7 +3456,7 @@ XBYAK_AARCH64_INLINE void CodeGenerator::SveStorePredVec(const _ZReg &zt, const 
   dd(code);
 }
 
-XBYAK_AARCH64_INLINE void CodeGenerator::SveStorePredVec(const _ZReg &zt, const AdrNoOfs &adr) {
+void CodeGenerator::SveStorePredVec(const _ZReg &zt, const AdrNoOfs &adr) {
   uint32_t code = concat({F(0x72, 25), F(3, 23), F(0, 16), F(2, 13), F(0, 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
   dd(code);
 }

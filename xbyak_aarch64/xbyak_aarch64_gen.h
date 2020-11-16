@@ -1125,15 +1125,3 @@ public:
     }
   }
 };
-
-#if XBYAK_AARCH64_LIB != 1
-
-#ifdef XBYAK_AARCH64_MAKE_INSTANCE
-#define XBYAK_AARCH64_INLINE
-#else
-#define XBYAK_AARCH64_INLINE inline
-#endif
-
-#include "xbyak_aarch64_impl.h"
-#include "xbyak_aarch64_mnemonic.h"
-#endif

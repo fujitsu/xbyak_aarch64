@@ -25,10 +25,6 @@
 #include <unordered_set>
 #include <vector>
 
-#ifndef XBYAK_AARCH64_LIB
-#define XBYAK_AARCH64_LIB 0
-#endif
-
 #ifdef __GNUC__
 #ifndef XBYAK_USE_MMAP_ALLOCATOR
 #define XBYAK_USE_MMAP_ALLOCATOR
