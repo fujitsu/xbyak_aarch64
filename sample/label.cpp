@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-#include "../xbyak_aarch64/xbyak_aarch64.h"
+#include "xbyak_aarch64.h"
 using namespace Xbyak_aarch64;
 class Generator : public CodeGenerator {
 public:

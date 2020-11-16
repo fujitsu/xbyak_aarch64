@@ -333,7 +333,7 @@ public:
   }
 
   /////////////// ARM8/SVE encoding helper function ////////////////
-  constexpr const uint32_t F(uint32_t val, uint32_t pos) const { return val << pos; }
+  constexpr uint32_t F(uint32_t val, uint32_t pos) const { return val << pos; }
 
   uint32_t concat(const std::initializer_list<uint32_t> list) {
     uint32_t result = 0;
@@ -1125,15 +1125,3 @@ public:
     }
   }
 };
-
-#if XBYAK_AARCH64_LIB != 1
-
-#ifdef XBYAK_AARCH64_MAKE_INSTANCE
-#define XBYAK_AARCH64_INLINE
-#else
-#define XBYAK_AARCH64_INLINE inline
-#endif
-
-#include "xbyak_aarch64_impl.h"
-#include "xbyak_aarch64_mnemonic.h"
-#endif

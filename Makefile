@@ -1,5 +1,5 @@
 all=lib/libxbyak_aarch64.a
-CFLAGS=-Ofast -DNDEBUG -I ./xbyak_aarch64
+CFLAGS=-O3 -DNDEBUG -I ./xbyak_aarch64
 
 obj/%.o: src/%.cpp
 	$(CXX) $(CFLAGS) -c $< -o $@ -MMD -MP -MF $(@:.o=.d)
