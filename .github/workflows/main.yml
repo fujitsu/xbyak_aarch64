@@ -1,0 +1,20 @@
+on: [push]
+
+jobs:
+  ClangFormatCheck:
+    runs-on: ubuntu-18.04
+    name: check clang format
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Check clang format
+      run: ./.github/automation/clang-format.sh
+      shell: bash
+  ci_test_job:
+    runs-on: ubuntu-18.04
+    name: Test for xbyak_translator_aarch64
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Test action step
+      uses: ./.github/actions/test_action

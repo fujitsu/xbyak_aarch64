@@ -18,9 +18,7 @@ job_1:
   stage: test
   image: bce7edfda510
   script:
-#    - pwd
-#    - ls
-    - cd test/
-    - ./test_all.sh
-#  tags: 
-#    - instruction_unit 
+    - make
+    - cd test
+    - ./test_all.sh -g
+    - ./test_all.sh -f
