@@ -24,12 +24,14 @@ class GeneratorImm : public CodeGenerator {
 public:
   GeneratorImm() {}
 
+// clang-format off
 #define GEN_FUNC_CORE(inst, type, reg)                                         \
   void gen##inst##FuncCore(const type imm) {                                   \
     mov(reg##0, TEST_NUM);                                                     \
     inst##_imm(reg##0, reg##0, imm, reg##9);                                   \
     ret();                                                                     \
   }
+  // clang-format on
 
   GEN_FUNC_CORE(add, uint32_t, w);
   GEN_FUNC_CORE(add, int32_t, w);
@@ -53,6 +55,7 @@ public:
 #undef GEN_FUNC_CORE
 };
 
+// clang-format off
 #define TEST_IMM(inst, op)                                                     \
   template <typename T> int test_##inst##_imm(std::vector<T> &v) {             \
     int errCount = 0;                                                          \
@@ -81,6 +84,7 @@ public:
                                                                                \
     return errCount;                                                           \
   }
+// clang-format on
 
 TEST_IMM(add, +)
 TEST_IMM(sub, -)
@@ -90,6 +94,7 @@ TEST_IMM(subs, -)
 int main() {
   int errCount = 0;
 
+  // clang-format off
   std::vector<int32_t> v_int32 = {std::numeric_limits<int32_t>::min(),
                                   std::numeric_limits<int32_t>::min() + 1,
                                   -2048,
@@ -151,6 +156,7 @@ int main() {
                                     uint64_t(0x0007ff0000000000),
                                     uint64_t(0x00000000000007ff),
                                     uint64_t(0xfff0000000000000)};
+  // clang-format on
 
   std::cerr << "########################################" << std::endl;
   std::cerr << "add start" << std::endl;
