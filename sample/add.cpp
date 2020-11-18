@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019 FUJITSU LIMITED
+ * Copyright 2019-2020 FUJITSU LIMITED
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ using namespace Xbyak_aarch64;
 class Generator : public CodeGenerator {
 public:
   Generator() {
-    Label L1, L2;
     add(w0, w1, w0);
     ret();
   }
