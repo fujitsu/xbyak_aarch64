@@ -17,13 +17,13 @@
 using namespace Xbyak_aarch64;
 class Generator : public CodeGenerator {
 public:
-  Generator() {
-    dd(0xb000020); // machine code of "add w0, w1, w0"
+  Generator(size_t maxSize = DEFAULT_MAX_CODE_SIZE) : CodeGenerator(maxSize) {
+    top_[size_++] = 0xb000020; // machine code of "add w0, w1, w0"
     ret();
   }
 };
 int main() {
-  Generator gen;
+  Generator gen(65536);
   gen.ready();
   auto f = gen.getCode<int (*)(int, int)>();
   std::cout << f(3, 4) << std::endl;
