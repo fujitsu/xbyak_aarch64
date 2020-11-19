@@ -14,18 +14,31 @@
  * limitations under the License.
  *******************************************************************************/
 #include "xbyak_aarch64.h"
+#include <string>
 using namespace Xbyak_aarch64;
 class Generator : public CodeGenerator {
 public:
-  Generator(size_t maxSize = DEFAULT_MAX_CODE_SIZE) : CodeGenerator(maxSize) {
-    top_[size_++] = 0xb000020; // machine code of "add w0, w1, w0"
-    ret();
+  Generator() {}
+
+  void generate(int m, int n) {
+    int i = 0;
+
+    for (i = 0; i < m; i++) {
+      add(w0, w0, n);
+    }
   }
+
+  void preamble() {}
+  void postamble() { ret(); }
 };
-int main() {
-  Generator gen(65536);
+int main(int argc, char *argv[]) {
+  (void)argc; // -Wunused-parameter
+  Generator gen;
   gen.ready();
+  gen.generate(atoi(argv[1]), atoi(argv[2]));
+  gen.postamble();
+
   auto f = gen.getCode<int (*)(int, int)>();
-  std::cout << f(3, 4) << std::endl;
+  std::cout << f(atoi(argv[1]), atoi(argv[2])) << std::endl;
   return 0;
 }

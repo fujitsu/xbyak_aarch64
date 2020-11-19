@@ -14,18 +14,28 @@
  * limitations under the License.
  *******************************************************************************/
 #include "xbyak_aarch64.h"
+#include <fstream>
+#include <iostream>
 using namespace Xbyak_aarch64;
 class Generator : public CodeGenerator {
 public:
-  Generator(size_t maxSize = DEFAULT_MAX_CODE_SIZE) : CodeGenerator(maxSize) {
-    top_[size_++] = 0xb000020; // machine code of "add w0, w1, w0"
+  Generator() {
+    add(w0, w0, w1);
     ret();
   }
 };
+
 int main() {
-  Generator gen(65536);
+  Generator gen;
   gen.ready();
+
   auto f = gen.getCode<int (*)(int, int)>();
+
+  std::ofstream fout;
+  fout.open("jited_code.bin", std::ios::out | std::ios::binary);
+  std::cout << "size:" << gen.getSize() << std::endl;
+  fout.write((const char *)gen.getCode(), gen.getSize());
+
   std::cout << f(3, 4) << std::endl;
   return 0;
 }
