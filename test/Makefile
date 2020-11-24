@@ -23,7 +23,7 @@ all: $(TARGET)
 CXX=g++
 CFLAGS_WARN=-Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith -Wunused-function
 
-CFLAGS=-O2 -fomit-frame-pointer -Wall -fno-operator-names -I../ -I./ $(CFLAGS_WARN) ../lib/libxbyak_aarch64.a #-std=c++0x
+CFLAGS=-std=c++11 -O3 -fomit-frame-pointer -Wall -fno-operator-names -I../xbyak_aarch64/ -I./ $(CFLAGS_WARN) ../lib/libxbyak_aarch64.a
 make_nm: make_nm.cpp $(XBYAK_INC)
 	$(CXX) $(CFLAGS) make_nm.cpp -o $@
 make_nm_load_store: make_nm_load_store.cpp $(XBYAK_INC)
