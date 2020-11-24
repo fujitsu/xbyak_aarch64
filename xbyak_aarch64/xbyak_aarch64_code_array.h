@@ -65,7 +65,7 @@ public:
 #ifdef __APPLE__
     // On macOS environments, we have to do the following three steps to do well with the security features:
     // 1. allocate memory using mmap with MAP_JIT flag.
-    // 2. remove threadwise executable (E) flag make the memory writable.
+    // 2. remove executable (E) flag from the region to make it writable.
     // 3. restore the E flag to make the memory runnable.
     // (because the mmap'd memory can't be made executable without MAP_JIT, and the OS prohibits
     // any store operation to executable regions.)
