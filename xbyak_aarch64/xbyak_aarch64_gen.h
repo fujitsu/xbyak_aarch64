@@ -1048,13 +1048,23 @@ public:
      mode.
           It is not necessary for the other mode if hasUndefinedLabel() is true.
   */
+#ifdef __APPLE__
+  void ready(ProtectMode mode = PROTECT_RE) {
+    // macOS requires executable memory to be non-writable
+    // so the mode other than RE is just an error.
+    if (mode == PROTECT_RWE)
+      throw Error(ERR_ILLEGAL_PROTECT_MODE);
+#else
   void ready(ProtectMode mode = PROTECT_RWE) {
+    // RWE is the default behavior on non-macOS environments.
+#endif
     if (hasUndefinedLabel())
       throw Error(ERR_LABEL_IS_NOT_FOUND);
     if (isAutoGrow()) {
       calcJmpAddress();
-      if (useProtect())
-        setProtectMode(mode);
+    }
+    if (useProtect()) {
+      setProtectMode(mode);
     }
     clearCache(const_cast<uint8_t *>(getCode()), const_cast<uint8_t *>(getCurr()));
   }

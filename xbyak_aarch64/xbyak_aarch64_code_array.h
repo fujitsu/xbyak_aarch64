@@ -34,8 +34,14 @@ struct Allocator {
   virtual uint32_t *alloc(size_t size) { return reinterpret_cast<uint32_t *>(AlignedMalloc(size, inner::getPageSize())); }
   virtual void free(uint32_t *p) { AlignedFree(p); }
   virtual ~Allocator() {}
+
+#ifdef __APPLE__
+  /* overriding prohibited on macOS (we always need calling protect) */
+  bool useProtect() const { return true; }
+#else
   /* override to return false if you call protect() manually */
   virtual bool useProtect() const { return true; }
+#endif
 };
 
 #ifdef XBYAK_USE_MMAP_ALLOCATOR
@@ -54,7 +60,25 @@ public:
 #else
 #error "not supported"
 #endif
-    void *p = mmap(NULL, size, PROT_READ | PROT_WRITE, mode, -1, 0);
+
+#ifdef __APPLE__
+    // On macOS environments, we have to do the following three steps to do well with the security features:
+    // 1. allocate memory using mmap with MAP_JIT flag.
+    // 2. remove threadwise executable (E) flag make the memory writable.
+    // 3. restore the E flag to make the memory runnable.
+    // (because the mmap'd memory can't be made executable without MAP_JIT, and the OS prohibits
+    // any store operation to executable regions.)
+    //
+    // See the following article for the details:
+    // https://developer.apple.com/documentation/apple_silicon/porting_just-in-time_compilers_to_apple_silicon
+    //
+    // (Note: We assume the OS is Big Sur (11.0) or later. For supporting earlier ones,
+    // the xbyak source code would be helpful: https://github.com/herumi/xbyak/blob/master/xbyak/xbyak.h
+    void *p = mmap(NULL, size, mode | MAP_JIT, mode, -1, 0);
+#else
+    void *p = mmap(NULL, size, mode, mode, -1, 0);
+#endif
+
     if (p == MAP_FAILED)
       throw Error(ERR_CANT_ALLOC);
     assert(p);
@@ -125,6 +149,10 @@ protected:
     uint32_t *newTop = alloc_->alloc(newSize);
     if (newTop == 0)
       throw Error(ERR_CANT_ALLOC);
+
+#ifdef __APPLE__
+    protect(newTop, newSize, PROTECT_RW);
+#endif
     for (size_t i = 0; i < size_; i++)
       newTop[i] = top_[i];
     alloc_->free(top_);
@@ -155,10 +183,16 @@ public:
         top_(type_ == USER_BUF ? reinterpret_cast<uint32_t *>(userPtr) : alloc_->alloc((std::max<size_t>)(maxSize, CSIZE))), size_(0), isCalledCalcJmpAddress_(false) {
     if (maxSize_ > 0 && top_ == 0)
       throw Error(ERR_CANT_ALLOC);
+
+#ifdef __APPLE__
+    // on macOS we don't try mark the region RWE
+    setProtectModeRW();
+#else
     if ((type_ == ALLOC_BUF && userPtr != DontSetProtectRWE && useProtect()) && !setProtectMode(PROTECT_RWE, false)) {
       alloc_->free(top_);
       throw Error(ERR_CANT_PROTECT);
     }
+#endif
   }
   virtual ~CodeArray() {
     if (isAllocType()) {
@@ -260,7 +294,7 @@ public:
     default:
       return false;
     }
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__APPLE__)
     size_t pageSize = inner::getPageSize();
     size_t iaddr = reinterpret_cast<size_t>(addr);
     size_t roundAddr = iaddr & ~(pageSize - static_cast<size_t>(1));

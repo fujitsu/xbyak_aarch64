@@ -41,6 +41,7 @@ enum {
   ERR_ILLEGAL_CONST_RANGE,       // use at CodeGenerator
   ERR_ILLEGAL_CONST_VALUE,       // use at CodeGenerator
   ERR_ILLEGAL_CONST_COND,        // use at CodeGenerator
+  ERR_ILLEGAL_PROTECT_MODE,      // use at CodeGenerator
   ERR_ILLEGAL_TYPE,
   ERR_BAD_ALIGN,
   ERR_BAD_ADDRESSING,
@@ -83,7 +84,12 @@ public:
         "illegal const parameter (range error)",
         "illegal const parameter (unavailable error)",
         "illegal const parameter (condition error)",
-        "illegal type"
+        "illegal protect mode (RWX prohibited on this environment)",
+        "illegal type",
+        "bad alignment",
+        "bad addressing",
+        "bad scaling",
+        "munmap failed"
     };
     if ((size_t)err_ >= sizeof(tbl) / sizeof(tbl[0])) {
       msg_ = "bad err num";
