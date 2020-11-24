@@ -17,7 +17,6 @@
 
 #include "xbyak_aarch64_err.h"
 #include "xbyak_aarch64_inner.h"
-#include <pthread.h>
 
 static const size_t CSIZE = sizeof(uint32_t);
 
