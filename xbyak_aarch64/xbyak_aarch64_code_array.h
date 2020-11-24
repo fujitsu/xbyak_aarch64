@@ -17,6 +17,7 @@
 
 #include "xbyak_aarch64_err.h"
 #include "xbyak_aarch64_inner.h"
+#include <pthread.h>
 
 static const size_t CSIZE = sizeof(uint32_t);
 
@@ -74,9 +75,9 @@ public:
     //
     // (Note: We assume the OS is Big Sur (11.0) or later. For supporting earlier ones,
     // the xbyak source code would be helpful: https://github.com/herumi/xbyak/blob/master/xbyak/xbyak.h
-    void *p = mmap(NULL, size, mode | MAP_JIT, mode, -1, 0);
+    void *p = mmap(NULL, size, PROT_READ | PROT_WRITE, mode | MAP_JIT, -1, 0);
 #else
-    void *p = mmap(NULL, size, mode, mode, -1, 0);
+    void *p = mmap(NULL, size, PROT_READ | PROT_WRITE, mode, -1, 0);
 #endif
 
     if (p == MAP_FAILED)
