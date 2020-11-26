@@ -2908,6 +2908,7 @@ void CodeGenerator::SveIntCvtToFp(uint32_t opc, uint32_t opc2, uint32_t U, const
 // SVE floationg-point compare vectors
 void CodeGenerator::SveFpCompVec(uint32_t op, uint32_t o2, uint32_t o3, const _PReg &pd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
   uint32_t size = genSize(pd);
+  verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   uint32_t code = concat({F(0x65, 24), F(size, 22), F(zm.getIdx(), 16), F(op, 15), F(1, 14), F(o2, 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(o3, 4), F(pd.getIdx(), 0)});
   dd(code);
 }
