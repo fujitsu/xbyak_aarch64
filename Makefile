@@ -14,6 +14,9 @@ obj/%.o: src/%.cpp
 $(TARGET): obj/xbyak_aarch64_impl.o
 	ar r $@ $<
 
+test: $(TARGET)
+	$(MAKE) -C test
+
 clean:
 	rm -rf obj/*.o obj/*.d $(TARGET)
 
@@ -29,6 +32,6 @@ install: $(TARGET)
 	$(INSTALL_DATA) xbyak_aarch64/*.h $(DESTDIR)$(includedir)/xbyak_aarch64
 	$(INSTALL_DATA) $(TARGET) $(DESTDIR)$(libdir)
 
-.PHONY: clean
+.PHONY: clean test
 
 .SECONDARY: obj/xbyak_aarch64_impl.o obj/xbyak_aarch64_impl.d
