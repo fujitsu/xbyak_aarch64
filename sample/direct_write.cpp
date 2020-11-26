@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-#include "xbyak_aarch64.h"
+#include <xbyak_aarch64/xbyak_aarch64.h>
 using namespace Xbyak_aarch64;
 class Generator : public CodeGenerator {
 public:
   Generator(size_t maxSize = DEFAULT_MAX_CODE_SIZE) : CodeGenerator(maxSize) {
-    top_[size_++] = 0xb000020; // machine code of "add w0, w1, w0"
+    //    top_[size_++] = 0xb000020; // machine code of "add w0, w1, w0"
+    dd(0xb000020);
     ret();
   }
 };
@@ -27,5 +28,4 @@ int main() {
   gen.ready();
   auto f = gen.getCode<int (*)(int, int)>();
   std::cout << f(3, 4) << std::endl;
-  return 0;
 }

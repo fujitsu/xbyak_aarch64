@@ -1,4 +1,6 @@
-all=lib/libxbyak_aarch64.a
+TARGET=lib/libxbyak_aarch64.a
+all: $(TARGET)
+
 CFLAGS=-std=c++11 -DNDEBUG -g -I ./xbyak_aarch64 -Wall -Wextra
 ifneq ($(DEBUG),1)
 CFLAGS+=-O2
@@ -9,12 +11,27 @@ obj/%.o: src/%.cpp
 
 -include obj/xbyak_aarch64_impl.d
 
-lib/libxbyak_aarch64.a: obj/xbyak_aarch64_impl.o
+$(TARGET): obj/xbyak_aarch64_impl.o
 	ar r $@ $<
 
-clean:
-	rm -rf obj/*.o obj/*.d lib/*.a
+test: $(TARGET)
+	$(MAKE) -C test
 
-.PHONY: clean
+clean:
+	rm -rf obj/*.o obj/*.d $(TARGET)
+
+MKDIR=mkdir -p
+PREFIX?=/usr/local
+prefix?=$(PREFIX)
+includedir?=$(prefix)/include
+libdir?=$(prefix)/lib
+INSTALL?=install
+INSTALL_DATA?=$(INSTALL) -m 644
+install: $(TARGET)
+	$(MKDIR) $(DESTDIR)$(includedir)/xbyak_aarch64 $(DESTDIR)$(libdir)
+	$(INSTALL_DATA) xbyak_aarch64/*.h $(DESTDIR)$(includedir)/xbyak_aarch64
+	$(INSTALL_DATA) $(TARGET) $(DESTDIR)$(libdir)
+
+.PHONY: clean test
 
 .SECONDARY: obj/xbyak_aarch64_impl.o obj/xbyak_aarch64_impl.d

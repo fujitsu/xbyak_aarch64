@@ -13,8 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-#include "xbyak_aarch64.h"
-#include <string>
+#include <xbyak_aarch64/xbyak_aarch64.h>
 using namespace Xbyak_aarch64;
 class Generator : public CodeGenerator {
 public:
@@ -31,14 +30,19 @@ public:
   void preamble() {}
   void postamble() { ret(); }
 };
+
 int main(int argc, char *argv[]) {
-  (void)argc; // -Wunused-parameter
+  if (argc != 3) {
+    printf("err add2 <int> <int>\n");
+    return 1;
+  }
+  int m = atoi(argv[1]);
+  int n = atoi(argv[2]);
   Generator gen;
-  gen.generate(atoi(argv[1]), atoi(argv[2]));
+  gen.generate(m, n);
   gen.postamble();
   gen.ready();
 
-  auto f = gen.getCode<int (*)(int, int)>();
-  std::cout << f(atoi(argv[1]), atoi(argv[2])) << std::endl;
-  return 0;
+  auto f = gen.getCode<int (*)(int)>();
+  printf("%d + %d * %d = %d\n", m, m, n, f(m));
 }

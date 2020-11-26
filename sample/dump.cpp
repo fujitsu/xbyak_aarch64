@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-#include "xbyak_aarch64.h"
 #include <fstream>
 #include <iostream>
+#include <xbyak_aarch64/xbyak_aarch64.h>
 using namespace Xbyak_aarch64;
 class Generator : public CodeGenerator {
 public:
@@ -37,5 +37,4 @@ int main() {
   fout.write((const char *)gen.getCode(), gen.getSize());
 
   std::cout << f(3, 4) << std::endl;
-  return 0;
 }

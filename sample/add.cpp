@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-#include "xbyak_aarch64.h"
+#include <xbyak_aarch64/xbyak_aarch64.h>
 using namespace Xbyak_aarch64;
 class Generator : public CodeGenerator {
 public:
@@ -26,6 +26,7 @@ int main() {
   Generator gen;
   gen.ready();
   auto f = gen.getCode<int (*)(int, int)>();
-  std::cout << f(3, 4) << std::endl;
-  return 0;
+  int a = 3;
+  int b = 4;
+  printf("%d + %d = %d\n", a, b, f(a, b));
 }
