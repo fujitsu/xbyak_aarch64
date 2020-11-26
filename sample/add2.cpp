@@ -34,9 +34,9 @@ public:
 int main(int argc, char *argv[]) {
   (void)argc; // -Wunused-parameter
   Generator gen;
-  gen.ready();
   gen.generate(atoi(argv[1]), atoi(argv[2]));
   gen.postamble();
+  gen.ready();
 
   auto f = gen.getCode<int (*)(int, int)>();
   std::cout << f(atoi(argv[1]), atoi(argv[2])) << std::endl;
