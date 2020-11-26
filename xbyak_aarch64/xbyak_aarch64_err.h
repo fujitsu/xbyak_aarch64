@@ -79,11 +79,11 @@ public:
         "illegal shift-mode paramater",
         "illegal extend-mode parameter",
         "illegal condition parameter",
-        "illegal type",
         "illegal barrier option",
         "illegal const parameter (range error)",
         "illegal const parameter (unavailable error)",
         "illegal const parameter (condition error)",
+        "illegal type"
     };
     if ((size_t)err_ >= sizeof(tbl) / sizeof(tbl[0])) {
       msg_ = "bad err num";
