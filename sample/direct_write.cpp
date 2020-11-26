@@ -18,7 +18,7 @@ using namespace Xbyak_aarch64;
 class Generator : public CodeGenerator {
 public:
   Generator(size_t maxSize = DEFAULT_MAX_CODE_SIZE) : CodeGenerator(maxSize) {
-//    top_[size_++] = 0xb000020; // machine code of "add w0, w1, w0"
+    //    top_[size_++] = 0xb000020; // machine code of "add w0, w1, w0"
     dd(0xb000020);
     ret();
   }
