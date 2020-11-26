@@ -20,8 +20,8 @@ so that we believe Xbyak_aarch64 works various environment with various compiler
 
 ### News
 Break backward compatibility:
-- To link xbyak_aarch64 is always necessary.
-- namespace Xbyak is renamed to Xbyak_aarch64.
+- To link `libxbyak_aarch64.a` is always necessary.
+- namespace `Xbyak` is renamed to `Xbyak_aarch64`.
 - Some class are renamed (e.g. CodeGeneratorAArch64 -> CodeGenerator).
 - L_aarch64() is renamed to L().
 - use dd(uint32_t) instead of dw(uint32_t).
@@ -32,17 +32,10 @@ Almost C++11 or later compilers for AArch64 such as g++, clang++.
 
 ## Install
 
-Xbyak_aarch64 is implemented as the following files. Please add the location of the files to your compiler's include paths.
+The command `make` builds `lib/libxbyak_aarch64.a`.
 
-* xbyak_aarch64.h
-* xbyak_aarch64_adr.h
-* xbyak_aarch64_code_array.h
-* xbyak_aarch64_err.h
-* xbyak_aarch64_gen.h
-* xbyak_aarch64_inner.h
-* xbyak_aarch64_label.h
-* xbyak_aarch64_mnemonic.h
-* xbyak_aarch64_reg.h
+`make install` installs headers and a library into `/usr/local/` (default path).
+Or add the location of the `xbyak_aarch64` directory to your compiler's include and link paths.
 
 ### Execution environment
 
