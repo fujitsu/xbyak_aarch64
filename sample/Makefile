@@ -1,4 +1,4 @@
-SRC=add.cpp add2.cpp label.cpp direct_write.cpp dump.cpp
+SRC=add.cpp add2.cpp label.cpp direct_write.cpp dump.cpp bf.cpp
 OBJ=$(SRC:.cpp=.o)
 EXE=$(SRC:.cpp=)
 all: $(EXE)
