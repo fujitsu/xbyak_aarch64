@@ -88,7 +88,7 @@ public:
       }
     }
 
-    ldr(stack, ptr(sp, 16 + 8));
+    ldr(stack, ptr(sp, 16 + 16));
     ldp(pPutchar, pGetchar, ptr(sp, 16));
     ldp(x29, x30, post_ptr(sp, saveSize));
     ret();
@@ -105,9 +105,9 @@ int main(int argc, char *argv[]) try {
   static int stack[128 * 1024];
   auto f = bf.getCode<void (*)(const void *, const void *, int *)>();
 #if 0
-	FILE *fp = fopen("bf.dump", "wb");
-	fwrite((const void*)f, bf.getSize(), 1, fp);
-	fclose(fp);
+  FILE *fp = fopen("bf.dump", "wb");
+  fwrite((const void*)f, bf.getSize(), 1, fp);
+  fclose(fp);
 #endif
   f((const void *)putchar, (const void *)getchar, stack);
 } catch (std::exception &e) {
