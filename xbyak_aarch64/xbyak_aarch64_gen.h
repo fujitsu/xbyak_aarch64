@@ -1048,7 +1048,7 @@ public:
      mode.
           It is not necessary for the other mode if hasUndefinedLabel() is true.
   */
-  void ready(ProtectMode mode = PROTECT_RWE) {
+  void ready(ProtectMode mode = PROTECT_RE) {
     if (hasUndefinedLabel())
       throw Error(ERR_LABEL_IS_NOT_FOUND);
     if (isAutoGrow()) {

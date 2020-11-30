@@ -150,7 +150,7 @@ public:
     PROTECT_RWE = 1, // read/write/exec
     PROTECT_RE = 2   // read/exec
   };
-  explicit CodeArray(size_t maxSize, void *userPtr = 0, Allocator *allocator = 0)
+  explicit CodeArray(size_t maxSize, void *userPtr = DontSetProtectRWE, Allocator *allocator = 0)
       : type_(userPtr == AutoGrow ? AUTO_GROW : (userPtr == 0 || userPtr == DontSetProtectRWE) ? ALLOC_BUF : USER_BUF), alloc_(allocator ? allocator : (Allocator *)&defaultAllocator_), maxSize_(maxSize / CSIZE),
         top_(type_ == USER_BUF ? reinterpret_cast<uint32_t *>(userPtr) : alloc_->alloc((std::max<size_t>)(maxSize, CSIZE))), size_(0), isCalledCalcJmpAddress_(false) {
     if (maxSize_ > 0 && top_ == 0)
