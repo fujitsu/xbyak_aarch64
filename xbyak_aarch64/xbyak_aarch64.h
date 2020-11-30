@@ -48,6 +48,14 @@
 #include <iostream>
 #endif
 
+#if defined(__APPLE__)
+#define XBYAK_USE_MAP_JIT
+#include <sys/sysctl.h>
+#ifndef MAP_JIT
+#define MAP_JIT 0x800
+#endif
+#endif
+
 namespace Xbyak_aarch64 {
 const uint64_t SP_IDX = 31;
 const uint64_t NUM_VREG_BYTES = 16;
