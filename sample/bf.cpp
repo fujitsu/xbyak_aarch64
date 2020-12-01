@@ -31,8 +31,6 @@ public:
     mov(pGetchar, x1);
     mov(stack, x2);
 
-    const auto &cur = ptr(stack);
-
     std::stack<Label> labelF, labelB;
     char c;
     while (is >> c) {
@@ -40,14 +38,14 @@ public:
       case '+':
       case '-': {
         int count = getContinuousChar(is, c);
-        ldr(x0, cur);
+        ldr(x0, ptr(stack));
         // QQQ : not support large count
         if (c == '+') {
           add(x0, x0, count);
         } else {
           sub(x0, x0, count);
         }
-        str(x0, cur);
+        str(x0, ptr(stack));
       } break;
       case '>':
       case '<': {
@@ -59,17 +57,17 @@ public:
         }
       } break;
       case '.':
-        ldr(x0, cur);
+        ldr(x0, ptr(stack));
         blr(pPutchar);
         break;
       case ',':
         blr(pGetchar);
-        str(x0, cur);
+        str(x0, ptr(stack));
         break;
       case '[': {
         Label B = L();
         labelB.push(B);
-        ldr(x0, cur);
+        ldr(x0, ptr(stack));
         cmp(x0, 0);
         Label F;
         beq(F);
