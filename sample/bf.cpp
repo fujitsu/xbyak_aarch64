@@ -100,8 +100,8 @@ int main(int argc, char *argv[]) try {
   }
   std::ifstream ifs(argv[1]);
   Brainfuck bf(ifs);
-  static int stack[128 * 1024];
-  auto f = bf.getCode<void (*)(const void *, const void *, int *)>();
+  static int64_t stack[128 * 1024];
+  auto f = bf.getCode<void (*)(const void *, const void *, int64_t *)>();
 #if 0
   FILE *fp = fopen("bf.dump", "wb");
   fwrite((const void*)f, bf.getSize(), 1, fp);
