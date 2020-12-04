@@ -100,6 +100,7 @@ int main(int argc, char *argv[]) try {
   }
   std::ifstream ifs(argv[1]);
   Brainfuck bf(ifs);
+  bf.ready();
   static int64_t stack[128 * 1024];
   auto f = bf.getCode<void (*)(const void *, const void *, int64_t *)>();
 #if 0
