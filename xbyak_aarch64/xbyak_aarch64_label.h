@@ -188,13 +188,21 @@ inline Label::~Label() {
   if (id && mgr)
     mgr->decRefCount(id, this);
 }
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wcast-align"
+#endif
 inline const uint32_t *Label::getAddress() const {
   if (mgr == 0 || !mgr->isReady())
     return 0;
   size_t offset;
   if (!mgr->getOffset(&offset, *this))
     return 0;
+  // getCode() is always a multiple of 4
   return (const uint32_t *)mgr->getCode() + offset;
 }
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 
 #endif
