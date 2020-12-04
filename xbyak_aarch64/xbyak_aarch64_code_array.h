@@ -48,11 +48,14 @@ public:
     const size_t alignedSizeM1 = inner::getPageSize() - 1;
     size = (size + alignedSizeM1) & ~alignedSizeM1;
 #ifdef MAP_ANONYMOUS
-    const int mode = MAP_PRIVATE | MAP_ANONYMOUS;
+    int mode = MAP_PRIVATE | MAP_ANONYMOUS;
 #elif defined(MAP_ANON)
-    const int mode = MAP_PRIVATE | MAP_ANON;
+    int mode = MAP_PRIVATE | MAP_ANON;
 #else
 #error "not supported"
+#endif
+#ifdef XBYAK_USE_MAP_JIT
+    mode |= MAP_JIT;
 #endif
     void *p = mmap(NULL, size, PROT_READ | PROT_WRITE, mode, -1, 0);
     if (p == MAP_FAILED)
@@ -260,7 +263,7 @@ public:
     default:
       return false;
     }
-#if defined(__GNUC__)
+#if defined(__GNUC__) || defined(__APPLE__)
     size_t pageSize = inner::getPageSize();
     size_t iaddr = reinterpret_cast<size_t>(addr);
     size_t roundAddr = iaddr & ~(pageSize - static_cast<size_t>(1));

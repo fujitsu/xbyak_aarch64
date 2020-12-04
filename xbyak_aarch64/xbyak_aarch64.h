@@ -25,7 +25,7 @@
 #include <unordered_set>
 #include <vector>
 
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(__APPLE__)
 #ifndef XBYAK_USE_MMAP_ALLOCATOR
 #define XBYAK_USE_MMAP_ALLOCATOR
 #endif
@@ -46,6 +46,14 @@
 
 #ifndef NDEBUG
 #include <iostream>
+#endif
+
+#if defined(__APPLE__)
+#define XBYAK_USE_MAP_JIT
+#include <sys/sysctl.h>
+#ifndef MAP_JIT
+#define MAP_JIT 0x800
+#endif
 #endif
 
 namespace Xbyak_aarch64 {
