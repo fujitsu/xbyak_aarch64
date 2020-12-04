@@ -968,7 +968,7 @@ public:
   const PReg p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12;
   const PReg p13, p14, p15;
 
-  CodeGenerator(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = 0, Allocator *allocator = 0)
+  CodeGenerator(size_t maxSize = DEFAULT_MAX_CODE_SIZE, void *userPtr = DontSetProtectRWE, Allocator *allocator = 0)
       : CodeArray(maxSize, userPtr, allocator)
 #if 1
         ,
@@ -1053,9 +1053,9 @@ public:
       throw Error(ERR_LABEL_IS_NOT_FOUND);
     if (isAutoGrow()) {
       calcJmpAddress();
-      if (useProtect())
-        setProtectMode(mode);
     }
+    if (useProtect())
+      setProtectMode(mode);
     clearCache(const_cast<uint8_t *>(getCode()), const_cast<uint8_t *>(getCurr()));
   }
   // set read/exec

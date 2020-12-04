@@ -25,7 +25,7 @@
 #include <unordered_set>
 #include <vector>
 
-#ifdef __GNUC__
+#if defined(__GNUC__) || defined(__APPLE__)
 #ifndef XBYAK_USE_MMAP_ALLOCATOR
 #define XBYAK_USE_MMAP_ALLOCATOR
 #endif
