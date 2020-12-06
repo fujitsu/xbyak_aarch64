@@ -9,7 +9,6 @@ Xbyak_aarch64 is based on Xbyak developed for x86_64 CPUs by MITSUNARI Shigeo.
 
 ## Feature
 
-* C++ Header files only.
 * GNU assembler like syntax.
 * Fully support SVE instructions.
 
