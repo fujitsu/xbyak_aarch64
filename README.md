@@ -71,6 +71,10 @@ aarch64-linux-gnu-g++ add.cpp
 env QEMU_LD_PREFIX=/usr/aarch64-linux-gnu qemu-aarch64 ./a.out
 ```
 
+## M1 mac
+For test, aarch64-gas is necessary.
+Make the binary from [GNU-A Downloads](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-a/downloads) or use [aarch64-unknown-linux-gnu](https://github.com/thinkski/osx-arm-linux-toolchains).
+
 ## How to make lib
 
 ```
