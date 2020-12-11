@@ -1,3 +1,290 @@
+/////////////// bit operation ////////////////////
+constexpr uint32_t F(uint32_t val, uint32_t pos) { return val << pos; }
+inline uint64_t lsb(uint64_t v) { return v & 0x1; }
+
+uint32_t concat(const std::initializer_list<uint32_t> list) {
+  uint32_t result = 0;
+  for (auto f : list) {
+    result |= f;
+  }
+  return result;
+}
+
+inline uint64_t msb(uint64_t v, uint32_t size) {
+  uint32_t shift = (size == 0) ? 0 : size - 1;
+  return (v >> shift) & 0x1;
+}
+
+inline uint64_t ones(uint32_t size) { return (size == 64) ? 0xffffffffffffffff : ((uint64_t)1 << size) - 1; }
+
+inline uint32_t field(uint64_t v, uint32_t mpos, uint32_t lpos) { return static_cast<uint32_t>((v >> lpos) & ones(mpos - lpos + 1)); }
+
+inline uint64_t rrotate(uint64_t v, uint32_t size, uint32_t num) {
+  uint32_t shift = (size == 0) ? 0 : (num % size);
+  v &= ones(size);
+  return (v >> shift) | ((v & ones(shift)) << (size - shift));
+}
+
+inline uint64_t lrotate(uint64_t v, uint32_t size, uint32_t num) {
+  uint32_t shift = (size == 0) ? 0 : (num % size);
+  v &= ones(size);
+  return ((v << shift) | ((v >> (size - shift)))) & ones(size);
+}
+
+inline uint64_t replicate(uint64_t v, uint32_t esize, uint32_t size) {
+  uint64_t result = 0;
+  for (uint32_t i = 0; i < 64 / esize; ++i) {
+    result |= v << (esize * i);
+  }
+  return result & ones(size);
+}
+
+/////////////// ARMv8/SVE psuedo code function ////////////////
+bool checkPtn(uint64_t v, uint32_t esize, uint32_t size) {
+  std::vector<uint64_t> ptns;
+  uint32_t max_num = size / esize;
+  for (uint32_t i = 0; i < max_num; ++i) {
+    ptns.push_back((v >> (esize * i)) & ones(esize));
+  }
+  return std::all_of(ptns.begin(), ptns.end(), [&ptns](uint64_t x) { return x == ptns[0]; });
+}
+
+uint32_t getPtnSize(uint64_t v, uint32_t size) {
+  uint32_t esize;
+  for (esize = 2; esize <= size; esize <<= 1) {
+    if (checkPtn(v, esize, size))
+      break;
+  }
+  return esize;
+}
+
+uint32_t getPtnRotateNum(uint64_t ptn, uint32_t ptn_size) {
+  assert(ptn != 0 && (ptn & ones(ptn_size)) != ones(ptn_size));
+  uint32_t num;
+  for (num = 0; msb(ptn, ptn_size) || !lsb(ptn); ++num) {
+    ptn = lrotate(ptn, ptn_size, 1);
+  }
+  return num;
+}
+
+uint32_t countOneBit(uint64_t v, uint32_t size) {
+  uint64_t num = 0;
+  for (uint32_t i = 0; i < size; ++i) {
+    num += lsb(v);
+    v >>= 1;
+  };
+  return static_cast<uint32_t>(num);
+}
+
+uint32_t countSeqOneBit(uint64_t v, uint32_t size) {
+  uint32_t num;
+  for (num = 0; num < size && lsb(v); ++num) {
+    v >>= 1;
+  };
+  return num;
+}
+
+uint32_t compactImm(double imm, uint32_t size) {
+  uint32_t sign = (imm < 0) ? 1 : 0;
+
+  imm = std::abs(imm);
+  int32_t max_digit = static_cast<int32_t>(std::floor(std::log2(imm)));
+
+  int32_t n = (size == 16) ? 7 : (size == 32) ? 10 : 13;
+  int32_t exp = (max_digit - 1) + (1 << n);
+
+  imm -= pow(2, max_digit);
+  uint32_t frac = 0;
+  for (int i = 0; i < 4; ++i) {
+    if (pow(2, max_digit - 1 - i) <= imm) {
+      frac |= 1 << (3 - i);
+      imm -= pow(2, max_digit - 1 - i);
+    }
+  }
+  uint32_t imm8 = concat({F(sign, 7), F(field(~exp, n, n), 6), F(field(exp, 1, 0), 4), F(frac, 0)});
+  return imm8;
+}
+
+uint32_t compactImm(uint64_t imm) {
+  uint32_t imm8 = 0;
+  for (uint32_t i = 0; i < 64; i += 8) {
+    uint32_t bit = (imm >> i) & 0x1;
+    imm8 |= bit << (i >> 3);
+  }
+  return imm8;
+}
+
+bool isCompact(uint64_t imm, uint32_t imm8) {
+  bool result = true;
+  for (uint32_t i = 0; i < 64; ++i) {
+    uint32_t bit = (imm >> i) & 0x1;
+    uint32_t rbit = (imm8 >> (i >> 3)) & 0x1;
+    result &= (bit == rbit);
+  }
+  return result;
+}
+
+uint64_t genMoveMaskPrefferd(uint64_t imm) {
+  bool chk_result = true;
+  if (field(imm, 7, 0) != 0) {
+    if (field(imm, 63, 7) == 0 || field(imm, 63, 7) == ones(57))
+      chk_result = false;
+    if ((field(imm, 63, 32) == field(imm, 31, 0)) && (field(imm, 31, 7) == 0 || field(imm, 31, 7) == ones(25)))
+      chk_result = false;
+    if ((field(imm, 63, 32) == field(imm, 31, 0)) && (field(imm, 31, 16) == field(imm, 15, 0)) && (field(imm, 15, 7) == 0 || field(imm, 15, 7) == ones(9)))
+      chk_result = false;
+    if ((field(imm, 63, 32) == field(imm, 31, 0)) && (field(imm, 31, 16) == field(imm, 15, 0)) && (field(imm, 15, 8) == field(imm, 7, 0)))
+      chk_result = false;
+  } else {
+    if (field(imm, 63, 15) == 0 || field(imm, 63, 15) == ones(49))
+      chk_result = false;
+    if ((field(imm, 63, 32) == field(imm, 31, 0)) && (field(imm, 31, 7) == 0 || field(imm, 31, 7) == ones(25)))
+      chk_result = false;
+    if ((field(imm, 63, 32) == field(imm, 31, 0)) && (field(imm, 31, 16) == field(imm, 15, 0)))
+      chk_result = false;
+  }
+  return (chk_result) ? imm : 0;
+}
+
+Cond invert(Cond cond) {
+  uint32_t inv_val = (uint32_t)cond ^ 1;
+  return (Cond)(inv_val & ones(4));
+}
+
+uint32_t genHw(uint64_t imm, uint32_t size) {
+  if (imm == 0)
+    return 0;
+
+  uint32_t hw = 0;
+  uint32_t times = (size == 32) ? 1 : 3;
+  for (uint32_t i = 0; i < times; ++i) {
+    if (field(imm, 15, 0) != 0)
+      break;
+    ++hw;
+    imm >>= 16;
+  }
+  return hw;
+}
+
+/////////////// ARM8/SVE encoding helper function ////////////////
+
+uint32_t genSf(const RReg &Reg) { return (Reg.getBit() == 64) ? 1 : 0; }
+
+uint32_t genQ(const VRegVec &Reg) { return (Reg.getBit() * Reg.getLane() == 128) ? 1 : 0; }
+
+uint32_t genQ(const VRegElem &Reg) {
+  uint32_t pos = 0;
+  switch (Reg.getBit()) {
+  case 8:
+    pos = 3;
+    break;
+  case 16:
+    pos = 2;
+    break;
+  case 32:
+    pos = 1;
+    break;
+  case 64:
+    pos = 0;
+    break;
+  default:
+    pos = 0;
+  }
+  return field(Reg.getElemIdx(), pos, pos);
+}
+
+uint32_t genSize(const Reg &Reg) {
+  uint32_t size = 0;
+  switch (Reg.getBit()) {
+  case 8:
+    size = 0;
+    break;
+  case 16:
+    size = 1;
+    break;
+  case 32:
+    size = 2;
+    break;
+  case 64:
+    size = 3;
+    break;
+  default:
+    size = 0;
+  }
+  return size;
+}
+
+uint32_t genSizeEnc(const VRegElem &Reg) {
+  uint32_t size = 0;
+  switch (Reg.getBit()) {
+  case 8:
+    size = field(Reg.getElemIdx(), 1, 0);
+    break;
+  case 16:
+    size = field(Reg.getElemIdx(), 0, 0) << 1;
+    break;
+  case 32:
+    size = 0;
+    break;
+  case 64:
+    size = 1;
+    break;
+  default:
+    size = 0;
+  }
+  return size;
+}
+
+uint32_t genSize(uint32_t dtype) {
+  uint32_t size = (dtype == 0xf) ? 3 : (dtype == 0x4 || dtype == 0xa || dtype == 0xb) ? 2 : (5 <= dtype && dtype <= 9) ? 1 : 0;
+  return size;
+}
+
+uint32_t genS(const VRegElem &Reg) {
+  uint32_t s = 0;
+  switch (Reg.getBit()) {
+  case 8:
+    s = field(Reg.getElemIdx(), 2, 2);
+    break;
+  case 16:
+    s = field(Reg.getElemIdx(), 1, 1);
+    break;
+  case 32:
+    s = field(Reg.getElemIdx(), 0, 0);
+    break;
+  case 64:
+    s = 0;
+    break;
+  default:
+    s = 0;
+  }
+  return s;
+}
+
+uint32_t CodeGenerator::genNImmrImms(uint64_t imm, uint32_t size) {
+  // check imm
+  if (imm == 0 || imm == ones(size)) {
+    throw Error(ERR_ILLEGAL_IMM_VALUE);
+  }
+
+  auto ptn_size = getPtnSize(imm, size);
+  auto ptn = imm & ones(ptn_size);
+  auto rotate_num = getPtnRotateNum(ptn, ptn_size);
+  auto rotate_ptn = lrotate(ptn, ptn_size, rotate_num);
+  auto one_bit_num = countOneBit(rotate_ptn, ptn_size);
+  auto seq_one_bit_num = countSeqOneBit(rotate_ptn, ptn_size);
+
+  // check ptn
+  if (one_bit_num != seq_one_bit_num) {
+    throw Error(ERR_ILLEGAL_IMM_VALUE);
+  }
+
+  uint32_t N = (ptn_size > 32) ? 1 : 0;
+  uint32_t immr = rotate_num;
+  uint32_t imms = static_cast<uint32_t>((ones(6) & ~ones(static_cast<uint32_t>(std::log2(ptn_size)) + 1)) | (one_bit_num - 1));
+  return (N << 12) | (immr << 6) | imms;
+}
+
 uint32_t CodeGenerator::PCrelAddrEnc(uint32_t op, const XReg &rd, int64_t labelOffset) {
   int32_t imm = static_cast<uint32_t>((op == 1) ? labelOffset >> 12 : labelOffset);
   uint32_t immlo = field(imm, 1, 0);
