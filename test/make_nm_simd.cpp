@@ -618,8 +618,8 @@ class Test {
               << std::endl; /** For easy debug */
 
     for (size_t i = 0; i < n.size(); i++) {
-      const char *nm = removeUnderScore(n[i]).c_str();
-      put(nm, opSet);
+      const std::string nm = removeUnderScore(n[i]);
+      put(nm.c_str(), opSet);
     }
   }
 
