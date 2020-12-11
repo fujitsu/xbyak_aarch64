@@ -20,7 +20,7 @@
 ARCH=$(uname -m)
 GPP=g++
 TOOL_PREFIX=""
-if [ ${ARCH} != aarch64 -a ${ARCH} != arm64 ] ; then
+if [ ${ARCH} != aarch64 ] ; then
   TOOL_PREFIX=aarch64-linux-gnu-
 fi
 if [ ${ARCH} == arm64 ] ; then
