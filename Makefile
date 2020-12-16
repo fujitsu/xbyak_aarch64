@@ -1,7 +1,7 @@
 TARGET=lib/libxbyak_aarch64.a
 all: $(TARGET)
 
-CFLAGS=-std=c++11 -DNDEBUG -g -I ./xbyak_aarch64 -Wall -Wextra
+CFLAGS=-std=c++11 -DNDEBUG -g -I ./xbyak_aarch64 -Wall -Wextra -fPIC
 ifneq ($(DEBUG),1)
 CFLAGS+=-O2
 endif
