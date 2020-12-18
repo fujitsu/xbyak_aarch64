@@ -1,0 +1,3 @@
+lib/libxbyak_aarch64.a
+obj/xbyak_aarch64_impl.d
+obj/xbyak_aarch64_impl.o
