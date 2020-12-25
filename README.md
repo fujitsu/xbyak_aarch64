@@ -438,7 +438,7 @@ can take either one. For example, "CLS" instruction in the AARch64 instruction s
 both (3) and (4) are OK.
 
 Some instructions are defined for both predicated and unpredicated.
-Output JIT code of (5) and (6) are deferent.
+Output JIT-ed code of (5) and (6) are deferent.
 
 
 ```
@@ -589,7 +589,7 @@ public:
 
 ## User allocated memory
 
-You can make jit code on prepaired memory.
+You can make JIT-ed code on prepaired memory.
 
 Call `setProtectModeRE` yourself to change memory mode if using the prepaired memory.
 
@@ -637,9 +637,9 @@ c.ready(); // mode = Read/Write/Exec
 * Don't use the address returned by `getCurr()` before calling `ready()` because it may be invalid address.
 
 ### Read/Exec mode
-Xbyak_aarch64 set Read/Write/Exec mode to memory to run jit code.
+Xbyak_aarch64 set Read/Write/Exec mode to memory to run JIT-ed code.
 If you want to use Read/Exec mode for security, then specify `DontSetProtectRWE` for `CodeGenerator` and
-call `setProtectModeRE()` after generating jit code.
+call `setProtectModeRE()` after generating JIT-ed code.
 
 ```
 struct Code : Xbyak_aarch64::CodeGenerator {
