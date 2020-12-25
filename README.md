@@ -87,8 +87,8 @@ makes `lib/libxbyak_aarch64.a`.
 Inherit `Xbyak::CodeGenerator` class and make the class method.
 Make an instance of the class and get the function
 pointer by calling `getCode()` and call it.
-The following example 1) generates a JIT-ed function which simply adds two integer values passed as arguments and return result as an integer value,
-and 2) call the function. This example outputs "7" to STDOUT. 
+The following example 1) generates a JIT-ed function which simply adds two integer values passed as arguments and returns an integer value as a result,
+and 2) calls the function. This example outputs "7" to STDOUT.
 
 compile options:
 - `-I <xbyak_aarch64 dir>/xbyak_aarch64`.
