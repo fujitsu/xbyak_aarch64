@@ -515,7 +515,7 @@ grep LSL sample/mnemonic_syntax/*
 #### Addressing
 The AArch64 instruction set has various addressing modes such as "No offset", "Post-index", "Pre-index", "Signed offset", "Unsigned offset".
 Please use "ptr()", "pre_ptr()", "post_ptr()" functions to specify which addressing mode you want to use.
-Please "grep" the functions", for example 
+Please "grep" the functions, for example 
 ```
 grep -w ptr sample/mnemonic_syntax/*
 ```
