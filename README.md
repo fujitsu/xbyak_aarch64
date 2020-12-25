@@ -41,7 +41,7 @@ Or add the location of the `xbyak_aarch64` directory to your compiler's include 
 You can execute programs using xbyak_aarch64 on systems running on Arm(R)v8-A architecure CPUs.
 Even if you can't access such systems, you can try Xbyak_aarch64 on QEMU (generic and open source machine emulator and virtualizer).
 
-We have checked programs built with xbyak_aarch64 can be executed with qemu version 3.1.0 on Linux runnign on x86_64 CPUs.
+We have checked programs built with xbyak_aarch64 can be executed with qemu version 3.1.0 on Linux running on x86_64 CPUs.
 The following dpkgs are required.
 
 * binutils-aarch64-linux-gnu
@@ -87,8 +87,8 @@ makes `lib/libxbyak_aarch64.a`.
 Inherit `Xbyak::CodeGenerator` class and make the class method.
 Make an instance of the class and get the function
 pointer by calling `getCode()` and call it.
-The following example 1) generates a JIT-ed function which simply adds two integer values passed as arguments and return result as an integer value,
-and 2) call the function. This example outputs "7" to STDOUT. 
+The following example 1) generates a JIT-ed function which simply adds two integer values passed as arguments and returns an integer value as a result,
+and 2) calls the function. This example outputs "7" to STDOUT.
 
 compile options:
 - `-I <xbyak_aarch64 dir>/xbyak_aarch64`.
@@ -438,7 +438,7 @@ can take either one. For example, "CLS" instruction in the AARch64 instruction s
 both (3) and (4) are OK.
 
 Some instructions are defined for both predicated and unpredicated.
-Output JIT code of (5) and (6) are deferent.
+Output JIT-ed code of (5) and (6) are deferent.
 
 
 ```
@@ -515,7 +515,7 @@ grep LSL sample/mnemonic_syntax/*
 #### Addressing
 The AArch64 instruction set has various addressing modes such as "No offset", "Post-index", "Pre-index", "Signed offset", "Unsigned offset".
 Please use "ptr()", "pre_ptr()", "post_ptr()" functions to specify which addressing mode you want to use.
-Please "grep" the functions", for example 
+Please "grep" the functions, for example 
 ```
 grep -w ptr sample/mnemonic_syntax/*
 ```
@@ -532,8 +532,8 @@ grep -w ptr sample/mnemonic_syntax/*
 
 ## Label
 
-You can use "label" to direct where branch instruction jump to.
-The following example shows how to use "label".
+You can use "Label" to direct where branch instruction jump to.
+The following example shows how to use "Label".
 
 ```
 Label L1;           // (1), instance of Label class
@@ -553,7 +553,7 @@ bgt(L1);            // (3), set destination of branch instruction to the address
 1. Call the L function to register destination address to the instance.
 1. Pass the instance to mnemonic functions correspond to branch instructions.
 
-You can copy the address stored in "Label" instance by using assignL function.
+You can copy the address stored in "Label" instance by using `assignL` function.
 
 ```
 Label L1,L2,L3; 
@@ -589,9 +589,9 @@ public:
 
 ## User allocated memory
 
-You can make jit code on prepaired memory.
+You can make JIT-ed code on prepared memory.
 
-Call `setProtectModeRE` yourself to change memory mode if using the prepaired memory.
+Call `setProtectModeRE` yourself to change memory mode if using the prepared memory.
 
 ```
 uint8_t alignas(4096) buf[8192]; // C++11 or later
@@ -637,9 +637,9 @@ c.ready(); // mode = Read/Write/Exec
 * Don't use the address returned by `getCurr()` before calling `ready()` because it may be invalid address.
 
 ### Read/Exec mode
-Xbyak_aarch64 set Read/Write/Exec mode to memory to run jit code.
+Xbyak_aarch64 set Read/Write/Exec mode to memory to run JIT-ed code.
 If you want to use Read/Exec mode for security, then specify `DontSetProtectRWE` for `CodeGenerator` and
-call `setProtectModeRE()` after generating jit code.
+call `setProtectModeRE()` after generating JIT-ed code.
 
 ```
 struct Code : Xbyak_aarch64::CodeGenerator {
