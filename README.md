@@ -41,7 +41,7 @@ Or add the location of the `xbyak_aarch64` directory to your compiler's include 
 You can execute programs using xbyak_aarch64 on systems running on Arm(R)v8-A architecure CPUs.
 Even if you can't access such systems, you can try Xbyak_aarch64 on QEMU (generic and open source machine emulator and virtualizer).
 
-We have checked programs built with xbyak_aarch64 can be executed with qemu version 3.1.0 on Linux runnign on x86_64 CPUs.
+We have checked programs built with xbyak_aarch64 can be executed with qemu version 3.1.0 on Linux running on x86_64 CPUs.
 The following dpkgs are required.
 
 * binutils-aarch64-linux-gnu
@@ -589,9 +589,9 @@ public:
 
 ## User allocated memory
 
-You can make JIT-ed code on prepaired memory.
+You can make JIT-ed code on prepared memory.
 
-Call `setProtectModeRE` yourself to change memory mode if using the prepaired memory.
+Call `setProtectModeRE` yourself to change memory mode if using the prepared memory.
 
 ```
 uint8_t alignas(4096) buf[8192]; // C++11 or later
