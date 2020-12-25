@@ -532,8 +532,8 @@ grep -w ptr sample/mnemonic_syntax/*
 
 ## Label
 
-You can use "label" to direct where branch instruction jump to.
-The following example shows how to use "label".
+You can use "Label" to direct where branch instruction jump to.
+The following example shows how to use "Label".
 
 ```
 Label L1;           // (1), instance of Label class
