@@ -553,7 +553,7 @@ bgt(L1);            // (3), set destination of branch instruction to the address
 1. Call the L function to register destination address to the instance.
 1. Pass the instance to mnemonic functions correspond to branch instructions.
 
-You can copy the address stored in "Label" instance by using assignL function.
+You can copy the address stored in "Label" instance by using `assignL` function.
 
 ```
 Label L1,L2,L3; 
