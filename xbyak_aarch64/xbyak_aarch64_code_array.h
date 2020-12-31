@@ -192,10 +192,6 @@ public:
     size_ = 0;
   }
 
-  // remove dw method in the near feature
-  void dw(uint32_t code) __attribute__((deprecated)) { dd(code); }
-  void dw_aarch64(uint32_t code) __attribute__((deprecated)) { dd(code); }
-
   // write 4 byte data
   void dd(uint32_t code) {
     if (size_ >= maxSize_) {
