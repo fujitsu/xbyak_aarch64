@@ -283,8 +283,8 @@ public:
 
     return mprotect(reinterpret_cast<void *>(roundAddr), size + (iaddr - roundAddr), mode) == 0;
 #elif defined(_WIN32)
-  DWORD oldProtect;
-  return VirtualProtect(const_cast<void*>(addr), size, mode, &oldProtect) != 0;
+    DWORD oldProtect;
+    return VirtualProtect(const_cast<void *>(addr), size, mode, &oldProtect) != 0;
 #else
     return true;
 #endif
