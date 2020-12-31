@@ -15,6 +15,15 @@
  * limitations under the License.
  *******************************************************************************/
 
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#define NOMINMAX
+#include <windows.h>
+#undef mvn
+#endif
+
 #include <algorithm>
 #include <deque>
 #include <initializer_list>
