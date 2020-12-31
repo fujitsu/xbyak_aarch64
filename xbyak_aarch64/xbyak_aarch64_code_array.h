@@ -21,12 +21,22 @@
 static const size_t CSIZE = sizeof(uint32_t);
 
 inline void *AlignedMalloc(size_t size, size_t alignment) {
+#ifdef _MSC_VER
+  return _aligned_malloc(size, alignment);
+#else
   void *p;
   int ret = posix_memalign(&p, alignment, size);
   return (ret == 0) ? p : 0;
+#endif
 }
 
-inline void AlignedFree(void *p) { free(p); }
+inline void AlignedFree(void *p) {
+#ifdef _MSC_VER
+  _aligned_free(p);
+#else
+  free(p);
+#endif
+}
 
 template <class To, class From> inline const To CastTo(From p) throw() { return (const To)(size_t)(p); }
 
@@ -241,10 +251,17 @@ public:
      @return true(success), false(failure)
   */
   static inline bool protect(const void *addr, size_t size, int protectMode) {
+#if defined(_WIN32)
+    const DWORD c_rw = PAGE_READWRITE;
+    const DWORD c_rwe = PAGE_EXECUTE_READWRITE;
+    const DWORD c_re = PAGE_EXECUTE_READ;
+    DWORD mode;
+#else
     const int c_rw = PROT_READ | PROT_WRITE;
     const int c_rwe = PROT_READ | PROT_WRITE | PROT_EXEC;
     const int c_re = PROT_READ | PROT_EXEC;
     int mode;
+#endif
 
     switch (protectMode) {
     case PROTECT_RW:
@@ -265,6 +282,9 @@ public:
     size_t roundAddr = iaddr & ~(pageSize - static_cast<size_t>(1));
 
     return mprotect(reinterpret_cast<void *>(roundAddr), size + (iaddr - roundAddr), mode) == 0;
+#elif defined(_WIN32)
+  DWORD oldProtect;
+  return VirtualProtect(const_cast<void*>(addr), size, mode, &oldProtect) != 0;
 #else
     return true;
 #endif
