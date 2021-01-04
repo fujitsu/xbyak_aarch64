@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 #include <sys/prctl.h>
+#include <xbyak_aarch64/low_func.h>
 
 namespace Xbyak_aarch64 {
 namespace util {
@@ -59,38 +60,24 @@ public:
   static const Type tSVE = 1 << 3;
   static const Type tATOMIC = 1 << 4;
 
-  static const uint64_t ID_AA64ISAR0_EL1_ATOMIC_SHIFT = 20;
-  static const uint64_t ID_AA64ISAR0_EL1_ATOMIC_MASK = 0xf;
-  static const uint64_t ID_AA64PFR0_EL1_SVE_SHIFT = 32;
-  static const uint64_t ID_AA64PFR0_EL1_SVE_MASK = 0xf;
-  static const uint64_t ID_AA64PFR0_EL1_ADVSIMD_SHIFT = 20;
-  static const uint64_t ID_AA64PFR0_EL1_ADVSIMD_MASK = 0xf;
-  static const uint64_t ID_AA64PFR0_EL1_FP_SHIFT = 16;
-  static const uint64_t ID_AA64PFR0_EL1_FP_MASK = 0xf;
-
   static const uint64_t ZCR_EL1_LEN_SHIFT = 0;
   static const uint64_t ZCR_EL1_LEN_MASK = 0xf;
 
-#define SYS_REG_FIELD(val, regName, fieldName) ((val >> regName##_##fieldName##_SHIFT) & regName##_##fieldName##_MASK)
-
   Cpu() : type_(tNONE), sveLen_(SVE_NONE) {
-    uint64_t regVal = 0;
 
-    __asm__ __volatile__("mrs %0, id_aa64isar0_el1" : "=r"(regVal));
-
-    if (SYS_REG_FIELD(regVal, ID_AA64ISAR0_EL1, ATOMIC) == 0x2) {
+    Type_id_aa64isar0_el1 isar0 = xbyak_aarch64_get_id_aa64isar0_el1();
+    if (isar0.atomic == 2) {
       type_ |= tATOMIC;
     }
 
-    __asm__ __volatile__("mrs %0, id_aa64pfr0_el1" : "=r"(regVal));
-
-    if (SYS_REG_FIELD(regVal, ID_AA64PFR0_EL1, FP) == 0x1) {
+    Type_id_aa64pfr0_el1 pfr0 = xbyak_aarch64_get_id_aa64pfr0_el1();
+    if (pfr0.fp == 1) {
       type_ |= tFP;
     }
-    if (SYS_REG_FIELD(regVal, ID_AA64PFR0_EL1, ADVSIMD) == 0x1) {
+    if (pfr0.advsimd == 1) {
       type_ |= tADVSIMD;
     }
-    if (SYS_REG_FIELD(regVal, ID_AA64PFR0_EL1, SVE) == 0x1) {
+    if (pfr0.sve == 1) {
       type_ |= tSVE;
       /* Can not read ZCR_EL1 system register from application level.*/
 #ifdef PR_SVE_GET_VL
@@ -100,7 +87,6 @@ public:
 #endif
     }
   }
-#undef SYS_REG_FIELD
 
   Type getType() const { return type_; }
   bool has(Type type) const { return (type & type_) != 0; }

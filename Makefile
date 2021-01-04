@@ -9,10 +9,13 @@ endif
 obj/%.o: src/%.cpp
 	$(CXX) $(CFLAGS) -c $< -o $@ -MMD -MP -MF $(@:.o=.d)
 
+obj/low_func.o: src/low_func.s
+	$(CXX) -c $< -o $@
+
 -include obj/xbyak_aarch64_impl.d
 
-$(TARGET): obj/xbyak_aarch64_impl.o
-	ar r $@ $<
+$(TARGET): obj/xbyak_aarch64_impl.o obj/low_func.o
+	ar r $@ $^
 
 test: $(TARGET)
 	$(MAKE) -C test
