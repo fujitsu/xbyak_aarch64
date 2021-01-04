@@ -1,9 +1,15 @@
+ARCH?=$(shell uname -m)
 TARGET=lib/libxbyak_aarch64.a
 all: $(TARGET)
 
 CFLAGS=-std=c++11 -DNDEBUG -g -I ./xbyak_aarch64 -Wall -Wextra -fPIC
 ifneq ($(DEBUG),1)
 CFLAGS+=-O2
+endif
+
+LIB_OBJ=obj/xbyak_aarch64_impl.o
+ifneq ($(ARCH),x86_64)
+  LIB_OBJ+=obj/low_func.o
 endif
 
 obj/%.o: src/%.cpp
@@ -14,7 +20,7 @@ obj/low_func.o: src/low_func.s
 
 -include obj/xbyak_aarch64_impl.d
 
-$(TARGET): obj/xbyak_aarch64_impl.o obj/low_func.o
+$(TARGET): $(LIB_OBJ)
 	ar r $@ $^
 
 test: $(TARGET)
