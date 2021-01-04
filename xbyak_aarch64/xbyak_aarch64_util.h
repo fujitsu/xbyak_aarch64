@@ -18,7 +18,9 @@
 #define XBYAK_AARCH64_UTIL_H_
 
 #include <stdint.h>
+#ifndef __APPLE__
 #include <sys/prctl.h>
+#endif
 #include <xbyak_aarch64/low_func.h>
 
 namespace Xbyak_aarch64 {
@@ -64,7 +66,7 @@ public:
   static const uint64_t ZCR_EL1_LEN_MASK = 0xf;
 
   Cpu() : type_(tNONE), sveLen_(SVE_NONE) {
-
+#ifndef __APPLE__
     Type_id_aa64isar0_el1 isar0 = xbyak_aarch64_get_id_aa64isar0_el1();
     if (isar0.atomic == 2) {
       type_ |= tATOMIC;
@@ -86,6 +88,7 @@ public:
       sveLen_ = static_cast<sveLen_t>(prctl(51));
 #endif
     }
+#endif // __APPLE__
   }
 
   Type getType() const { return type_; }

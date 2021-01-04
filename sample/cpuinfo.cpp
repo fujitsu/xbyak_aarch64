@@ -9,7 +9,7 @@ advsimd fp sve atomic
 int main() {
   using namespace Xbyak_aarch64::util;
   Cpu cpu;
-  printf("cpu type=%016lx\n", cpu.getType());
+  printf("cpu type=%016lx\n", (long)cpu.getType());
   if (cpu.has(Cpu::tADVSIMD))
     printf("advsimd ");
   if (cpu.has(Cpu::tFP))
