@@ -10,13 +10,17 @@ int main() {
   using namespace Xbyak_aarch64::util;
   Cpu cpu;
   printf("cpu type=%016lx\n", (long)cpu.getType());
-  if (cpu.has(Cpu::tADVSIMD))
+  if (cpu.has(Cpu::tADVSIMD)) {
     printf("advsimd ");
-  if (cpu.has(Cpu::tFP))
+  }
+  if (cpu.has(Cpu::tFP)) {
     printf("fp ");
-  if (cpu.has(Cpu::tSVE))
-    printf("sve ");
-  if (cpu.has(Cpu::tATOMIC))
+  }
+  if (cpu.has(Cpu::tSVE)) {
+    printf("sve(%zd) ", cpu.getSveLen());
+  }
+  if (cpu.has(Cpu::tATOMIC)) {
     printf("atomic ");
+  }
   printf("\n");
 }
