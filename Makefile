@@ -8,9 +8,6 @@ CFLAGS+=-O2
 endif
 
 LIB_OBJ=obj/xbyak_aarch64_impl.o
-ifneq ($(ARCH),x86_64)
-  LIB_OBJ+=obj/low_func.o
-endif
 
 obj/%.o: src/%.cpp
 	$(CXX) $(CFLAGS) -c $< -o $@ -MMD -MP -MF $(@:.o=.d)

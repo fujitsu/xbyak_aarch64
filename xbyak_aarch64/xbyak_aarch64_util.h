@@ -21,7 +21,6 @@
 #ifndef __APPLE__
 #include <sys/prctl.h>
 #endif
-#include <xbyak_aarch64/low_func.h>
 
 namespace Xbyak_aarch64 {
 namespace util {
@@ -46,6 +45,45 @@ enum sveLen_t {
   SVE_2048 = 16 * 16,
 };
 
+struct Type_id_aa64isar0_el1 {
+  int resv0 : 4;
+  int aes : 4;
+  int sha1 : 4;
+  int sha2 : 4;
+  int crc32 : 4;
+  int atomic : 4;
+  int resv1 : 4;
+  int rdm : 4;
+  int resv2 : 12;
+  int dp : 4;
+  int resv3 : 16;
+};
+
+inline Type_id_aa64isar0_el1 get_id_aa64isar0_el1() {
+  Type_id_aa64isar0_el1 x;
+  asm __volatile__("mrs %[x], id_aa64isar0_el1" : [ x ] "=r"(x));
+  return x;
+}
+
+struct Type_id_aa64pfr0_el1 {
+  int el0 : 4;
+  int el1 : 4;
+  int el2 : 4;
+  int el3 : 4;
+  int fp : 4;
+  int advsimd : 4;
+  int gic : 4;
+  int ras : 4;
+  int sve : 4;
+  int resv0 : 28;
+};
+
+inline Type_id_aa64pfr0_el1 get_id_aa64pfr0_el1() {
+  Type_id_aa64pfr0_el1 x;
+  asm __volatile__("mrs %[x], id_aa64pfr0_el1" : [ x ] "=r"(x));
+  return x;
+}
+
 /**
    CPU detection class
 */
@@ -67,12 +105,12 @@ public:
 
   Cpu() : type_(tNONE), sveLen_(SVE_NONE) {
 #ifndef __APPLE__
-    Type_id_aa64isar0_el1 isar0 = xbyak_aarch64_get_id_aa64isar0_el1();
+    Type_id_aa64isar0_el1 isar0 = get_id_aa64isar0_el1();
     if (isar0.atomic == 2) {
       type_ |= tATOMIC;
     }
 
-    Type_id_aa64pfr0_el1 pfr0 = xbyak_aarch64_get_id_aa64pfr0_el1();
+    Type_id_aa64pfr0_el1 pfr0 = get_id_aa64pfr0_el1();
     if (pfr0.fp == 1) {
       type_ |= tFP;
     }
