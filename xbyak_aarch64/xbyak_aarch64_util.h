@@ -18,9 +18,6 @@
 #define XBYAK_AARCH64_UTIL_H_
 
 #include <stdint.h>
-#ifdef __linux__
-#include <sys/prctl.h>
-#endif
 
 namespace Xbyak_aarch64 {
 namespace util {
@@ -61,7 +58,7 @@ struct Type_id_aa64isar0_el1 {
 
 inline Type_id_aa64isar0_el1 get_id_aa64isar0_el1() {
   Type_id_aa64isar0_el1 x;
-  asm __volatile__("mrs %[x], id_aa64isar0_el1" : [ x ] "=r"(x));
+  asm __volatile__("mrs %0, id_aa64isar0_el1" : "=r"(x));
   return x;
 }
 
@@ -80,8 +77,19 @@ struct Type_id_aa64pfr0_el1 {
 
 inline Type_id_aa64pfr0_el1 get_id_aa64pfr0_el1() {
   Type_id_aa64pfr0_el1 x;
-  asm __volatile__("mrs %[x], id_aa64pfr0_el1" : [ x ] "=r"(x));
+  asm __volatile__("mrs %0, id_aa64pfr0_el1" : "=r"(x));
   return x;
+}
+
+inline sveLen_t getSveLen() {
+  uint64_t x = 0;
+#ifdef __ARM_FEATURE_SVE
+  asm __volatile__("cntb %0" : "=r"(x));
+#else
+#warning "use option -march=armv8.2-a+sve"
+  asm __volatile__(".inst 0x0420e3e0" : "=r"(x));
+#endif
+  return (sveLen_t)x;
 }
 
 /**
@@ -119,12 +127,7 @@ public:
     }
     if (pfr0.sve == 1) {
       type_ |= tSVE;
-      /* Can not read ZCR_EL1 system register from application level.*/
-#ifdef PR_SVE_GET_VL
-      sveLen_ = static_cast<sveLen_t>(prctl(PR_SVE_GET_VL));
-#else
-      sveLen_ = static_cast<sveLen_t>(prctl(51));
-#endif
+      sveLen_ = util::getSveLen();
     }
 #endif // __linux__
   }
