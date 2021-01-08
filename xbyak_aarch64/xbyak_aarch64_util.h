@@ -18,6 +18,9 @@
 #define XBYAK_AARCH64_UTIL_H_
 
 #include <stdint.h>
+#ifdef __linux__
+#include <sys/prctl.h>
+#endif
 
 namespace Xbyak_aarch64 {
 namespace util {
@@ -81,17 +84,6 @@ inline Type_id_aa64pfr0_el1 get_id_aa64pfr0_el1() {
   return x;
 }
 
-inline sveLen_t getSveLen() {
-  uint64_t x = 0;
-#ifdef __ARM_FEATURE_SVE
-  asm __volatile__("cntb %0" : "=r"(x));
-#else
-#warning "use option -march=armv8.2-a+sve"
-  asm __volatile__(".inst 0x0420e3e0" : "=r"(x));
-#endif
-  return (sveLen_t)x;
-}
-
 /**
    CPU detection class
 */
@@ -127,7 +119,8 @@ public:
     }
     if (pfr0.sve == 1) {
       type_ |= tSVE;
-      sveLen_ = util::getSveLen();
+      // svcntb(); if arm_sve.h is available
+      sveLen_ = (sveLen_t)prctl(51); // PR_SVE_GET_VL
     }
 #endif // __linux__
   }
