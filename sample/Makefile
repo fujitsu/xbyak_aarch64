@@ -6,7 +6,7 @@ all: $(EXE)
 
 LDFLAGS=-L ../lib -lxbyak_aarch64
 CFLAGS=-std=c++11 -g -DNDEBUG -Wall -Wextra -I ../
-CFLAGS+=-march=armv8.2-a+sve
+#CFLAGS+=-march=armv8.2-a+sve
 ifneq ($(DEBUG),1)
 CFLAGS+=-O2
 endif
