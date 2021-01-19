@@ -1,4 +1,4 @@
-SRC=add.cpp add2.cpp label.cpp direct_write.cpp dump.cpp bf.cpp
+SRC=add.cpp add2.cpp label.cpp direct_write.cpp dump.cpp bf.cpp cpuinfo.cpp
 OBJ=$(SRC:.cpp=.o)
 DEP=$(SRC:.cpp=.d)
 EXE=$(SRC:.cpp=.exe)
@@ -6,6 +6,7 @@ all: $(EXE)
 
 LDFLAGS=-L ../lib -lxbyak_aarch64
 CFLAGS=-std=c++11 -g -DNDEBUG -Wall -Wextra -I ../
+#CFLAGS+=-march=armv8.2-a+sve
 ifneq ($(DEBUG),1)
 CFLAGS+=-O2
 endif

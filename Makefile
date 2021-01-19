@@ -1,3 +1,4 @@
+ARCH?=$(shell uname -m)
 TARGET=lib/libxbyak_aarch64.a
 all: $(TARGET)
 
@@ -6,13 +7,15 @@ ifneq ($(DEBUG),1)
 CFLAGS+=-O2
 endif
 
+LIB_OBJ=obj/xbyak_aarch64_impl.o
+
 obj/%.o: src/%.cpp
 	$(CXX) $(CFLAGS) -c $< -o $@ -MMD -MP -MF $(@:.o=.d)
 
 -include obj/xbyak_aarch64_impl.d
 
-$(TARGET): obj/xbyak_aarch64_impl.o
-	ar r $@ $<
+$(TARGET): $(LIB_OBJ)
+	ar r $@ $^
 
 test: $(TARGET)
 	$(MAKE) -C test
