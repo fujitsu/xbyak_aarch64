@@ -12,9 +12,6 @@ LIB_OBJ=obj/xbyak_aarch64_impl.o
 obj/%.o: src/%.cpp
 	$(CXX) $(CFLAGS) -c $< -o $@ -MMD -MP -MF $(@:.o=.d)
 
-obj/low_func.o: src/low_func.s
-	$(CXX) -c $< -o $@
-
 -include obj/xbyak_aarch64_impl.d
 
 $(TARGET): $(LIB_OBJ)
