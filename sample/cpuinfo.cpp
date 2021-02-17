@@ -17,7 +17,7 @@ int main() {
     printf("fp ");
   }
   if (cpu.has(Cpu::tSVE)) {
-    printf("sve(%zd) ", cpu.getSveLen());
+    printf("sve(%d) ", (int)cpu.getSveLen());
   }
   if (cpu.has(Cpu::tATOMIC)) {
     printf("atomic ");
