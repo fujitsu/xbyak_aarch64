@@ -16,8 +16,11 @@ endif
 
 -include $(DEP)
 
-%.exe: %.o
+%.exe: %.o ../lib/libxbyak_aarch64.a
 	$(CXX) $< -o $@ $(LDFLAGS)
+
+../lib/libxbyak_aarch64.a:
+	$(MAKE) -C ..
 
 clean:
 	rm -rf $(EXE) $(OBJ) $(DEP)
