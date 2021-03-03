@@ -1,6 +1,6 @@
 #pragma once
 /*******************************************************************************
- * Copyright 2020 FUJITSU LIMITED
+ * Copyright 2020-2021 FUJITSU LIMITED
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,11 @@
 #include <stdint.h>
 #ifdef __linux__
 #include <sys/prctl.h>
+#elif defined(__APPLE__)
+#include <sys/sysctl.h>
 #endif
+
+#include "xbyak_aarch64_err.h"
 
 namespace Xbyak_aarch64 {
 namespace util {
@@ -84,6 +88,12 @@ inline Type_id_aa64pfr0_el1 get_id_aa64pfr0_el1() {
   return x;
 }
 
+#ifdef __APPLE__
+constexpr char hw_opt_atomics[] = "hw.optional.armv8_1_atomics";
+constexpr char hw_opt_fp[] = "hw.optional.floatingpoint";
+constexpr char hw_opt_neon[] = "hw.optional.neon";
+#endif
+
 /**
    CPU detection class
 */
@@ -122,7 +132,25 @@ public:
       // svcntb(); if arm_sve.h is available
       sveLen_ = (sveLen_t)prctl(51); // PR_SVE_GET_VL
     }
-#endif // __linux__
+#elif defined(__APPLE__)
+    size_t val = 0;
+    size_t len = sizeof(val);
+
+    if (sysctlbyname(hw_opt_atomics, &val, &len, NULL, 0) != 0)
+      throw Error(ERR_INTERNAL);
+    else
+      type_ |= (val == 1) ? tATOMIC : 0;
+
+    if (sysctlbyname(hw_opt_fp, &val, &len, NULL, 0) != 0)
+      throw Error(ERR_INTERNAL);
+    else
+      type_ |= (val == 1) ? tFP : 0;
+
+    if (sysctlbyname(hw_opt_neon, &val, &len, NULL, 0) != 0)
+      throw Error(ERR_INTERNAL);
+    else
+      type_ |= (val == 1) ? tADVSIMD : 0;
+#endif
   }
 
   Type getType() const { return type_; }
