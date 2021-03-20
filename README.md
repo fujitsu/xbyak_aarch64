@@ -4,7 +4,7 @@
 
 ## Abstract
 
-Xbyak_aarch64 is C++ header files which enables run-time assemble coding with the AArch64 instruction set of Arm(R)v8-A architecture.
+Xbyak_aarch64 is a C++ library which enables run-time assemble coding with the AArch64 instruction set of Arm(R)v8-A architecture.
 Xbyak_aarch64 is based on Xbyak developed for x86_64 CPUs by MITSUNARI Shigeo.
 
 ## Feature
@@ -14,7 +14,7 @@ Xbyak_aarch64 is based on Xbyak developed for x86_64 CPUs by MITSUNARI Shigeo.
 
 ### Requirement
 
-Xbyak_aarch64 uses no external library and it is written as standard C++ header files 
+Xbyak_aarch64 uses no external library and it is written as standard C++ files
 so that we believe Xbyak_aarch64 works various environment with various compilers.
 
 ### News
