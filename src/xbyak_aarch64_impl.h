@@ -629,7 +629,7 @@ uint32_t CodeGenerator::CompareBrEnc(uint32_t op, const RReg &rt, int64_t labelO
 }
 
 void CodeGenerator::CompareBr(uint32_t op, const RReg &rt, const Label &label) {
-  auto encFunc = [&, op](int64_t labelOffset) { return CompareBrEnc(op, rt, labelOffset); };
+  auto encFunc = [=, &op](int64_t labelOffset) { return CompareBrEnc(op, rt, labelOffset); };
   JmpLabel jmpL = JmpLabel(encFunc, size_);
   uint32_t code = CompareBrEnc(op, rt, genLabelOffset(label, jmpL));
   dd(code);
