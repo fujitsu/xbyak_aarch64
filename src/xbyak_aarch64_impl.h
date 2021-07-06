@@ -1000,8 +1000,8 @@ void CodeGenerator::LdStRegPairPostImm(uint32_t opc, uint32_t L, const RReg &rt1
   uint32_t imm7 = (imm >> (times + 1)) & ones(7);
   uint32_t V = 0;
 
-  verifyIncRange(rt1.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-  verifyIncRange(rt2.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt1.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt2.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
 
   uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(1, 23), F(L, 22), F(imm7, 15), F(rt2.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
   dd(code);
@@ -1036,8 +1036,8 @@ void CodeGenerator::LdStRegPair(uint32_t opc, uint32_t L, const RReg &rt1, const
   uint32_t imm7 = (imm >> (times + 1)) & ones(7);
   uint32_t V = 0;
 
-  verifyIncRange(rt1.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-  verifyIncRange(rt2.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt1.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt2.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
 
   uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(2, 23), F(L, 22), F(imm7, 15), F(rt2.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
   dd(code);
@@ -1072,8 +1072,8 @@ void CodeGenerator::LdStRegPairPre(uint32_t opc, uint32_t L, const RReg &rt1, co
   uint32_t imm7 = (imm >> (times + 1)) & ones(7);
   uint32_t V = 0;
 
-  verifyIncRange(rt1.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-  verifyIncRange(rt2.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt1.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt2.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
 
   uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(3, 23), F(L, 22), F(imm7, 15), F(rt2.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
   dd(code);
