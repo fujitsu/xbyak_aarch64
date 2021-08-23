@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019-2020 FUJITSU LIMITED
+ * Copyright 2019-2021 FUJITSU LIMITED
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -375,10 +375,10 @@ class Test {
   /** String used as test vector */
 
   std::vector<std::string> tv_WREG = {"w0", "w1",  "w2", "w4",
-                                      "w8", "w16", "w30"};
+                                      "w8", "w16", "wzr"};
   std::vector<std::string> tv_WREG3 = {"w6", "w16", "w28"};
   std::vector<std::string> tv_XREG = {"x7", "x0", "x1",  "x2",
-                                      "x4", "x8", "x16", "x30"};
+                                      "x4", "x8", "x16", "xzr"};
   std::vector<std::string> tv_XREG2 = {"x3", "x0", "x1",  "x2",
                                        "x4", "x8", "x16", "x30"};
   std::vector<std::string> tv_XREG3 = {"x5", "x15", "x29"};
@@ -433,10 +433,10 @@ class Test {
 
   std::vector<std::string> tv_SPECIFIC0, tv_SPECIFIC1, tv_SPECIFIC2,
       tv_SPECIFIC3, tv_SPECIFIC4, tv_SPECIFIC5, tv_SPECIFIC6, tv_SPECIFIC7,
-      tv_SPECIFIC8, tv_SPECIFIC9, tv_SPECIFIC10, tv_SPECIFIC11;
+    tv_SPECIFIC8, tv_SPECIFIC9, tv_SPECIFIC10, tv_SPECIFIC11;
   std::vector<std::string> jtv_SPECIFIC0, jtv_SPECIFIC1, jtv_SPECIFIC2,
       jtv_SPECIFIC3, jtv_SPECIFIC4, jtv_SPECIFIC5, jtv_SPECIFIC6, jtv_SPECIFIC7,
-      jtv_SPECIFIC8, jtv_SPECIFIC9, jtv_SPECIFIC10, jtv_SPECIFIC11;
+    jtv_SPECIFIC8, jtv_SPECIFIC9, jtv_SPECIFIC10, jtv_SPECIFIC11;
 
   std::vector<std::string> tv_IMM_0_OR_1 = {"1", "0"};
   std::vector<std::string> tv_IMM_0_OR_2 = {"2", "0"};
@@ -1454,38 +1454,38 @@ public:
   /** Load-Exclusive/Store-Exclusive on page C3-181. */
   /*** LDXR Load Exclusive register LDXR on page C6-976 */
   PUT4(Load_Exclusive_Store_Exclusive0, NM("ldxr"),
-       OPS(WREG, PTR_O, XNSP2, PTR_C),
-       OPS(WREG, PTR_O, XNSP2, SPECIFIC0, PTR_C),
-       OPS(XREG, PTR_O, XNSP2, PTR_C),
-       OPS(XREG, PTR_O, XNSP2, SPECIFIC0, PTR_C));
+       OPS(SPECIFIC1, PTR_O, XNSP2, PTR_C),
+       OPS(SPECIFIC1, PTR_O, XNSP2, SPECIFIC0, PTR_C),
+       OPS(SPECIFIC2, PTR_O, XNSP2, PTR_C),
+       OPS(SPECIFIC2, PTR_O, XNSP2, SPECIFIC0, PTR_C));
   /*** LDXRB Load Exclusive byte LDXRB on page C6-978 */
   /*** LDXRH Load Exclusive halfword LDXRH on page C6-979 */
   PUT2(Load_Exclusive_Store_Exclusive1, NM("ldxrb", "ldxrh"),
-       OPS(WREG, PTR_O, XNSP2, PTR_C),
-       OPS(WREG, PTR_O, XNSP2, SPECIFIC0, PTR_C));
+       OPS(SPECIFIC1, PTR_O, XNSP2, PTR_C),
+       OPS(SPECIFIC1, PTR_O, XNSP2, SPECIFIC0, PTR_C));
   /*** LDXP Load Exclusive pair LDXP on page C6-974 */
   PUT4(Load_Exclusive_Store_Exclusive2, NM("ldxp"),
-       OPS(WREG, WREG, PTR_O, XNSP2, PTR_C),
-       OPS(WREG, WREG, PTR_O, XNSP2, SPECIFIC0, PTR_C),
-       OPS(XREG, XREG, PTR_O, XNSP2, PTR_C),
-       OPS(XREG, XREG, PTR_O, XNSP2, SPECIFIC0, PTR_C));
+       OPS(SPECIFIC1, SPECIFIC1, PTR_O, XNSP2, PTR_C),
+       OPS(SPECIFIC1, SPECIFIC1, PTR_O, XNSP2, SPECIFIC0, PTR_C),
+       OPS(SPECIFIC2, SPECIFIC2, PTR_O, XNSP2, PTR_C),
+       OPS(SPECIFIC2, SPECIFIC2, PTR_O, XNSP2, SPECIFIC0, PTR_C));
   /*** STXR Store Exclusive register STXR on page C6-1190 */
   PUT4(Load_Exclusive_Store_Exclusive3, NM("stxr"),
-       OPS(WREG, WREG, PTR_O, XNSP2, PTR_C),
-       OPS(WREG, WREG, PTR_O, XNSP2, SPECIFIC0, PTR_C),
-       OPS(WREG, XREG, PTR_O, XNSP2, PTR_C),
-       OPS(WREG, XREG, PTR_O, XNSP2, SPECIFIC0, PTR_C));
+       OPS(SPECIFIC1, SPECIFIC1, PTR_O, XNSP2, PTR_C),
+       OPS(SPECIFIC1, SPECIFIC1, PTR_O, XNSP2, SPECIFIC0, PTR_C),
+       OPS(SPECIFIC1, SPECIFIC2, PTR_O, XNSP2, PTR_C),
+       OPS(SPECIFIC1, SPECIFIC2, PTR_O, XNSP2, SPECIFIC0, PTR_C));
   /*** STXRB Store Exclusive byte STXRB on page C6-1192 */
   /*** STXRH Store Exclusive halfword STXRH on page C6-1194 */
   PUT2(Load_Exclusive_Store_Exclusive4, NM("stxrb", "stxrh"),
-       OPS(WREG, WREG, PTR_O, XNSP2, PTR_C),
-       OPS(WREG, WREG, PTR_O, XNSP2, SPECIFIC0, PTR_C));
+       OPS(SPECIFIC1, SPECIFIC1, PTR_O, XNSP2, PTR_C),
+       OPS(SPECIFIC1, SPECIFIC1, PTR_O, XNSP2, SPECIFIC0, PTR_C));
   /*** STXP Store Exclusive pair STXP on page C6-1187 */
   PUT4(Load_Exclusive_Store_Exclusive5, NM("stxp"),
-       OPS(WREG, WREG, WREG, PTR_O, XNSP2, PTR_C),
-       OPS(WREG, WREG, WREG, PTR_O, XNSP2, SPECIFIC0, PTR_C),
-       OPS(WREG, XREG, XREG, PTR_O, XNSP2, PTR_C),
-       OPS(WREG, XREG, XREG, PTR_O, XNSP2, SPECIFIC0, PTR_C));
+       OPS(SPECIFIC1, SPECIFIC1, SPECIFIC1, PTR_O, XNSP2, PTR_C),
+       OPS(SPECIFIC1, SPECIFIC1, SPECIFIC1, PTR_O, XNSP2, SPECIFIC0, PTR_C),
+       OPS(SPECIFIC1, SPECIFIC2, SPECIFIC2, PTR_O, XNSP2, PTR_C),
+       OPS(SPECIFIC1, SPECIFIC2, SPECIFIC2, PTR_O, XNSP2, SPECIFIC0, PTR_C));
 
   void putLoadExclusiveStoreExclusive_core() {
     putLoad_Exclusive_Store_Exclusive0();
@@ -1502,8 +1502,8 @@ public:
   /*** STLR Store-Release Register STLR on page C6-1113 */
   /*** LDAXR Load-Acquire Exclusive register LDAXR on page C6-856 */
   PUT4(Load_Acquire_Store_Release0, NM("ldapr", "ldar", "stlr", "ldaxr"),
-       OPS(WREG, PTR_O, XNSP, PTR_C), OPS(WREG, PTR_O, XNSP, SPECIFIC0, PTR_C),
-       OPS(XREG, PTR_O, XNSP, PTR_C), OPS(XREG, PTR_O, XNSP, SPECIFIC0, PTR_C));
+       OPS(SPECIFIC1, PTR_O, XNSP, PTR_C), OPS(SPECIFIC1, PTR_O, XNSP, SPECIFIC0, PTR_C),
+       OPS(SPECIFIC2, PTR_O, XNSP, PTR_C), OPS(SPECIFIC2, PTR_O, XNSP, SPECIFIC0, PTR_C));
   /*** LDAPRB Load-Acquire RCpc Register Byte LDAPRB on page C6-836 */
   /*** LDAPRH Load-Acquire RCpc Register Halfword LDAPRH on page C6-837 */
   /*** LDARB Load-Acquire Byte LDARB on page C6-852 */
@@ -1515,7 +1515,7 @@ public:
   PUT2(Load_Acquire_Store_Release1,
        NM("ldaprb", "ldaprh", "ldarb", "ldarh", "stlrb", "stlrh", "ldaxrb",
           "ldaxrh"),
-       OPS(WREG, PTR_O, XNSP, PTR_C), OPS(WREG, PTR_O, XNSP, SPECIFIC0, PTR_C));
+       OPS(SPECIFIC1, PTR_O, XNSP, PTR_C), OPS(SPECIFIC1, PTR_O, XNSP, SPECIFIC0, PTR_C));
   /*** LDAPUR Load-Acquire RCpc Register (unscaled) LDAPUR on page C6-838 */
   /*** LDAPURSB Load-Acquire RCpc Register Signed Byte (unscaled) 32-bit
    * LDAPURSB on page C6-844 */
@@ -1528,9 +1528,9 @@ public:
   /*** STLUR Store-Release Register (unscaled) STLUR on page C6-1116 */
   PUT4(Load_Acquire_Store_Release2,
        NM("ldapur", "ldapursb", "ldapursh", "stlur"),
-       OPS(WREG, PTR_O, XNSP, PTR_C), OPS(WREG, PTR_O, XNSP, IMM9BIT_PM, PTR_C),
-       OPS(XREG, PTR_O, XNSP, PTR_C),
-       OPS(XREG, PTR_O, XNSP, IMM9BIT_PM, PTR_C));
+       OPS(SPECIFIC1, PTR_O, XNSP, PTR_C), OPS(SPECIFIC1, PTR_O, XNSP, IMM9BIT_PM, PTR_C),
+       OPS(SPECIFIC2, PTR_O, XNSP, PTR_C),
+       OPS(SPECIFIC2, PTR_O, XNSP, IMM9BIT_PM, PTR_C));
   /*** LDAPURB Load-Acquire RCpc Register Byte (unscaled) LDAPURB on page C6-840
    */
   /*** LDAPURH Load-Acquire RCpc Register Halfword (unscaled) LDAPURH on page
@@ -1540,36 +1540,36 @@ public:
    */
   PUT2(Load_Acquire_Store_Release3,
        NM("ldapurb", "ldapurh", "stlurb", "stlurh"),
-       OPS(WREG, PTR_O, XNSP, PTR_C),
-       OPS(WREG, PTR_O, XNSP, IMM9BIT_PM, PTR_C));
+       OPS(SPECIFIC1, PTR_O, XNSP, PTR_C),
+       OPS(SPECIFIC1, PTR_O, XNSP, IMM9BIT_PM, PTR_C));
   /*** LDAPURSW Load-Acquire RCpc Register Signed Word (unscaled) LDAPURSW on
    * page C6-848 */
   PUT2(Load_Acquire_Store_Release4, NM("ldapursw"),
-       OPS(XREG, PTR_O, XNSP, PTR_C),
-       OPS(XREG, PTR_O, XNSP, IMM9BIT_PM, PTR_C));
+       OPS(SPECIFIC2, PTR_O, XNSP, PTR_C),
+       OPS(SPECIFIC2, PTR_O, XNSP, IMM9BIT_PM, PTR_C));
   /*** LDAXP Load-Acquire Exclusive pair LDAXP on page C6-854 */
   PUT4(Load_Acquire_Store_Release5, NM("ldaxp"),
-       OPS(WREG, WREG, PTR_O, XNSP2, PTR_C),
-       OPS(WREG, WREG, PTR_O, XNSP2, SPECIFIC0, PTR_C),
-       OPS(XREG, XREG, PTR_O, XNSP2, PTR_C),
-       OPS(XREG, XREG, PTR_O, XNSP2, SPECIFIC0, PTR_C));
+       OPS(SPECIFIC1, SPECIFIC1, PTR_O, XNSP2, PTR_C),
+       OPS(SPECIFIC1, SPECIFIC1, PTR_O, XNSP2, SPECIFIC0, PTR_C),
+       OPS(SPECIFIC2, SPECIFIC2, PTR_O, XNSP2, PTR_C),
+       OPS(SPECIFIC2, SPECIFIC2, PTR_O, XNSP2, SPECIFIC0, PTR_C));
   /*** STLXR Store-Release Exclusive register STLXR on page C6-1123 */
   PUT4(Load_Acquire_Store_Release6, NM("stlxr"),
-       OPS(WREG, WREG, PTR_O, XNSP2, PTR_C),
-       OPS(WREG, WREG, PTR_O, XNSP2, SPECIFIC0, PTR_C),
-       OPS(WREG, XREG, PTR_O, XNSP2, PTR_C),
-       OPS(WREG, XREG, PTR_O, XNSP2, SPECIFIC0, PTR_C));
+       OPS(SPECIFIC1, SPECIFIC1, PTR_O, XNSP2, PTR_C),
+       OPS(SPECIFIC1, SPECIFIC1, PTR_O, XNSP2, SPECIFIC0, PTR_C),
+       OPS(SPECIFIC1, SPECIFIC2, PTR_O, XNSP2, PTR_C),
+       OPS(SPECIFIC1, SPECIFIC2, PTR_O, XNSP2, SPECIFIC0, PTR_C));
   /*** STLXRB Store-Release Exclusive byte STLXRB on page C6-1125 */
   /*** STLXRH Store-Release Exclusive halfword STLXRH on page C6-1127 */
   PUT2(Load_Acquire_Store_Release7, NM("stlxrb", "stlxrb"),
-       OPS(WREG, WREG, PTR_O, XNSP, PTR_C),
-       OPS(WREG, WREG, PTR_O, XNSP, SPECIFIC0, PTR_C));
+       OPS(SPECIFIC1, SPECIFIC1, PTR_O, XNSP, PTR_C),
+       OPS(SPECIFIC1, SPECIFIC1, PTR_O, XNSP, SPECIFIC0, PTR_C));
   /*** STLXP Store-Release Exclusive pair STLXP on page C6-1120 */
   PUT4(Load_Acquire_Store_Release8, NM("stlxp"),
-       OPS(WREG, WREG, WREG, PTR_O, XNSP, PTR_C),
-       OPS(WREG, WREG, WREG, PTR_O, XNSP, SPECIFIC0, PTR_C),
-       OPS(WREG, XREG, XREG, PTR_O, XNSP, PTR_C),
-       OPS(WREG, XREG, XREG, PTR_O, XNSP, SPECIFIC0, PTR_C));
+       OPS(SPECIFIC1, SPECIFIC1, SPECIFIC1, PTR_O, XNSP, PTR_C),
+       OPS(SPECIFIC1, SPECIFIC1, SPECIFIC1, PTR_O, XNSP, SPECIFIC0, PTR_C),
+       OPS(SPECIFIC1, SPECIFIC2, SPECIFIC2, PTR_O, XNSP, PTR_C),
+       OPS(SPECIFIC1, SPECIFIC2, SPECIFIC2, PTR_O, XNSP, SPECIFIC0, PTR_C));
 
   void putLoadAcquireStoreRelease_core() {
     putLoad_Acquire_Store_Release0();
@@ -1812,6 +1812,18 @@ public:
     tv_SPECIFIC0.push_back("0");
     jtv_SPECIFIC0.push_back("0");
 
+    std::vector<std::string> indices = {"0", "1", "2", "4", "8", "16", "zr"};
+    for (std::string s : indices) {
+      tv_SPECIFIC1.push_back("w" + s);
+      jtv_SPECIFIC1.push_back("w" + s);
+    }
+
+    std::vector<std::string> indices1 = {"7", "0", "1", "2", "4", "8", "16", "zr"};
+    for (std::string s : indices1) {
+      tv_SPECIFIC2.push_back("x" + s);
+      jtv_SPECIFIC2.push_back("x" + s);
+    }
+
     putLoadExclusiveStoreExclusive_core();
   }
 
@@ -1820,6 +1832,14 @@ public:
 
     tv_SPECIFIC0.push_back("0");
     jtv_SPECIFIC0.push_back("0");
+
+    std::vector<std::string> indices = {"7", "0", "1", "2", "4", "8", "16", "zr"};
+    for (std::string s : indices) {
+      tv_SPECIFIC1.push_back("w" + s);
+      jtv_SPECIFIC1.push_back("w" + s);
+      tv_SPECIFIC2.push_back("x" + s);
+      jtv_SPECIFIC2.push_back("x" + s);
+    }
 
     putLoadAcquireStoreRelease_core();
   }

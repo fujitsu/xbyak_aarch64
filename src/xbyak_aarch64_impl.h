@@ -784,8 +784,8 @@ void CodeGenerator::StExclusive(uint32_t size, uint32_t o0, const WReg ws, const
   uint32_t o1 = 0;
 
   verifyIncList(adr.getImm(), {0}, ERR_ILLEGAL_IMM_VALUE);
-  verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-  verifyIncRange(ws.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(ws.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
 
   uint32_t code = concat({F(size, 30), F(0x8, 24), F(o2, 23), F(L, 22), F(o1, 21), F(ws.getIdx(), 16), F(o0, 15), F(0x1f, 10), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
   dd(code);
@@ -797,7 +797,7 @@ void CodeGenerator::LdExclusive(uint32_t size, uint32_t o0, const RReg &rt, cons
   uint32_t o2 = 0;
   uint32_t o1 = 0;
 
-  verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
   verifyIncList(adr.getImm(), {0}, ERR_ILLEGAL_IMM_VALUE);
 
   uint32_t code = concat({F(size, 30), F(0x8, 24), F(o2, 23), F(L, 22), F(o1, 21), F(0x1f, 16), F(o0, 15), F(0x1f, 10), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
@@ -811,7 +811,7 @@ void CodeGenerator::StLORelase(uint32_t size, uint32_t o0, const RReg &rt, const
   uint32_t o1 = 0;
 
   verifyIncList(adr.getImm(), {0}, ERR_ILLEGAL_IMM_VALUE);
-  verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
 
   uint32_t code = concat({F(size, 30), F(0x8, 24), F(o2, 23), F(L, 22), F(o1, 21), F(0x1f, 16), F(o0, 15), F(0x1f, 10), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
   dd(code);
@@ -824,7 +824,7 @@ void CodeGenerator::LdLOAcquire(uint32_t size, uint32_t o0, const RReg &rt, cons
   uint32_t o1 = 0;
 
   verifyIncList(adr.getImm(), {0}, ERR_ILLEGAL_IMM_VALUE);
-  verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
 
   uint32_t code = concat({F(size, 30), F(0x8, 24), F(o2, 23), F(L, 22), F(o1, 21), F(0x1f, 16), F(o0, 15), F(0x1f, 10), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
   dd(code);
@@ -844,9 +844,9 @@ void CodeGenerator::StExclusivePair(uint32_t L, uint32_t o1, uint32_t o0, const 
   uint32_t sz = (rt1.getBit() == 64) ? 1 : 0;
 
   verifyIncList(adr.getImm(), {0}, ERR_ILLEGAL_IMM_VALUE);
-  verifyIncRange(rt1.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-  verifyIncRange(rt2.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-  verifyIncRange(ws.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt1.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt2.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(ws.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
 
   uint32_t code = concat({F(1, 31), F(sz, 30), F(0x8, 24), F(0, 23), F(L, 22), F(o1, 21), F(ws.getIdx(), 16), F(o0, 15), F(rt2.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
   dd(code);
@@ -857,8 +857,8 @@ void CodeGenerator::LdExclusivePair(uint32_t L, uint32_t o1, uint32_t o0, const 
   uint32_t sz = (rt1.getBit() == 64) ? 1 : 0;
 
   verifyIncList(adr.getImm(), {0}, ERR_ILLEGAL_IMM_VALUE);
-  verifyIncRange(rt1.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-  verifyIncRange(rt2.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt1.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt2.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
 
   uint32_t code = concat({F(1, 31), F(sz, 30), F(0x8, 24), F(0, 23), F(L, 22), F(o1, 21), F(0x1f, 16), F(o0, 15), F(rt2.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
   dd(code);
@@ -881,7 +881,7 @@ void CodeGenerator::LdaprStlr(uint32_t size, uint32_t opc, const RReg &rt, const
   uint32_t imm9 = simm & ones(9);
 
   verifyIncRange(simm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-  verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
 
   uint32_t code = concat({F(size, 30), F(0x19, 24), F(opc, 22), F(imm9, 12), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
   dd(code);
@@ -964,8 +964,8 @@ void CodeGenerator::LdStNoAllocPair(uint32_t L, const RReg &rt1, const RReg &rt2
   uint32_t imm7 = (imm >> (times + 1)) & ones(7);
   uint32_t V = 0;
 
-  verifyIncRange(rt1.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-  verifyIncRange(rt2.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt1.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt2.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
 
   uint32_t code = concat({F(opc, 30), F(0x5, 27), F(V, 26), F(L, 22), F(imm7, 15), F(rt2.getIdx(), 10), F(adr.getXn().getIdx(), 5), F(rt1.getIdx(), 0)});
   dd(code);
@@ -1102,7 +1102,7 @@ void CodeGenerator::LdStRegUnsImm(uint32_t size, uint32_t opc, const RReg &rt, c
   uint32_t imm9 = imm & ones(9);
 
   verifyIncRange(imm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-  verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
 
   uint32_t V = 0;
   uint32_t code = concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
@@ -1144,7 +1144,7 @@ void CodeGenerator::LdStRegPostImm(uint32_t size, uint32_t opc, const RReg &rt, 
   uint32_t imm9 = imm & ones(9);
 
   verifyIncRange(imm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-  verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
 
   uint32_t V = 0;
   uint32_t code = concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12), F(1, 10), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
@@ -1171,7 +1171,7 @@ void CodeGenerator::LdStRegUnpriv(uint32_t size, uint32_t opc, const RReg &rt, c
   uint32_t imm9 = imm & ones(9);
 
   verifyIncRange(imm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-  verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
 
   uint32_t V = 0;
   uint32_t code = concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12), F(2, 10), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
@@ -1184,7 +1184,7 @@ void CodeGenerator::LdStRegPre(uint32_t size, uint32_t opc, const RReg &rt, cons
   uint32_t imm9 = imm & ones(9);
 
   verifyIncRange(imm, -256, 255, ERR_ILLEGAL_IMM_RANGE, true);
-  verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
 
   uint32_t V = 0;
   uint32_t code = concat({F(size, 30), F(0x7, 27), F(V, 26), F(opc, 22), F(imm9, 12), F(3, 10), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
@@ -1359,7 +1359,7 @@ void CodeGenerator::LdStRegUnImm(uint32_t size, uint32_t opc, const RReg &rt, co
   verifyIncRange(imm, 0, 4095 * times, ERR_ILLEGAL_IMM_RANGE);
   verifyCond(
       imm, [=](uint64_t x) { return ((x & ones(size)) == 0); }, ERR_ILLEGAL_IMM_COND);
-  verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
 
   uint32_t V = 0;
   uint32_t code = concat({F(size, 30), F(0x7, 27), F(V, 26), F(1, 24), F(opc, 22), F(imm12, 10), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
