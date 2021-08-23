@@ -1209,16 +1209,22 @@ void CodeGenerator::cmp(const WReg &rn, const WReg &rm, const ShMod shmod, const
 void CodeGenerator::cmp(const XReg &rn, const XReg &rm, const ShMod shmod, const uint32_t sh) { AddSubShiftReg(1, 1, XReg(31), rn, rm, shmod, sh, true); }
 void CodeGenerator::add(const WReg &rd, const WReg &rn, const WReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(0, 0, rd, rn, rm, extmod, sh); }
 void CodeGenerator::add(const XReg &rd, const XReg &rn, const XReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(0, 0, rd, rn, rm, extmod, sh); }
+void CodeGenerator::add(const XReg &rd, const XReg &rn, const WReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(0, 0, rd, rn, rm, extmod, sh); }
 void CodeGenerator::adds(const WReg &rd, const WReg &rn, const WReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(0, 1, rd, rn, rm, extmod, sh); }
 void CodeGenerator::adds(const XReg &rd, const XReg &rn, const XReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(0, 1, rd, rn, rm, extmod, sh); }
+void CodeGenerator::adds(const XReg &rd, const XReg &rn, const WReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(0, 1, rd, rn, rm, extmod, sh); }
 void CodeGenerator::cmn(const WReg &rn, const WReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(0, 1, WReg(31), rn, rm, extmod, sh); }
 void CodeGenerator::cmn(const XReg &rn, const XReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(0, 1, XReg(31), rn, rm, extmod, sh); }
+void CodeGenerator::cmn(const XReg &rn, const WReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(0, 1, XReg(31), rn, rm, extmod, sh); }
 void CodeGenerator::sub(const WReg &rd, const WReg &rn, const WReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(1, 0, rd, rn, rm, extmod, sh); }
 void CodeGenerator::sub(const XReg &rd, const XReg &rn, const XReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(1, 0, rd, rn, rm, extmod, sh); }
+void CodeGenerator::sub(const XReg &rd, const XReg &rn, const WReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(1, 0, rd, rn, rm, extmod, sh); }
 void CodeGenerator::subs(const WReg &rd, const WReg &rn, const WReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(1, 1, rd, rn, rm, extmod, sh); }
 void CodeGenerator::subs(const XReg &rd, const XReg &rn, const XReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(1, 1, rd, rn, rm, extmod, sh); }
+void CodeGenerator::subs(const XReg &rd, const XReg &rn, const WReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(1, 1, rd, rn, rm, extmod, sh); }
 void CodeGenerator::cmp(const WReg &rn, const WReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(1, 1, WReg(31), rn, rm, extmod, sh); }
 void CodeGenerator::cmp(const XReg &rn, const XReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(1, 1, XReg(31), rn, rm, extmod, sh); }
+void CodeGenerator::cmp(const XReg &rn, const WReg &rm, const ExtMod extmod, const uint32_t sh) { AddSubExtReg(1, 1, XReg(31), rn, rm, extmod, sh); }
 void CodeGenerator::adc(const WReg &rd, const WReg &rn, const WReg &rm) { AddSubCarry(0, 0, rd, rn, rm); }
 void CodeGenerator::adc(const XReg &rd, const XReg &rn, const XReg &rm) { AddSubCarry(0, 0, rd, rn, rm); }
 void CodeGenerator::adcs(const WReg &rd, const WReg &rn, const WReg &rm) { AddSubCarry(0, 1, rd, rn, rm); }

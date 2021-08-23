@@ -22,7 +22,7 @@ def reg_set(reg_num, ptn, en_ptn, reg_kind, &reg_fmt)
     set.push (0..(reg_num-1)).map{|i| {reg_kind[i] => x} }
   end
   return set
-end  
+end
 
 def rreg_set(reg_num, ptn)
   reg_kind  = ["rd","rn","rm","ra"]
@@ -93,7 +93,7 @@ def trans_arg(arg, trans)
     trans_arg.transform_keys!{|x| (x == old)? new : x}
   end
   trans_arg
-end    
+end
 
 def ext_args(base, addition, trans={})
   base.map{|x| x.map{|y| trans_arg(y, trans)} + addition }
@@ -136,7 +136,7 @@ v8 = {
       {"CMP"  => {"op" => 0x1, "S" => 1, "rd" => "XReg(31)"}, :arg => [5]},  # alias of SUBS
     ]
   },
-  
+
   "LogicalImm" => {
     :cmt => "Logical (immediate)",
     :arg => ext_args(rreg_set(2,"WX"), [{"imm" => "uint64_t"}]) + # 0-1
@@ -177,7 +177,7 @@ v8 = {
       {"MOV" => {}}
     ]
   },
-  
+
   "Bitfield" => {
     :cmt => "Bitfield",
     :arg => ext_args(rreg_set(2,"WX"), [{"immr" => "uint32_t"}, {"imms" => "uint32_t"}]) + # 0-1
@@ -287,7 +287,7 @@ v8 = {
       {"B"  => {}},
     ]
   },
-  
+
   "ExceptionGen" => {
     :cmt => "Exception generation",
     :arg => [[ {"imm" => "uint32_t"}]],
@@ -385,7 +385,7 @@ v8 = {
       {"CFINV" => {"op1" => 0, "CRm" => 0, "op2" => 0}, :arg => [1], :prm => 1},
     ]
   },
-  
+
   "SysInst" => {
     :cmt => "Systtem instructions",
     :arg => [
@@ -466,7 +466,7 @@ v8 = {
       {"BL"  => {"op" => 0x1}}
     ]
   },
-  
+
   "CompareBr" => {
     :cmt => "Compare and branch (immediate)",
     :arg => ext_args(rreg_set(1,"WX"), [{"label" => "Label"}], {"rd" => "rt"}) +  #0-1
@@ -685,7 +685,7 @@ v8 = {
       {"STLXR"   => {"size" => 3, "o0" => 1}, :arg => [1]}
     ]
   },
-  
+
   "LdExclusive" => {
     :cmt => "load exclusive",
     :arg => [
@@ -704,7 +704,7 @@ v8 = {
       {"LDAXR"   => {"size" => 3, "o0" => 1}, :arg=>[1]}
     ]
   },
-  
+
   "StLORelase" => {
     :cmt => "store LORelease",
     :arg => [
@@ -723,7 +723,7 @@ v8 = {
       {"STLR"   => {"size" => 3, "o0" => 1}, :arg=>[1]}
     ]
   },
-  
+
   "LdLOAcquire" => {
     :cmt => "load LOAcquire",
     :arg => [
@@ -742,7 +742,7 @@ v8 = {
       {"LDAR"   => {"size" => 3, "o0" => 1}, :arg => [1]}
     ]
   },
-  
+
   "Cas" => {
     :cmt => "compare and swap",
     :arg => [
@@ -834,7 +834,7 @@ v8 = {
       {"LDAPUR"   => {"size" => 3, "opc" => 1}, :arg => [1]}
     ]
   },
-  
+
   "LdRegLiteral" => {
     :cmt => "load register (literal)",
     :arg => [
@@ -849,7 +849,7 @@ v8 = {
       {"LDRSW" => {"opc" => 2, "V" => 0}},
     ]
   },
-  
+
   "LdRegSimdFpLiteral" => {
     :cmt => "load register (SIMD&FP, literal)",
     :arg => ext_args(screg_set(1,"SDQ"), [{"label" => "Label"}], {"vd" => "vt"}) +  #0-2
@@ -859,7 +859,7 @@ v8 = {
       {"LDR"   => {}},
     ]
   },
-  
+
   "PfLiteral" => {
     :cmt => "prefetch (literal)",
     :arg => [
@@ -994,7 +994,7 @@ v8 = {
       {"LDUR"   => {"size" => 3, "opc" => 1}, :arg => [1]}
     ]
   },
-  
+
   "LdStSimdFpRegUnsImm" => {
     :cmt => "Load/store register (SIMD&FP, unscaled immediate)",
     :arg => ext_args(screg_set(1,"BHSDQ"), [{"adr" => "AdrImm"}], {"vd" => "vt"}),
@@ -1508,7 +1508,7 @@ v8 = {
       {"PRFM"   => {}}
     ]
   },
-  
+
   ################### Data Processing -- register  ################
   "DataProc2Src" => {
     :cmt => "Data processing (2 source)",
@@ -1550,7 +1550,7 @@ v8 = {
       {"CRC32CX" => {"opcode" => 0x17 }, :arg => [2]}
     ]
   },
-  
+
   "DataProc1Src" => {
     :cmt => "Data processing (1 source)",
     :arg => [
@@ -1638,7 +1638,7 @@ v8 = {
       "MOV" => {}
     ]
   },
-  
+
   "AddSubShiftReg" => {
     :cmt => "Add/subtract (shifted register)",
     :arg => [
@@ -1674,19 +1674,23 @@ v8 = {
     :arg => [
       [ {"rd" => "WReg"}, {"rn" => "WReg"}, {"rm" => "WReg"}, {"extmod" => "ExtMod"}, {"sh=0" => "uint32_t"}], #0
       [ {"rd" => "XReg"}, {"rn" => "XReg"}, {"rm" => "XReg"}, {"extmod" => "ExtMod"}, {"sh=0" => "uint32_t"}], #1
-      [ {"rn" => "WReg"}, {"rm" => "WReg"}, {"extmod" => "ExtMod"}, {"sh=0" => "uint32_t"}],                   #2
-      [ {"rn" => "XReg"}, {"rm" => "XReg"}, {"extmod" => "ExtMod"}, {"sh=0" => "uint32_t"}]                    #3
+      [ {"rd" => "XReg"}, {"rn" => "XReg"}, {"rm" => "WReg"}, {"extmod" => "ExtMod"}, {"sh=0" => "uint32_t"}], #2
+      [ {"rn" => "WReg"}, {"rm" => "WReg"}, {"extmod" => "ExtMod"}, {"sh=0" => "uint32_t"}],                   #3
+      [ {"rn" => "XReg"}, {"rm" => "XReg"}, {"extmod" => "ExtMod"}, {"sh=0" => "uint32_t"}],                   #4
+      [ {"rn" => "XReg"}, {"rm" => "WReg"}, {"extmod" => "ExtMod"}, {"sh=0" => "uint32_t"}]                    #5
     ],
     :prm => ["opc", "S", "rd", "rn", "rm", "extmod", "sh"],
     :grp => [
-      {"ADD"  => {"opc" => 0, "S" => 0},                     :arg => 0..1},
-      {"ADDS" => {"opc" => 0, "S" => 1},                     :arg => 0..1},
-      {"CMN"  => {"opc" => 0, "S" => 1, "rd" => "WReg(31)"}, :arg => [2]}, # alias of ADDS
-      {"CMN"  => {"opc" => 0, "S" => 1, "rd" => "XReg(31)"}, :arg => [3]}, # alias of ADDS
-      {"SUB"  => {"opc" => 1, "S" => 0},                     :arg => 0..1},
-      {"SUBS" => {"opc" => 1, "S" => 1},                     :arg => 0..1},
-      {"CMP"  => {"opc" => 1, "S" => 1, "rd" => "WReg(31)"}, :arg => [2]}, # alias of SUBP
-      {"CMP"  => {"opc" => 1, "S" => 1, "rd" => "XReg(31)"}, :arg => [3]}  # alias of SUBP
+      {"ADD"  => {"opc" => 0, "S" => 0},                     :arg => 0..2},
+      {"ADDS" => {"opc" => 0, "S" => 1},                     :arg => 0..2},
+      {"CMN"  => {"opc" => 0, "S" => 1, "rd" => "WReg(31)"}, :arg => [3]}, # alias of ADDS
+      {"CMN"  => {"opc" => 0, "S" => 1, "rd" => "XReg(31)"}, :arg => [4]}, # alias of ADDS
+      {"CMN"  => {"opc" => 0, "S" => 1, "rd" => "XReg(31)"}, :arg => [5]}, # alias of ADDS
+      {"SUB"  => {"opc" => 1, "S" => 0},                     :arg => 0..2},
+      {"SUBS" => {"opc" => 1, "S" => 1},                     :arg => 0..2},
+      {"CMP"  => {"opc" => 1, "S" => 1, "rd" => "WReg(31)"}, :arg => [3]}, # alias of SUBP
+      {"CMP"  => {"opc" => 1, "S" => 1, "rd" => "XReg(31)"}, :arg => [4]}, # alias of SUBP
+      {"CMP"  => {"opc" => 1, "S" => 1, "rd" => "XReg(31)"}, :arg => [5]}  # alias of SUBP
     ]
   },
 
@@ -2466,14 +2470,14 @@ v8 = {
               [{"vd" => "VReg4S"}, {"vn" => "VReg8H"}],  #10
               [{"vd" => "VReg1D"}, {"vn" => "VReg2S"}],  #11
               [{"vd" => "VReg2D"}, {"vn" => "VReg4S"}],  #12
-              
+
               [{"vd" => "VReg8B"}, {"vn" => "VReg8H"}],  #13
               [{"vd" => "VReg4H"}, {"vn" => "VReg4S"}],  #14
               [{"vd" => "VReg2S"}, {"vn" => "VReg2D"}],  #15
               [{"vd" => "VReg16B"},{"vn" => "VReg8H"}],  #16
               [{"vd" => "VReg8H"}, {"vn" => "VReg4S"}],  #17
               [{"vd" => "VReg4S"}, {"vn" => "VReg2D"}],  #18
-              
+
               [{"vd" => "VReg8H"}, {"vn" => "VReg8B"}, {"sh" => "uint32_t"}],  #19
               [{"vd" => "VReg4S"}, {"vn" => "VReg4H"}, {"sh" => "uint32_t"}],  #20
               [{"vd" => "VReg2D"}, {"vn" => "VReg2S"}, {"sh" => "uint32_t"}],  #21
@@ -2541,7 +2545,7 @@ v8 = {
     ]
   },
 
-  
+
   "AdvSimd2RegMiscSz0x" => {
     :cmt => "Advanced SIMD two-register miscellaneous",
     :arg => [
@@ -2554,7 +2558,7 @@ v8 = {
       [ {"vd" => "VReg2D"}, {"vn" => "VReg2S"}], #5
       [ {"vd" => "VReg4S"}, {"vn" => "VReg8H"}], #6
       [ {"vd" => "VReg2D"}, {"vn" => "VReg4S"}], #7
-      
+
       [ {"vd" => "VReg2S"}, {"vn" => "VReg2S"}], #8
       [ {"vd" => "VReg4S"}, {"vn" => "VReg4S"}], #9
       [ {"vd" => "VReg2D"}, {"vn" => "VReg2D"}]  #10
@@ -2677,7 +2681,7 @@ v8 = {
       {"FMINV"   => {"U" => 1, "opcode" => 0xf}, :arg => [2]},
     ]
   },
-  
+
   "AdvSimd3Diff" => {
     :cmt => "Advanced SIMD three different",
     :arg => [
@@ -2933,7 +2937,7 @@ v8 = {
       {"BIC" => {"op" => 1, "o2" => 0,}},
     ]
   },
-  
+
   "AdvSimdModiImmFmov" => {
     :cmt => "Advanced SIMD modified immediate",
     :arg => [
@@ -2950,7 +2954,7 @@ v8 = {
       {"FMOV" => {"op" => 1, "o2" => 0,}, :arg => [4]},
     ]
   },
-  
+
   "AdvSimdShImm" => {
     :cmt => "Advanced SIMD shift by immediate",
     :arg => ext_args(vreg_set(2, "BHS"), [{"sh" => "uint32_t"}])  + #0-2 (0:8B, 1:4H, 2:2S)
@@ -3126,7 +3130,7 @@ v8 = {
       {"SM3TT2B" => {"opcode" => 0x3}}
     ]
   },
-  
+
   "Crypto3RegSHA512" => {
     :cmt => "Cryptographic three-register SHA 512",
     :arg => [
@@ -3156,7 +3160,7 @@ v8 = {
       {"XAR" => {}},
     ]
   },
-  
+
   "Crypto4Reg" => {
     :cmt => "Cryptographic four-register",
     :arg => [
@@ -3520,7 +3524,7 @@ v8 = {
       {"FNMSUB"  => {"M" => 0, "S" => 0, "type" => 3, "o1" => 1, "o0" => 1}, :arg => [2]}
     ]
   },
-  
+
   ########################## System instruction  ################################
   "InstCache" => {
     :cmt => "Instruction cache maintenance",
@@ -3586,7 +3590,7 @@ sve = {
       {"SUBR" => {"opc" => 0x3}},
     ]
   },
-  
+
   "SveIntMinMaxDiffPred" => {
     :cmt => "SVE Integer min/max/diffrence (predicated)",
     :arg => ext_args(zreg_set_pred(2,"BHSD"),[],{"zd" => "zdn", "zn" => "zm"}),
@@ -4106,7 +4110,7 @@ sve = {
       {"MOV" => {}}, # alias of DUP
     ]
   },
-  
+
   "SveBcIndexedElem" => {
     :cmt => "SVE broadcast indexed element",
     :arg => [
@@ -4145,7 +4149,7 @@ sve = {
       {"INSR" => {}},
     ]
   },
-  
+
   "SveInsGeneralReg" => {
     :cmt => "SVE insert general register",
     :arg => [
@@ -4245,7 +4249,7 @@ sve = {
       {"TRN2" => {"opc" => 5}}
     ]
   },
-  
+
   "SveCompressActElem" => {
     :cmt => "SVE compress active elements",
     :arg => zreg_set_pred(2, "SD"),
@@ -4266,7 +4270,7 @@ sve = {
       {"CLASTB" => {"B" => 1}}
     ]
   },
-  
+
   "SveCondExtElemToSimdFpScalar" => {
     :cmt => "SVE conditionally extract element to SIMD&FP scalar",
     :arg => [
@@ -4682,7 +4686,7 @@ sve = {
       {"UQDECP"  => {"D" => 1, "U" => 1, "op" => 0}},
     ]
   },
-  
+
   "SveSatuIncDecVecByPredCount" => {
     :cmt => "SVE saturating inc/dec vector by predicate count",
     :arg => [
@@ -4773,7 +4777,7 @@ sve = {
       {"FMOV" => {"opc" => 0, "mod" => "LSL", "sh" => 0, "imm" => "static_cast<uint32_t>(imm)"}, :arg => 4..7}  # alias of DUP
     ]
   },
-  
+
   "SveIntAddSubImmUnpred" => {
     :cmt => "SVE integer add/subtract immediate (unpredicated)",
     :arg => ext_args(zreg_set(1, "BHSD"), [{"imm" => "uint32_t"}, {"mod=LSL" => "ShMod"}, {"sh=0" => "uint32_t"}], {"zd"=>"zdn"}),
@@ -4896,7 +4900,7 @@ sve = {
       {"FMUL" => {}}
     ]
   },
-  
+
   "SveFpRecurReduct" => {
     :cmt => "SVE floating-point recursive reduction",
     :arg => [
@@ -5150,7 +5154,7 @@ sve = {
       {"FACLT" => {"op" => 1, "o2" => 1, "o3" => 1, "zn" => "zm", "zm" => "zn"}}  # alias of FACGT
     ]
   },
-  
+
   "SveFpMultAccumAddend" => {
     :cmt => "SVE floationg-point multiply-accumulate writing addend",
     :arg => ext_args(zreg_set_pred(3, "HSD"), [], {"zd"=>"zda"}),
@@ -5224,7 +5228,7 @@ sve = {
       {"LDFF1H"  => {"U" => 1, "ff" => 1}}
     ]
   },
-  
+
   "Sve32GatherLdWSc32S" => {
     :cmt => "SVE 32-bit gather load words (scalar plus 32-bit scaled offsets)",
     :arg => [[ {"zt" => "ZRegS"}, {"pg" => "_PReg"}, {"adr" => "AdrSc32S"}]],
@@ -5273,7 +5277,7 @@ sve = {
       {"PRFD"   => {"msz" => 3}}
     ]
   },
-  
+
   "Sve32ContiPfScSc" => {
     :cmt => "SVE 32-bit contiguous prefetch (scalar plus scalar)",
     :arg => [[ {"prfop_sve" => "PrfopSve"}, {"pg" => "_PReg"}, {"adr" => "AdrScSc"}]],
@@ -5318,7 +5322,7 @@ sve = {
       {"LD1RD"   => {"dtypeh" => 3, "dtypel" => 3}, :arg => [3,7]}
     ]
   },
-  
+
   "SveLoadPredReg" => {
     :cmt => "SVE load predicate register",
     :arg => [
@@ -5575,7 +5579,7 @@ sve = {
       {"LD4D"  => {"msz" => 3, "num" => 3}, :arg => [3,7]}
     ]
   },
-  
+
   "SveLdMultiStructScSc" => {
     :cmt => "SVE load multiple structures (scalar plus scalar)",
     :arg => [
@@ -6064,17 +6068,17 @@ class MnemonicGenerator
     f += "_" if f == "and" or f == "or" or f == "not"
     return f
   end
-  
+
   def _checkInfo(info)
     # all use check for func_arg
     func_args = info[:func_arg].inject([]){|c,x| c += x.keys.map{|k| k.gsub(/=.*/,'')}}
     # all_use_func_arg = func_args.inject(true){|c,x| c &= info[:grp_func_prm].include?(x)}
     all_use_func_arg = true;
-    
+
     # all use check for check for grp_func_val
     grp_func_vars = info[:func_set_val].keys
     all_use_grp_func_vars = grp_func_vars.inject(true){|c,x| c &= info[:grp_func_prm].include?(x)}
-    
+
     # check grp_func_prm
     vars = func_args + grp_func_vars
     all_exist_func_prm = info[:grp_func_prm].inject(true){|c,x| c &= vars.include?(x)}
@@ -6108,14 +6112,14 @@ class MnemonicGenerator
     err_str += format("already exist same func \n")     if err_info[:same_func_err]
     return err_str
   end
-  
+
   def _genFuncStr(info)
     func         = info[:func]
     func_arg     = _genFuncArgStr(info[:func_arg])
     grp_func     = info[:grp_func]
     grp_func_prm = _genGrpFuncPrmStr(info[:grp_func_prm],info[:func_set_val])
     set_prm      = _genSetPrmStr(info[:func_arg])
-    
+
     return format("void %s(%s) { SET(); %s(%s); }",func,func_arg,grp_func,grp_func_prm)
   end
 

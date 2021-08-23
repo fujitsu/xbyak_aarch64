@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2019-2020 FUJITSU LIMITED
+ * Copyright 2019-2021 FUJITSU LIMITED
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -953,25 +953,28 @@ public:
   /***** ADD <Wd|WSP>, <Wn|WSP>, <Wm>{, <extend> {#<amount>}} */
   /**** SUB Subtract SUB (extended register) on page C6-1196 */
   /***** SUB <Wd|WSP>, <Wn|WSP>, <Wm>{, <extend> {#<amount>}} */
-  PUT6(DataProcReg_ArithmeticExtendedRegister0, NM("add", "sub"),
+  PUT7(DataProcReg_ArithmeticExtendedRegister0, NM("add", "sub"),
        OPS(WREG, WREG, WREG), OPS(WREG, WREG, WREG, SPECIFIC32),
        OPS(XREG, XREG, XREG), OPS(XREG, XREG, XREG, SPECIFIC64),
+       OPS(XREG, XREG, WREG, SPECIFIC64),
        OPS(SPECIFIC32_1), OPS(SPECIFIC64_1));
   /**** ADDS Add and set flags ADDS (extended register) on page C6-690 */
   /***** ADDS <Wd>, <Wn|WSP>, <Wm>{, <extend> {#<amount>}} */
   /**** SUBS Subtract and set flags SUBS (extended register) on page C6-1203 */
   /***** SUBS <Wd>, <Wn|WSP>, <Wm>{, <extend> {#<amount>}} */
-  PUT6(DataProcReg_ArithmeticExtendedRegister1, NM("adds", "subs"),
+  PUT7(DataProcReg_ArithmeticExtendedRegister1, NM("adds", "subs"),
        OPS(WREG, WREG, WREG), OPS(WREG, WREG, WREG, SPECIFIC32),
        OPS(XREG, XREG, XREG), OPS(XREG, XREG, XREG, SPECIFIC64),
+       OPS(XREG, XREG, WREG, SPECIFIC64),
        OPS(SPECIFIC32_2), OPS(SPECIFIC64_2));
   /**** CMN Compare negative CMN (extended register) on page C6-770 */
   /***** CMN <Wn|WSP>, <Wm>{, <extend> {#<amount>}} */
   /**** CMP Compare CMP (extended register) on page C6-776 */
   /***** CMP <Wn|WSP>, <Wm>{, <extend> {#<amount>}} */
-  PUT6(DataProcReg_ArithmeticExtendedRegister2, NM("cmn", "cmp"),
+  PUT7(DataProcReg_ArithmeticExtendedRegister2, NM("cmn", "cmp"),
        OPS(WREG, WREG), OPS(WREG, WREG, SPECIFIC32), OPS(XREG, XREG),
-       OPS(XREG, XREG, SPECIFIC64), OPS(SPECIFIC32_3), OPS(SPECIFIC64_3));
+       OPS(XREG, XREG, SPECIFIC64), OPS(XREG, WREG, SPECIFIC64),
+       OPS(SPECIFIC32_3), OPS(SPECIFIC64_3));
 
   void putDataProcReg_ArithmeticExtendedRegister() {
     std::vector<std::string> tmpExt = {"UXTB", "UXTH", "UXTW", "UXTX",
