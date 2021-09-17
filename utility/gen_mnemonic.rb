@@ -6169,4 +6169,3 @@ mgen_all.parseTable(sve)
 mgen_all.output("xbyak_aarch64_mnemonic.h")
 mgen_all.sortByMnemonic
 mgen_all.output("xbyak_aarch64_mnemonic_sorted.h")
-

@@ -766,7 +766,7 @@ void CodeGenerator::ldsminb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr)
 void CodeGenerator::ldumaxb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 0, 0, 6, rs, rt, adr); }
 void CodeGenerator::stumaxb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 0, 0, 6, rs, rt, adr); }
 void CodeGenerator::lduminb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 0, 0, 7, rs, rt, adr); }
-void CodeGenerator::swapb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 0, 1, 0, rs, rt, adr); }
+void CodeGenerator::swpb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 0, 1, 0, rs, rt, adr); }
 void CodeGenerator::ldaddlb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 1, 0, 0, rs, rt, adr); }
 void CodeGenerator::ldclrlb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 1, 0, 1, rs, rt, adr); }
 void CodeGenerator::ldeorlb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 1, 0, 2, rs, rt, adr); }
@@ -775,7 +775,7 @@ void CodeGenerator::ldsmaxlb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr
 void CodeGenerator::ldsminlb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 1, 0, 5, rs, rt, adr); }
 void CodeGenerator::ldumaxlb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 1, 0, 6, rs, rt, adr); }
 void CodeGenerator::lduminlb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 1, 0, 7, rs, rt, adr); }
-void CodeGenerator::swaplb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 1, 1, 0, rs, rt, adr); }
+void CodeGenerator::swplb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 1, 1, 0, rs, rt, adr); }
 void CodeGenerator::ldaddab(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 1, 0, 0, 0, rs, rt, adr); }
 void CodeGenerator::ldclrab(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 1, 0, 0, 1, rs, rt, adr); }
 void CodeGenerator::ldeorab(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 1, 0, 0, 2, rs, rt, adr); }
@@ -784,7 +784,7 @@ void CodeGenerator::ldsmaxab(const WReg &rs, const WReg &rt, const AdrNoOfs &adr
 void CodeGenerator::ldsminab(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 1, 0, 0, 5, rs, rt, adr); }
 void CodeGenerator::ldumaxab(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 1, 0, 0, 6, rs, rt, adr); }
 void CodeGenerator::lduminab(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 1, 0, 0, 7, rs, rt, adr); }
-void CodeGenerator::swapab(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 1, 0, 1, 0, rs, rt, adr); }
+void CodeGenerator::swpab(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 1, 0, 1, 0, rs, rt, adr); }
 void CodeGenerator::ldaprb(const WReg &rt, const AdrImm &adr) { AtomicMemOp(0, 0, 1, 0, 1, 4, WReg(31), rt, adr); }
 void CodeGenerator::ldaddalb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 1, 1, 0, 0, rs, rt, adr); }
 void CodeGenerator::ldclralb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 1, 1, 0, 1, rs, rt, adr); }
@@ -794,7 +794,7 @@ void CodeGenerator::ldsmaxalb(const WReg &rs, const WReg &rt, const AdrNoOfs &ad
 void CodeGenerator::ldsminalb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 1, 1, 0, 5, rs, rt, adr); }
 void CodeGenerator::ldumaxalb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 1, 1, 0, 6, rs, rt, adr); }
 void CodeGenerator::lduminalb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 1, 1, 0, 7, rs, rt, adr); }
-void CodeGenerator::swapalb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 1, 1, 1, 0, rs, rt, adr); }
+void CodeGenerator::swpalb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 1, 1, 1, 0, rs, rt, adr); }
 void CodeGenerator::ldaddh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 0, 0, 0, 0, rs, rt, adr); }
 void CodeGenerator::ldclrh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 0, 0, 0, 1, rs, rt, adr); }
 void CodeGenerator::ldeorh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 0, 0, 0, 2, rs, rt, adr); }
@@ -803,7 +803,7 @@ void CodeGenerator::ldsmaxh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr)
 void CodeGenerator::ldsminh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 0, 0, 0, 5, rs, rt, adr); }
 void CodeGenerator::ldumaxh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 0, 0, 0, 6, rs, rt, adr); }
 void CodeGenerator::lduminh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 0, 0, 0, 7, rs, rt, adr); }
-void CodeGenerator::swaph(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 0, 0, 1, 0, rs, rt, adr); }
+void CodeGenerator::swph(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 0, 0, 1, 0, rs, rt, adr); }
 void CodeGenerator::ldaddlh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 0, 1, 0, 0, rs, rt, adr); }
 void CodeGenerator::ldclrlh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 0, 1, 0, 1, rs, rt, adr); }
 void CodeGenerator::ldeorlh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 0, 1, 0, 2, rs, rt, adr); }
@@ -812,7 +812,7 @@ void CodeGenerator::ldsmaxlh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr
 void CodeGenerator::ldsminlh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 0, 1, 0, 5, rs, rt, adr); }
 void CodeGenerator::ldumaxlh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 0, 1, 0, 6, rs, rt, adr); }
 void CodeGenerator::lduminlh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 0, 1, 0, 7, rs, rt, adr); }
-void CodeGenerator::swaplh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 0, 1, 1, 0, rs, rt, adr); }
+void CodeGenerator::swplh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 0, 1, 1, 0, rs, rt, adr); }
 void CodeGenerator::ldaddah(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 1, 0, 0, 0, rs, rt, adr); }
 void CodeGenerator::ldclrah(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 1, 0, 0, 1, rs, rt, adr); }
 void CodeGenerator::ldeorah(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 1, 0, 0, 2, rs, rt, adr); }
@@ -821,7 +821,7 @@ void CodeGenerator::ldsmaxah(const WReg &rs, const WReg &rt, const AdrNoOfs &adr
 void CodeGenerator::ldsminah(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 1, 0, 0, 5, rs, rt, adr); }
 void CodeGenerator::ldumaxah(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 1, 0, 0, 6, rs, rt, adr); }
 void CodeGenerator::lduminah(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 1, 0, 0, 7, rs, rt, adr); }
-void CodeGenerator::swapah(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 1, 0, 1, 0, rs, rt, adr); }
+void CodeGenerator::swpah(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 1, 0, 1, 0, rs, rt, adr); }
 void CodeGenerator::ldaprh(const WReg &rt, const AdrImm &adr) { AtomicMemOp(1, 0, 1, 0, 1, 4, WReg(31), rt, adr); }
 void CodeGenerator::ldaddalh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 1, 1, 0, 0, rs, rt, adr); }
 void CodeGenerator::ldclralh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 1, 1, 0, 1, rs, rt, adr); }
@@ -831,7 +831,7 @@ void CodeGenerator::ldsmaxalh(const WReg &rs, const WReg &rt, const AdrNoOfs &ad
 void CodeGenerator::ldsminalh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 1, 1, 0, 5, rs, rt, adr); }
 void CodeGenerator::ldumaxalh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 1, 1, 0, 6, rs, rt, adr); }
 void CodeGenerator::lduminalh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 1, 1, 0, 7, rs, rt, adr); }
-void CodeGenerator::swapalh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 1, 1, 1, 0, rs, rt, adr); }
+void CodeGenerator::swpalh(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(1, 0, 1, 1, 1, 0, rs, rt, adr); }
 void CodeGenerator::ldadd(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 0, 0, 0, 0, rs, rt, adr); }
 void CodeGenerator::ldclr(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 0, 0, 0, 1, rs, rt, adr); }
 void CodeGenerator::ldeor(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 0, 0, 0, 2, rs, rt, adr); }
@@ -840,7 +840,7 @@ void CodeGenerator::ldsmax(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) 
 void CodeGenerator::ldsmin(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 0, 0, 0, 5, rs, rt, adr); }
 void CodeGenerator::ldumax(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 0, 0, 0, 6, rs, rt, adr); }
 void CodeGenerator::ldumin(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 0, 0, 0, 7, rs, rt, adr); }
-void CodeGenerator::swap(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 0, 0, 1, 0, rs, rt, adr); }
+void CodeGenerator::swp(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 0, 0, 1, 0, rs, rt, adr); }
 void CodeGenerator::ldaddl(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 0, 1, 0, 0, rs, rt, adr); }
 void CodeGenerator::ldclrl(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 0, 1, 0, 1, rs, rt, adr); }
 void CodeGenerator::ldeorl(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 0, 1, 0, 2, rs, rt, adr); }
@@ -849,7 +849,7 @@ void CodeGenerator::ldsmaxl(const WReg &rs, const WReg &rt, const AdrNoOfs &adr)
 void CodeGenerator::ldsminl(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 0, 1, 0, 5, rs, rt, adr); }
 void CodeGenerator::ldumaxl(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 0, 1, 0, 6, rs, rt, adr); }
 void CodeGenerator::lduminl(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 0, 1, 0, 7, rs, rt, adr); }
-void CodeGenerator::swapl(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 0, 1, 1, 0, rs, rt, adr); }
+void CodeGenerator::swpl(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 0, 1, 1, 0, rs, rt, adr); }
 void CodeGenerator::ldadda(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 1, 0, 0, 0, rs, rt, adr); }
 void CodeGenerator::ldclra(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 1, 0, 0, 1, rs, rt, adr); }
 void CodeGenerator::ldeora(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 1, 0, 0, 2, rs, rt, adr); }
@@ -858,7 +858,7 @@ void CodeGenerator::ldsmaxa(const WReg &rs, const WReg &rt, const AdrNoOfs &adr)
 void CodeGenerator::ldsmina(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 1, 0, 0, 5, rs, rt, adr); }
 void CodeGenerator::ldumaxa(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 1, 0, 0, 6, rs, rt, adr); }
 void CodeGenerator::ldumina(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 1, 0, 0, 7, rs, rt, adr); }
-void CodeGenerator::swapa(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 1, 0, 1, 0, rs, rt, adr); }
+void CodeGenerator::swpa(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 1, 0, 1, 0, rs, rt, adr); }
 void CodeGenerator::ldapr(const WReg &rt, const AdrImm &adr) { AtomicMemOp(2, 0, 1, 0, 1, 4, WReg(31), rt, adr); }
 void CodeGenerator::ldaddal(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 1, 1, 0, 0, rs, rt, adr); }
 void CodeGenerator::ldclral(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 1, 1, 0, 1, rs, rt, adr); }
@@ -868,7 +868,7 @@ void CodeGenerator::ldsmaxal(const WReg &rs, const WReg &rt, const AdrNoOfs &adr
 void CodeGenerator::ldsminal(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 1, 1, 0, 5, rs, rt, adr); }
 void CodeGenerator::ldumaxal(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 1, 1, 0, 6, rs, rt, adr); }
 void CodeGenerator::lduminal(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 1, 1, 0, 7, rs, rt, adr); }
-void CodeGenerator::swapal(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 1, 1, 1, 0, rs, rt, adr); }
+void CodeGenerator::swpal(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(2, 0, 1, 1, 1, 0, rs, rt, adr); }
 void CodeGenerator::ldadd(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 0, 0, 0, rs, rt, adr); }
 void CodeGenerator::ldclr(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 0, 0, 1, rs, rt, adr); }
 void CodeGenerator::ldeor(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 0, 0, 2, rs, rt, adr); }
@@ -877,7 +877,7 @@ void CodeGenerator::ldsmax(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) 
 void CodeGenerator::ldsmin(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 0, 0, 5, rs, rt, adr); }
 void CodeGenerator::ldumax(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 0, 0, 6, rs, rt, adr); }
 void CodeGenerator::ldumin(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 0, 0, 7, rs, rt, adr); }
-void CodeGenerator::swap(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 0, 1, 0, rs, rt, adr); }
+void CodeGenerator::swp(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 0, 1, 0, rs, rt, adr); }
 void CodeGenerator::ldaddl(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 1, 0, 0, rs, rt, adr); }
 void CodeGenerator::ldclrl(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 1, 0, 1, rs, rt, adr); }
 void CodeGenerator::ldeorl(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 1, 0, 2, rs, rt, adr); }
@@ -886,7 +886,7 @@ void CodeGenerator::ldsmaxl(const XReg &rs, const XReg &rt, const AdrNoOfs &adr)
 void CodeGenerator::ldsminl(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 1, 0, 5, rs, rt, adr); }
 void CodeGenerator::ldumaxl(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 1, 0, 6, rs, rt, adr); }
 void CodeGenerator::lduminl(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 1, 0, 7, rs, rt, adr); }
-void CodeGenerator::swapl(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 1, 1, 0, rs, rt, adr); }
+void CodeGenerator::swpl(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 1, 1, 0, rs, rt, adr); }
 void CodeGenerator::ldadda(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 1, 0, 0, 0, rs, rt, adr); }
 void CodeGenerator::ldclra(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 1, 0, 0, 1, rs, rt, adr); }
 void CodeGenerator::ldeora(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 1, 0, 0, 2, rs, rt, adr); }
@@ -895,7 +895,7 @@ void CodeGenerator::ldsmaxa(const XReg &rs, const XReg &rt, const AdrNoOfs &adr)
 void CodeGenerator::ldsmina(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 1, 0, 0, 5, rs, rt, adr); }
 void CodeGenerator::ldumaxa(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 1, 0, 0, 6, rs, rt, adr); }
 void CodeGenerator::ldumina(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 1, 0, 0, 7, rs, rt, adr); }
-void CodeGenerator::swapa(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 1, 0, 1, 0, rs, rt, adr); }
+void CodeGenerator::swpa(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 1, 0, 1, 0, rs, rt, adr); }
 void CodeGenerator::ldapr(const XReg &rt, const AdrImm &adr) { AtomicMemOp(3, 0, 1, 0, 1, 4, XReg(31), rt, adr); }
 void CodeGenerator::ldaddal(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 1, 1, 0, 0, rs, rt, adr); }
 void CodeGenerator::ldclral(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 1, 1, 0, 1, rs, rt, adr); }
@@ -905,7 +905,7 @@ void CodeGenerator::ldsmaxal(const XReg &rs, const XReg &rt, const AdrNoOfs &adr
 void CodeGenerator::ldsminal(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 1, 1, 0, 5, rs, rt, adr); }
 void CodeGenerator::ldumaxal(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 1, 1, 0, 6, rs, rt, adr); }
 void CodeGenerator::lduminal(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 1, 1, 0, 7, rs, rt, adr); }
-void CodeGenerator::swapal(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 1, 1, 1, 0, rs, rt, adr); }
+void CodeGenerator::swpal(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 1, 1, 1, 0, rs, rt, adr); }
 void CodeGenerator::staddb(const WReg &rs, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 0, 0, 0, rs, WReg(31), adr); }
 void CodeGenerator::stclrb(const WReg &rs, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 0, 0, 1, rs, WReg(31), adr); }
 void CodeGenerator::steorb(const WReg &rs, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 0, 0, 2, rs, WReg(31), adr); }
