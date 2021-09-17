@@ -1,0 +1,9 @@
+#DDI0584B_a_SVE/SVE_xml/xhtml/casp.html
+CASP <Ws:even>, <W(s+1)>, <Wt:even>, <W(t+1)>, [<Xn|SP>{,#0}]
+CASPA <Ws:even>, <W(s+1)>, <Wt:even>, <W(t+1)>, [<Xn|SP>{,#0}]
+CASPAL <Ws:even>, <W(s+1)>, <Wt:even>, <W(t+1)>, [<Xn|SP>{,#0}]
+CASPL <Ws:even>, <W(s+1)>, <Wt:even>, <W(t+1)>, [<Xn|SP>{,#0}]
+CASP <Xs:even>, <X(s+1)>, <Xt:even>, <X(t+1)>, [<Xn|SP>{,#0}]
+CASPA <Xs:even>, <X(s+1)>, <Xt:even>, <X(t+1)>, [<Xn|SP>{,#0}]
+CASPAL <Xs:even>, <X(s+1)>, <Xt:even>, <X(t+1)>, [<Xn|SP>{,#0}]
+CASPL <Xs:even>, <X(s+1)>, <Xt:even>, <X(t+1)>, [<Xn|SP>{,#0}]

@@ -1,0 +1,9 @@
+#DDI0584B_a_SVE/SVE_xml/xhtml/ldadd.html
+LDADD <Ws>, <Wt>, [<Xn|SP>]
+LDADDA <Ws>, <Wt>, [<Xn|SP>]
+LDADDAL <Ws>, <Wt>, [<Xn|SP>]
+LDADDL <Ws>, <Wt>, [<Xn|SP>]
+LDADD <Xs>, <Xt>, [<Xn|SP>]
+LDADDA <Xs>, <Xt>, [<Xn|SP>]
+LDADDAL <Xs>, <Xt>, [<Xn|SP>]
+LDADDL <Xs>, <Xt>, [<Xn|SP>]

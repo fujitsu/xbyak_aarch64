@@ -66,29 +66,29 @@ class TestPatternGenerator
     ptn_line.gsub!(/ \%/, "%")
     ptn_line.gsub!(/\% /, "%")
 
-    # Replace "<Ws>, <W(s+1)" -> "WS_PARE"
-    # Replace "<Wt>, <W(t+1)" -> "WT_PARE"
-    # Replace "<Xs>, <X(s+1)" -> "XS_PARE"
-    # Replace "<Xt>, <X(t+1)" -> "XT_PARE"
-    ptn_line.gsub!(/<Ws>,<W\(s\+1\)>/, "WS_PARE")
-    ptn_line.gsub!(/<Wt>,<W\(t\+1\)>/, "WT_PARE")
-    ptn_line.gsub!(/<Xs>,<X\(s\+1\)>/, "XS_PARE")
-    ptn_line.gsub!(/<Xt>,<X\(t\+1\)>/, "XT_PARE")
+    # Replace "<Ws:even>, <W(s+1)" -> "WS_PARE"
+    # Replace "<Wt:even>, <W(t+1)" -> "WT_PARE"
+    # Replace "<Xs:even>, <X(s+1)" -> "XS_PARE"
+    # Replace "<Xt:even>, <X(t+1)" -> "XT_PARE"
+    ptn_line.gsub!(/<Ws:even>,<W\(s\+1\)>/, "WS_PARE")
+    ptn_line.gsub!(/<Wt:even>,<W\(t\+1\)>/, "WT_PARE")
+    ptn_line.gsub!(/<Xs:even>,<X\(s\+1\)>/, "XS_PARE")
+    ptn_line.gsub!(/<Xt:even>,<X\(t\+1\)>/, "XT_PARE")
     
     # Split mnemonic and operands
     STDOUT.flush
     tmp = ptn_line.split(",")
 
-    # Recover "WS_PARE" -> "<Ws>, <W(s+1)"
-    # Recover "WT_PARE" -> "<Wt>, <W(t+1)"
-    # Recover "XS_PARE" -> "<Xs>, <X(s+1)"
-    # Recover "XT_PARE" -> "<Xt>, <X(t+1)"
+    # Recover "WS_PARE" -> "<Ws:even>, <W(s+1)"
+    # Recover "WT_PARE" -> "<Wt:even>, <W(t+1)"
+    # Recover "XS_PARE" -> "<Xs:even>, <X(s+1)"
+    # Recover "XT_PARE" -> "<Xt:even>, <X(t+1)"
     # Recover "%" into "{,"
     for i in 0..tmp.size-1 do
-      tmp[i].gsub!(/WS_PARE/, "<Ws>,<W(s+1)>")
-      tmp[i].gsub!(/WT_PARE/, "<Wt>,<W(t+1)>")
-      tmp[i].gsub!(/XS_PARE/, "<Xs>,<X(s+1)>")
-      tmp[i].gsub!(/XT_PARE/, "<Xt>,<X(t+1)>")
+      tmp[i].gsub!(/WS_PARE/, "<Ws:even>,<W(s+1)>")
+      tmp[i].gsub!(/WT_PARE/, "<Wt:even>,<W(t+1)>")
+      tmp[i].gsub!(/XS_PARE/, "<Xs:even>,<X(s+1)>")
+      tmp[i].gsub!(/XT_PARE/, "<Xt:even>,<X(t+1)>")
       tmp[i].gsub!(/%/, "{,")
     end
 
@@ -179,7 +179,9 @@ class TestPatternGenerator
   end
 
   def convert_for_cpp(inst)
-    inst.sub!(/ /, "(").downcase!
+    inst.gsub!(/,[^,]+\/\*asm\*\//, "")
+    inst.sub!(/ /, "(")
+    inst.downcase!
     inst += "); dump();"
     inst.sub!(/and\(/, "and_(")
     inst.sub!(/\[/, "ptr(").sub!(/\]/, ")")
@@ -194,10 +196,10 @@ class TestPatternGenerator
     @operands_ptn.store("<Xt>", ["x0", "x1", "x2", "x4", "x8", "x16", "x30", "xzr"])
     @operands_ptn.store("[<Xn|SP>]", ["[x0]", "[x1]", "[x2]", "[x4]", "[x8]", "[x16]", "[x30]", "[sp]"])
     @operands_ptn.store("[<Xn|SP>{,#0}]", ["[x0]", "[x1]", "[x2]", "[x4]", "[x8]", "[x16]", "[x30]", "[sp]"])
-    @operands_ptn.store("<Ws>,<W(s+1)>", ["w0", "w1", "w2", "w4", "w8", "w16", "w30", "wzr"])
-    @operands_ptn.store("<Wt>,<W(t+1)>", ["w0", "w1", "w2", "w4", "w8", "w16", "w30", "wzr"])
-    @operands_ptn.store("<Xs>,<X(s+1)>", ["x0", "x1", "x2", "x4", "x8", "x16", "x30", "xzr"])
-    @operands_ptn.store("<Xt>,<X(t+1)>", ["x0", "x1", "x2", "x4", "x8", "x16", "x30", "xzr"])
+    @operands_ptn.store("<Ws:even>,<W(s+1)>", ["w0,w1/*asm*/", "w2,w3/*asm*/", "w4,w5/*asm*/", "w8,w9/*asm*/", "w16,w17/*asm*/", "w30,wzr/*asm*/"])
+    @operands_ptn.store("<Wt:even>,<W(t+1)>", ["w0,w1/*asm*/", "w2,w3/*asm*/", "w4,w5/*asm*/", "w8,w9/*asm*/", "w16,w17/*asm*/", "w30,wzr/*asm*/"])
+    @operands_ptn.store("<Xs:even>,<X(s+1)>", ["x0,x1/*asm*/", "x2,x3/*asm*/", "x4,x5/*asm*/", "x8,x9/*asm*/", "x16,x17/*asm*/", "x30,xzr/*asm*/"])
+    @operands_ptn.store("<Xt:even>,<X(t+1)>", ["x0,x1/*asm*/", "x2,x3/*asm*/", "x4,x5/*asm*/", "x8,x9/*asm*/", "x16,x17/*asm*/", "x30,xzr/*asm*/"])
     @operands_ptn.store("<Xt:St64b>", ["x0", "x2", "x6"]) # if Rt<4:3> == '11' || Rt<0> == '1' then UNDEFINED;
   end
   
