@@ -832,8 +832,8 @@ void CodeGenerator::LdLOAcquire(uint32_t size, uint32_t o0, const RReg &rt, cons
 
 // compare and swap
 void CodeGenerator::Cas(uint32_t size, uint32_t o2, uint32_t L, uint32_t o1, uint32_t o0, const RReg &rs, const RReg &rt, const AdrNoOfs &adr) {
-  verifyIncRange(rt.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
-  verifyIncRange(rs.getIdx(), 0, SP_IDX - 1, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rt.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
+  verifyIncRange(rs.getIdx(), 0, SP_IDX, ERR_ILLEGAL_REG_IDX);
 
   uint32_t code = concat({F(size, 30), F(0x8, 24), F(o2, 23), F(L, 22), F(o1, 21), F(rs.getIdx(), 16), F(o0, 15), F(0x1f, 10), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
   dd(code);
@@ -1206,6 +1206,12 @@ void CodeGenerator::LdStSimdFpRegPre(uint32_t opc, const VRegSc &vt, const AdrPr
 }
 
 // Atomic memory oprations
+void CodeGenerator::AtomicMemOpSt64b(uint32_t size, uint32_t V, uint32_t A, uint32_t R, uint32_t o3, uint32_t opc, const RReg &rs, const RReg &rt, const AdrNoOfs &adr) {
+  verifyIncList(rt.getIdx(), {0,2,4,6}, ERR_ILLEGAL_REG_IDX);
+
+  AtomicMemOp(size, V, A, R, o3, opc, rs, rt, adr);
+}
+
 void CodeGenerator::AtomicMemOp(uint32_t size, uint32_t V, uint32_t A, uint32_t R, uint32_t o3, uint32_t opc, const RReg &rs, const RReg &rt, const AdrNoOfs &adr) {
   uint32_t code = concat({F(size, 30), F(0x7, 27), F(V, 26), F(A, 23), F(R, 22), F(1, 21), F(rs.getIdx(), 16), F(o3, 15), F(opc, 12), F(adr.getXn().getIdx(), 5), F(rt.getIdx(), 0)});
   dd(code);

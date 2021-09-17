@@ -330,6 +330,7 @@ class CodeGenerator : public CodeArray {
   void LdStRegUnpriv(uint32_t size, uint32_t opc, const RReg &rt, const AdrImm &adr);
   void LdStRegPre(uint32_t size, uint32_t opc, const RReg &rt, const AdrPreImm &adr);
   void LdStSimdFpRegPre(uint32_t opc, const VRegSc &vt, const AdrPreImm &adr);
+  void AtomicMemOpSt64b(uint32_t size, uint32_t V, uint32_t A, uint32_t R, uint32_t o3, uint32_t opc, const RReg &rs, const RReg &rt, const AdrNoOfs &adr);
   void AtomicMemOp(uint32_t size, uint32_t V, uint32_t A, uint32_t R, uint32_t o3, uint32_t opc, const RReg &rs, const RReg &rt, const AdrNoOfs &adr);
   void AtomicMemOp(uint32_t size, uint32_t V, uint32_t A, uint32_t R, uint32_t o3, uint32_t opc, const RReg &rs, const RReg &rt, const AdrImm &adr);
   void LdStReg(uint32_t size, uint32_t opc, const RReg &rt, const AdrReg &adr);

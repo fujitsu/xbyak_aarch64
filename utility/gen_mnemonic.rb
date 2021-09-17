@@ -1109,6 +1109,21 @@ v8 = {
     ]
   },
 
+  "AtomicMemOpSt64b" => {
+    :cmt => "Atomic memory oprations (LD64B|ST64B|ST64BV|ST64BV0)",
+    :arg => [
+      [ {"rs" => "XReg"}, {"rt" => "XReg"}, {"adr" => "AdrNoOfs"}], #0
+      [ {"rt" => "XReg"}, {"adr" => "AdrNoOfs"}]                    #1
+    ],
+    :prm => ["size", "V", "A", "R", "o3", "opc", "rs", "rt", "adr"],
+    :grp => [
+      {"ST64B"     => {"size" => 3, "V" => 0, "A" => 0, "R" => 0, "o3" => 1, "opc" => 1, "rs" => "XReg(31)"}, :arg => [1]},
+      {"ST64BV"    => {"size" => 3, "V" => 0, "A" => 0, "R" => 0, "o3" => 1, "opc" => 3}, :arg => [0]},
+      {"ST64BV0"   => {"size" => 3, "V" => 0, "A" => 0, "R" => 0, "o3" => 1, "opc" => 2}, :arg => [0]},
+      {"LD64B"     => {"size" => 3, "V" => 0, "A" => 0, "R" => 0, "o3" => 1, "opc" => 5, "rs" => "XReg(31)"}, :arg => [1]}
+    ]
+  },
+
   "AtomicMemOp" => {
     :cmt => "Atomic memory oprations",
     :arg => [
@@ -6120,7 +6135,8 @@ class MnemonicGenerator
     grp_func_prm = _genGrpFuncPrmStr(info[:grp_func_prm],info[:func_set_val])
     set_prm      = _genSetPrmStr(info[:func_arg])
 
-    return format("void %s(%s) { SET(); %s(%s); }",func,func_arg,grp_func,grp_func_prm)
+    #return format("void CodeGenerator::%s(%s) { SET(); %s(%s); }",func,func_arg,grp_func,grp_func_prm)
+    return format("void CodeGenerator::%s(%s) { %s(%s); }",func,func_arg,grp_func,grp_func_prm)
   end
 
   def _genFuncArgStr(func_arg)
@@ -6162,7 +6178,7 @@ class MnemonicGenerator
 end
 
 
-STDERR.print "Ruby 2.5.1 or higher required\n" if Gem::Version.create(RUBY_VERSION) < Gem::Version.create("2.5.1")
+STDERR.print "Ruby 2.5.5 or higher required\n" if Gem::Version.create(RUBY_VERSION) < Gem::Version.create("2.5.5")
 mgen_all = MnemonicGenerator.new
 mgen_all.parseTable(v8)
 mgen_all.parseTable(sve)
