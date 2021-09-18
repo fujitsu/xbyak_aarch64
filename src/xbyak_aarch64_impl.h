@@ -2426,6 +2426,12 @@ void CodeGenerator::SveBitwiseLOpUnpred(uint32_t opc, const _ZReg &zd, const _ZR
   dd(code);
 }
 
+// SVE2 bitwise ternary operations
+void CodeGenerator::Sve2BitwiseTernalyOp(uint32_t opc, uint32_t o2, const _ZReg &zdn, const _ZReg &zm, const _ZReg &zk) {
+  uint32_t code = concat({F(0x1, 26), F(opc, 22), F(1, 21), F(zm.getIdx(), 16), F(0x7, 11), F(o2, 10), F(zk.getIdx(), 5), F(zdn.getIdx(), 0)});
+  dd(code);
+}
+
 // SVE index generation (immediate start, immediate increment)
 void CodeGenerator::SveIndexGenImmImmInc(const _ZReg &zd, int32_t imm1, int32_t imm2) {
   uint32_t size = genSize(zd);

@@ -68,29 +68,33 @@ class TestPatternGenerator
     ptn_line.gsub!(/ \%/, "%")
     ptn_line.gsub!(/\% /, "%")
 
-    # Replace "<Ws:even>, <W(s+1)" -> "WS_PARE"
-    # Replace "<Wt:even>, <W(t+1)" -> "WT_PARE"
-    # Replace "<Xs:even>, <X(s+1)" -> "XS_PARE"
-    # Replace "<Xt:even>, <X(t+1)" -> "XT_PARE"
-    ptn_line.gsub!(/<Ws:even>,<W\(s\+1\)>/, "WS_PARE")
-    ptn_line.gsub!(/<Wt:even>,<W\(t\+1\)>/, "WT_PARE")
-    ptn_line.gsub!(/<Xs:even>,<X\(s\+1\)>/, "XS_PARE")
-    ptn_line.gsub!(/<Xt:even>,<X\(t\+1\)>/, "XT_PARE")
+    # Replace "<Ws:even>,<W(s+1)" -> "WS_PAIR"
+    # Replace "<Wt:even>,<W(t+1)" -> "WT_PAIR"
+    # Replace "<Xs:even>,<X(s+1)" -> "XS_PAIR"
+    # Replace "<Xt:even>,<X(t+1)" -> "XT_PAIR"
+    # Replace "<Zdn>.D,<Zdn>.d" -? ZDN_D_PAIR"
+    ptn_line.gsub!(/<Ws:even>,<W\(s\+1\)>/, "WS_PAIR")
+    ptn_line.gsub!(/<Wt:even>,<W\(t\+1\)>/, "WT_PAIR")
+    ptn_line.gsub!(/<Xs:even>,<X\(s\+1\)>/, "XS_PAIR")
+    ptn_line.gsub!(/<Xt:even>,<X\(t\+1\)>/, "XT_PAIR")
+    ptn_line.gsub!(/<Zdn>.D,<Zdn>.D/, "ZDN_D_PAIR")
     
     # Split mnemonic and operands
     STDOUT.flush
     tmp = ptn_line.split(",")
 
-    # Recover "WS_PARE" -> "<Ws:even>, <W(s+1)"
-    # Recover "WT_PARE" -> "<Wt:even>, <W(t+1)"
-    # Recover "XS_PARE" -> "<Xs:even>, <X(s+1)"
-    # Recover "XT_PARE" -> "<Xt:even>, <X(t+1)"
+    # Recover "WS_PAIR" -> "<Ws:even>,<W(s+1)"
+    # Recover "WT_PAIR" -> "<Wt:even>,<W(t+1)"
+    # Recover "XS_PAIR" -> "<Xs:even>,<X(s+1)"
+    # Recover "XT_PAIR" -> "<Xt:even>,<X(t+1)"
+    # Recover "ZDN_D_PAIR" -> "<Zdn>.D,<Zdn>.D"
     # Recover "%" into "{,"
     for i in 0..tmp.size-1 do
-      tmp[i].gsub!(/WS_PARE/, "<Ws:even>,<W(s+1)>")
-      tmp[i].gsub!(/WT_PARE/, "<Wt:even>,<W(t+1)>")
-      tmp[i].gsub!(/XS_PARE/, "<Xs:even>,<X(s+1)>")
-      tmp[i].gsub!(/XT_PARE/, "<Xt:even>,<X(t+1)>")
+      tmp[i].gsub!(/WS_PAIR/, "<Ws:even>,<W(s+1)>")
+      tmp[i].gsub!(/WT_PAIR/, "<Wt:even>,<W(t+1)>")
+      tmp[i].gsub!(/XS_PAIR/, "<Xs:even>,<X(s+1)>")
+      tmp[i].gsub!(/XT_PAIR/, "<Xt:even>,<X(t+1)>")
+      tmp[i].gsub!(/ZDN_D_PAIR/, "<Zdn>.D,<Zdn>.D")
       tmp[i].gsub!(/%/, "{,")
     end
 
@@ -221,16 +225,20 @@ class TestPatternGenerator
     @operands_ptn.store("<Zd>.H", ["z0.h", "z1.h", "z2.h", "z4.h", "z8.h", "z16.h", "z30.h", "z31.h"])
     @operands_ptn.store("<Zd>.S", ["z0.s", "z1.s", "z2.s", "z4.s", "z8.s", "z16.s", "z30.s", "z31.s"])
     @operands_ptn.store("<Zd>.D", ["z0.d", "z1.d", "z2.d", "z4.d", "z8.d", "z16.d", "z30.d", "z31.d"])
-
     @operands_ptn.store("<Zn>.B", ["z0.b", "z1.b", "z2.b", "z4.b", "z8.b", "z16.b", "z30.b", "z31.b"])
     @operands_ptn.store("<Zn>.H", ["z0.h", "z1.h", "z2.h", "z4.h", "z8.h", "z16.h", "z30.h", "z31.h"])
     @operands_ptn.store("<Zn>.S", ["z0.s", "z1.s", "z2.s", "z4.s", "z8.s", "z16.s", "z30.s", "z31.s"])
     @operands_ptn.store("<Zn>.D", ["z0.d", "z1.d", "z2.d", "z4.d", "z8.d", "z16.d", "z30.d", "z31.d"])
-
     @operands_ptn.store("<Zm>.B", ["z0.b", "z1.b", "z2.b", "z4.b", "z8.b", "z16.b", "z30.b", "z31.b"])
     @operands_ptn.store("<Zm>.H", ["z0.h", "z1.h", "z2.h", "z4.h", "z8.h", "z16.h", "z30.h", "z31.h"])
     @operands_ptn.store("<Zm>.S", ["z0.s", "z1.s", "z2.s", "z4.s", "z8.s", "z16.s", "z30.s", "z31.s"])
     @operands_ptn.store("<Zm>.D", ["z0.d", "z1.d", "z2.d", "z4.d", "z8.d", "z16.d", "z30.d", "z31.d"])
+    @operands_ptn.store("<Zk>.B", ["z0.b", "z1.b", "z2.b", "z4.b", "z8.b", "z16.b", "z30.b", "z31.b"])
+    @operands_ptn.store("<Zk>.H", ["z0.h", "z1.h", "z2.h", "z4.h", "z8.h", "z16.h", "z30.h", "z31.h"])
+    @operands_ptn.store("<Zk>.S", ["z0.s", "z1.s", "z2.s", "z4.s", "z8.s", "z16.s", "z30.s", "z31.s"])
+    @operands_ptn.store("<Zk>.D", ["z0.d", "z1.d", "z2.d", "z4.d", "z8.d", "z16.d", "z30.d", "z31.d"])
+
+    @operands_ptn.store("<Zdn>.D,<Zdn>.D", ["z0.d,z0.d/*asm*/", "z1.d,z1.d/*asm*/", "z2.d,z2.d/*asm*/", "z4.d,z4.d/*asm*/", "z8.d,z8.d/*asm*/", "z16.d,z16.d/*asm*/", "z30.d,z30.d/*asm*/", "z31.d,z31.d/*asm*/"])
 
     @operands_ptn.store("[<Xn|SP>]", ["[x0]", "[x1]", "[x2]", "[x4]", "[x8]", "[x16]", "[x30]", "[sp]"])
     @operands_ptn.store("[<Xn|SP>{,#0}]", ["[x0]", "[x1]", "[x2]", "[x4]", "[x8]", "[x16]", "[x30]", "[sp]"])

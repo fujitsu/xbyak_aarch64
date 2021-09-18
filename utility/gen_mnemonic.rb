@@ -3847,6 +3847,20 @@ sve = {
     ]
   },
 
+  "Sve2BitwiseTernalyOp" => {
+    :cmt => "SVE bitwise logical operations (unpredicated)",
+    :arg => [[{"zdn" => "ZRegD"}, {"zm"  => "ZRegD"}, {"zk"  => "ZRegD"}]],
+    :prm => ["opc", "o2", "zdn", "zm", "zk"],
+    :grp => [
+      {"EOR3"  => {"opc" => 0x0, "o2" => 0x0}},
+      {"BSL"   => {"opc" => 0x0, "o2" => 0x1}},
+      {"BCAX"  => {"opc" => 0x1, "o2" => 0x0}},
+      {"BSL1N" => {"opc" => 0x1, "o2" => 0x1}},
+      {"BSL2N" => {"opc" => 0x2, "o2" => 0x1}},
+      {"NBSL"  => {"opc" => 0x3, "o2" => 0x1}}
+    ]
+  },
+
   "SveIndexGenImmImmInc" => {
     :cmt => "SVE index generation (immediate start, immediate increment)",
     :arg => ext_args(zreg_set(1,"BHSD"),[{"imm1"  => "int32_t"}, {"imm2"  => "int32_t"}]), #0-3 (0:B, 1:H, 2:S, 3:D)

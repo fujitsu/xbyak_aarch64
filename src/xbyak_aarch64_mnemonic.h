@@ -3500,6 +3500,12 @@ void CodeGenerator::orr(const ZRegD &zd, const ZRegD &zn, const ZRegD &zm) { Sve
 void CodeGenerator::mov(const ZRegD &zd, const ZRegD &zn) { SveBitwiseLOpUnpred(1, zd, zn, zn); }
 void CodeGenerator::eor(const ZRegD &zd, const ZRegD &zn, const ZRegD &zm) { SveBitwiseLOpUnpred(2, zd, zn, zm); }
 void CodeGenerator::bic(const ZRegD &zd, const ZRegD &zn, const ZRegD &zm) { SveBitwiseLOpUnpred(3, zd, zn, zm); }
+void CodeGenerator::eor3(const ZRegD &zdn, const ZRegD &zm, const ZRegD &zk) { Sve2BitwiseTernalyOp(0, 0, zdn, zm, zk); }
+void CodeGenerator::bsl(const ZRegD &zdn, const ZRegD &zm, const ZRegD &zk) { Sve2BitwiseTernalyOp(0, 1, zdn, zm, zk); }
+void CodeGenerator::bcax(const ZRegD &zdn, const ZRegD &zm, const ZRegD &zk) { Sve2BitwiseTernalyOp(1, 0, zdn, zm, zk); }
+void CodeGenerator::bsl1n(const ZRegD &zdn, const ZRegD &zm, const ZRegD &zk) { Sve2BitwiseTernalyOp(1, 1, zdn, zm, zk); }
+void CodeGenerator::bsl2n(const ZRegD &zdn, const ZRegD &zm, const ZRegD &zk) { Sve2BitwiseTernalyOp(2, 1, zdn, zm, zk); }
+void CodeGenerator::nbsl(const ZRegD &zdn, const ZRegD &zm, const ZRegD &zk) { Sve2BitwiseTernalyOp(3, 1, zdn, zm, zk); }
 void CodeGenerator::index(const ZRegB &zd, const int32_t imm1, const int32_t imm2) { SveIndexGenImmImmInc(zd, imm1, imm2); }
 void CodeGenerator::index(const ZRegH &zd, const int32_t imm1, const int32_t imm2) { SveIndexGenImmImmInc(zd, imm1, imm2); }
 void CodeGenerator::index(const ZRegS &zd, const int32_t imm1, const int32_t imm2) { SveIndexGenImmImmInc(zd, imm1, imm2); }
