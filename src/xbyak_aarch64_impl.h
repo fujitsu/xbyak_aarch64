@@ -3050,13 +3050,27 @@ void CodeGenerator::SveIntMultImmUnpred(uint32_t opc, uint32_t o2, const _ZReg &
   dd(code);
 }
 
-// SVE integer dot product (unpredicated)
+// SVE Integer Multiply-Add - Unpredicated
 void CodeGenerator::SveIntMultAddUnpredGroup(uint32_t op0, const _ZReg &zda, const _ZReg &zn, const _ZReg &zm, uint32_t rot) {
   uint32_t size = genSize(zda);
 
   // If instruction has no "rot" opernad, 0 is passed.
   verifyIncList(rot, {0, 90, 180, 270}, ERR_ILLEGAL_CONST_VALUE);
   uint32_t code = concat({F(0x44, 24), F(size, 22), F(zm.getIdx(), 16), F(op0 | (rot / 90), 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
+  dd(code);
+}
+
+// SVE2 Integer - Predicated Group
+void CodeGenerator::Sve2IntPredGroup(uint32_t bit21_13, const _ZReg &zda, const _ZReg &zdn, const _ZReg &zd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
+  verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
+
+  uint32_t size = genSize(zda) | genSize(zdn) | genSize(zd);
+
+  // Only one of zda, zdn, zd is valid.
+  uint32_t dst = zda.getIdx() | zdn.getIdx() | zd.getIdx();
+  // Either zn or zm is valid.
+  uint32_t src = zn.getIdx() | zm.getIdx();
+  uint32_t code = concat({F(0x44, 24), F(size, 22), F(bit21_13, 13), F(pg.getIdx(), 10), F(src, 5), F(dst, 0)});
   dd(code);
 }
 

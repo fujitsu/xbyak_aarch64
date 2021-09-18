@@ -178,13 +178,25 @@ class TestPatternGenerator
     for i in 0..operands_combinations.size-1 do
       inst = mn.downcase
 
+      tmp_list = []
       for j in 0..(operands_combinations[i]).size-1 do
         if j != 0
           inst += ","
         else
           inst += " "
         end
-        inst += (operands_combinations[i])[j]
+
+        token = (operands_combinations[i])[j]
+
+        # Example: Zdn:z0.b, Pg:p0, Zdn:OP:0, Zm:z8.b
+        #          OP:0 -> z0.b
+        tmp_list.push(token)
+        if token.index(/OP:/) == 0
+          position = (token.split(/:/))[1]
+          token = tmp_list[position.to_i] + "/*asm*/"
+        end
+
+        inst += token
       end
 
       @instructions.push(inst)
@@ -192,7 +204,16 @@ class TestPatternGenerator
   end
 
   def convert_for_cpp(inst)
+    inst.downcase!
+
+    # Remove register pair
+    # Example "w0,w1/*asm*/" -> "w0"
     inst.gsub!(/,[^,]+\/\*asm\*\//, "")
+
+    # Replace "m" -> "T_m"
+    # Replace "z" -> "T_z"
+    inst.sub!(/\/m/, "/T_m")
+    inst.sub!(/\/z/, "/T_z")
 
     tmp = inst.split(/\s+/)
     if tmp.size == 1 # no operands
@@ -201,7 +222,6 @@ class TestPatternGenerator
       inst.sub!(/ /, "(")
     end
 
-    inst.downcase!
     inst += "); dump();"
     inst.sub!(/and\(/, "and_(")
     inst.sub!(/\[/, "ptr(")
@@ -221,6 +241,9 @@ class TestPatternGenerator
     @operands_ptn.store("<Xt:even>,<X(t+1)>", ["x8,x9/*asm*/", "x2,x3/*asm*/", "x4,x5/*asm*/", "x0,x1/*asm*/", "x16,x17/*asm*/", "x30,xzr/*asm*/"])
     @operands_ptn.store("<Xt:St64b>", ["x6", "x2", "x4"]) # if Rt<4:3> == '11' || Rt<0> == '1' then UNDEFINED;
 
+    @operands_ptn.store("[<Xn|SP>]", ["[x8]", "[x1]", "[x2]", "[x4]", "[x0]", "[x16]", "[x30]", "[sp]"])
+    @operands_ptn.store("[<Xn|SP>{,#0}]", ["[x8]", "[x1]", "[x2]", "[x4]", "[x0]", "[x16]", "[x30]", "[sp]"])
+
     @operands_ptn.store("<Zd>.B", ["z8.b", "z1.b", "z2.b", "z4.b", "z0.b", "z16.b", "z30.b", "z31.b"])
     @operands_ptn.store("<Zd>.H", ["z8.h", "z1.h", "z2.h", "z4.h", "z0.h", "z16.h", "z30.h", "z31.h"])
     @operands_ptn.store("<Zd>.S", ["z8.s", "z1.s", "z2.s", "z4.s", "z0.s", "z16.s", "z30.s", "z31.s"])
@@ -230,6 +253,11 @@ class TestPatternGenerator
     @operands_ptn.store("<Zda>.H", ["z8.h", "z1.h", "z2.h", "z4.h", "z0.h", "z16.h", "z30.h", "z31.h"])
     @operands_ptn.store("<Zda>.S", ["z8.s", "z1.s", "z2.s", "z4.s", "z0.s", "z16.s", "z30.s", "z31.s"])
     @operands_ptn.store("<Zda>.D", ["z8.d", "z1.d", "z2.d", "z4.d", "z0.d", "z16.d", "z30.d", "z31.d"])
+
+    @operands_ptn.store("<Zdn>.B", ["z8.b", "z1.b", "z2.b", "z4.b", "z0.b", "z16.b", "z30.b", "z31.b"])
+    @operands_ptn.store("<Zdn>.H", ["z8.h", "z1.h", "z2.h", "z4.h", "z0.h", "z16.h", "z30.h", "z31.h"])
+    @operands_ptn.store("<Zdn>.S", ["z8.s", "z1.s", "z2.s", "z4.s", "z0.s", "z16.s", "z30.s", "z31.s"])
+    @operands_ptn.store("<Zdn>.D", ["z8.d", "z1.d", "z2.d", "z4.d", "z0.d", "z16.d", "z30.d", "z31.d"])
 
     @operands_ptn.store("<Zn>.B", ["z8.b", "z1.b", "z2.b", "z4.b", "z0.b", "z16.b", "z30.b", "z31.b"])
     @operands_ptn.store("<Zn>.H", ["z8.h", "z1.h", "z2.h", "z4.h", "z0.h", "z16.h", "z30.h", "z31.h"])
@@ -247,10 +275,12 @@ class TestPatternGenerator
     @operands_ptn.store("<Zdn>.D,<Zdn>.D", ["z8.d,z8.d/*asm*/", "z1.d,z1.d/*asm*/", "z2.d,z2.d/*asm*/", "z4.d,z4.d/*asm*/",
                                             "z0.d,z0.d/*asm*/", "z16.d,z16.d/*asm*/", "z30.d,z30.d/*asm*/", "z31.d,z31.d/*asm*/"])
 
-    @operands_ptn.store("[<Xn|SP>]", ["[x8]", "[x1]", "[x2]", "[x4]", "[x0]", "[x16]", "[x30]", "[sp]"])
-    @operands_ptn.store("[<Xn|SP>{,#0}]", ["[x8]", "[x1]", "[x2]", "[x4]", "[x0]", "[x16]", "[x30]", "[sp]"])
+    @operands_ptn.store("<Pg>/M", ["p7/m", "p1/m", "p2/m", "p4/m", "p0/m"])
+
     @operands_ptn.store("#<imm16>", ["1", "(1<<4)", "(1<<8)", "(1<<12)", "(0xffff)"])
     @operands_ptn.store("<const:rot>", ["90", "0", "180", "270"])
+
+    @operands_ptn.store("OP:0", ["OP:0:/*asm*/"])
   end
   
   def output_cpp(ofile)

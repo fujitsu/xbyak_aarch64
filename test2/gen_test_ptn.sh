@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #*******************************************************************************/
-PTN="b c e l m n p s t u w"
+PTN="a b c e l m n p s t u w"
 
 for i in ${PTN} ; do
     ./gen_test.rb instructions/${i}

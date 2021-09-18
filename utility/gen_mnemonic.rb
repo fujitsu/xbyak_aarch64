@@ -4949,6 +4949,71 @@ sve = {
     ]
   },
 
+  "Sve2IntPredGroup" => {
+    :cmt => ["SVE2 integer pairwise add and accumulate long",
+             "SVE2 integer unary operations (predicated)",
+             "SVE2 saturating/rounding bitwise shift left (predicated)",
+             "SVE2 integer halving add/subtract (predicated)",
+             "SVE2 integer pairwise arithmetic",
+             "SVE2 saturating add/subtract"
+            ],
+    :arg => [
+      [ {"zda" => "ZRegH"}, {"pg" => "_PReg"}, {"zn" => "ZRegB"}], #0
+      [ {"zda" => "ZRegS"}, {"pg" => "_PReg"}, {"zn" => "ZRegH"}], #1
+      [ {"zda" => "ZRegD"}, {"pg" => "_PReg"}, {"zn" => "ZRegS"}], #2
+      [ {"zdn" => "ZRegB"}, {"pg" => "_PReg"}, {"zm" => "ZRegB"}], #7
+      [ {"zdn" => "ZRegH"}, {"pg" => "_PReg"}, {"zm" => "ZRegH"}], #8
+      [ {"zdn" => "ZRegS"}, {"pg" => "_PReg"}, {"zm" => "ZRegS"}], #9
+      [ {"zdn" => "ZRegD"}, {"pg" => "_PReg"}, {"zm" => "ZRegD"}], #10
+      [ {"zd" => "ZRegB"}, {"pg" => "_PReg"}, {"zn" => "ZRegB"}], #11
+      [ {"zd" => "ZRegH"}, {"pg" => "_PReg"}, {"zn" => "ZRegH"}], #12
+      [ {"zd" => "ZRegS"}, {"pg" => "_PReg"}, {"zn" => "ZRegS"}], #13
+      [ {"zd" => "ZRegD"}, {"pg" => "_PReg"}, {"zn" => "ZRegD"}]  #14
+    ],
+    :prm => ["bit21_13", "zda", "zdn", "zd", "pg", "zn", "zm"],
+    :grp => [
+      {"SADALP"  => {"bit21_13" => 0x25, "zdn" => "ZReg(0)", "zd" => "ZReg(0)", "zm" => "ZReg(0)"}, :cmt => [0], :arg => 0..2},
+      {"UADALP"  => {"bit21_13" => 0x2d, "zdn" => "ZReg(0)", "zd" => "ZReg(0)", "zm" => "ZReg(0)"}, :cmt => [0], :arg => 0..2},
+      {"URECPE"  => {"bit21_13" => 0x5, "zda" => "ZReg(0)", "zdn" => "ZReg(0)", "zm" => "ZReg(0)"}, :cmt => [1], :arg => [9]},
+      {"URSQRTE" => {"bit21_13" => 0xd, "zda" => "ZReg(0)", "zdn" => "ZReg(0)", "zm" => "ZReg(0)"}, :cmt => [1], :arg => [9]},
+      {"SQABS"   => {"bit21_13" => 0x45, "zda" => "ZReg(0)", "zdn" => "ZReg(0)", "zm" => "ZReg(0)"}, :cmt => [1], :arg => 7..10},
+      {"SQNEG"   => {"bit21_13" => 0x4d, "zda" => "ZReg(0)", "zdn" => "ZReg(0)", "zm" => "ZReg(0)"}, :cmt => [1], :arg => 7..10},
+      {"SRSHL"   => {"bit21_13" => 0x14, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [2], :arg => 3..6},
+      {"URSHL"   => {"bit21_13" => 0x1c, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [2], :arg => 3..6},
+      {"SRSHLR"  => {"bit21_13" => 0x34, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [2], :arg => 3..6},
+      {"URSHLR"  => {"bit21_13" => 0x3c, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [2], :arg => 3..6},
+      {"SQSHL"   => {"bit21_13" => 0x44, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [2], :arg => 3..6},
+      {"UQSHL"   => {"bit21_13" => 0x4c, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [2], :arg => 3..6},
+      {"SQRSHL"  => {"bit21_13" => 0x54, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [2], :arg => 3..6},
+      {"UQRSHL"  => {"bit21_13" => 0x5c, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [2], :arg => 3..6},
+      {"SQSHLR"  => {"bit21_13" => 0x64, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [2], :arg => 3..6},
+      {"UQSHLR"  => {"bit21_13" => 0x6c, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [2], :arg => 3..6},
+      {"SQRSHLR" => {"bit21_13" => 0x74, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [2], :arg => 3..6},
+      {"UQRSHLR" => {"bit21_13" => 0x7c, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [2], :arg => 3..6},
+      {"SHADD"   => {"bit21_13" => 0x84, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [3], :arg => 3..6},
+      {"UHADD"   => {"bit21_13" => 0x8c, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [3], :arg => 3..6},
+      {"SHSUB"   => {"bit21_13" => 0x94, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [3], :arg => 3..6},
+      {"UHSUB"   => {"bit21_13" => 0x9c, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [3], :arg => 3..6},
+      {"SRHADD"  => {"bit21_13" => 0xa4, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [3], :arg => 3..6},
+      {"URHADD"  => {"bit21_13" => 0xac, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [3], :arg => 3..6},
+      {"SHSUBR"  => {"bit21_13" => 0xb4, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [3], :arg => 3..6},
+      {"UHSUBR"  => {"bit21_13" => 0xbc, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [3], :arg => 3..6},
+      {"ADDP"    => {"bit21_13" => 0x8d, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [4], :arg => 3..6},
+      {"SMAXP"   => {"bit21_13" => 0xa5, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [4], :arg => 3..6},
+      {"UMAXP"   => {"bit21_13" => 0xad, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [4], :arg => 3..6},
+      {"SMINP"   => {"bit21_13" => 0xb5, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [4], :arg => 3..6},
+      {"UMINP"   => {"bit21_13" => 0xbd, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [4], :arg => 3..6},
+      {"SQADD"   => {"bit21_13" => 0xc4, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [5], :arg => 3..6},
+      {"UQADD"   => {"bit21_13" => 0xcc, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [5], :arg => 3..6},
+      {"SQSUB"   => {"bit21_13" => 0xd4, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [5], :arg => 3..6},
+      {"UQSUB"   => {"bit21_13" => 0xdc, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [5], :arg => 3..6},
+      {"SUQADD"  => {"bit21_13" => 0xe4, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [5], :arg => 3..6},
+      {"USQADD"  => {"bit21_13" => 0xec, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [5], :arg => 3..6},
+      {"SQSUBR"  => {"bit21_13" => 0xf4, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [5], :arg => 3..6},
+      {"UQSUBR"  => {"bit21_13" => 0xfc, "zda" => "ZReg(0)", "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [5], :arg => 3..6}
+    ]
+  },
+
   "SveIntDotProductIndexed" => {
     :cmt => "SVE integer dot product (indexed)",
     :arg => [
