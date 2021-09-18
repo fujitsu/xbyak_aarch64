@@ -132,6 +132,13 @@ class TestPatternGenerator
       end
     end
 
+    # If mnemonic has no operand, just one test pattern is added.
+    # Example "tcommit"
+    if list_size == 1
+      @instructions.push(mn.downcase!)
+      return
+    end
+
     # Generate operands combinations 2d-list
     # Example: @operands_combinations =
     #          [["x0", "x0", "[x0]"], ["x1", "x0", "[x0]"], ..., ["xzr", "x0", "[x0]"],
@@ -182,7 +189,14 @@ class TestPatternGenerator
 
   def convert_for_cpp(inst)
     inst.gsub!(/,[^,]+\/\*asm\*\//, "")
-    inst.sub!(/ /, "(")
+
+    tmp = inst.split(/\s+/)
+    if tmp.size == 1 # no operands
+      inst += "("
+    else
+      inst.sub!(/ /, "(")
+    end
+
     inst.downcase!
     inst += "); dump();"
     inst.sub!(/and\(/, "and_(")

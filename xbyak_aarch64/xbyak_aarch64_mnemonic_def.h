@@ -125,6 +125,7 @@ void autibsp();
 void dsb(const BarOpt opt);
 void dmb(const BarOpt opt);
 void isb(const BarOpt opt);
+void tcommit();
 void clrex(const uint32_t imm);
 void ssbb();
 void pssbb();

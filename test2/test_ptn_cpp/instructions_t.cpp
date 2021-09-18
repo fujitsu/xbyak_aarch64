@@ -15,6 +15,7 @@ tstart(x8); dump();
 tstart(x16); dump();
 tstart(x30); dump();
 tstart(xzr); dump();
+tcommit(); dump();
 tcancel(1); dump();
 tcancel((1<<4)); dump();
 tcancel((1<<8)); dump();

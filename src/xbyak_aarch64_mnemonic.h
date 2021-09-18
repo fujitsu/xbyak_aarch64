@@ -126,6 +126,7 @@ void CodeGenerator::autibsp() { Hints(3, 7); }
 void CodeGenerator::dsb(const BarOpt opt) { BarriersOpt(4, opt, 31); }
 void CodeGenerator::dmb(const BarOpt opt) { BarriersOpt(5, opt, 31); }
 void CodeGenerator::isb(const BarOpt opt) { BarriersOpt(6, opt, 31); }
+void CodeGenerator::tcommit() { BarriersOpt(3, (BarOpt) 0, 31); }
 void CodeGenerator::clrex(const uint32_t imm) { BarriersNoOpt(imm, 2, 31); }
 void CodeGenerator::ssbb() { BarriersNoOpt(0, 4, 31); }
 void CodeGenerator::pssbb() { BarriersNoOpt(4, 4, 31); }

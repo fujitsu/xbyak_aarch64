@@ -14,6 +14,7 @@ tstart x8
 tstart x16
 tstart x30
 tstart xzr
+tcommit
 tcancel 1
 tcancel (1<<4)
 tcancel (1<<8)

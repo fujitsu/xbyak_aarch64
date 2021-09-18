@@ -345,12 +345,16 @@ v8 = {
 
   "BarriersOpt" => {
     :cmt => "Barriers (option)",
-    :arg => [[ {"opt" => "BarOpt"}]],
+    :arg => [
+      [ {"opt" => "BarOpt"}],  #0
+      [] #1
+    ],
     :prm => ["op2", "opt", "rt"],
     :grp => [
-      {"DSB"   => {"op2" => 4, "rt" => 0x1f}},
-      {"DMB"   => {"op2" => 5, "rt" => 0x1f}},
-      {"ISB"   => {"op2" => 6, "rt" => 0x1f}}
+      {"DSB"     => {"op2" => 4, "rt" => 0x1f}, :arg => [0]},
+      {"DMB"     => {"op2" => 5, "rt" => 0x1f}, :arg => [0]},
+      {"ISB"     => {"op2" => 6, "rt" => 0x1f}, :arg => [0]},
+      {"TCOMMIT" => {"op2" => 3, "rt" => 0x1f, "opt" => "(BarOpt) 0"}, :arg => [1]}
     ]
   },
 
