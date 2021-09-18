@@ -2488,6 +2488,22 @@ void CodeGenerator::SveStackFrameSize(uint32_t op, uint32_t opc2, const XReg &xd
   dd(code);
 }
 
+// SVE2 Integer Multiply - Unpredicated Group
+void CodeGenerator::Sve2IntMultUnpredGroup(uint32_t opc_r, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
+  uint32_t size = genSize(zd);
+  uint32_t code = concat({F(0x4, 24), F(size, 22), F(1, 21), F(zm.getIdx(), 16), F(0x6, 12), F(opc_r, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
+  dd(code);
+}
+
+// SVE2 integer multiply vectors (unpredicated)
+void CodeGenerator::Sve2IntMultVecUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
+  Sve2IntMultUnpredGroup(opc, zd, zn, zm);
+}
+
+// SVE2 signed saturating doubling multiply high (unpredicated)
+void CodeGenerator::Sve2SignedSatDoubleMultHighUnpred(uint32_t r, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
+  Sve2IntMultUnpredGroup(0x4 | r, zd, zn, zm);
+}
 // SVE bitwise shift by immediate (unpredicated)
 void CodeGenerator::SveBitwiseShByImmUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, uint32_t amount) {
   bool lsl = (opc == 3);

@@ -211,13 +211,29 @@ class TestPatternGenerator
     @operands_ptn.store("<Wt>", ["w0", "w1", "w2", "w4", "w8", "w16", "w30", "wzr"])
     @operands_ptn.store("<Xs>", ["x0", "x1", "x2", "x4", "x8", "x16", "x30", "xzr"])
     @operands_ptn.store("<Xt>", ["x0", "x1", "x2", "x4", "x8", "x16", "x30", "xzr"])
-    @operands_ptn.store("[<Xn|SP>]", ["[x0]", "[x1]", "[x2]", "[x4]", "[x8]", "[x16]", "[x30]", "[sp]"])
-    @operands_ptn.store("[<Xn|SP>{,#0}]", ["[x0]", "[x1]", "[x2]", "[x4]", "[x8]", "[x16]", "[x30]", "[sp]"])
     @operands_ptn.store("<Ws:even>,<W(s+1)>", ["w0,w1/*asm*/", "w2,w3/*asm*/", "w4,w5/*asm*/", "w8,w9/*asm*/", "w16,w17/*asm*/", "w30,wzr/*asm*/"])
     @operands_ptn.store("<Wt:even>,<W(t+1)>", ["w0,w1/*asm*/", "w2,w3/*asm*/", "w4,w5/*asm*/", "w8,w9/*asm*/", "w16,w17/*asm*/", "w30,wzr/*asm*/"])
     @operands_ptn.store("<Xs:even>,<X(s+1)>", ["x0,x1/*asm*/", "x2,x3/*asm*/", "x4,x5/*asm*/", "x8,x9/*asm*/", "x16,x17/*asm*/", "x30,xzr/*asm*/"])
     @operands_ptn.store("<Xt:even>,<X(t+1)>", ["x0,x1/*asm*/", "x2,x3/*asm*/", "x4,x5/*asm*/", "x8,x9/*asm*/", "x16,x17/*asm*/", "x30,xzr/*asm*/"])
     @operands_ptn.store("<Xt:St64b>", ["x0", "x2", "x6"]) # if Rt<4:3> == '11' || Rt<0> == '1' then UNDEFINED;
+
+    @operands_ptn.store("<Zd>.B", ["z0.b", "z1.b", "z2.b", "z4.b", "z8.b", "z16.b", "z30.b", "z31.b"])
+    @operands_ptn.store("<Zd>.H", ["z0.h", "z1.h", "z2.h", "z4.h", "z8.h", "z16.h", "z30.h", "z31.h"])
+    @operands_ptn.store("<Zd>.S", ["z0.s", "z1.s", "z2.s", "z4.s", "z8.s", "z16.s", "z30.s", "z31.s"])
+    @operands_ptn.store("<Zd>.D", ["z0.d", "z1.d", "z2.d", "z4.d", "z8.d", "z16.d", "z30.d", "z31.d"])
+
+    @operands_ptn.store("<Zn>.B", ["z0.b", "z1.b", "z2.b", "z4.b", "z8.b", "z16.b", "z30.b", "z31.b"])
+    @operands_ptn.store("<Zn>.H", ["z0.h", "z1.h", "z2.h", "z4.h", "z8.h", "z16.h", "z30.h", "z31.h"])
+    @operands_ptn.store("<Zn>.S", ["z0.s", "z1.s", "z2.s", "z4.s", "z8.s", "z16.s", "z30.s", "z31.s"])
+    @operands_ptn.store("<Zn>.D", ["z0.d", "z1.d", "z2.d", "z4.d", "z8.d", "z16.d", "z30.d", "z31.d"])
+
+    @operands_ptn.store("<Zm>.B", ["z0.b", "z1.b", "z2.b", "z4.b", "z8.b", "z16.b", "z30.b", "z31.b"])
+    @operands_ptn.store("<Zm>.H", ["z0.h", "z1.h", "z2.h", "z4.h", "z8.h", "z16.h", "z30.h", "z31.h"])
+    @operands_ptn.store("<Zm>.S", ["z0.s", "z1.s", "z2.s", "z4.s", "z8.s", "z16.s", "z30.s", "z31.s"])
+    @operands_ptn.store("<Zm>.D", ["z0.d", "z1.d", "z2.d", "z4.d", "z8.d", "z16.d", "z30.d", "z31.d"])
+
+    @operands_ptn.store("[<Xn|SP>]", ["[x0]", "[x1]", "[x2]", "[x4]", "[x8]", "[x16]", "[x30]", "[sp]"])
+    @operands_ptn.store("[<Xn|SP>{,#0}]", ["[x0]", "[x1]", "[x2]", "[x4]", "[x8]", "[x16]", "[x30]", "[sp]"])
     @operands_ptn.store("#<imm16>", ["1", "(1<<4)", "(1<<8)", "(1<<12)", "(0xffff)"])
   end
   

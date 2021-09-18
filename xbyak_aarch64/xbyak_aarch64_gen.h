@@ -474,6 +474,9 @@ class CodeGenerator : public CodeArray {
   void SveIndexGenRegRegInc(const _ZReg &zd, const RReg &rn, const RReg &rm);
   void SveStackFrameAdjust(uint32_t op, const XReg &xd, const XReg &xn, int32_t imm);
   void SveStackFrameSize(uint32_t op, uint32_t opc2, const XReg &xd, int32_t imm);
+  void Sve2IntMultUnpredGroup(uint32_t opc_r, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm);
+  void Sve2IntMultVecUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm);
+  void Sve2SignedSatDoubleMultHighUnpred(uint32_t r, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm);
   void SveBitwiseShByImmUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, uint32_t amount);
   void SveBitwiseShByWideElemUnPred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm);
   void SveAddressGen(const _ZReg &zd, const AdrVec &adr);

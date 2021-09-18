@@ -3917,17 +3917,41 @@ sve = {
     ]
   },
 
-  "SveBitwiseShByImmUnpred" => {
-    :cmt => "SVE bitwise shift by immediate (unpredicated)",
-    :arg => ext_args(zreg_set(2, "BHSD"),[{"amount"  => "uint32_t"}]),
-    # :arg => [[ {"zd" => "ZReg"}, {"zn"  => "ZReg"}, {"amount"  => "uint32_t"}]],
-    :prm => ["opc", "zd", "zn", "amount"],
+  "Sve2IntMultVecUnpred" => {
+    :cmt => "SVE2 integer multiply vectors (unpredicated)",
+    :arg => zreg_set(3, "BHSD"),
+    # :arg => [[ {"zd" => "ZReg"}, {"zn" => "ZReg"}, {"zm" => "ZReg"}]],
+    :prm => ["opc", "zd", "zn", "zm"],
     :grp => [
-      {"ASR" => {"opc" => 0}},
-      {"LSR" => {"opc" => 1}},
-      {"LSL" => {"opc" => 3}}
+      {"MUL"   => {"opc" => 0x0}},
+      {"SMULH" => {"opc" => 0x2}},
+      {"UMULH" => {"opc" => 0x3}},
+      {"PMUL"  => {"opc" => 0x1}}
     ]
   },
+
+  "Sve2SignedSatDoubleMultHighUnpred" => {
+    :cmt => "SVE2 signed saturating doubling multiply high (unpredicated)",
+    :arg => zreg_set(3, "BHSD"),
+    # :arg => [[ {"zd" => "ZReg"}, {"zn" => "ZReg"}, {"zm" => "ZReg"}]],
+    :prm => ["r", "zd", "zn", "zm"],
+    :grp => [
+      {"SQDMULH" => {"r" => 0x0}},
+      {"SQRDMULH"=> {"r" => 0x1}}
+    ]
+  },
+
+   "SveBitwiseShByImmUnpred" => {
+     :cmt => "SVE bitwise shift by immediate (unpredicated)",
+     :arg => ext_args(zreg_set(2, "BHSD"),[{"amount"  => "uint32_t"}]),
+     # :arg => [[ {"zd" => "ZReg"}, {"zn"  => "ZReg"}, {"amount"  => "uint32_t"}]],
+     :prm => ["opc", "zd", "zn", "amount"],
+     :grp => [
+       {"ASR" => {"opc" => 0}},
+       {"LSR" => {"opc" => 1}},
+       {"LSL" => {"opc" => 3}}
+     ]
+   },
 
   "SveBitwiseShByWideElemUnPred" => {
     :cmt => "SVE bitwise shift by wide elements (unpredicated)",
