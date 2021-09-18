@@ -264,6 +264,7 @@ class CodeGenerator : public CodeArray {
   void CondBrImm(Cond cond, const Label &label);
   void CondBrImm(Cond cond, int64_t label);
   void ExceptionGen(uint32_t opc, uint32_t op2, uint32_t LL, uint32_t imm);
+  void SysInstWithRegArg(uint32_t CRm, uint32_t op2, const XReg &rt);
   void Hints(uint32_t CRm, uint32_t op2);
   void Hints(uint32_t imm);
   void BarriersOpt(uint32_t op2, BarOpt opt, uint32_t rt);

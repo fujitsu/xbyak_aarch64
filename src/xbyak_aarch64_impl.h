@@ -507,6 +507,12 @@ void CodeGenerator::ExceptionGen(uint32_t opc, uint32_t op2, uint32_t LL, uint32
   dd(code);
 }
 
+// System instructions with register argument
+void CodeGenerator::SysInstWithRegArg(uint32_t CRm, uint32_t op2, const XReg &rt) {
+  uint32_t code = concat({F(0xd5031, 12), F(CRm, 8), F(op2, 5), F(rt.getIdx(), 0)});
+  dd(code);
+}
+
 // Hints
 void CodeGenerator::Hints(uint32_t CRm, uint32_t op2) {
   uint32_t code = concat({F(0xd5032, 12), F(CRm, 8), F(op2, 5), F(0x1f, 0)});

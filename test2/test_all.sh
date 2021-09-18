@@ -14,7 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #******************************************************************************/
-./test.sh test_ptn_cpp/instructions_c.cpp
-./test.sh test_ptn_cpp/instructions_l.cpp
-./test.sh test_ptn_cpp/instructions_s.cpp
-./test.sh test_ptn_cpp/instructions_t.cpp
+PTN="c l s t w"
+
+for i in ${PTN} ; do
+    ./test.sh test_ptn_cpp/instructions_${i}.cpp
+done

@@ -99,6 +99,8 @@ void CodeGenerator::tcancel(const uint32_t imm) { ExceptionGen(3, 0, 0, imm); }
 void CodeGenerator::dcps1(const uint32_t imm) { ExceptionGen(5, 0, 1, imm); }
 void CodeGenerator::dcps2(const uint32_t imm) { ExceptionGen(5, 0, 2, imm); }
 void CodeGenerator::dcps3(const uint32_t imm) { ExceptionGen(5, 0, 3, imm); }
+void CodeGenerator::wfet(const XReg &rt) { SysInstWithRegArg(0, 0, rt); }
+void CodeGenerator::wfit(const XReg &rt) { SysInstWithRegArg(0, 1, rt); }
 void CodeGenerator::hint(const uint32_t imm) { Hints(imm); }
 void CodeGenerator::nop() { Hints(0, 0); }
 void CodeGenerator::yield() { Hints(0, 1); }

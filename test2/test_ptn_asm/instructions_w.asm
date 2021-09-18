@@ -1,0 +1,16 @@
+wfet x0
+wfet x1
+wfet x2
+wfet x4
+wfet x8
+wfet x16
+wfet x30
+wfet xzr
+wfit x0
+wfit x1
+wfit x2
+wfit x4
+wfit x8
+wfit x16
+wfit x30
+wfit xzr

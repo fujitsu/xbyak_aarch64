@@ -305,6 +305,16 @@ v8 = {
     ]
   },
 
+  "SysInstWithRegArg" => {
+    :cmt => "System instructions with register argument",
+    :arg => [[ {"rt" => "XReg"}]],
+    :prm => ["CRm", "op2", "rt"],
+    :grp => [
+      {"WFET" => {"CRm" => 0x0, "op2" => 0x0}},
+      {"WFIT" => {"CRm" => 0x0, "op2" => 0x1}}
+    ]
+  },
+
   "Hints" => {
     :cmt => "Hints",
     :arg => [

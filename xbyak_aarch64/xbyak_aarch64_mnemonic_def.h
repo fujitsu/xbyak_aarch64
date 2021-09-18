@@ -98,6 +98,8 @@ void tcancel(const uint32_t imm);
 void dcps1(const uint32_t imm);
 void dcps2(const uint32_t imm);
 void dcps3(const uint32_t imm);
+void wfet(const XReg &rt);
+void wfit(const XReg &rt);
 void hint(const uint32_t imm);
 void nop();
 void yield();
