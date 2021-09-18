@@ -3055,14 +3055,14 @@ void CodeGenerator::SveIntMultImmUnpred(uint32_t opc, uint32_t o2, const _ZReg &
 }
 
 // SVE integer dot product (unpredicated)
-void CodeGenerator::SveIntDotProdcutUnpred(uint32_t U, const _ZReg &zda, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SveIntDotProductUnpred(uint32_t U, const _ZReg &zda, const _ZReg &zn, const _ZReg &zm) {
   uint32_t size = genSize(zda);
   uint32_t code = concat({F(0x44, 24), F(size, 22), F(zm.getIdx(), 16), F(U, 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
   dd(code);
 }
 
 // SVE integer dot product (indexed)
-void CodeGenerator::SveIntDotProdcutIndexed(uint32_t size, uint32_t U, const _ZReg &zda, const _ZReg &zn, const ZRegElem &zm) {
+void CodeGenerator::SveIntDotProductIndexed(uint32_t size, uint32_t U, const _ZReg &zda, const _ZReg &zn, const ZRegElem &zm) {
   uint32_t zm_idx = zm.getIdx();
   uint32_t zm_eidx = zm.getElemIdx();
   uint32_t opc = (size == 2) ? (((zm_eidx & ones(2)) << 3) | zm_idx) : (((zm_eidx & ones(1)) << 4) | zm_idx);
