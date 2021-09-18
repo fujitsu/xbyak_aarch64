@@ -95,6 +95,7 @@ void CodeGenerator::hvc(const uint32_t imm) { ExceptionGen(0, 0, 2, imm); }
 void CodeGenerator::smc(const uint32_t imm) { ExceptionGen(0, 0, 3, imm); }
 void CodeGenerator::brk(const uint32_t imm) { ExceptionGen(1, 0, 0, imm); }
 void CodeGenerator::hlt(const uint32_t imm) { ExceptionGen(2, 0, 0, imm); }
+void CodeGenerator::tcancel(const uint32_t imm) { ExceptionGen(3, 0, 0, imm); }
 void CodeGenerator::dcps1(const uint32_t imm) { ExceptionGen(5, 0, 1, imm); }
 void CodeGenerator::dcps2(const uint32_t imm) { ExceptionGen(5, 0, 2, imm); }
 void CodeGenerator::dcps3(const uint32_t imm) { ExceptionGen(5, 0, 3, imm); }
@@ -130,6 +131,8 @@ void CodeGenerator::ssbb() { BarriersNoOpt(0, 4, 31); }
 void CodeGenerator::pssbb() { BarriersNoOpt(4, 4, 31); }
 void CodeGenerator::msr(const PStateField psfield, const uint32_t imm) { PState(psfield, imm); }
 void CodeGenerator::cfinv() { PState(0, 0, 0); }
+void CodeGenerator::tstart(const XReg &rt) { SysWithResult(3, 3, 0, 3, rt); }
+void CodeGenerator::ttest(const XReg &rt) { SysWithResult(3, 3, 1, 3, rt); }
 void CodeGenerator::sys(const uint32_t op1, const uint32_t CRn, const uint32_t CRm, const uint32_t op2, const XReg &rt) { SysInst(0, op1, CRn, CRm, op2, rt); }
 void CodeGenerator::sysl(const XReg &rt, const uint32_t op1, const uint32_t CRn, const uint32_t CRm, const uint32_t op2) { SysInst(1, op1, CRn, CRm, op2, rt); }
 void CodeGenerator::msr(const uint32_t op0, const uint32_t op1, const uint32_t CRn, const uint32_t CRm, const uint32_t op2, const XReg &rt) { SysRegMove(0, op0, op1, CRn, CRm, op2, rt); }

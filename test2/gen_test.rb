@@ -59,7 +59,9 @@ class TestPatternGenerator
     ptn_line.sub!(/ /, ",")
 
     # Combine multiple whitespace into one, and replace all delimiters into comma
-    ptn_line.gsub!(/( |\t)+/, " ").gsub!(/, /, ",").gsub!(/ ,/, ",")
+    ptn_line.gsub!(/( |\t)+/, " ")
+    ptn_line.gsub!(/, /, ",")
+    ptn_line.gsub!(/ ,/, ",")
 
     # Replace "{," into "%" temporally
     ptn_line.gsub!(/{,/, "%")
@@ -184,8 +186,9 @@ class TestPatternGenerator
     inst.downcase!
     inst += "); dump();"
     inst.sub!(/and\(/, "and_(")
-    inst.sub!(/\[/, "ptr(").sub!(/\]/, ")")
-    #puts inst
+    inst.sub!(/\[/, "ptr(")
+    inst.sub!(/\]/, ")")
+
     return inst
   end
   
@@ -201,6 +204,7 @@ class TestPatternGenerator
     @operands_ptn.store("<Xs:even>,<X(s+1)>", ["x0,x1/*asm*/", "x2,x3/*asm*/", "x4,x5/*asm*/", "x8,x9/*asm*/", "x16,x17/*asm*/", "x30,xzr/*asm*/"])
     @operands_ptn.store("<Xt:even>,<X(t+1)>", ["x0,x1/*asm*/", "x2,x3/*asm*/", "x4,x5/*asm*/", "x8,x9/*asm*/", "x16,x17/*asm*/", "x30,xzr/*asm*/"])
     @operands_ptn.store("<Xt:St64b>", ["x0", "x2", "x6"]) # if Rt<4:3> == '11' || Rt<0> == '1' then UNDEFINED;
+    @operands_ptn.store("#<imm16>", ["1", "(1<<4)", "(1<<8)", "(1<<12)", "(0xffff)"])
   end
   
   def output_cpp(ofile)

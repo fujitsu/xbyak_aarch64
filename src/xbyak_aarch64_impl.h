@@ -572,7 +572,13 @@ void CodeGenerator::PState(uint32_t op1, uint32_t CRm, uint32_t op2) {
   dd(code);
 }
 
-// Systtem instructions
+// System with result
+void CodeGenerator::SysWithResult(uint32_t op1, uint32_t CRn, uint32_t CRm, uint32_t op2, const XReg &rt) {
+  uint32_t code = concat({F(0x6a9, 21), F(op1, 16), F(CRn, 12), F(CRm, 8), F(op2, 5), F(rt.getIdx(), 0)});
+  dd(code);
+}
+
+// System instructions
 void CodeGenerator::SysInst(uint32_t L, uint32_t op1, uint32_t CRn, uint32_t CRm, uint32_t op2, const XReg &rt) {
   uint32_t code = concat({F(0xd5, 24), F(L, 21), F(1, 19), F(op1, 16), F(CRn, 12), F(CRm, 8), F(op2, 5), F(rt.getIdx(), 0)});
   dd(code);

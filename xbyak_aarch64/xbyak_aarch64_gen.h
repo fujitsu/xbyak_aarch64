@@ -270,6 +270,7 @@ class CodeGenerator : public CodeArray {
   void BarriersNoOpt(uint32_t CRm, uint32_t op2, uint32_t rt);
   void PState(PStateField psfield, uint32_t imm);
   void PState(uint32_t op1, uint32_t CRm, uint32_t op2);
+  void SysWithResult(uint32_t op1, uint32_t CRn, uint32_t CRm, uint32_t op2, const XReg &rt);
   void SysInst(uint32_t L, uint32_t op1, uint32_t CRn, uint32_t CRm, uint32_t op2, const XReg &rt);
   void SysRegMove(uint32_t L, uint32_t op0, uint32_t op1, uint32_t CRn, uint32_t CRm, uint32_t op2, const XReg &rt);
   void UncondBrNoReg(uint32_t opc, uint32_t op2, uint32_t op3, uint32_t rn, uint32_t op4);

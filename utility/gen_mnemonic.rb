@@ -293,14 +293,15 @@ v8 = {
     :arg => [[ {"imm" => "uint32_t"}]],
     :prm => ["opc", "op2", "LL", "imm"],
     :grp => [
-      {"SVC"   => {"opc" => 0x0, "op2" => 0, "LL" => 1}},
-      {"HVC"   => {"opc" => 0x0, "op2" => 0, "LL" => 2}},
-      {"SMC"   => {"opc" => 0x0, "op2" => 0, "LL" => 3}},
-      {"BRK"   => {"opc" => 0x1, "op2" => 0, "LL" => 0}},
-      {"HLT"   => {"opc" => 0x2, "op2" => 0, "LL" => 0}},
-      {"DCPS1" => {"opc" => 0x5, "op2" => 0, "LL" => 1}},
-      {"DCPS2" => {"opc" => 0x5, "op2" => 0, "LL" => 2}},
-      {"DCPS3" => {"opc" => 0x5, "op2" => 0, "LL" => 3}}
+      {"SVC"     => {"opc" => 0x0, "op2" => 0, "LL" => 1}},
+      {"HVC"     => {"opc" => 0x0, "op2" => 0, "LL" => 2}},
+      {"SMC"     => {"opc" => 0x0, "op2" => 0, "LL" => 3}},
+      {"BRK"     => {"opc" => 0x1, "op2" => 0, "LL" => 0}},
+      {"HLT"     => {"opc" => 0x2, "op2" => 0, "LL" => 0}},
+      {"TCANCEL" => {"opc" => 0x3, "op2" => 0, "LL" => 0}},
+      {"DCPS1"   => {"opc" => 0x5, "op2" => 0, "LL" => 1}},
+      {"DCPS2"   => {"opc" => 0x5, "op2" => 0, "LL" => 2}},
+      {"DCPS3"   => {"opc" => 0x5, "op2" => 0, "LL" => 3}}
     ]
   },
 
@@ -386,11 +387,23 @@ v8 = {
     ]
   },
 
+  "SysWithResult" => {
+    :cmt => "System with result",
+    :arg => [
+      [ {"rt" => "XReg"} ] # 0
+    ],
+    :prm => ["op1", "CRn", "CRm", "op2", "rt"],
+    :grp => [
+      {"TSTART" => {"op1" => 3, "CRn" => 3, "CRm" => 0, "op2" => 3}, :arg => [0]},
+      {"TTEST"  => {"op1" => 3, "CRn" => 3, "CRm" => 1, "op2" => 3}, :arg => [0]},
+    ]
+  },
+
   "SysInst" => {
     :cmt => "Systtem instructions",
     :arg => [
       [ {"op1" => "uint32_t"}, {"CRn" => "uint32_t"}, {"CRm" => "uint32_t"}, {"op2" => "uint32_t"}, {"rt=XReg(31)" => "XReg"}], #0
-      [ {"rt" => "XReg"}, {"op1" => "uint32_t"}, {"CRn" => "uint32_t"}, {"CRm" => "uint32_t"}, {"op2" => "uint32_t"}]  #2
+      [ {"rt" => "XReg"}, {"op1" => "uint32_t"}, {"CRn" => "uint32_t"}, {"CRm" => "uint32_t"}, {"op2" => "uint32_t"}]  #1
     ],
     :prm => ["L", "op1", "CRn", "CRm", "op2", "rt"],
     :grp => [
