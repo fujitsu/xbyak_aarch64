@@ -128,7 +128,7 @@ void CodeGenerator::autibsp() { Hints(3, 7); }
 void CodeGenerator::dsb(const BarOpt opt) { BarriersOpt(4, opt, 31); }
 void CodeGenerator::dmb(const BarOpt opt) { BarriersOpt(5, opt, 31); }
 void CodeGenerator::isb(const BarOpt opt) { BarriersOpt(6, opt, 31); }
-void CodeGenerator::tcommit() { BarriersOpt(3, (BarOpt) 0, 31); }
+void CodeGenerator::tcommit() { BarriersOpt(3, (BarOpt)0, 31); }
 void CodeGenerator::clrex(const uint32_t imm) { BarriersNoOpt(imm, 2, 31); }
 void CodeGenerator::ssbb() { BarriersNoOpt(0, 4, 31); }
 void CodeGenerator::pssbb() { BarriersNoOpt(4, 4, 31); }
@@ -4202,10 +4202,71 @@ void CodeGenerator::mul(const ZRegB &zdn, const int32_t imm) { SveIntMultImmUnpr
 void CodeGenerator::mul(const ZRegH &zdn, const int32_t imm) { SveIntMultImmUnpred(0, 0, zdn, imm); }
 void CodeGenerator::mul(const ZRegS &zdn, const int32_t imm) { SveIntMultImmUnpred(0, 0, zdn, imm); }
 void CodeGenerator::mul(const ZRegD &zdn, const int32_t imm) { SveIntMultImmUnpred(0, 0, zdn, imm); }
-void CodeGenerator::sdot(const ZRegS &zda, const ZRegB &zn, const ZRegB &zm) { SveIntDotProductUnpred(0, zda, zn, zm); }
-void CodeGenerator::sdot(const ZRegD &zda, const ZRegH &zn, const ZRegH &zm) { SveIntDotProductUnpred(0, zda, zn, zm); }
-void CodeGenerator::udot(const ZRegS &zda, const ZRegB &zn, const ZRegB &zm) { SveIntDotProductUnpred(1, zda, zn, zm); }
-void CodeGenerator::udot(const ZRegD &zda, const ZRegH &zn, const ZRegH &zm) { SveIntDotProductUnpred(1, zda, zn, zm); }
+void CodeGenerator::sdot(const ZRegS &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(0, zda, zn, zm, 0); }
+void CodeGenerator::sdot(const ZRegD &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(0, zda, zn, zm, 0); }
+void CodeGenerator::udot(const ZRegS &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(1, zda, zn, zm, 0); }
+void CodeGenerator::udot(const ZRegD &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(1, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlalbt(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(2, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlalbt(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(2, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlalbt(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { SveIntMultAddUnpredGroup(2, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlslbt(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(3, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlslbt(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(3, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlslbt(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { SveIntMultAddUnpredGroup(3, zda, zn, zm, 0); }
+void CodeGenerator::cdot(const ZRegS &zda, const ZRegB &zn, const ZRegB &zm, const uint32_t rot) { SveIntMultAddUnpredGroup(4, zda, zn, zm, rot); }
+void CodeGenerator::cdot(const ZRegD &zda, const ZRegH &zn, const ZRegH &zm, const uint32_t rot) { SveIntMultAddUnpredGroup(4, zda, zn, zm, rot); }
+void CodeGenerator::cmla(const ZRegB &zda, const ZRegB &zn, const ZRegB &zm, const uint32_t rot) { SveIntMultAddUnpredGroup(8, zda, zn, zm, rot); }
+void CodeGenerator::cmla(const ZRegH &zda, const ZRegH &zn, const ZRegH &zm, const uint32_t rot) { SveIntMultAddUnpredGroup(8, zda, zn, zm, rot); }
+void CodeGenerator::cmla(const ZRegS &zda, const ZRegS &zn, const ZRegS &zm, const uint32_t rot) { SveIntMultAddUnpredGroup(8, zda, zn, zm, rot); }
+void CodeGenerator::cmla(const ZRegD &zda, const ZRegD &zn, const ZRegD &zm, const uint32_t rot) { SveIntMultAddUnpredGroup(8, zda, zn, zm, rot); }
+void CodeGenerator::sqrdcmlah(const ZRegB &zda, const ZRegB &zn, const ZRegB &zm, const uint32_t rot) { SveIntMultAddUnpredGroup(12, zda, zn, zm, rot); }
+void CodeGenerator::sqrdcmlah(const ZRegH &zda, const ZRegH &zn, const ZRegH &zm, const uint32_t rot) { SveIntMultAddUnpredGroup(12, zda, zn, zm, rot); }
+void CodeGenerator::sqrdcmlah(const ZRegS &zda, const ZRegS &zn, const ZRegS &zm, const uint32_t rot) { SveIntMultAddUnpredGroup(12, zda, zn, zm, rot); }
+void CodeGenerator::sqrdcmlah(const ZRegD &zda, const ZRegD &zn, const ZRegD &zm, const uint32_t rot) { SveIntMultAddUnpredGroup(12, zda, zn, zm, rot); }
+void CodeGenerator::smlalb(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(16, zda, zn, zm, 0); }
+void CodeGenerator::smlalb(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(16, zda, zn, zm, 0); }
+void CodeGenerator::smlalb(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { SveIntMultAddUnpredGroup(16, zda, zn, zm, 0); }
+void CodeGenerator::smlalt(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(17, zda, zn, zm, 0); }
+void CodeGenerator::smlalt(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(17, zda, zn, zm, 0); }
+void CodeGenerator::smlalt(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { SveIntMultAddUnpredGroup(17, zda, zn, zm, 0); }
+void CodeGenerator::umlalb(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(18, zda, zn, zm, 0); }
+void CodeGenerator::umlalb(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(18, zda, zn, zm, 0); }
+void CodeGenerator::umlalb(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { SveIntMultAddUnpredGroup(18, zda, zn, zm, 0); }
+void CodeGenerator::umlalt(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(19, zda, zn, zm, 0); }
+void CodeGenerator::umlalt(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(19, zda, zn, zm, 0); }
+void CodeGenerator::umlalt(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { SveIntMultAddUnpredGroup(19, zda, zn, zm, 0); }
+void CodeGenerator::smlslb(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(20, zda, zn, zm, 0); }
+void CodeGenerator::smlslb(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(20, zda, zn, zm, 0); }
+void CodeGenerator::smlslb(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { SveIntMultAddUnpredGroup(20, zda, zn, zm, 0); }
+void CodeGenerator::smlslt(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(21, zda, zn, zm, 0); }
+void CodeGenerator::smlslt(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(21, zda, zn, zm, 0); }
+void CodeGenerator::smlslt(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { SveIntMultAddUnpredGroup(21, zda, zn, zm, 0); }
+void CodeGenerator::umlslb(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(22, zda, zn, zm, 0); }
+void CodeGenerator::umlslb(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(22, zda, zn, zm, 0); }
+void CodeGenerator::umlslb(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { SveIntMultAddUnpredGroup(22, zda, zn, zm, 0); }
+void CodeGenerator::umlslt(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(23, zda, zn, zm, 0); }
+void CodeGenerator::umlslt(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(23, zda, zn, zm, 0); }
+void CodeGenerator::umlslt(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { SveIntMultAddUnpredGroup(23, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlalb(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(24, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlalb(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(24, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlalb(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { SveIntMultAddUnpredGroup(24, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlalt(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(25, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlalt(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(25, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlalt(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { SveIntMultAddUnpredGroup(25, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlslb(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(26, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlslb(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(26, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlslb(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { SveIntMultAddUnpredGroup(26, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlslt(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(27, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlslt(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(27, zda, zn, zm, 0); }
+void CodeGenerator::sqdmlslt(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { SveIntMultAddUnpredGroup(27, zda, zn, zm, 0); }
+void CodeGenerator::sqrdmlah(const ZRegB &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(28, zda, zn, zm, 0); }
+void CodeGenerator::sqrdmlah(const ZRegH &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(28, zda, zn, zm, 0); }
+void CodeGenerator::sqrdmlah(const ZRegS &zda, const ZRegS &zn, const ZRegS &zm) { SveIntMultAddUnpredGroup(28, zda, zn, zm, 0); }
+void CodeGenerator::sqrdmlah(const ZRegD &zda, const ZRegD &zn, const ZRegD &zm) { SveIntMultAddUnpredGroup(28, zda, zn, zm, 0); }
+void CodeGenerator::sqrdmlsh(const ZRegB &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(29, zda, zn, zm, 0); }
+void CodeGenerator::sqrdmlsh(const ZRegH &zda, const ZRegH &zn, const ZRegH &zm) { SveIntMultAddUnpredGroup(29, zda, zn, zm, 0); }
+void CodeGenerator::sqrdmlsh(const ZRegS &zda, const ZRegS &zn, const ZRegS &zm) { SveIntMultAddUnpredGroup(29, zda, zn, zm, 0); }
+void CodeGenerator::sqrdmlsh(const ZRegD &zda, const ZRegD &zn, const ZRegD &zm) { SveIntMultAddUnpredGroup(29, zda, zn, zm, 0); }
+void CodeGenerator::usdot(const ZRegS &zda, const ZRegB &zn, const ZRegB &zm) { SveIntMultAddUnpredGroup(30, zda, zn, zm, 0); }
 void CodeGenerator::sdot(const ZRegS &zda, const ZRegB &zn, const ZRegBElem &zm) { SveIntDotProductIndexed(2, 0, zda, zn, zm); }
 void CodeGenerator::udot(const ZRegS &zda, const ZRegB &zn, const ZRegBElem &zm) { SveIntDotProductIndexed(2, 1, zda, zn, zm); }
 void CodeGenerator::sdot(const ZRegD &zda, const ZRegH &zn, const ZRegHElem &zm) { SveIntDotProductIndexed(3, 0, zda, zn, zm); }

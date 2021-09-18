@@ -1219,7 +1219,7 @@ void CodeGenerator::LdStSimdFpRegPre(uint32_t opc, const VRegSc &vt, const AdrPr
 
 // Atomic memory oprations
 void CodeGenerator::AtomicMemOpSt64b(uint32_t size, uint32_t V, uint32_t A, uint32_t R, uint32_t o3, uint32_t opc, const RReg &rs, const RReg &rt, const AdrNoOfs &adr) {
-  verifyIncList(rt.getIdx(), {0,2,4,6}, ERR_ILLEGAL_REG_IDX);
+  verifyIncList(rt.getIdx(), {0, 2, 4, 6}, ERR_ILLEGAL_REG_IDX);
 
   AtomicMemOp(size, V, A, R, o3, opc, rs, rt, adr);
 }
@@ -2502,14 +2502,10 @@ void CodeGenerator::Sve2IntMultUnpredGroup(uint32_t opc_r, const _ZReg &zd, cons
 }
 
 // SVE2 integer multiply vectors (unpredicated)
-void CodeGenerator::Sve2IntMultVecUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
-  Sve2IntMultUnpredGroup(opc, zd, zn, zm);
-}
+void CodeGenerator::Sve2IntMultVecUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) { Sve2IntMultUnpredGroup(opc, zd, zn, zm); }
 
 // SVE2 signed saturating doubling multiply high (unpredicated)
-void CodeGenerator::Sve2SignedSatDoubleMultHighUnpred(uint32_t r, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
-  Sve2IntMultUnpredGroup(0x4 | r, zd, zn, zm);
-}
+void CodeGenerator::Sve2SignedSatDoubleMultHighUnpred(uint32_t r, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) { Sve2IntMultUnpredGroup(0x4 | r, zd, zn, zm); }
 // SVE bitwise shift by immediate (unpredicated)
 void CodeGenerator::SveBitwiseShByImmUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, uint32_t amount) {
   bool lsl = (opc == 3);
@@ -3055,9 +3051,12 @@ void CodeGenerator::SveIntMultImmUnpred(uint32_t opc, uint32_t o2, const _ZReg &
 }
 
 // SVE integer dot product (unpredicated)
-void CodeGenerator::SveIntDotProductUnpred(uint32_t U, const _ZReg &zda, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SveIntMultAddUnpredGroup(uint32_t op0, const _ZReg &zda, const _ZReg &zn, const _ZReg &zm, uint32_t rot) {
   uint32_t size = genSize(zda);
-  uint32_t code = concat({F(0x44, 24), F(size, 22), F(zm.getIdx(), 16), F(U, 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
+
+  // If instruction has no "rot" opernad, 0 is passed.
+  verifyIncList(rot, {0, 90, 180, 270}, ERR_ILLEGAL_CONST_VALUE);
+  uint32_t code = concat({F(0x44, 24), F(size, 22), F(zm.getIdx(), 16), F(op0 | (rot / 90), 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
   dd(code);
 }
 

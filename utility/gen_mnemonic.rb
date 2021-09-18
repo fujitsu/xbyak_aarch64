@@ -4894,16 +4894,58 @@ sve = {
     ]
   },
 
-  "SveIntDotProductUnpred" => {
-    :cmt => "SVE integer dot product (unpredicated)",
+  "SveIntMultAddUnpredGroup" => {
+    :cmt => ["SVE integer dot product (unpredicated)",
+             "SVE2 saturating multiply-add interleaved long",
+             "Complex integer dot product",
+             "SVE2 complex integer multiply-add",
+             "SVE2 integer multiply-add long",
+             "SVE2 saturating multiply-add long",
+             "SVE2 saturating multiply-add high",
+             "SVE mixed sign dot product"
+            ],
     :arg => [
       [ {"zda" => "ZRegS"}, {"zn" => "ZRegB"}, {"zm" => "ZRegB"}], #0
-      [ {"zda" => "ZRegD"}, {"zn" => "ZRegH"}, {"zm" => "ZRegH"}]  #1
+      [ {"zda" => "ZRegD"}, {"zn" => "ZRegH"}, {"zm" => "ZRegH"}], #1
+      [ {"zda" => "ZRegH"}, {"zn" => "ZRegB"}, {"zm" => "ZRegB"}], #2
+      [ {"zda" => "ZRegS"}, {"zn" => "ZRegH"}, {"zm" => "ZRegH"}], #3
+      [ {"zda" => "ZRegD"}, {"zn" => "ZRegS"}, {"zm" => "ZRegS"}], #4
+      [ {"zda" => "ZRegB"}, {"zn" => "ZRegB"}, {"zm" => "ZRegB"}, {"rot" => "uint32_t"}], #5
+      [ {"zda" => "ZRegH"}, {"zn" => "ZRegH"}, {"zm" => "ZRegH"}, {"rot" => "uint32_t"}], #6
+      [ {"zda" => "ZRegS"}, {"zn" => "ZRegS"}, {"zm" => "ZRegS"}, {"rot" => "uint32_t"}], #7
+      [ {"zda" => "ZRegD"}, {"zn" => "ZRegD"}, {"zm" => "ZRegD"}, {"rot" => "uint32_t"}], #8
+      [ {"zda" => "ZRegB"}, {"zn" => "ZRegB"}, {"zm" => "ZRegB"}], #9
+      [ {"zda" => "ZRegH"}, {"zn" => "ZRegH"}, {"zm" => "ZRegH"}], #10
+      [ {"zda" => "ZRegS"}, {"zn" => "ZRegS"}, {"zm" => "ZRegS"}], #11
+      [ {"zda" => "ZRegD"}, {"zn" => "ZRegD"}, {"zm" => "ZRegD"}], #12
+      [ {"zda" => "ZRegS"}, {"zn" => "ZRegB"}, {"zm" => "ZRegB"}, {"rot" => "uint32_t"}], #13
+      [ {"zda" => "ZRegD"}, {"zn" => "ZRegH"}, {"zm" => "ZRegH"}, {"rot" => "uint32_t"}], #14
+
     ],
-    :prm => ["U", "zda", "zn", "zm"],
+    :prm => ["op0", "zda", "zn", "zm", "rot"],
     :grp => [
-      {"SDOT" => {"U" => 0}},
-      {"UDOT" => {"U" => 1}}
+      {"SDOT" => {"op0" => 0x0, "rot" => 0}, :cmt => [0], :arg => 0..1},
+      {"UDOT" => {"op0" => 0x1, "rot" => 0}, :cmt => [0], :arg => 0..1},
+      {"SQDMLALBT" => {"op0" => 0x2, "rot" => 0}, :cmt => [1], :arg => 2..4},
+      {"SQDMLSLBT" => {"op0" => 0x3, "rot" => 0}, :cmt => [1], :arg => 2..4},
+      {"CDOT" => {"op0" => 0x4}, :cmt => [2], :arg => 13..14},
+      {"CMLA" => {"op0" => 0x8}, :cmt => [3], :arg => 5..8},
+      {"SQRDCMLAH" => {"op0" => 0xC}, :cmt => [3], :arg => 5..8},
+      {"SMLALB" => {"op0" => 0x10, "rot" => 0}, :cmt => [4], :arg => 2..4},
+      {"SMLALT" => {"op0" => 0x11, "rot" => 0}, :cmt => [4], :arg => 2..4},
+      {"UMLALB" => {"op0" => 0x12, "rot" => 0}, :cmt => [4], :arg => 2..4},
+      {"UMLALT" => {"op0" => 0x13, "rot" => 0}, :cmt => [4], :arg => 2..4},
+      {"SMLSLB" => {"op0" => 0x14, "rot" => 0}, :cmt => [4], :arg => 2..4},
+      {"SMLSLT" => {"op0" => 0x15, "rot" => 0}, :cmt => [4], :arg => 2..4},
+      {"UMLSLB" => {"op0" => 0x16, "rot" => 0}, :cmt => [4], :arg => 2..4},
+      {"UMLSLT" => {"op0" => 0x17, "rot" => 0}, :cmt => [4], :arg => 2..4},
+      {"SQDMLALB" => {"op0" => 0x18, "rot" => 0}, :cmt => [5], :arg => 2..4},
+      {"SQDMLALT" => {"op0" => 0x19, "rot" => 0}, :cmt => [5], :arg => 2..4},
+      {"SQDMLSLB" => {"op0" => 0x1a, "rot" => 0}, :cmt => [5], :arg => 2..4},
+      {"SQDMLSLT" => {"op0" => 0x1b, "rot" => 0}, :cmt => [5], :arg => 2..4},
+      {"SQRDMLAH" => {"op0" => 0x1c, "rot" => 0}, :cmt => [6], :arg => 9..12},
+      {"SQRDMLSH" => {"op0" => 0x1d, "rot" => 0}, :cmt => [6], :arg => 9..12},
+      {"USDOT" => {"op0" => 0x1e, "rot" => 0}, :cmt => [7], :arg => [0]}
     ]
   },
 

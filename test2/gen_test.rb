@@ -225,6 +225,12 @@ class TestPatternGenerator
     @operands_ptn.store("<Zd>.H", ["z8.h", "z1.h", "z2.h", "z4.h", "z0.h", "z16.h", "z30.h", "z31.h"])
     @operands_ptn.store("<Zd>.S", ["z8.s", "z1.s", "z2.s", "z4.s", "z0.s", "z16.s", "z30.s", "z31.s"])
     @operands_ptn.store("<Zd>.D", ["z8.d", "z1.d", "z2.d", "z4.d", "z0.d", "z16.d", "z30.d", "z31.d"])
+
+    @operands_ptn.store("<Zda>.B", ["z8.b", "z1.b", "z2.b", "z4.b", "z0.b", "z16.b", "z30.b", "z31.b"])
+    @operands_ptn.store("<Zda>.H", ["z8.h", "z1.h", "z2.h", "z4.h", "z0.h", "z16.h", "z30.h", "z31.h"])
+    @operands_ptn.store("<Zda>.S", ["z8.s", "z1.s", "z2.s", "z4.s", "z0.s", "z16.s", "z30.s", "z31.s"])
+    @operands_ptn.store("<Zda>.D", ["z8.d", "z1.d", "z2.d", "z4.d", "z0.d", "z16.d", "z30.d", "z31.d"])
+
     @operands_ptn.store("<Zn>.B", ["z8.b", "z1.b", "z2.b", "z4.b", "z0.b", "z16.b", "z30.b", "z31.b"])
     @operands_ptn.store("<Zn>.H", ["z8.h", "z1.h", "z2.h", "z4.h", "z0.h", "z16.h", "z30.h", "z31.h"])
     @operands_ptn.store("<Zn>.S", ["z8.s", "z1.s", "z2.s", "z4.s", "z0.s", "z16.s", "z30.s", "z31.s"])
@@ -238,11 +244,13 @@ class TestPatternGenerator
     @operands_ptn.store("<Zk>.S", ["z8.s", "z1.s", "z2.s", "z4.s", "z0.s", "z16.s", "z30.s", "z31.s"])
     @operands_ptn.store("<Zk>.D", ["z8.d", "z1.d", "z2.d", "z4.d", "z0.d", "z16.d", "z30.d", "z31.d"])
 
-    @operands_ptn.store("<Zdn>.D,<Zdn>.D", ["z8.d,z8.d/*asm*/", "z1.d,z1.d/*asm*/", "z2.d,z2.d/*asm*/", "z4.d,z4.d/*asm*/", "z0.d,z0.d/*asm*/", "z16.d,z16.d/*asm*/", "z30.d,z30.d/*asm*/", "z31.d,z31.d/*asm*/"])
+    @operands_ptn.store("<Zdn>.D,<Zdn>.D", ["z8.d,z8.d/*asm*/", "z1.d,z1.d/*asm*/", "z2.d,z2.d/*asm*/", "z4.d,z4.d/*asm*/",
+                                            "z0.d,z0.d/*asm*/", "z16.d,z16.d/*asm*/", "z30.d,z30.d/*asm*/", "z31.d,z31.d/*asm*/"])
 
     @operands_ptn.store("[<Xn|SP>]", ["[x8]", "[x1]", "[x2]", "[x4]", "[x0]", "[x16]", "[x30]", "[sp]"])
     @operands_ptn.store("[<Xn|SP>{,#0}]", ["[x8]", "[x1]", "[x2]", "[x4]", "[x0]", "[x16]", "[x30]", "[sp]"])
     @operands_ptn.store("#<imm16>", ["1", "(1<<4)", "(1<<8)", "(1<<12)", "(0xffff)"])
+    @operands_ptn.store("<const:rot>", ["90", "0", "180", "270"])
   end
   
   def output_cpp(ofile)
