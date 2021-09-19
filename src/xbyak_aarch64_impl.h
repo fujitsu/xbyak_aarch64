@@ -3074,16 +3074,144 @@ void CodeGenerator::Sve2IntPredGroup(uint32_t bit21_13, const _ZReg &zda, const 
   dd(code);
 }
 
-// SVE integer dot product (indexed)
-void CodeGenerator::SveIntDotProductIndexed(uint32_t size, uint32_t U, const _ZReg &zda, const _ZReg &zn, const ZRegElem &zm) {
+// SVE Multiply - Indexed
+void CodeGenerator::SveMultIndexedGroup(uint32_t bit20_10, const _ZReg &zda, const _ZReg &zn, const ZRegElem &zm, uint32_t rot) {
   uint32_t zm_idx = zm.getIdx();
   uint32_t zm_eidx = zm.getElemIdx();
-  uint32_t opc = (size == 2) ? (((zm_eidx & ones(2)) << 3) | zm_idx) : (((zm_eidx & ones(1)) << 4) | zm_idx);
+  uint32_t max_zm_idx = 0;
+  uint32_t max_zm_eidx = 0;
+  uint32_t size = genSize(zda);
+  uint32_t i = 0;
 
-  verifyIncRange(zm_eidx, 0, (size == 2) ? 3 : 1, ERR_ILLEGAL_REG_ELEM_IDX);
-  verifyIncRange(zm_idx, 0, (size == 2) ? 7 : 15, ERR_ILLEGAL_REG_IDX);
+  switch (bit20_10) {
+  case 0x0:            // SDOT
+  case 0x1:            // UDOT
+    if (size == 0x2) { // SDOT <Zda>.S, <Zn>.B, <Zm>.B[<imm>]
+      max_zm_eidx = 3;
+      max_zm_idx = 7;
+      i = zm_eidx << 9;
+    } else if (size == 0x3) { // SDOT <Zda>.D, <Zn>.H, <Zm>.H[<imm>]
+      max_zm_eidx = 1;
+      max_zm_idx = 15;
+      i = zm_eidx << 10;
+    }
+    break;
+  case 0x2:  // MLA (indexed)
+  case 0x3:  // MLS (indexed)
+  case 0x4:  // SQRDMLAH (indexed)
+  case 0x5:  // SQRDMLSH (indexed)
+  case 0x3c: // SQDMULH (indexed)
+  case 0x3d: // SQRDMULH (indexed)
+  case 0x3e: // MUL (indexed)
+    switch (size) {
+    case 0x1: // H
+      max_zm_eidx = 7;
+      max_zm_idx = 7;
+      i = (((0x4 & zm_eidx) >> 2) << 12) | ((0x3 & zm_eidx) << 9);
+      size = 0;
+      break;
+    case 0x2: // S
+      max_zm_eidx = 3;
+      max_zm_idx = 7;
+      i = (0x3 & zm_eidx) << 9;
+      break;
+    case 0x3: // D
+      max_zm_eidx = 1;
+      max_zm_idx = 15;
+      i = (0x1 & zm_eidx) << 10;
+      break;
+    default:
+      throw Error(ERR_ILLEGAL_TYPE);
+      break;
+    }
+    break;
+  case 0x6: // USDOT (indexed)
+  case 0x7: // SUDOT (indexed)
+    max_zm_idx = 7;
+    max_zm_eidx = 7;
+    i = (0x3 & zm_eidx) << 9;
+    break;
+  case 0x8:  // SQDMLALB (indexed)
+  case 0x9:  // SQDMLALT (indexed)
+  case 0xc:  // SQDMLSLB (indexed)
+  case 0xd:  // SQDMLSLT (indexed)
+  case 0x20: // SMLALB (indexed)
+  case 0x21: // SMLALT (indexed)
+  case 0x24: // UMLALB (indexed)
+  case 0x25: // UMLALT (indexed)
+  case 0x28: // SMLSLB (indexed)
+  case 0x29: // SMLSLT (indexed)
+  case 0x2c: // UMLSLB (indexed)
+  case 0x2d: // UMLSLT (indexed)
+  case 0x30: // SMULLB (indexed)
+  case 0x31: // SMULLT (indexed)
+  case 0x34: // UMULLB (indexed)
+  case 0x35: // UMULLT (indexed)
+  case 0x38: // SQDMULLB (indexed)
+  case 0x39: // SQDMULLT (indexed)
+    switch (size) {
+    case 0x2: // S
+      max_zm_idx = 7;
+      max_zm_eidx = 7;
+      i = (((0x6 & zm_eidx) >> 1) << 9) | ((0x1 & zm_eidx) << 1);
+      break;
+    case 0x3: // D
+      max_zm_idx = 15;
+      max_zm_eidx = 3;
+      i = (((0x2 & zm_eidx) >> 1) << 10) | ((0x1 & zm_eidx) << 1);
+      break;
+    default:
+      throw Error(ERR_ILLEGAL_TYPE);
+      break;
+    }
+    break;
+  case 0x10: // CDOT (indexed)
+    switch (size) {
+    case 0x2: // S
+      max_zm_idx = 7;
+      max_zm_eidx = 3;
+      i = (0x3 & zm_eidx) << 9;
+      break;
+    case 0x3: // D
+      max_zm_idx = 15;
+      max_zm_eidx = 1;
+      i = (0x1 & zm_eidx) << 10;
+      break;
+    default:
+      throw Error(ERR_ILLEGAL_TYPE);
+      break;
+    }
+    break;
+  case 0x18: // CMLA (indexed)
+  case 0x1c: // SQRDCMLAH (indexed)
+    switch (size) {
+    case 0x1: // H
+      max_zm_idx = 7;
+      max_zm_eidx = 3;
+      i = (0x3 & zm_eidx) << 9;
+      size = 2;
+      break;
+    case 0x2: // S
+      max_zm_idx = 15;
+      max_zm_eidx = 1;
+      i = (0x1 & zm_eidx) << 10;
+      size = 3;
+      break;
+    default:
+      throw Error(ERR_ILLEGAL_TYPE);
+      break;
+    }
+    break;
+  default:
+    throw Error(ERR_ILLEGAL_TYPE);
+    break;
+  }
 
-  uint32_t code = concat({F(0x44, 24), F(size, 22), F(1, 21), F(opc, 16), F(U, 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
+  verifyIncList(rot, {0, 90, 180, 270}, ERR_ILLEGAL_CONST_VALUE);
+  verifyIncRange(zm_eidx, 0, max_zm_eidx, ERR_ILLEGAL_REG_ELEM_IDX);
+  verifyIncRange(zm_idx, 0, max_zm_idx, ERR_ILLEGAL_REG_IDX);
+
+  uint32_t code = concat({F(0x44, 24), F(size, 22), F(1, 21), F((bit20_10 | i | (rot / 90)), 10), F(zm_idx, 16), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
   dd(code);
 }
 

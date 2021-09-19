@@ -6,3 +6,5 @@ sample/*.o
 sample/*.exe
 test/*.lst
 test/nm.make*.cpp
+test2/test_ptn_asm/instructions_tmp.asm
+test2/test_ptn_cpp/instructions_tmp.cpp

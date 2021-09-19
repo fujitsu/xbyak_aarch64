@@ -203,8 +203,19 @@ class TestPatternGenerator
     end
   end
 
+  def convert_for_asm(inst)
+    # Remove register pair
+    # Example ",w1/*cpp*/" -> ""
+    inst.gsub!(/,[^,]+\/\*cpp\*\//, "")
+    return inst
+  end
+
   def convert_for_cpp(inst)
     inst.downcase!
+
+    # Remove address operands for ASM
+    # Example ",[x8]/*asm*/,ptr(x8)/*cpp*/" -> "ptr(x8)/*cpp*/"
+    inst.gsub!(/,\[[^\[]+\/\*asm\*\//, "")
 
     # Remove register pair
     # Example "w0,w1/*asm*/" -> "w0"
@@ -224,8 +235,13 @@ class TestPatternGenerator
 
     inst += "); dump();"
     inst.sub!(/and\(/, "and_(")
-    inst.sub!(/\[/, "ptr(")
-    inst.sub!(/\]/, ")")
+
+    # Replace ",[" -> ",ptr["
+    #inst.sub!(/,\[/, ",ptr(")
+
+    # Replace "]" -> ")"
+    #inst.sub!(/ptr\(([^\]]+)\]/} { "ptr(" + $1 + ")" }
+    #inst.sub!(/ptr\(([^\]]+)\]/, hoge
 
     return inst
   end
@@ -241,8 +257,14 @@ class TestPatternGenerator
     @operands_ptn.store("<Xt:even>,<X(t+1)>", ["x8,x9/*asm*/", "x2,x3/*asm*/", "x4,x5/*asm*/", "x0,x1/*asm*/", "x16,x17/*asm*/", "x30,xzr/*asm*/"])
     @operands_ptn.store("<Xt:St64b>", ["x6", "x2", "x4"]) # if Rt<4:3> == '11' || Rt<0> == '1' then UNDEFINED;
 
-    @operands_ptn.store("[<Xn|SP>]", ["[x8]", "[x1]", "[x2]", "[x4]", "[x0]", "[x16]", "[x30]", "[sp]"])
-    @operands_ptn.store("[<Xn|SP>{,#0}]", ["[x8]", "[x1]", "[x2]", "[x4]", "[x0]", "[x16]", "[x30]", "[sp]"])
+    @operands_ptn.store("[<Xn|SP>]", ["[x8]/*asm*/,ptr(x8)/*cpp*/",
+                                          "[x0]/*asm*/,ptr(x0)/*cpp*/",
+                                          "[x16]/*asm*/,ptr(x16)/*cpp*/",
+                                          "[sp]/*asm*/,ptr(sp)/*cpp*/"])
+    @operands_ptn.store("[<Xn|SP>{,#0}]", ["[x8,#0]/*asm*/,ptr(x8)/*cpp*/",
+                                          "[x0, #0]/*asm*/,ptr(x0)/*cpp*/",
+                                          "[x16,#0]/*asm*/,ptr(x16)/*cpp*/",
+                                          "[sp,#0]/*asm*/,ptr(sp)/*cpp*/"])
 
     @operands_ptn.store("<Zd>.B", ["z8.b", "z1.b", "z2.b", "z4.b", "z0.b", "z16.b", "z30.b", "z31.b"])
     @operands_ptn.store("<Zd>.H", ["z8.h", "z1.h", "z2.h", "z4.h", "z0.h", "z16.h", "z30.h", "z31.h"])
@@ -272,6 +294,21 @@ class TestPatternGenerator
     @operands_ptn.store("<Zk>.S", ["z8.s", "z1.s", "z2.s", "z4.s", "z0.s", "z16.s", "z30.s", "z31.s"])
     @operands_ptn.store("<Zk>.D", ["z8.d", "z1.d", "z2.d", "z4.d", "z0.d", "z16.d", "z30.d", "z31.d"])
 
+    @operands_ptn.store("<Zm:3>.B[<imm:2>]", ["z7.b[3]", "z1.b[1]", "z2.b[0]", "z4.b[2]"])
+
+    @operands_ptn.store("<Zm:3>.H[<imm:2>]", ["z7.h[3]", "z1.h[1]", "z0.h[0]", "z4.h[2]"])
+    @operands_ptn.store("<Zm:3>.H[<imm:3>]", ["z7.h[1]", "z1.h[7]", "z0.h[4]", "z4.h[0]"])
+    @operands_ptn.store("<Zm:3>.H[<imm:4>]", ["z7.h[15]", "z1.h[1]", "z0.h[0]", "z4.h[2]"])
+    @operands_ptn.store("<Zm:4>.H[<imm:1>]", ["z15.h[1]", "z1.h[0]", "z0.h[1]", "z8.h[1]"])
+
+    @operands_ptn.store("<Zm:3>.S[<imm:2>]", ["z7.s[1]", "z1.s[3]", "z0.s[0]", "z4.s[2]"])
+    @operands_ptn.store("<Zm:4>.S[<imm:1>]", ["z15.s[1]", "z1.s[0]", "z0.s[1]", "z8.s[0]"])
+
+    @operands_ptn.store("<Zm:4>.S[<imm:2>]", ["z15.s[1]", "z1.s[3]", "z0.s[0]", "z4.s[2]"])
+
+    @operands_ptn.store("<Zm:3>.D[<imm:1>]", ["z7.d[1]", "z1.d[0]", "z0.d[1]", "z4.d[0]"])
+    @operands_ptn.store("<Zm:4>.D[<imm:1>]", ["z15.d[1]", "z1.d[0]", "z0.d[1]", "z8.d[0]"])
+
     @operands_ptn.store("<Zdn>.D,<Zdn>.D", ["z8.d,z8.d/*asm*/", "z1.d,z1.d/*asm*/", "z2.d,z2.d/*asm*/", "z4.d,z4.d/*asm*/",
                                             "z0.d,z0.d/*asm*/", "z16.d,z16.d/*asm*/", "z30.d,z30.d/*asm*/", "z31.d,z31.d/*asm*/"])
 
@@ -282,7 +319,7 @@ class TestPatternGenerator
 
     @operands_ptn.store("OP:0", ["OP:0:/*asm*/"])
   end
-  
+
   def output_cpp(ofile)
     File.open(ofile,"w") do |f|
       f.puts "void gen() {"
@@ -298,8 +335,8 @@ class TestPatternGenerator
   def output_asm(ofile)
     File.open(ofile,"w") do |f|
       @instructions.each{|inst|
-        #puts inst
-        f.puts inst
+        tmp = inst.dup
+        f.puts convert_for_asm(tmp)
       }
     end
   end

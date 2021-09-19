@@ -4952,18 +4952,71 @@ sve = {
     ]
   },
 
-  "SveIntDotProductIndexed" => {
-    :cmt => "SVE integer dot product (indexed)",
+  "SveMultIndexedGroup" => {
+    :cmt => ["SVE integer dot product (indexed)",              #0
+             "SVE2 integer multiply-add (indexed)",            #1
+             "SVE2 saturating multiply-add high (indexed)",    #2
+             "SVE mixed sign dot product (indexed)",           #3
+             "SVE2 saturating multiply-add (indexed)",         #4
+             "SVE2 complex integer dot product (indexed)",     #5
+             "SVE2 complex integer multiply-add (indexed)",    #6
+             "SVE2 complex saturating multiply-add (indexed)", #7
+             "SVE2 integer multiply-add long (indexed)",       #8
+             "SVE2 integer multiply long (indexed)",           #9
+             "SVE2 saturating multiply (indexed)",             #10
+             "SVE2 saturating multiply high (indexed)",        #11
+             "SVE2 integer multiply (indexed)"                 #12
+            ],
     :arg => [
-      [ {"zda" => "ZRegS"}, {"zn" => "ZRegB"}, {"zm" => "ZRegBElem"}], #0
-      [ {"zda" => "ZRegD"}, {"zn" => "ZRegH"}, {"zm" => "ZRegHElem"}]  #1
+      [ {"zda" => "ZRegH"}, {"zn" => "ZRegH"}, {"zm" => "ZRegHElem"}], #0
+      [ {"zda" => "ZRegS"}, {"zn" => "ZRegS"}, {"zm" => "ZRegSElem"}], #1
+      [ {"zda" => "ZRegD"}, {"zn" => "ZRegD"}, {"zm" => "ZRegDElem"}], #2
+
+      [ {"zda" => "ZRegS"}, {"zn" => "ZRegB"}, {"zm" => "ZRegBElem"}], #3
+      [ {"zda" => "ZRegS"}, {"zn" => "ZRegH"}, {"zm" => "ZRegHElem"}], #4
+      [ {"zda" => "ZRegD"}, {"zn" => "ZRegH"}, {"zm" => "ZRegHElem"}], #5
+      [ {"zda" => "ZRegD"}, {"zn" => "ZRegS"}, {"zm" => "ZRegSElem"}], #6
+
+      [ {"zda" => "ZRegH"}, {"zn" => "ZRegH"}, {"zm" => "ZRegHElem"}, "rot" => "uint32_t"], #7
+      [ {"zda" => "ZRegS"}, {"zn" => "ZRegB"}, {"zm" => "ZRegBElem"}, "rot" => "uint32_t"], #8
+      [ {"zda" => "ZRegS"}, {"zn" => "ZRegS"}, {"zm" => "ZRegSElem"}, "rot" => "uint32_t"], #9
+      [ {"zda" => "ZRegD"}, {"zn" => "ZRegH"}, {"zm" => "ZRegHElem"}, "rot" => "uint32_t"], #10
+      [ {"zda" => "ZRegS"}, {"zn" => "ZRegS"}, {"zm" => "ZRegSElem"}, "rot" => "uint32_t"]  #11
     ],
-    :prm => ["size", "U", "zda", "zn", "zm"],
+    :prm => ["bit20_10", "zda", "zn", "zm", "rot"],
     :grp => [
-      {"SDOT" => {"size" => 2, "U" => 0}, :arg => [0]},
-      {"UDOT" => {"size" => 2, "U" => 1}, :arg => [0]},
-      {"SDOT" => {"size" => 3, "U" => 0}, :arg => [1]},
-      {"UDOT" => {"size" => 3, "U" => 1}, :arg => [1]}
+      {"SDOT"      => {"bit20_10" => 0x0, "rot" => 0},  :cmt => [0], :arg => [3, 5]},
+      {"UDOT"      => {"bit20_10" => 0x1, "rot" => 0},  :cmt => [0], :arg => [3, 5]},
+      {"MLA"       => {"bit20_10" => 0x2, "rot" => 0},  :cmt => [1], :arg => 0..2},
+      {"MLS"       => {"bit20_10" => 0x3, "rot" => 0},  :cmt => [1], :arg => 0..2},
+      {"SQRDMLAH"  => {"bit20_10" => 0x4, "rot" => 0},  :cmt => [2], :arg => 0..2},
+      {"SQRDMLSH"  => {"bit20_10" => 0x5, "rot" => 0},  :cmt => [2], :arg => 0..2},
+      {"USDOT"     => {"bit20_10" => 0x6, "rot" => 0},  :cmt => [3], :arg => [3]},
+      {"SUDOT"     => {"bit20_10" => 0x7, "rot" => 0},  :cmt => [3], :arg => [3]},
+      {"SQDMLALB"  => {"bit20_10" => 0x8, "rot" => 0},  :cmt => [4], :arg => [4, 6]},
+      {"SQDMLALT"  => {"bit20_10" => 0x9, "rot" => 0},  :cmt => [4], :arg => [4, 6]},
+      {"SQDMLSLB"  => {"bit20_10" => 0xc, "rot" => 0},  :cmt => [4], :arg => [4, 6]},
+      {"SQDMLSLT"  => {"bit20_10" => 0xd, "rot" => 0},  :cmt => [4], :arg => [4, 6]},
+      {"CDOT"      => {"bit20_10" => 0x10},             :cmt => [5],  :arg => [8, 10]},
+      {"CMLA"      => {"bit20_10" => 0x18},             :cmt => [6],  :arg => [7, 9]},
+      {"SQRDCMLAH" => {"bit20_10" => 0x1c},             :cmt => [7],  :arg => [7, 11]},
+      {"SMLALB"    => {"bit20_10" => 0x20, "rot" => 0}, :cmt => [8],  :arg => [4, 6]},
+      {"SMLALT"    => {"bit20_10" => 0x21, "rot" => 0}, :cmt => [8],  :arg => [4, 6]},
+      {"UMLALB"    => {"bit20_10" => 0x24, "rot" => 0}, :cmt => [8],  :arg => [4, 6]},
+      {"UMLALT"    => {"bit20_10" => 0x25, "rot" => 0}, :cmt => [8],  :arg => [4, 6]},
+      {"SMLSLB"    => {"bit20_10" => 0x28, "rot" => 0}, :cmt => [8],  :arg => [4, 6]},
+      {"SMLSLT"    => {"bit20_10" => 0x29, "rot" => 0}, :cmt => [8],  :arg => [4, 6]},
+      {"UMLSLB"    => {"bit20_10" => 0x2c, "rot" => 0}, :cmt => [8],  :arg => [4, 6]},
+      {"UMLSLT"    => {"bit20_10" => 0x2d, "rot" => 0}, :cmt => [8],  :arg => [4, 6]},
+      {"SMULLB"    => {"bit20_10" => 0x30, "rot" => 0}, :cmt => [9],  :arg => [4, 6]},
+      {"SMULLT"    => {"bit20_10" => 0x31, "rot" => 0}, :cmt => [9],  :arg => [4, 6]},
+      {"UMULLB"    => {"bit20_10" => 0x34, "rot" => 0}, :cmt => [9],  :arg => [4, 6]},
+      {"UMULLT"    => {"bit20_10" => 0x35, "rot" => 0}, :cmt => [9],  :arg => [4, 6]},
+      {"SQDMULLB"  => {"bit20_10" => 0x38, "rot" => 0}, :cmt => [10], :arg => [4, 6]},
+      {"SQDMULLT"  => {"bit20_10" => 0x39, "rot" => 0}, :cmt => [10], :arg => [4, 6]},
+      {"SQDMULH"   => {"bit20_10" => 0x3c, "rot" => 0}, :cmt => [11], :arg => 0..2},
+      {"SQRDMULH"  => {"bit20_10" => 0x3d, "rot" => 0}, :cmt => [11], :arg => 0..2},
+      {"MUL"       => {"bit20_10" => 0x3e, "rot" => 0}, :cmt => [12], :arg => 0..2}
     ]
   },
 
@@ -6163,14 +6216,12 @@ class MnemonicGenerator
       output_copyright(f)
 
       if isPrototype == false
-        puts "no proto"
         #f.puts "#define SET() setCodeInfo(__FILE__,__LINE__,__func__)"
         @info_list.each{ |info|
           f.puts _genFuncStr(info, isPrototype)
         }
         #f.puts "#undef SET"
       else
-        puts "proto"
         @info_list.each{ |info|
           f.puts _genProtoTypeStr(info, isPrototype)
         }

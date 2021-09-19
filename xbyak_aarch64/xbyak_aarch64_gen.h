@@ -554,7 +554,7 @@ class CodeGenerator : public CodeArray {
   void SveIntMultImmUnpred(uint32_t opc, uint32_t o2, const _ZReg &zdn, int32_t imm);
   void SveIntMultAddUnpredGroup(uint32_t op0, const _ZReg &zda, const _ZReg &zn, const _ZReg &zm, uint32_t rot);
   void Sve2IntPredGroup(uint32_t bit21_13, const _ZReg &zda, const _ZReg &zdn, const _ZReg &zd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm);
-  void SveIntDotProductIndexed(uint32_t size, uint32_t U, const _ZReg &zda, const _ZReg &zn, const ZRegElem &zm);
+  void SveMultIndexedGroup(uint32_t bit20_10, const _ZReg &zda, const _ZReg &zn, const ZRegElem &zm, uint32_t rot);
   void SveFpComplexAddPred(const _ZReg &zdn, const _PReg &pg, const _ZReg &zm, uint32_t ct);
   void SveFpComplexMultAddPred(const _ZReg &zda, const _PReg &pg, const _ZReg &zn, const _ZReg &zm, uint32_t ct);
   void SveFpMultAddIndexed(uint32_t op, const _ZReg &zda, const _ZReg &zn, const ZRegElem &zm);
