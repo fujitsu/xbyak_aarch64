@@ -1675,66 +1675,18 @@ void CodeGenerator::umov(const WReg &rd, const VRegSElem &vn) { AdvSimdCopyMov(0
 void CodeGenerator::umov(const XReg &rd, const VRegDElem &vn) { AdvSimdCopyMov(0, 7, rd, vn); }
 void CodeGenerator::mov(const WReg &rd, const VRegSElem &vn) { AdvSimdCopyMov(0, 7, rd, vn); }
 void CodeGenerator::mov(const XReg &rd, const VRegDElem &vn) { AdvSimdCopyMov(0, 7, rd, vn); }
-#ifdef XBYAK_AARCH64_FOR_DNNL
-void CodeGenerator::ins_(const VRegBElem &vd, const WReg &rn) {
-#else
-void CodeGenerator::ins(const VRegBElem &vd, const WReg &rn) {
-#endif
-  AdvSimdCopyInsGen(0, 3, vd, rn);
-}
-#ifdef XBYAK_AARCH64_FOR_DNNL
-void CodeGenerator::ins_(const VRegHElem &vd, const WReg &rn) {
-#else
-void CodeGenerator::ins(const VRegHElem &vd, const WReg &rn) {
-#endif
-  AdvSimdCopyInsGen(0, 3, vd, rn);
-}
-#ifdef XBYAK_AARCH64_FOR_DNNL
-void CodeGenerator::ins_(const VRegSElem &vd, const WReg &rn) {
-#else
-void CodeGenerator::ins(const VRegSElem &vd, const WReg &rn) {
-#endif
-  AdvSimdCopyInsGen(0, 3, vd, rn);
-}
-#ifdef XBYAK_AARCH64_FOR_DNNL
-void CodeGenerator::ins_(const VRegDElem &vd, const XReg &rn) {
-#else
-void CodeGenerator::ins(const VRegDElem &vd, const XReg &rn) {
-#endif
-  AdvSimdCopyInsGen(0, 3, vd, rn);
-}
+void CodeGenerator::ins(const VRegBElem &vd, const WReg &rn) { AdvSimdCopyInsGen(0, 3, vd, rn); }
+void CodeGenerator::ins(const VRegHElem &vd, const WReg &rn) { AdvSimdCopyInsGen(0, 3, vd, rn); }
+void CodeGenerator::ins(const VRegSElem &vd, const WReg &rn) { AdvSimdCopyInsGen(0, 3, vd, rn); }
+void CodeGenerator::ins(const VRegDElem &vd, const XReg &rn) { AdvSimdCopyInsGen(0, 3, vd, rn); }
 void CodeGenerator::mov(const VRegBElem &vd, const WReg &rn) { AdvSimdCopyInsGen(0, 3, vd, rn); }
 void CodeGenerator::mov(const VRegHElem &vd, const WReg &rn) { AdvSimdCopyInsGen(0, 3, vd, rn); }
 void CodeGenerator::mov(const VRegSElem &vd, const WReg &rn) { AdvSimdCopyInsGen(0, 3, vd, rn); }
 void CodeGenerator::mov(const VRegDElem &vd, const XReg &rn) { AdvSimdCopyInsGen(0, 3, vd, rn); }
-#ifdef XBYAK_AARCH64_FOR_DNNL
-void CodeGenerator::ins_(const VRegBElem &vd, const VRegBElem &vn) {
-#else
-void CodeGenerator::ins(const VRegBElem &vd, const VRegBElem &vn) {
-#endif
-  AdvSimdCopyElemIns(1, vd, vn);
-}
-#ifdef XBYAK_AARCH64_FOR_DNNL
-void CodeGenerator::ins_(const VRegHElem &vd, const VRegHElem &vn) {
-#else
-void CodeGenerator::ins(const VRegHElem &vd, const VRegHElem &vn) {
-#endif
-  AdvSimdCopyElemIns(1, vd, vn);
-}
-#ifdef XBYAK_AARCH64_FOR_DNNL
-void CodeGenerator::ins_(const VRegSElem &vd, const VRegSElem &vn) {
-#else
-void CodeGenerator::ins(const VRegSElem &vd, const VRegSElem &vn) {
-#endif
-  AdvSimdCopyElemIns(1, vd, vn);
-}
-#ifdef XBYAK_AARCH64_FOR_DNNL
-void CodeGenerator::ins_(const VRegDElem &vd, const VRegDElem &vn) {
-#else
-void CodeGenerator::ins(const VRegDElem &vd, const VRegDElem &vn) {
-#endif
-  AdvSimdCopyElemIns(1, vd, vn);
-}
+void CodeGenerator::ins(const VRegBElem &vd, const VRegBElem &vn) { AdvSimdCopyElemIns(1, vd, vn); }
+void CodeGenerator::ins(const VRegHElem &vd, const VRegHElem &vn) { AdvSimdCopyElemIns(1, vd, vn); }
+void CodeGenerator::ins(const VRegSElem &vd, const VRegSElem &vn) { AdvSimdCopyElemIns(1, vd, vn); }
+void CodeGenerator::ins(const VRegDElem &vd, const VRegDElem &vn) { AdvSimdCopyElemIns(1, vd, vn); }
 void CodeGenerator::mov(const VRegBElem &vd, const VRegBElem &vn) { AdvSimdCopyElemIns(1, vd, vn); }
 void CodeGenerator::mov(const VRegHElem &vd, const VRegHElem &vn) { AdvSimdCopyElemIns(1, vd, vn); }
 void CodeGenerator::mov(const VRegSElem &vd, const VRegSElem &vn) { AdvSimdCopyElemIns(1, vd, vn); }
