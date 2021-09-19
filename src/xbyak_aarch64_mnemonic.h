@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-
 void CodeGenerator::adr(const XReg &xd, const Label &label) { PCrelAddr(0, xd, label); }
 void CodeGenerator::adr(const XReg &xd, const int64_t label) { PCrelAddr(0, xd, label); }
 void CodeGenerator::adrp(const XReg &xd, const Label &label) { PCrelAddr(1, xd, label); }
@@ -763,6 +762,10 @@ void CodeGenerator::ldr(const HReg &vt, const AdrPreImm &adr) { LdStSimdFpRegPre
 void CodeGenerator::ldr(const SReg &vt, const AdrPreImm &adr) { LdStSimdFpRegPre((vt.getBit() != 128) ? 1 : 3, vt, adr); }
 void CodeGenerator::ldr(const DReg &vt, const AdrPreImm &adr) { LdStSimdFpRegPre((vt.getBit() != 128) ? 1 : 3, vt, adr); }
 void CodeGenerator::ldr(const QReg &vt, const AdrPreImm &adr) { LdStSimdFpRegPre((vt.getBit() != 128) ? 1 : 3, vt, adr); }
+void CodeGenerator::st64b(const XReg &rt, const AdrNoOfs &adr) { AtomicMemOpSt64b(3, 0, 0, 0, 1, 1, XReg(31), rt, adr); }
+void CodeGenerator::st64bv(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOpSt64b(3, 0, 0, 0, 1, 3, rs, rt, adr); }
+void CodeGenerator::st64bv0(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOpSt64b(3, 0, 0, 0, 1, 2, rs, rt, adr); }
+void CodeGenerator::ld64b(const XReg &rt, const AdrNoOfs &adr) { AtomicMemOpSt64b(3, 0, 0, 0, 1, 5, XReg(31), rt, adr); }
 void CodeGenerator::ldaddb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 0, 0, 0, rs, rt, adr); }
 void CodeGenerator::ldclrb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 0, 0, 1, rs, rt, adr); }
 void CodeGenerator::ldeorb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr) { AtomicMemOp(0, 0, 0, 0, 0, 2, rs, rt, adr); }
@@ -884,10 +887,6 @@ void CodeGenerator::ldsmin(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) 
 void CodeGenerator::ldumax(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 0, 0, 6, rs, rt, adr); }
 void CodeGenerator::ldumin(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 0, 0, 7, rs, rt, adr); }
 void CodeGenerator::swp(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 0, 1, 0, rs, rt, adr); }
-void CodeGenerator::st64b(const XReg &rt, const AdrNoOfs &adr) { AtomicMemOpSt64b(3, 0, 0, 0, 1, 1, XReg(31), rt, adr); }
-void CodeGenerator::st64bv(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOpSt64b(3, 0, 0, 0, 1, 3, rs, rt, adr); }
-void CodeGenerator::st64bv0(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOpSt64b(3, 0, 0, 0, 1, 2, rs, rt, adr); }
-void CodeGenerator::ld64b(const XReg &rt, const AdrNoOfs &adr) { AtomicMemOpSt64b(3, 0, 0, 0, 1, 5, XReg(31), rt, adr); }
 void CodeGenerator::ldaddl(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 1, 0, 0, rs, rt, adr); }
 void CodeGenerator::ldclrl(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 1, 0, 1, rs, rt, adr); }
 void CodeGenerator::ldeorl(const XReg &rs, const XReg &rt, const AdrNoOfs &adr) { AtomicMemOp(3, 0, 0, 1, 0, 2, rs, rt, adr); }
@@ -5004,7 +5003,6 @@ void CodeGenerator::str(const _PReg &pt, const AdrScImm &adr) { SveStorePredReg(
 void CodeGenerator::str(const _PReg &pt, const AdrNoOfs &adr) { SveStorePredReg(pt, adr); }
 void CodeGenerator::str(const ZReg &zt, const AdrScImm &adr) { SveStorePredVec(zt, adr); }
 void CodeGenerator::str(const ZReg &zt, const AdrNoOfs &adr) { SveStorePredVec(zt, adr); }
-
 void CodeGenerator::beq(const Label &label) { b(EQ, label); }
 void CodeGenerator::beq(int64_t label) { b(EQ, label); }
 void CodeGenerator::bne(const Label &label) { b(NE, label); }

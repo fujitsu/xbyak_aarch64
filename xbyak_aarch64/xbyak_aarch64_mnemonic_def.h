@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright 2020-2021 FUJITSU LIMITED
+ * Copyright 2019-2021 FUJITSU LIMITED
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -762,6 +762,10 @@ void ldr(const HReg &vt, const AdrPreImm &adr);
 void ldr(const SReg &vt, const AdrPreImm &adr);
 void ldr(const DReg &vt, const AdrPreImm &adr);
 void ldr(const QReg &vt, const AdrPreImm &adr);
+void st64b(const XReg &rt, const AdrNoOfs &adr);
+void st64bv(const XReg &rs, const XReg &rt, const AdrNoOfs &adr);
+void st64bv0(const XReg &rs, const XReg &rt, const AdrNoOfs &adr);
+void ld64b(const XReg &rt, const AdrNoOfs &adr);
 void ldaddb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr);
 void ldclrb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr);
 void ldeorb(const WReg &rs, const WReg &rt, const AdrNoOfs &adr);
@@ -883,10 +887,6 @@ void ldsmin(const XReg &rs, const XReg &rt, const AdrNoOfs &adr);
 void ldumax(const XReg &rs, const XReg &rt, const AdrNoOfs &adr);
 void ldumin(const XReg &rs, const XReg &rt, const AdrNoOfs &adr);
 void swp(const XReg &rs, const XReg &rt, const AdrNoOfs &adr);
-void st64b(const XReg &rt, const AdrNoOfs &adr);
-void st64bv(const XReg &rs, const XReg &rt, const AdrNoOfs &adr);
-void st64bv0(const XReg &rs, const XReg &rt, const AdrNoOfs &adr);
-void ld64b(const XReg &rt, const AdrNoOfs &adr);
 void ldaddl(const XReg &rs, const XReg &rt, const AdrNoOfs &adr);
 void ldclrl(const XReg &rs, const XReg &rt, const AdrNoOfs &adr);
 void ldeorl(const XReg &rs, const XReg &rt, const AdrNoOfs &adr);
