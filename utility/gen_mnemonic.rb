@@ -6140,11 +6140,51 @@ class MnemonicGenerator
     @info_list.sort!{|a,b| a[:grp_func] <=> b[:grp_func]}
   end
 
-  def output(ofile)
+  def output_copyright(f)
+    f.puts "/*******************************************************************************"
+    f.puts " * Copyright 2019-2021 FUJITSU LIMITED"
+    f.puts " *"
+    f.puts " * Licensed under the Apache License, Version 2.0 (the \"License\");"
+    f.puts " * you may not use this file except in compliance with the License."
+    f.puts " * You may obtain a copy of the License at"
+    f.puts " *"
+    f.puts " *     http://www.apache.org/licenses/LICENSE-2.0"
+    f.puts " *"
+    f.puts " * Unless required by applicable law or agreed to in writing, software"
+    f.puts " * distributed under the License is distributed on an \"AS IS\" BASIS,"
+    f.puts " * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied."
+    f.puts " * See the License for the specific language governing permissions and"
+    f.puts " * limitations under the License."
+    f.puts " *******************************************************************************/"
+  end
+
+  def output(ofile, isPrototype)
     File.open(ofile,"w") do |f|
-      f.puts "#define SET() setCodeInfo(__FILE__,__LINE__,__func__)"
-      @info_list.each{ |info| f.puts _genFuncStr(info) }
-      f.puts "#undef SET"
+      output_copyright(f)
+
+      if isPrototype == false
+        puts "no proto"
+        #f.puts "#define SET() setCodeInfo(__FILE__,__LINE__,__func__)"
+        @info_list.each{ |info|
+          f.puts _genFuncStr(info, isPrototype)
+        }
+        #f.puts "#undef SET"
+      else
+        puts "proto"
+        @info_list.each{ |info|
+          f.puts _genProtoTypeStr(info, isPrototype)
+        }
+      end
+    end
+  end
+
+  def output_tail(ofile, ifile, isPrototype)
+    File.open(ofile, "a") do |f|
+      File.open(ifile, "r") do |i|
+        i.each do |line|
+          f.puts line
+        end
+      end
     end
   end
 
@@ -6238,15 +6278,37 @@ class MnemonicGenerator
     return err_str
   end
 
-  def _genFuncStr(info)
+  def _genFuncStrCore(info, isPrototype)
     func         = info[:func]
     func_arg     = _genFuncArgStr(info[:func_arg])
     grp_func     = info[:grp_func]
     grp_func_prm = _genGrpFuncPrmStr(info[:grp_func_prm],info[:func_set_val])
     set_prm      = _genSetPrmStr(info[:func_arg])
 
-    #return format("void CodeGenerator::%s(%s) { SET(); %s(%s); }",func,func_arg,grp_func,grp_func_prm)
-    return format("void CodeGenerator::%s(%s) { %s(%s); }",func,func_arg,grp_func,grp_func_prm)
+    if isPrototype == false
+      # Example: "const XReg &rt=XReg(31)" -> "const XReg &rt"
+      func_arg.gsub!(/=XReg\(31\)/, "")
+      func_arg.gsub!(/=0.0/, "")
+      func_arg.gsub!(/=0/, "")
+      func_arg.gsub!(/=1/, "")
+      func_arg.gsub!(/=ALL/, "")
+      func_arg.gsub!(/=LSL/, "")
+      func_arg.gsub!(/=MUL/, "")
+      func_arg.gsub!(/=NONE/, "")
+    end
+
+    return [func,func_arg,grp_func,grp_func_prm]
+  end
+
+  def _genFuncStr(info, isPrototype)
+    list = _genFuncStrCore(info, isPrototype)
+    #return format("void CodeGenerator::%s(%s) { SET(); %s(%s); }", list[0], list[1], list[2], list[3])
+    return format("void CodeGenerator::%s(%s) { %s(%s); }", list[0], list[1], list[2], list[3])
+  end
+
+  def _genProtoTypeStr(info, isPrototype)
+    list = _genFuncStrCore(info, isPrototype)
+    return format("void %s(%s);", list[0], list[1])
   end
 
   def _genFuncArgStr(func_arg)
@@ -6292,6 +6354,9 @@ STDERR.print "Ruby 2.5.5 or higher required\n" if Gem::Version.create(RUBY_VERSI
 mgen_all = MnemonicGenerator.new
 mgen_all.parseTable(v8)
 mgen_all.parseTable(sve)
-mgen_all.output("xbyak_aarch64_mnemonic.h")
-mgen_all.sortByMnemonic
-mgen_all.output("xbyak_aarch64_mnemonic_sorted.h")
+mgen_all.output("xbyak_aarch64_mnemonic.h", false)
+mgen_all.output_tail("xbyak_aarch64_mnemonic.h", "mnemonic_tail.h", false)
+mgen_all.output("xbyak_aarch64_mnemonic_def.h", true)
+mgen_all.output_tail("xbyak_aarch64_mnemonic_def.h", "mnemonic_def_tail.h", true)
+#mgen_all.sortByMnemonic
+#mgen_all.output("xbyak_aarch64_mnemonic_sorted.h", true)
