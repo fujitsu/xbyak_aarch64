@@ -3300,13 +3300,82 @@ void CodeGenerator::Sve2AccGroup(uint32_t bit23_10, const _ZReg &zd, const _ZReg
     uint32_t tszl = field(imm, 4, 3);
     uint32_t imm3 = imm & ones(3);
 
-    verifyIncRange(amount, 0, esize - 1, ERR_ILLEGAL_IMM_RANGE);
+    verifyIncRange(amount, 1, esize - 1, ERR_ILLEGAL_IMM_RANGE);
 
     tmp_bit23_10 = (tszh << 12) | (tszl << 9) | (imm3 << 6);
     size = 0;
   }
 
   uint32_t code = concat({F(0x45, 24), F(size, 22), F(bit20_16, 16), F((bit23_10 | tmp_bit23_10 | rot), 10), F(bit9_5, 5), F(zd.getIdx() | zda.getIdx() | zdn.getIdx(), 0)});
+  dd(code);
+}
+
+// SVE2 Narrowing
+void CodeGenerator::Sve2NarrGroup(uint32_t bit23_10, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm, uint32_t amount) {
+  uint32_t size = genSize(zd);
+  uint32_t tmp_bit23_16 = 0;
+  uint32_t tszh = 0;
+  uint32_t tszl = 0;
+  uint32_t imm3 = 0;
+  uint32_t imm = 0;
+  uint32_t esize = 0;
+
+  switch (bit23_10) {
+  case 0x810: /* SQXTNB */
+  case 0x811: /* SQXTNT */
+  case 0x812: /* UQXTNB */
+  case 0x813: /* UQXTNT */
+  case 0x814: /* SQXTUNB */
+  case 0x815: /* SQXTUNT */
+  {
+    uint32_t tmp_size = (size > 1) ? (size + 2) : (size + 1);
+    tszl = field(tmp_size, 1, 0);
+    tszh = field(tmp_size, 2, 2);
+  }
+    tmp_bit23_16 = (tszh << 6) | (tszl << 3);
+    size = 0;
+    break;
+  case 0x800: /* SQSHRUNB */
+  case 0x801: /* SQSHRUNT */
+  case 0x802: /* SQRSHRUNB */
+  case 0x803: /* SQRSHRUNT */
+  case 0x804: /* SHRNB */
+  case 0x805: /* SHRNT */
+  case 0x806: /* RSHRNB */
+  case 0x807: /* RSHRNT */
+  case 0x808: /* SQSHRNB */
+  case 0x809: /* SQSHRNT */
+  case 0x80a: /* SQRSHRNB */
+  case 0x80b: /* SQRSHRNT */
+  case 0x80c: /* UQSHRNB */
+  case 0x80d: /* UQSHRNT */
+  case 0x80e: /* UQRSHRNB */
+  case 0x80f: /* UQRSHRNT */
+    esize = zd.getBit();
+    imm = esize * 2 - amount;
+    tszh = field(imm, 5, 5);
+    tszl = field(imm, 4, 3);
+    imm3 = imm & ones(3);
+    tmp_bit23_16 = (tszh << 6) | (tszl << 3) | imm3;
+    verifyIncRange(amount, 1, esize - 1, ERR_ILLEGAL_IMM_RANGE);
+    size = 0;
+    break;
+  case 0x818: /* ADDHNB  */
+  case 0x819: /* ADDHNT  */
+  case 0x81a: /* RADDHNB */
+  case 0x81b: /* RADDHNT */
+  case 0x81c: /* SUBHNB  */
+  case 0x81d: /* SUBHNT  */
+  case 0x81e: /* RSUBHNB */
+  case 0x81f: /* RSUBHNT */
+    tmp_bit23_16 = zm.getIdx();
+    size = size + 1;
+    break;
+  default:
+    throw Error(ERR_ILLEGAL_TYPE);
+    break;
+  }
+  uint32_t code = concat({F(0x8a, 23), F(size, 22), F(tmp_bit23_16, 16), F(bit23_10, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
   dd(code);
 }
 

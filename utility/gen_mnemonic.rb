@@ -5164,6 +5164,57 @@ sve = {
     ]
   },
 
+  "Sve2NarrGroup" => {
+    :cmt => ["SVE2 saturating extract narrow",
+             "SVE2 bitwise shift right narrow",
+             "SVE2 integer add/subtract narrow high part"
+            ],
+    :arg => [
+      [ {"zd" => "ZRegB", "zn" => "ZRegH"}], #0
+      [ {"zd" => "ZRegH", "zn" => "ZRegS"}], #1
+      [ {"zd" => "ZRegS", "zn" => "ZRegD"}], #2
+      [ {"zd" => "ZRegB", "zn" => "ZRegH", "imm6" => "uint32_t"}], #3
+      [ {"zd" => "ZRegH", "zn" => "ZRegS", "imm6" => "uint32_t"}], #4
+      [ {"zd" => "ZRegS", "zn" => "ZRegD", "imm6" => "uint32_t"}], #5
+      [ {"zd" => "ZRegB", "zn" => "ZRegH", "zm" => "ZRegH"}], #6
+      [ {"zd" => "ZRegH", "zn" => "ZRegS", "zm" => "ZRegS"}], #7
+      [ {"zd" => "ZRegS", "zn" => "ZRegD", "zm" => "ZRegD"}]  #8
+    ],
+    :prm => ["bit23_10", "zd", "zn", "zm", "imm6"],
+    :grp => [
+      {"SQXTNB"    => {"bit23_10" => 0x810,  "zm" => "ZReg(0)", "imm6" => 0x0}, :cmt => [0], :arg => 0..2},
+      {"SQXTNT"    => {"bit23_10" => 0x811,  "zm" => "ZReg(0)", "imm6" => 0x0}, :cmt => [0], :arg => 0..2},
+      {"UQXTNB"    => {"bit23_10" => 0x812,  "zm" => "ZReg(0)", "imm6" => 0x0}, :cmt => [0], :arg => 0..2},
+      {"UQXTNT"    => {"bit23_10" => 0x813,  "zm" => "ZReg(0)", "imm6" => 0x0}, :cmt => [0], :arg => 0..2},
+      {"SQXTUNB"   => {"bit23_10" => 0x814,  "zm" => "ZReg(0)", "imm6" => 0x0}, :cmt => [0], :arg => 0..2},
+      {"SQXTUNT"   => {"bit23_10" => 0x815,  "zm" => "ZReg(0)", "imm6" => 0x0}, :cmt => [0], :arg => 0..2},
+      {"SQSHRUNB"  => {"bit23_10" => 0x800,  "zm" => "ZReg(0)"}, :cmt => [1], :arg => 3..5},
+      {"SQSHRUNT"  => {"bit23_10" => 0x801,  "zm" => "ZReg(0)"}, :cmt => [1], :arg => 3..5},
+      {"SQRSHRUNB" => {"bit23_10" => 0x802,  "zm" => "ZReg(0)"}, :cmt => [1], :arg => 3..5},
+      {"SQRSHRUNT" => {"bit23_10" => 0x803,  "zm" => "ZReg(0)"}, :cmt => [1], :arg => 3..5},
+      {"SHRNB"     => {"bit23_10" => 0x804,  "zm" => "ZReg(0)"}, :cmt => [1], :arg => 3..5},
+      {"SHRNT"     => {"bit23_10" => 0x805,  "zm" => "ZReg(0)"}, :cmt => [1], :arg => 3..5},
+      {"RSHRNB"    => {"bit23_10" => 0x806,  "zm" => "ZReg(0)"}, :cmt => [1], :arg => 3..5},
+      {"RSHRNT"    => {"bit23_10" => 0x807,  "zm" => "ZReg(0)"}, :cmt => [1], :arg => 3..5},
+      {"SQSHRNB"   => {"bit23_10" => 0x808,  "zm" => "ZReg(0)"}, :cmt => [1], :arg => 3..5},
+      {"SQSHRNT"   => {"bit23_10" => 0x809,  "zm" => "ZReg(0)"}, :cmt => [1], :arg => 3..5},
+      {"SQRSHRNB"  => {"bit23_10" => 0x80a,  "zm" => "ZReg(0)"}, :cmt => [1], :arg => 3..5},
+      {"SQRSHRNT"  => {"bit23_10" => 0x80b,  "zm" => "ZReg(0)"}, :cmt => [1], :arg => 3..5},
+      {"UQSHRNB"   => {"bit23_10" => 0x80c,  "zm" => "ZReg(0)"}, :cmt => [1], :arg => 3..5},
+      {"UQSHRNT"   => {"bit23_10" => 0x80d,  "zm" => "ZReg(0)"}, :cmt => [1], :arg => 3..5},
+      {"UQRSHRNB"  => {"bit23_10" => 0x80e,  "zm" => "ZReg(0)"}, :cmt => [1], :arg => 3..5},
+      {"UQRSHRNT"  => {"bit23_10" => 0x80f,  "zm" => "ZReg(0)"}, :cmt => [1], :arg => 3..5},
+      {"ADDHNB"    => {"bit23_10" => 0x818,  "imm6" => 0x0}, :cmt => [2], :arg => 6..8},
+      {"ADDHNT"    => {"bit23_10" => 0x819,  "imm6" => 0x0}, :cmt => [2], :arg => 6..8},
+      {"RADDHNB"   => {"bit23_10" => 0x81a,  "imm6" => 0x0}, :cmt => [2], :arg => 6..8},
+      {"RADDHNT"   => {"bit23_10" => 0x81b,  "imm6" => 0x0}, :cmt => [2], :arg => 6..8},
+      {"SUBHNB"    => {"bit23_10" => 0x81c,  "imm6" => 0x0}, :cmt => [2], :arg => 6..8},
+      {"SUBHNT"    => {"bit23_10" => 0x81d,  "imm6" => 0x0}, :cmt => [2], :arg => 6..8},
+      {"RSUBHNB"   => {"bit23_10" => 0x81e,  "imm6" => 0x0}, :cmt => [2], :arg => 6..8},
+      {"RSUBHNT"   => {"bit23_10" => 0x81f,  "imm6" => 0x0}, :cmt => [2], :arg => 6..8}
+    ]
+  },
+
   "SveFpComplexAddPred" => {
     :cmt => "SVE floating-point complex add (predicated)",
     :arg => ext_args(zreg_set_pred(2 ,"HSD"), [{"ct" => "uint32_t"}], {"zd"=>"zdn","zn"=>"zm"}),

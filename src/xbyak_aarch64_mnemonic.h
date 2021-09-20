@@ -4559,6 +4559,96 @@ void CodeGenerator::uaba(const ZRegB &zda, const ZRegB &zn, const ZRegB &zm) { S
 void CodeGenerator::uaba(const ZRegH &zda, const ZRegH &zn, const ZRegH &zm) { Sve2AccGroup(63, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
 void CodeGenerator::uaba(const ZRegS &zda, const ZRegS &zn, const ZRegS &zm) { Sve2AccGroup(63, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
 void CodeGenerator::uaba(const ZRegD &zda, const ZRegD &zn, const ZRegD &zm) { Sve2AccGroup(63, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::sqxtnb(const ZRegB &zd, const ZRegH &zn) { Sve2NarrGroup(2064, zd, zn, ZReg(0), 0); }
+void CodeGenerator::sqxtnb(const ZRegH &zd, const ZRegS &zn) { Sve2NarrGroup(2064, zd, zn, ZReg(0), 0); }
+void CodeGenerator::sqxtnb(const ZRegS &zd, const ZRegD &zn) { Sve2NarrGroup(2064, zd, zn, ZReg(0), 0); }
+void CodeGenerator::sqxtnt(const ZRegB &zd, const ZRegH &zn) { Sve2NarrGroup(2065, zd, zn, ZReg(0), 0); }
+void CodeGenerator::sqxtnt(const ZRegH &zd, const ZRegS &zn) { Sve2NarrGroup(2065, zd, zn, ZReg(0), 0); }
+void CodeGenerator::sqxtnt(const ZRegS &zd, const ZRegD &zn) { Sve2NarrGroup(2065, zd, zn, ZReg(0), 0); }
+void CodeGenerator::uqxtnb(const ZRegB &zd, const ZRegH &zn) { Sve2NarrGroup(2066, zd, zn, ZReg(0), 0); }
+void CodeGenerator::uqxtnb(const ZRegH &zd, const ZRegS &zn) { Sve2NarrGroup(2066, zd, zn, ZReg(0), 0); }
+void CodeGenerator::uqxtnb(const ZRegS &zd, const ZRegD &zn) { Sve2NarrGroup(2066, zd, zn, ZReg(0), 0); }
+void CodeGenerator::uqxtnt(const ZRegB &zd, const ZRegH &zn) { Sve2NarrGroup(2067, zd, zn, ZReg(0), 0); }
+void CodeGenerator::uqxtnt(const ZRegH &zd, const ZRegS &zn) { Sve2NarrGroup(2067, zd, zn, ZReg(0), 0); }
+void CodeGenerator::uqxtnt(const ZRegS &zd, const ZRegD &zn) { Sve2NarrGroup(2067, zd, zn, ZReg(0), 0); }
+void CodeGenerator::sqxtunb(const ZRegB &zd, const ZRegH &zn) { Sve2NarrGroup(2068, zd, zn, ZReg(0), 0); }
+void CodeGenerator::sqxtunb(const ZRegH &zd, const ZRegS &zn) { Sve2NarrGroup(2068, zd, zn, ZReg(0), 0); }
+void CodeGenerator::sqxtunb(const ZRegS &zd, const ZRegD &zn) { Sve2NarrGroup(2068, zd, zn, ZReg(0), 0); }
+void CodeGenerator::sqxtunt(const ZRegB &zd, const ZRegH &zn) { Sve2NarrGroup(2069, zd, zn, ZReg(0), 0); }
+void CodeGenerator::sqxtunt(const ZRegH &zd, const ZRegS &zn) { Sve2NarrGroup(2069, zd, zn, ZReg(0), 0); }
+void CodeGenerator::sqxtunt(const ZRegS &zd, const ZRegD &zn) { Sve2NarrGroup(2069, zd, zn, ZReg(0), 0); }
+void CodeGenerator::sqshrunb(const ZRegB &zd, const ZRegH &zn, const uint32_t imm6) { Sve2NarrGroup(2048, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqshrunb(const ZRegH &zd, const ZRegS &zn, const uint32_t imm6) { Sve2NarrGroup(2048, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqshrunb(const ZRegS &zd, const ZRegD &zn, const uint32_t imm6) { Sve2NarrGroup(2048, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqshrunt(const ZRegB &zd, const ZRegH &zn, const uint32_t imm6) { Sve2NarrGroup(2049, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqshrunt(const ZRegH &zd, const ZRegS &zn, const uint32_t imm6) { Sve2NarrGroup(2049, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqshrunt(const ZRegS &zd, const ZRegD &zn, const uint32_t imm6) { Sve2NarrGroup(2049, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqrshrunb(const ZRegB &zd, const ZRegH &zn, const uint32_t imm6) { Sve2NarrGroup(2050, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqrshrunb(const ZRegH &zd, const ZRegS &zn, const uint32_t imm6) { Sve2NarrGroup(2050, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqrshrunb(const ZRegS &zd, const ZRegD &zn, const uint32_t imm6) { Sve2NarrGroup(2050, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqrshrunt(const ZRegB &zd, const ZRegH &zn, const uint32_t imm6) { Sve2NarrGroup(2051, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqrshrunt(const ZRegH &zd, const ZRegS &zn, const uint32_t imm6) { Sve2NarrGroup(2051, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqrshrunt(const ZRegS &zd, const ZRegD &zn, const uint32_t imm6) { Sve2NarrGroup(2051, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::shrnb(const ZRegB &zd, const ZRegH &zn, const uint32_t imm6) { Sve2NarrGroup(2052, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::shrnb(const ZRegH &zd, const ZRegS &zn, const uint32_t imm6) { Sve2NarrGroup(2052, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::shrnb(const ZRegS &zd, const ZRegD &zn, const uint32_t imm6) { Sve2NarrGroup(2052, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::shrnt(const ZRegB &zd, const ZRegH &zn, const uint32_t imm6) { Sve2NarrGroup(2053, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::shrnt(const ZRegH &zd, const ZRegS &zn, const uint32_t imm6) { Sve2NarrGroup(2053, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::shrnt(const ZRegS &zd, const ZRegD &zn, const uint32_t imm6) { Sve2NarrGroup(2053, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::rshrnb(const ZRegB &zd, const ZRegH &zn, const uint32_t imm6) { Sve2NarrGroup(2054, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::rshrnb(const ZRegH &zd, const ZRegS &zn, const uint32_t imm6) { Sve2NarrGroup(2054, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::rshrnb(const ZRegS &zd, const ZRegD &zn, const uint32_t imm6) { Sve2NarrGroup(2054, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::rshrnt(const ZRegB &zd, const ZRegH &zn, const uint32_t imm6) { Sve2NarrGroup(2055, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::rshrnt(const ZRegH &zd, const ZRegS &zn, const uint32_t imm6) { Sve2NarrGroup(2055, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::rshrnt(const ZRegS &zd, const ZRegD &zn, const uint32_t imm6) { Sve2NarrGroup(2055, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqshrnb(const ZRegB &zd, const ZRegH &zn, const uint32_t imm6) { Sve2NarrGroup(2056, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqshrnb(const ZRegH &zd, const ZRegS &zn, const uint32_t imm6) { Sve2NarrGroup(2056, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqshrnb(const ZRegS &zd, const ZRegD &zn, const uint32_t imm6) { Sve2NarrGroup(2056, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqshrnt(const ZRegB &zd, const ZRegH &zn, const uint32_t imm6) { Sve2NarrGroup(2057, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqshrnt(const ZRegH &zd, const ZRegS &zn, const uint32_t imm6) { Sve2NarrGroup(2057, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqshrnt(const ZRegS &zd, const ZRegD &zn, const uint32_t imm6) { Sve2NarrGroup(2057, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqrshrnb(const ZRegB &zd, const ZRegH &zn, const uint32_t imm6) { Sve2NarrGroup(2058, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqrshrnb(const ZRegH &zd, const ZRegS &zn, const uint32_t imm6) { Sve2NarrGroup(2058, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqrshrnb(const ZRegS &zd, const ZRegD &zn, const uint32_t imm6) { Sve2NarrGroup(2058, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqrshrnt(const ZRegB &zd, const ZRegH &zn, const uint32_t imm6) { Sve2NarrGroup(2059, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqrshrnt(const ZRegH &zd, const ZRegS &zn, const uint32_t imm6) { Sve2NarrGroup(2059, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::sqrshrnt(const ZRegS &zd, const ZRegD &zn, const uint32_t imm6) { Sve2NarrGroup(2059, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::uqshrnb(const ZRegB &zd, const ZRegH &zn, const uint32_t imm6) { Sve2NarrGroup(2060, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::uqshrnb(const ZRegH &zd, const ZRegS &zn, const uint32_t imm6) { Sve2NarrGroup(2060, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::uqshrnb(const ZRegS &zd, const ZRegD &zn, const uint32_t imm6) { Sve2NarrGroup(2060, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::uqshrnt(const ZRegB &zd, const ZRegH &zn, const uint32_t imm6) { Sve2NarrGroup(2061, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::uqshrnt(const ZRegH &zd, const ZRegS &zn, const uint32_t imm6) { Sve2NarrGroup(2061, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::uqshrnt(const ZRegS &zd, const ZRegD &zn, const uint32_t imm6) { Sve2NarrGroup(2061, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::uqrshrnb(const ZRegB &zd, const ZRegH &zn, const uint32_t imm6) { Sve2NarrGroup(2062, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::uqrshrnb(const ZRegH &zd, const ZRegS &zn, const uint32_t imm6) { Sve2NarrGroup(2062, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::uqrshrnb(const ZRegS &zd, const ZRegD &zn, const uint32_t imm6) { Sve2NarrGroup(2062, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::uqrshrnt(const ZRegB &zd, const ZRegH &zn, const uint32_t imm6) { Sve2NarrGroup(2063, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::uqrshrnt(const ZRegH &zd, const ZRegS &zn, const uint32_t imm6) { Sve2NarrGroup(2063, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::uqrshrnt(const ZRegS &zd, const ZRegD &zn, const uint32_t imm6) { Sve2NarrGroup(2063, zd, zn, ZReg(0), imm6); }
+void CodeGenerator::addhnb(const ZRegB &zd, const ZRegH &zn, const ZRegH &zm) { Sve2NarrGroup(2072, zd, zn, zm, 0); }
+void CodeGenerator::addhnb(const ZRegH &zd, const ZRegS &zn, const ZRegS &zm) { Sve2NarrGroup(2072, zd, zn, zm, 0); }
+void CodeGenerator::addhnb(const ZRegS &zd, const ZRegD &zn, const ZRegD &zm) { Sve2NarrGroup(2072, zd, zn, zm, 0); }
+void CodeGenerator::addhnt(const ZRegB &zd, const ZRegH &zn, const ZRegH &zm) { Sve2NarrGroup(2073, zd, zn, zm, 0); }
+void CodeGenerator::addhnt(const ZRegH &zd, const ZRegS &zn, const ZRegS &zm) { Sve2NarrGroup(2073, zd, zn, zm, 0); }
+void CodeGenerator::addhnt(const ZRegS &zd, const ZRegD &zn, const ZRegD &zm) { Sve2NarrGroup(2073, zd, zn, zm, 0); }
+void CodeGenerator::raddhnb(const ZRegB &zd, const ZRegH &zn, const ZRegH &zm) { Sve2NarrGroup(2074, zd, zn, zm, 0); }
+void CodeGenerator::raddhnb(const ZRegH &zd, const ZRegS &zn, const ZRegS &zm) { Sve2NarrGroup(2074, zd, zn, zm, 0); }
+void CodeGenerator::raddhnb(const ZRegS &zd, const ZRegD &zn, const ZRegD &zm) { Sve2NarrGroup(2074, zd, zn, zm, 0); }
+void CodeGenerator::raddhnt(const ZRegB &zd, const ZRegH &zn, const ZRegH &zm) { Sve2NarrGroup(2075, zd, zn, zm, 0); }
+void CodeGenerator::raddhnt(const ZRegH &zd, const ZRegS &zn, const ZRegS &zm) { Sve2NarrGroup(2075, zd, zn, zm, 0); }
+void CodeGenerator::raddhnt(const ZRegS &zd, const ZRegD &zn, const ZRegD &zm) { Sve2NarrGroup(2075, zd, zn, zm, 0); }
+void CodeGenerator::subhnb(const ZRegB &zd, const ZRegH &zn, const ZRegH &zm) { Sve2NarrGroup(2076, zd, zn, zm, 0); }
+void CodeGenerator::subhnb(const ZRegH &zd, const ZRegS &zn, const ZRegS &zm) { Sve2NarrGroup(2076, zd, zn, zm, 0); }
+void CodeGenerator::subhnb(const ZRegS &zd, const ZRegD &zn, const ZRegD &zm) { Sve2NarrGroup(2076, zd, zn, zm, 0); }
+void CodeGenerator::subhnt(const ZRegB &zd, const ZRegH &zn, const ZRegH &zm) { Sve2NarrGroup(2077, zd, zn, zm, 0); }
+void CodeGenerator::subhnt(const ZRegH &zd, const ZRegS &zn, const ZRegS &zm) { Sve2NarrGroup(2077, zd, zn, zm, 0); }
+void CodeGenerator::subhnt(const ZRegS &zd, const ZRegD &zn, const ZRegD &zm) { Sve2NarrGroup(2077, zd, zn, zm, 0); }
+void CodeGenerator::rsubhnb(const ZRegB &zd, const ZRegH &zn, const ZRegH &zm) { Sve2NarrGroup(2078, zd, zn, zm, 0); }
+void CodeGenerator::rsubhnb(const ZRegH &zd, const ZRegS &zn, const ZRegS &zm) { Sve2NarrGroup(2078, zd, zn, zm, 0); }
+void CodeGenerator::rsubhnb(const ZRegS &zd, const ZRegD &zn, const ZRegD &zm) { Sve2NarrGroup(2078, zd, zn, zm, 0); }
+void CodeGenerator::rsubhnt(const ZRegB &zd, const ZRegH &zn, const ZRegH &zm) { Sve2NarrGroup(2079, zd, zn, zm, 0); }
+void CodeGenerator::rsubhnt(const ZRegH &zd, const ZRegS &zn, const ZRegS &zm) { Sve2NarrGroup(2079, zd, zn, zm, 0); }
+void CodeGenerator::rsubhnt(const ZRegS &zd, const ZRegD &zn, const ZRegD &zm) { Sve2NarrGroup(2079, zd, zn, zm, 0); }
 void CodeGenerator::fcadd(const ZRegH &zdn, const _PReg &pg, const ZRegH &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }
 void CodeGenerator::fcadd(const ZRegS &zdn, const _PReg &pg, const ZRegS &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }
 void CodeGenerator::fcadd(const ZRegD &zdn, const _PReg &pg, const ZRegD &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }
