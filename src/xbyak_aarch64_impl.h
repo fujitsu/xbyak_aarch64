@@ -3394,6 +3394,22 @@ void CodeGenerator::Sve2HistCompSeg(uint32_t bit23_10, const _ZReg &zd, const _Z
   dd(code);
 }
 
+// SVE2 Crypto Extensions
+void CodeGenerator::Sve2CryptoExtGroup(uint32_t bit23_10, const _ZReg &zd, const _ZReg &zdn, const _ZReg &zn, const _ZReg &zm) {
+  uint32_t size = genSize(zd);
+  uint32_t bit9_5 = zn.getIdx();
+  uint32_t bit20_16 = zm.getIdx();
+
+  if (bit23_10 == 0x8b8 /* AESE */ || bit23_10 == 0x8b9 /* AESD */ || bit23_10 == 0x8f8 /* SM4E */) {
+    bit9_5 = zm.getIdx();
+    bit20_16 = 0;
+  } else if (bit23_10 == 0x83c /* SM4EKEY */ || bit23_10 == 0x83d /* RAX1 */)
+    size = 0;
+
+  uint32_t code = concat({F(0x45, 24), F(size, 22), F(bit20_16, 16), F(bit23_10, 10), F(bit9_5, 5), F((zd.getIdx() | zdn.getIdx()), 0)});
+  dd(code);
+}
+
 // SVE floating-point complex add (predicated)
 void CodeGenerator::SveFpComplexAddPred(const _ZReg &zdn, const _PReg &pg, const _ZReg &zm, uint32_t ct) {
   uint32_t size = genSize(zdn);

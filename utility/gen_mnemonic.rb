@@ -5239,6 +5239,30 @@ sve = {
     ]
   },
 
+  "Sve2CryptoExtGroup" => {
+    :cmt => ["SVE2 crypto unary operations",
+             "SVE2 crypto destructive binary operations",
+             "SVE2 crypto constructive binary operations"
+            ],
+    :arg => [
+        [{"zdn" => "ZRegB"}],                                  #0
+        [{"zdn" => "ZRegB", "zm" => "ZRegB"}],                 #1
+        [{"zdn" => "ZRegS", "zm" => "ZRegS"}],                 #2
+        [{"zd" => "ZRegS", "zn" => "ZRegS", "zm" => "ZRegS"}], #3
+        [{"zd" => "ZRegD", "zn" => "ZRegD", "zm" => "ZRegD"}]  #4
+    ],
+    :prm => ["bit23_10", "zd", "zdn", "zn", "zm"],
+    :grp => [
+      {"AESMC"   => {"bit23_10" => 0x838, "zd" => "ZReg(0)", "zn" => "ZReg(0)", "zm" => "ZReg(0)"}, :cmt => [0], :arg => [0]},
+      {"AESIMC"  => {"bit23_10" => 0x839, "zd" => "ZReg(0)", "zn" => "ZReg(0)", "zm" => "ZReg(0)"}, :cmt => [0], :arg => [0]},
+      {"AESE"    => {"bit23_10" => 0x8b8, "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [1], :arg => [1]},
+      {"AESD"    => {"bit23_10" => 0x8b9, "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [1], :arg => [1]},
+      {"SM4E"    => {"bit23_10" => 0x8f8, "zd" => "ZReg(0)", "zn" => "ZReg(0)"}, :cmt => [1], :arg => [2]},
+      {"SM4EKEY" => {"bit23_10" => 0x83c, "zdn" => "ZReg(0)"}, :cmt => [2], :arg => [3]},
+      {"RAX1"    => {"bit23_10" => 0x83d, "zdn" => "ZReg(0)"}, :cmt => [2], :arg => [4]}
+    ]
+  },
+
   "SveFpComplexAddPred" => {
     :cmt => "SVE floating-point complex add (predicated)",
     :arg => ext_args(zreg_set_pred(2 ,"HSD"), [{"ct" => "uint32_t"}], {"zd"=>"zdn","zn"=>"zm"}),
