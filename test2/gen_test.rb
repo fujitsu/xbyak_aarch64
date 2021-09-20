@@ -326,6 +326,9 @@ class TestPatternGenerator
                                             "z0.d,z0.d/*asm*/", "z16.d,z16.d/*asm*/", "z30.d,z30.d/*asm*/", "z31.d,z31.d/*asm*/"])
 
     @operands_ptn.store("<Pg>/M", ["p7/m", "p1/m", "p2/m", "p4/m", "p0/m"])
+    @operands_ptn.store("<Pg>/Z", ["p7/z", "p1/z", "p2/z", "p4/z", "p0/z"])
+    @operands_ptn.store("<Pd:all>.B", ["p15.b", "p1.b", "p0.b", "p8.b"])
+    @operands_ptn.store("<Pd:all>.H", ["p15.h", "p1.h", "p0.h", "p8.h"])
 
     @operands_ptn.store("#<imm16>", ["1", "(1<<4)", "(1<<8)", "(1<<12)", "(0xffff)"])
     @operands_ptn.store("<const:rot>", ["90", "0", "180", "270"])

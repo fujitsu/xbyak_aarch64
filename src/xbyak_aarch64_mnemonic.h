@@ -4649,6 +4649,10 @@ void CodeGenerator::rsubhnb(const ZRegS &zd, const ZRegD &zn, const ZRegD &zm) {
 void CodeGenerator::rsubhnt(const ZRegB &zd, const ZRegH &zn, const ZRegH &zm) { Sve2NarrGroup(2079, zd, zn, zm, 0); }
 void CodeGenerator::rsubhnt(const ZRegH &zd, const ZRegS &zn, const ZRegS &zm) { Sve2NarrGroup(2079, zd, zn, zm, 0); }
 void CodeGenerator::rsubhnt(const ZRegS &zd, const ZRegD &zn, const ZRegD &zm) { Sve2NarrGroup(2079, zd, zn, zm, 0); }
+void CodeGenerator::match(const PRegB &pd, const _PReg &pg, const ZRegB &zn, const ZRegB &zm) { Sve2CharMatch(133120, pd, pg, zn, zm); }
+void CodeGenerator::match(const PRegH &pd, const _PReg &pg, const ZRegH &zn, const ZRegH &zm) { Sve2CharMatch(133120, pd, pg, zn, zm); }
+void CodeGenerator::nmatch(const PRegB &pd, const _PReg &pg, const ZRegB &zn, const ZRegB &zm) { Sve2CharMatch(133121, pd, pg, zn, zm); }
+void CodeGenerator::nmatch(const PRegH &pd, const _PReg &pg, const ZRegH &zn, const ZRegH &zm) { Sve2CharMatch(133121, pd, pg, zn, zm); }
 void CodeGenerator::fcadd(const ZRegH &zdn, const _PReg &pg, const ZRegH &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }
 void CodeGenerator::fcadd(const ZRegS &zdn, const _PReg &pg, const ZRegS &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }
 void CodeGenerator::fcadd(const ZRegD &zdn, const _PReg &pg, const ZRegD &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }

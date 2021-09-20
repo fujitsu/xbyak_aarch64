@@ -3379,6 +3379,14 @@ void CodeGenerator::Sve2NarrGroup(uint32_t bit23_10, const _ZReg &zd, const _ZRe
   dd(code);
 }
 
+// SVE2 character math
+void CodeGenerator::Sve2CharMatch(uint32_t bit21_4, const _PReg &pd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
+  uint32_t size = genSize(zn);
+  verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
+  uint32_t code = concat({F(0x45, 24), F(size, 22), F(zm.getIdx(), 16), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(bit21_4, 4), F(pd.getIdx(), 0)});
+  dd(code);
+}
+
 // SVE floating-point complex add (predicated)
 void CodeGenerator::SveFpComplexAddPred(const _ZReg &zdn, const _PReg &pg, const _ZReg &zm, uint32_t ct) {
   uint32_t size = genSize(zdn);

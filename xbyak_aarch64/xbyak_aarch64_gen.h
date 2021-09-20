@@ -559,6 +559,7 @@ class CodeGenerator : public CodeArray {
   void SveMiscGroup(uint32_t bit23_10, const _ZReg &zd, const _ZReg &zda, const _ZReg &zn, const _ZReg &zm, uint32_t imm6);
   void Sve2AccGroup(uint32_t bit23_10, const _ZReg &zd, const _ZReg &zda, const _ZReg &zdn, const _ZReg &zn, const _ZReg &zm, uint32_t rot, uint32_t imm6);
   void Sve2NarrGroup(uint32_t bit23_10, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm, uint32_t amount);
+  void Sve2CharMatch(uint32_t bit21_4, const _PReg &pd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm);
   void SveFpComplexAddPred(const _ZReg &zdn, const _PReg &pg, const _ZReg &zm, uint32_t ct);
   void SveFpComplexMultAddPred(const _ZReg &zda, const _PReg &pg, const _ZReg &zn, const _ZReg &zm, uint32_t ct);
   void SveFpMultAddIndexed(uint32_t op, const _ZReg &zda, const _ZReg &zn, const ZRegElem &zm);

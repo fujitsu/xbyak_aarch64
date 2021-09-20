@@ -5215,6 +5215,19 @@ sve = {
     ]
   },
 
+  "Sve2CharMatch" => {
+    :cmt => "SVE2 character match",
+    :arg => [
+      [ {"pd" => "PRegB", "pg" => "_PReg", "zn" => "ZRegB", "zm" => "ZRegB"}], #0
+      [ {"pd" => "PRegH", "pg" => "_PReg", "zn" => "ZRegH", "zm" => "ZRegH"}]  #1
+    ],
+    :prm => ["bit21_4", "pd", "pg", "zn", "zm"],
+    :grp => [
+      {"MATCH"   => {"bit21_4" => 0x20800}},
+      {"NMATCH"   => {"bit21_4" => 0x20801}}
+    ]
+  },
+
   "SveFpComplexAddPred" => {
     :cmt => "SVE floating-point complex add (predicated)",
     :arg => ext_args(zreg_set_pred(2 ,"HSD"), [{"ct" => "uint32_t"}], {"zd"=>"zdn","zn"=>"zm"}),
