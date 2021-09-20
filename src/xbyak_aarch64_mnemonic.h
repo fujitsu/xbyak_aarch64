@@ -4499,6 +4499,66 @@ void CodeGenerator::bgrp(const ZRegB &zd, const ZRegB &zn, const ZRegB &zm) { Sv
 void CodeGenerator::bgrp(const ZRegH &zd, const ZRegH &zn, const ZRegH &zm) { SveMiscGroup(46, zd, ZReg(0), zn, zm, 0); }
 void CodeGenerator::bgrp(const ZRegS &zd, const ZRegS &zn, const ZRegS &zm) { SveMiscGroup(46, zd, ZReg(0), zn, zm, 0); }
 void CodeGenerator::bgrp(const ZRegD &zd, const ZRegD &zn, const ZRegD &zm) { SveMiscGroup(46, zd, ZReg(0), zn, zm, 0); }
+void CodeGenerator::cadd(const ZRegB &zdn, const ZRegB &zm, const uint32_t rot) { Sve2AccGroup(54, ZReg(0), ZReg(0), zdn, ZReg(0), zm, rot, 0); }
+void CodeGenerator::cadd(const ZRegH &zdn, const ZRegH &zm, const uint32_t rot) { Sve2AccGroup(54, ZReg(0), ZReg(0), zdn, ZReg(0), zm, rot, 0); }
+void CodeGenerator::cadd(const ZRegS &zdn, const ZRegS &zm, const uint32_t rot) { Sve2AccGroup(54, ZReg(0), ZReg(0), zdn, ZReg(0), zm, rot, 0); }
+void CodeGenerator::cadd(const ZRegD &zdn, const ZRegD &zm, const uint32_t rot) { Sve2AccGroup(54, ZReg(0), ZReg(0), zdn, ZReg(0), zm, rot, 0); }
+void CodeGenerator::sqcadd(const ZRegB &zdn, const ZRegB &zm, const uint32_t rot) { Sve2AccGroup(118, ZReg(0), ZReg(0), zdn, ZReg(0), zm, rot, 0); }
+void CodeGenerator::sqcadd(const ZRegH &zdn, const ZRegH &zm, const uint32_t rot) { Sve2AccGroup(118, ZReg(0), ZReg(0), zdn, ZReg(0), zm, rot, 0); }
+void CodeGenerator::sqcadd(const ZRegS &zdn, const ZRegS &zm, const uint32_t rot) { Sve2AccGroup(118, ZReg(0), ZReg(0), zdn, ZReg(0), zm, rot, 0); }
+void CodeGenerator::sqcadd(const ZRegD &zdn, const ZRegD &zm, const uint32_t rot) { Sve2AccGroup(118, ZReg(0), ZReg(0), zdn, ZReg(0), zm, rot, 0); }
+void CodeGenerator::sabalb(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { Sve2AccGroup(48, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::sabalb(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { Sve2AccGroup(48, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::sabalb(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { Sve2AccGroup(48, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::sabalt(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { Sve2AccGroup(49, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::sabalt(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { Sve2AccGroup(49, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::sabalt(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { Sve2AccGroup(49, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::uabalb(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { Sve2AccGroup(50, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::uabalb(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { Sve2AccGroup(50, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::uabalb(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { Sve2AccGroup(50, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::uabalt(const ZRegH &zda, const ZRegB &zn, const ZRegB &zm) { Sve2AccGroup(51, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::uabalt(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { Sve2AccGroup(51, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::uabalt(const ZRegD &zda, const ZRegS &zn, const ZRegS &zm) { Sve2AccGroup(51, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::adclb(const ZRegS &zda, const ZRegS &zn, const ZRegS &zm) { Sve2AccGroup(52, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::adclb(const ZRegD &zda, const ZRegD &zn, const ZRegD &zm) { Sve2AccGroup(52, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::adclt(const ZRegS &zda, const ZRegS &zn, const ZRegS &zm) { Sve2AccGroup(53, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::adclt(const ZRegD &zda, const ZRegD &zn, const ZRegD &zm) { Sve2AccGroup(53, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::sbclb(const ZRegS &zda, const ZRegS &zn, const ZRegS &zm) { Sve2AccGroup(8244, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::sbclb(const ZRegD &zda, const ZRegD &zn, const ZRegD &zm) { Sve2AccGroup(8244, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::sbclt(const ZRegS &zda, const ZRegS &zn, const ZRegS &zm) { Sve2AccGroup(8245, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::sbclt(const ZRegD &zda, const ZRegD &zn, const ZRegD &zm) { Sve2AccGroup(8245, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::ssra(const ZRegB &zda, const ZRegB &zn, const uint32_t imm6) { Sve2AccGroup(56, ZReg(0), zda, ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::ssra(const ZRegH &zda, const ZRegH &zn, const uint32_t imm6) { Sve2AccGroup(56, ZReg(0), zda, ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::ssra(const ZRegS &zda, const ZRegS &zn, const uint32_t imm6) { Sve2AccGroup(56, ZReg(0), zda, ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::ssra(const ZRegD &zda, const ZRegD &zn, const uint32_t imm6) { Sve2AccGroup(56, ZReg(0), zda, ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::usra(const ZRegB &zda, const ZRegB &zn, const uint32_t imm6) { Sve2AccGroup(57, ZReg(0), zda, ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::usra(const ZRegH &zda, const ZRegH &zn, const uint32_t imm6) { Sve2AccGroup(57, ZReg(0), zda, ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::usra(const ZRegS &zda, const ZRegS &zn, const uint32_t imm6) { Sve2AccGroup(57, ZReg(0), zda, ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::usra(const ZRegD &zda, const ZRegD &zn, const uint32_t imm6) { Sve2AccGroup(57, ZReg(0), zda, ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::srsra(const ZRegB &zda, const ZRegB &zn, const uint32_t imm6) { Sve2AccGroup(58, ZReg(0), zda, ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::srsra(const ZRegH &zda, const ZRegH &zn, const uint32_t imm6) { Sve2AccGroup(58, ZReg(0), zda, ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::srsra(const ZRegS &zda, const ZRegS &zn, const uint32_t imm6) { Sve2AccGroup(58, ZReg(0), zda, ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::srsra(const ZRegD &zda, const ZRegD &zn, const uint32_t imm6) { Sve2AccGroup(58, ZReg(0), zda, ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::ursra(const ZRegB &zda, const ZRegB &zn, const uint32_t imm6) { Sve2AccGroup(59, ZReg(0), zda, ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::ursra(const ZRegH &zda, const ZRegH &zn, const uint32_t imm6) { Sve2AccGroup(59, ZReg(0), zda, ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::ursra(const ZRegS &zda, const ZRegS &zn, const uint32_t imm6) { Sve2AccGroup(59, ZReg(0), zda, ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::ursra(const ZRegD &zda, const ZRegD &zn, const uint32_t imm6) { Sve2AccGroup(59, ZReg(0), zda, ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::sri(const ZRegB &zd, const ZRegB &zn, const uint32_t imm6) { Sve2AccGroup(60, zd, ZReg(0), ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::sri(const ZRegH &zd, const ZRegH &zn, const uint32_t imm6) { Sve2AccGroup(60, zd, ZReg(0), ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::sri(const ZRegS &zd, const ZRegS &zn, const uint32_t imm6) { Sve2AccGroup(60, zd, ZReg(0), ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::sri(const ZRegD &zd, const ZRegD &zn, const uint32_t imm6) { Sve2AccGroup(60, zd, ZReg(0), ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::sli(const ZRegB &zd, const ZRegB &zn, const uint32_t imm6) { Sve2AccGroup(61, zd, ZReg(0), ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::sli(const ZRegH &zd, const ZRegH &zn, const uint32_t imm6) { Sve2AccGroup(61, zd, ZReg(0), ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::sli(const ZRegS &zd, const ZRegS &zn, const uint32_t imm6) { Sve2AccGroup(61, zd, ZReg(0), ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::sli(const ZRegD &zd, const ZRegD &zn, const uint32_t imm6) { Sve2AccGroup(61, zd, ZReg(0), ZReg(0), zn, ZReg(0), 0, imm6); }
+void CodeGenerator::saba(const ZRegB &zda, const ZRegB &zn, const ZRegB &zm) { Sve2AccGroup(62, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::saba(const ZRegH &zda, const ZRegH &zn, const ZRegH &zm) { Sve2AccGroup(62, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::saba(const ZRegS &zda, const ZRegS &zn, const ZRegS &zm) { Sve2AccGroup(62, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::saba(const ZRegD &zda, const ZRegD &zn, const ZRegD &zm) { Sve2AccGroup(62, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::uaba(const ZRegB &zda, const ZRegB &zn, const ZRegB &zm) { Sve2AccGroup(63, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::uaba(const ZRegH &zda, const ZRegH &zn, const ZRegH &zm) { Sve2AccGroup(63, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::uaba(const ZRegS &zda, const ZRegS &zn, const ZRegS &zm) { Sve2AccGroup(63, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
+void CodeGenerator::uaba(const ZRegD &zda, const ZRegD &zn, const ZRegD &zm) { Sve2AccGroup(63, ZReg(0), zda, ZReg(0), zn, zm, 0, 0); }
 void CodeGenerator::fcadd(const ZRegH &zdn, const _PReg &pg, const ZRegH &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }
 void CodeGenerator::fcadd(const ZRegS &zdn, const _PReg &pg, const ZRegS &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }
 void CodeGenerator::fcadd(const ZRegD &zdn, const _PReg &pg, const ZRegD &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }

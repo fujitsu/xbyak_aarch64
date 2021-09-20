@@ -3265,6 +3265,51 @@ void CodeGenerator::SveMiscGroup(uint32_t bit23_10, const _ZReg &zd, const _ZReg
   dd(code);
 }
 
+// SVE2 Accumulate
+void CodeGenerator::Sve2AccGroup(uint32_t bit23_10, const _ZReg &zd, const _ZReg &zda, const _ZReg &zdn, const _ZReg &zn, const _ZReg &zm, uint32_t rot, uint32_t amount) {
+  uint32_t size = genSize(zd) | genSize(zda) | genSize(zdn);
+  uint32_t tmp_bit23_10 = 0;
+  uint32_t bit9_5 = zn.getIdx();
+  uint32_t bit20_16 = zm.getIdx();
+
+  if (bit23_10 == 0x36 /* CADD */ || bit23_10 == 0x76 /* SQCADD */) {
+
+    verifyIncList(rot, {90, 270}, ERR_ILLEGAL_IMM_VALUE);
+    rot = rot / 270;
+    bit9_5 = zm.getIdx();
+    bit20_16 = 0;
+  } else if (bit23_10 == 0x0034 /* ADCLB */ || bit23_10 == 0x0035 /* ADCLT */ || bit23_10 == 0x2064 /* SBCLB */ || bit23_10 == 0x2065 /* SBCLT */) {
+    size = size & 0x1; /* S -> 0x0, D -> 0x1 */
+  } else if (bit23_10 == 0x38 /* SSRA */ || bit23_10 == 0x39 /* USRA */ || bit23_10 == 0x3a /* SRSRA */ || bit23_10 == 0x3b /* URSRA */ || bit23_10 == 0x3c /* SRI */ || bit23_10 == 0x3d /* SLI*/) {
+    /* DDI0584B_a_SVE/SVE_xml/xhtml/ssra_z_zi.html
+      if !HaveSVE2() then UNDEFINED;
+      bits(4) tsize = tszh:tszl;
+      case tsize of
+      when '0000' UNDEFINED;
+      when '0001' esize = 8;
+      when '001x' esize = 16;
+      when '01xx' esize = 32;
+      when '1xxx' esize = 64;
+      integer n = UInt(Zn);
+      integer da = UInt(Zda);
+      integer shift = (2 * esize) - UInt(tsize:imm3);
+    */
+    uint32_t esize = (bit23_10 == 0x3c || bit23_10 == 0x3d) ? zd.getBit() : zda.getBit();
+    uint32_t imm = (bit23_10 == 0x3d) ? esize + amount : esize * 2 - amount;
+    uint32_t tszh = field(imm, 6, 5);
+    uint32_t tszl = field(imm, 4, 3);
+    uint32_t imm3 = imm & ones(3);
+
+    verifyIncRange(amount, 0, esize - 1, ERR_ILLEGAL_IMM_RANGE);
+
+    tmp_bit23_10 = (tszh << 12) | (tszl << 9) | (imm3 << 6);
+    size = 0;
+  }
+
+  uint32_t code = concat({F(0x45, 24), F(size, 22), F(bit20_16, 16), F((bit23_10 | tmp_bit23_10 | rot), 10), F(bit9_5, 5), F(zd.getIdx() | zda.getIdx() | zdn.getIdx(), 0)});
+  dd(code);
+}
+
 // SVE floating-point complex add (predicated)
 void CodeGenerator::SveFpComplexAddPred(const _ZReg &zdn, const _PReg &pg, const _ZReg &zm, uint32_t ct) {
   uint32_t size = genSize(zdn);

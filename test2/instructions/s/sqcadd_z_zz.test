@@ -1,0 +1,5 @@
+#DDI0584B_a_SVE/SVE_xml/xhtml/sqcadd_z_zz.html
+SQCADD <Zdn>.B, <Zdn>.B, <Zm>.B, <const:rot2>
+SQCADD <Zdn>.H, <Zdn>.H, <Zm>.H, <const:rot2>
+SQCADD <Zdn>.S, <Zdn>.S, <Zm>.S, <const:rot2>
+SQCADD <Zdn>.D, <Zdn>.D, <Zm>.D, <const:rot2>

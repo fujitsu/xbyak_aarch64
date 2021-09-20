@@ -5112,6 +5112,58 @@ sve = {
     ]
   },
 
+  "Sve2AccGroup" => {
+    :cmt => ["SVE2 complex integer add",
+             "SVE2 integer absolute difference and accumulate long",
+             "SVE2 integer add/subtract long with carry",
+             "SVE2 bitwise shift right and accumulate",
+             "SVE2 bitwise shift and insert",
+             "SVE2 integer absolute difference and accumulate"
+            ],
+    :arg => [
+      [ {"zdn" => "ZRegB"}, {"zm" => "ZRegB"}, {"rot" => "uint32_t"}], #0
+      [ {"zdn" => "ZRegH"}, {"zm" => "ZRegH"}, {"rot" => "uint32_t"}], #1
+      [ {"zdn" => "ZRegS"}, {"zm" => "ZRegS"}, {"rot" => "uint32_t"}], #2
+      [ {"zdn" => "ZRegD"}, {"zm" => "ZRegD"}, {"rot" => "uint32_t"}], #3
+      [ {"zda" => "ZRegH"}, {"zn" => "ZRegB"}, {"zm" => "ZRegB"}], #4
+      [ {"zda" => "ZRegS"}, {"zn" => "ZRegH"}, {"zm" => "ZRegH"}], #5
+      [ {"zda" => "ZRegD"}, {"zn" => "ZRegS"}, {"zm" => "ZRegS"}], #6
+      [ {"zda" => "ZRegB"}, {"zn" => "ZRegB"}, {"zm" => "ZRegB"}], #7
+      [ {"zda" => "ZRegH"}, {"zn" => "ZRegH"}, {"zm" => "ZRegH"}], #8
+      [ {"zda" => "ZRegS"}, {"zn" => "ZRegS"}, {"zm" => "ZRegS"}], #9
+      [ {"zda" => "ZRegD"}, {"zn" => "ZRegD"}, {"zm" => "ZRegD"}], #10
+      [ {"zda" => "ZRegB"}, {"zn" => "ZRegB"}, {"imm6" => "uint32_t"}], #11
+      [ {"zda" => "ZRegH"}, {"zn" => "ZRegH"}, {"imm6" => "uint32_t"}], #12
+      [ {"zda" => "ZRegS"}, {"zn" => "ZRegS"}, {"imm6" => "uint32_t"}], #13
+      [ {"zda" => "ZRegD"}, {"zn" => "ZRegD"}, {"imm6" => "uint32_t"}], #14
+      [ {"zd"  => "ZRegB"}, {"zn" => "ZRegB"}, {"imm6" => "uint32_t"}], #15
+      [ {"zd"  => "ZRegH"}, {"zn" => "ZRegH"}, {"imm6" => "uint32_t"}], #16
+      [ {"zd"  => "ZRegS"}, {"zn" => "ZRegS"}, {"imm6" => "uint32_t"}], #17
+      [ {"zd"  => "ZRegD"}, {"zn" => "ZRegD"}, {"imm6" => "uint32_t"}]  #18
+    ],
+    :prm => ["bit23_10", "zd", "zda", "zdn", "zn", "zm", "rot", "imm6"],
+    :grp => [
+      {"CADD"   => {"bit23_10" => 0x36,   "zd" => "ZReg(0)", "zda" => "ZReg(0)", "zn" => "ZReg(0)", "imm6" => 0x0}, :cmt => [0], :arg => 0..3},
+      {"SQCADD" => {"bit23_10" => 0x76,   "zd" => "ZReg(0)", "zda" => "ZReg(0)", "zn" => "ZReg(0)", "imm6" => 0x0}, :cmt => [0], :arg => 0..3},
+      {"SABALB" => {"bit23_10" => 0x30,   "zd" => "ZReg(0)", "zdn" => "ZReg(0)", "rot" => 0x0, "imm6" => 0x0}, :cmt => [1], :arg => 4..6},
+      {"SABALT" => {"bit23_10" => 0x31,   "zd" => "ZReg(0)", "zdn" => "ZReg(0)", "rot" => 0x0, "imm6" => 0x0}, :cmt => [1], :arg => 4..6},
+      {"UABALB" => {"bit23_10" => 0x32,   "zd" => "ZReg(0)", "zdn" => "ZReg(0)", "rot" => 0x0, "imm6" => 0x0}, :cmt => [1], :arg => 4..6},
+      {"UABALT" => {"bit23_10" => 0x33,   "zd" => "ZReg(0)", "zdn" => "ZReg(0)", "rot" => 0x0, "imm6" => 0x0}, :cmt => [1], :arg => 4..6},
+      {"ADCLB"  => {"bit23_10" => 0x0034, "zd" => "ZReg(0)", "zdn" => "ZReg(0)", "rot" => 0x0, "imm6" => 0x0}, :cmt => [2], :arg => 9..10},
+      {"ADCLT"  => {"bit23_10" => 0x0035, "zd" => "ZReg(0)", "zdn" => "ZReg(0)", "rot" => 0x0, "imm6" => 0x0}, :cmt => [2], :arg => 9..10},
+      {"SBCLB"  => {"bit23_10" => 0x2034, "zd" => "ZReg(0)", "zdn" => "ZReg(0)", "rot" => 0x0, "imm6" => 0x0}, :cmt => [2], :arg => 9..10},
+      {"SBCLT"  => {"bit23_10" => 0x2035, "zd" => "ZReg(0)", "zdn" => "ZReg(0)", "rot" => 0x0, "imm6" => 0x0}, :cmt => [2], :arg => 9..10},
+      {"SSRA"   => {"bit23_10" => 0x38,   "zd" => "ZReg(0)", "zdn" => "ZReg(0)", "zm" => "ZReg(0)", "rot" => 0x0}, :cmt => [3], :arg => 11..14},
+      {"USRA"   => {"bit23_10" => 0x39,   "zd" => "ZReg(0)", "zdn" => "ZReg(0)", "zm" => "ZReg(0)", "rot" => 0x0}, :cmt => [3], :arg => 11..14},
+      {"SRSRA"  => {"bit23_10" => 0x3a,   "zd" => "ZReg(0)", "zdn" => "ZReg(0)", "zm" => "ZReg(0)", "rot" => 0x0}, :cmt => [3], :arg => 11..14},
+      {"URSRA"  => {"bit23_10" => 0x3b,   "zd" => "ZReg(0)", "zdn" => "ZReg(0)", "zm" => "ZReg(0)", "rot" => 0x0}, :cmt => [3], :arg => 11..14},
+      {"SRI"    => {"bit23_10" => 0x3c,   "zda" => "ZReg(0)", "zdn" => "ZReg(0)", "zm" => "ZReg(0)", "rot" => 0x0}, :cmt => [4], :arg => 15..18},
+      {"SLI"    => {"bit23_10" => 0x3d,   "zda" => "ZReg(0)", "zdn" => "ZReg(0)", "zm" => "ZReg(0)", "rot" => 0x0}, :cmt => [4], :arg => 15..18},
+      {"SABA"   => {"bit23_10" => 0x3e,   "zd" => "ZReg(0)", "zdn" => "ZReg(0)", "rot" => 0x0, "imm6" => 0x0}, :cmt => [5], :arg => 7..10},
+      {"UABA"   => {"bit23_10" => 0x3f,   "zd" => "ZReg(0)", "zdn" => "ZReg(0)", "rot" => 0x0, "imm6" => 0x0}, :cmt => [5], :arg => 7..10}
+    ]
+  },
+
   "SveFpComplexAddPred" => {
     :cmt => "SVE floating-point complex add (predicated)",
     :arg => ext_args(zreg_set_pred(2 ,"HSD"), [{"ct" => "uint32_t"}], {"zd"=>"zdn","zn"=>"zm"}),

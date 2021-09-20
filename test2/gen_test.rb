@@ -77,6 +77,9 @@ class TestPatternGenerator
     ptn_line.gsub!(/<Wt:even>,<W\(t\+1\)>/, "WT_PAIR")
     ptn_line.gsub!(/<Xs:even>,<X\(s\+1\)>/, "XS_PAIR")
     ptn_line.gsub!(/<Xt:even>,<X\(t\+1\)>/, "XT_PAIR")
+    ptn_line.gsub!(/<Zdn>.B,<Zdn>.B/, "ZDN_B_PAIR")
+    ptn_line.gsub!(/<Zdn>.H,<Zdn>.H/, "ZDN_H_PAIR")
+    ptn_line.gsub!(/<Zdn>.S,<Zdn>.S/, "ZDN_S_PAIR")
     ptn_line.gsub!(/<Zdn>.D,<Zdn>.D/, "ZDN_D_PAIR")
     
     # Split mnemonic and operands
@@ -94,6 +97,9 @@ class TestPatternGenerator
       tmp[i].gsub!(/WT_PAIR/, "<Wt:even>,<W(t+1)>")
       tmp[i].gsub!(/XS_PAIR/, "<Xs:even>,<X(s+1)>")
       tmp[i].gsub!(/XT_PAIR/, "<Xt:even>,<X(t+1)>")
+      tmp[i].gsub!(/ZDN_B_PAIR/, "<Zdn>.B,<Zdn>.B")
+      tmp[i].gsub!(/ZDN_H_PAIR/, "<Zdn>.H,<Zdn>.H")
+      tmp[i].gsub!(/ZDN_S_PAIR/, "<Zdn>.S,<Zdn>.S")
       tmp[i].gsub!(/ZDN_D_PAIR/, "<Zdn>.D,<Zdn>.D")
       tmp[i].gsub!(/%/, "{,")
     end
@@ -310,6 +316,12 @@ class TestPatternGenerator
     @operands_ptn.store("<Zm:3>.D[<imm:1>]", ["z7.d[1]", "z1.d[0]", "z0.d[1]", "z4.d[0]"])
     @operands_ptn.store("<Zm:4>.D[<imm:1>]", ["z15.d[1]", "z1.d[0]", "z0.d[1]", "z8.d[0]"])
 
+    @operands_ptn.store("<Zdn>.B,<Zdn>.B", ["z8.b,z8.b/*asm*/", "z1.b,z1.b/*asm*/", "z2.b,z2.b/*asm*/", "z4.b,z4.b/*asm*/",
+                                            "z0.b,z0.b/*asm*/", "z16.b,z16.b/*asm*/", "z30.b,z30.b/*asm*/", "z31.b,z31.b/*asm*/"])
+    @operands_ptn.store("<Zdn>.H,<Zdn>.H", ["z8.h,z8.h/*asm*/", "z1.h,z1.h/*asm*/", "z2.h,z2.h/*asm*/", "z4.h,z4.h/*asm*/",
+                                            "z0.h,z0.h/*asm*/", "z16.h,z16.h/*asm*/", "z30.h,z30.h/*asm*/", "z31.h,z31.h/*asm*/"])
+    @operands_ptn.store("<Zdn>.S,<Zdn>.S", ["z8.s,z8.s/*asm*/", "z1.s,z1.s/*asm*/", "z2.s,z2.s/*asm*/", "z4.s,z4.s/*asm*/",
+                                            "z0.s,z0.s/*asm*/", "z16.s,z16.s/*asm*/", "z30.s,z30.s/*asm*/", "z31.s,z31.s/*asm*/"])
     @operands_ptn.store("<Zdn>.D,<Zdn>.D", ["z8.d,z8.d/*asm*/", "z1.d,z1.d/*asm*/", "z2.d,z2.d/*asm*/", "z4.d,z4.d/*asm*/",
                                             "z0.d,z0.d/*asm*/", "z16.d,z16.d/*asm*/", "z30.d,z30.d/*asm*/", "z31.d,z31.d/*asm*/"])
 
@@ -317,9 +329,16 @@ class TestPatternGenerator
 
     @operands_ptn.store("#<imm16>", ["1", "(1<<4)", "(1<<8)", "(1<<12)", "(0xffff)"])
     @operands_ptn.store("<const:rot>", ["90", "0", "180", "270"])
+    @operands_ptn.store("<const:rot2>", ["90", "270"])
     @operands_ptn.store("#<const:3>", ["(1<<3)-1", "1<<1", "0", "1<<2"])
     @operands_ptn.store("#<const:4>", ["(1<<4)-1", "1<<3", "0", "1<<2"])
     @operands_ptn.store("#<const:5>", ["(1<<5)-1", "1<<3", "0", "1<<2"])
+    @operands_ptn.store("#<const:6>", ["(1<<6)-1", "1<<3", "0", "1<<2"])
+
+    @operands_ptn.store("#<const:3:no0>", ["(1<<3)-1", "1<<1", "1<<2"])
+    @operands_ptn.store("#<const:4:no0>", ["(1<<4)-1", "1<<3", "1<<2"])
+    @operands_ptn.store("#<const:5:no0>", ["(1<<5)-1", "1<<3", "1<<2"])
+    @operands_ptn.store("#<const:6:no0>", ["(1<<6)-1", "1<<3", "1<<2"])
 
     @operands_ptn.store("OP:0", ["OP:0:/*asm*/"])
   end
