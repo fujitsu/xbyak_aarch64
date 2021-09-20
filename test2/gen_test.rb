@@ -317,6 +317,9 @@ class TestPatternGenerator
 
     @operands_ptn.store("#<imm16>", ["1", "(1<<4)", "(1<<8)", "(1<<12)", "(0xffff)"])
     @operands_ptn.store("<const:rot>", ["90", "0", "180", "270"])
+    @operands_ptn.store("#<const:3>", ["(1<<3)-1", "1<<1", "0", "1<<2"])
+    @operands_ptn.store("#<const:4>", ["(1<<4)-1", "1<<3", "0", "1<<2"])
+    @operands_ptn.store("#<const:5>", ["(1<<5)-1", "1<<3", "0", "1<<2"])
 
     @operands_ptn.store("OP:0", ["OP:0:/*asm*/"])
   end

@@ -1,0 +1,7 @@
+#DDI0584B_a_SVE/SVE_xml/xhtml/ushllt_z_zi.html
+# Shift amout 0-7
+USHLLT <Zd>.H, <Zn>.B, #<const:3>
+# Shift amout 0-15
+USHLLT <Zd>.S, <Zn>.H, #<const:4>
+# Shift amout 0-31
+USHLLT <Zd>.D, <Zn>.S, #<const:5>

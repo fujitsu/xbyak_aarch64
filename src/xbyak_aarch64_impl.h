@@ -3231,6 +3231,40 @@ void CodeGenerator::Sve2WideIntArithGroup(uint32_t bit15_10, const _ZReg &zd, co
   dd(code);
 }
 
+// SVE Misc
+void CodeGenerator::SveMiscGroup(uint32_t bit23_10, const _ZReg &zd, const _ZReg &zda, const _ZReg &zn, const _ZReg &zm, uint32_t amount) {
+  uint32_t size = genSize(zd);
+  uint32_t tmp_bit23_10 = 0;
+
+  if (bit23_10 == 0x28 /* SSHLLB*/ || bit23_10 == 0x29 /* SSHLLT */ || bit23_10 == 0x2a /* USHLLB */ || bit23_10 == 0x2b /* USHLLT */) {
+    /* DDI0584B_a_SVE/SVE_xml/xhtml/sshllb_z_zi.html
+      if !HaveSVE2() then UNDEFINED;
+      bits(3) tsize = tszh:tszl;
+      case tsize of
+      when '000' UNDEFINED;
+      when '001' esize = 8;
+      when '01x' esize = 16;
+      when '1xx' esize = 32;
+      integer n = UInt(Zn);
+      integer d = UInt(Zd);
+      integer shift = UInt(tsize:imm3) - esize;
+    */
+    uint32_t esize = 1 << (2 + size);
+    uint32_t imm = amount + esize;
+    uint32_t tszh = field(imm, 5, 5);
+    uint32_t tszl = field(imm, 4, 3);
+    uint32_t imm3 = imm & ones(3);
+
+    verifyIncRange(amount, 0, esize - 1, ERR_ILLEGAL_IMM_RANGE);
+
+    tmp_bit23_10 = (tszh << 12) | (tszl << 9) | (imm3 << 6);
+    size = 0;
+  }
+
+  uint32_t code = concat({F(0x45, 24), F(size, 22), F(zm.getIdx(), 16), F(bit23_10 | tmp_bit23_10, 10), F(zn.getIdx(), 5), F((zd.getIdx() | zda.getIdx()), 0)});
+  dd(code);
+}
+
 // SVE floating-point complex add (predicated)
 void CodeGenerator::SveFpComplexAddPred(const _ZReg &zdn, const _PReg &pg, const _ZReg &zm, uint32_t ct) {
   uint32_t size = genSize(zdn);
