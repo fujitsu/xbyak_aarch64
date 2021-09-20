@@ -5228,6 +5228,17 @@ sve = {
     ]
   },
 
+  "Sve2HistCompSeg" => {
+    :cmt => "SVE2 Histogram Computation - Segment",
+    :arg => [
+      [ {"zd" => "ZRegB", "zn" => "ZRegB", "zm" => "ZRegB"}], #0
+    ],
+    :prm => ["bit23_10", "zd", "zn", "zm"],
+    :grp => [
+      {"HISTSEG"   => {"bit23_10" => 0x828}}
+    ]
+  },
+
   "SveFpComplexAddPred" => {
     :cmt => "SVE floating-point complex add (predicated)",
     :arg => ext_args(zreg_set_pred(2 ,"HSD"), [{"ct" => "uint32_t"}], {"zd"=>"zdn","zn"=>"zm"}),

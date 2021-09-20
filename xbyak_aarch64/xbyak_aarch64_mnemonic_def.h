@@ -4653,6 +4653,7 @@ void match(const PRegB &pd, const _PReg &pg, const ZRegB &zn, const ZRegB &zm);
 void match(const PRegH &pd, const _PReg &pg, const ZRegH &zn, const ZRegH &zm);
 void nmatch(const PRegB &pd, const _PReg &pg, const ZRegB &zn, const ZRegB &zm);
 void nmatch(const PRegH &pd, const _PReg &pg, const ZRegH &zn, const ZRegH &zm);
+void histseg(const ZRegB &zd, const ZRegB &zn, const ZRegB &zm);
 void fcadd(const ZRegH &zdn, const _PReg &pg, const ZRegH &zm, const uint32_t ct);
 void fcadd(const ZRegS &zdn, const _PReg &pg, const ZRegS &zm, const uint32_t ct);
 void fcadd(const ZRegD &zdn, const _PReg &pg, const ZRegD &zm, const uint32_t ct);

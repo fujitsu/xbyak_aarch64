@@ -3387,6 +3387,13 @@ void CodeGenerator::Sve2CharMatch(uint32_t bit21_4, const _PReg &pd, const _PReg
   dd(code);
 }
 
+// SVE2 Histogram Computation - Segment
+void CodeGenerator::Sve2HistCompSeg(uint32_t bit23_10, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
+  uint32_t size = genSize(zn);
+  uint32_t code = concat({F(0x45, 24), F(size, 22), F(zm.getIdx(), 16), F(bit23_10, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
+  dd(code);
+}
+
 // SVE floating-point complex add (predicated)
 void CodeGenerator::SveFpComplexAddPred(const _ZReg &zdn, const _PReg &pg, const _ZReg &zm, uint32_t ct) {
   uint32_t size = genSize(zdn);
