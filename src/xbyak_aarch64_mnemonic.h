@@ -4661,6 +4661,12 @@ void CodeGenerator::aesd(const ZRegB &zdn, const ZRegB &zm) { Sve2CryptoExtGroup
 void CodeGenerator::sm4e(const ZRegS &zdn, const ZRegS &zm) { Sve2CryptoExtGroup(2296, ZReg(0), zdn, ZReg(0), zm); }
 void CodeGenerator::sm4ekey(const ZRegS &zd, const ZRegS &zn, const ZRegS &zm) { Sve2CryptoExtGroup(2108, zd, ZReg(0), zn, zm); }
 void CodeGenerator::rax1(const ZRegD &zd, const ZRegD &zn, const ZRegD &zm) { Sve2CryptoExtGroup(2109, zd, ZReg(0), zn, zm); }
+void CodeGenerator::fcvtxnt(const ZRegS &zd, const _PReg &pg, const ZRegD &zn) { SveFpConvPrecOddElem(85, zd, pg, zn); }
+void CodeGenerator::fcvtnt(const ZRegH &zd, const _PReg &pg, const ZRegS &zn) { SveFpConvPrecOddElem(1093, zd, pg, zn); }
+void CodeGenerator::fcvtnt(const ZRegS &zd, const _PReg &pg, const ZRegD &zn) { SveFpConvPrecOddElem(1093, zd, pg, zn); }
+void CodeGenerator::fcvtlt(const ZRegS &zd, const _PReg &pg, const ZRegH &zn) { SveFpConvPrecOddElem(1101, zd, pg, zn); }
+void CodeGenerator::fcvtlt(const ZRegD &zd, const _PReg &pg, const ZRegS &zn) { SveFpConvPrecOddElem(1101, zd, pg, zn); }
+void CodeGenerator::bfcvtnt(const ZRegH &zd, const _PReg &pg, const ZRegS &zn) { SveFpConvPrecOddElem(1109, zd, pg, zn); }
 void CodeGenerator::fcadd(const ZRegH &zdn, const _PReg &pg, const ZRegH &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }
 void CodeGenerator::fcadd(const ZRegS &zdn, const _PReg &pg, const ZRegS &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }
 void CodeGenerator::fcadd(const ZRegD &zdn, const _PReg &pg, const ZRegD &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }

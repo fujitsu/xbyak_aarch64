@@ -5263,6 +5263,23 @@ sve = {
     ]
   },
 
+  "SveFpConvPrecOddElem" => {
+    :cmt => "SVE floating-point convert precision odd elements",
+    :arg => [
+        [{"zd" => "ZRegH", "pg" => "_PReg", "zn" => "ZRegS"}], #0
+        [{"zd" => "ZRegS", "pg" => "_PReg", "zn" => "ZRegH"}], #1
+        [{"zd" => "ZRegS", "pg" => "_PReg", "zn" => "ZRegD"}], #2
+        [{"zd" => "ZRegD", "pg" => "_PReg", "zn" => "ZRegS"}], #3
+    ],
+    :prm => ["bit23_13", "zd", "pg", "zn"],
+    :grp => [
+      {"FCVTXNT" => {"bit23_13" => 0x055}, :arg => [2]},
+      {"FCVTNT"  => {"bit23_13" => 0x445}, :arg => [0, 2]},
+      {"FCVTLT"  => {"bit23_13" => 0x44d}, :arg => [1, 3]},
+      {"BFCVTNT" => {"bit23_13" => 0x455}, :arg => [0]}
+    ]
+  },
+
   "SveFpComplexAddPred" => {
     :cmt => "SVE floating-point complex add (predicated)",
     :arg => ext_args(zreg_set_pred(2 ,"HSD"), [{"ct" => "uint32_t"}], {"zd"=>"zdn","zn"=>"zm"}),

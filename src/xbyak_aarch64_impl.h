@@ -3410,6 +3410,20 @@ void CodeGenerator::Sve2CryptoExtGroup(uint32_t bit23_10, const _ZReg &zd, const
   dd(code);
 }
 
+// SVE floating-point convert precision odd elements",
+void CodeGenerator::SveFpConvPrecOddElem(uint32_t bit23_13, const _ZReg &zd, const _PReg &pg, const _ZReg &zn) {
+  uint32_t _bit23_13 = 0;
+  verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
+
+  if (bit23_13 == 0x445 /* FCVTN */)
+    _bit23_13 = (genSize(zd) == 1) ? 0x445 : 0x655;
+  else if (bit23_13 == 0x44d /* FCVTL */)
+    _bit23_13 = (genSize(zd) == 2) ? 0x44d : 0x65d;
+
+  uint32_t code = concat({F(0x64, 24), F((bit23_13 | _bit23_13), 13), F(pg.getIdx(), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
+  dd(code);
+}
+
 // SVE floating-point complex add (predicated)
 void CodeGenerator::SveFpComplexAddPred(const _ZReg &zdn, const _PReg &pg, const _ZReg &zm, uint32_t ct) {
   uint32_t size = genSize(zdn);
