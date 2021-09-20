@@ -270,6 +270,7 @@ class TestPatternGenerator
     @operands_ptn.store("<Zd>.H", ["z8.h", "z1.h", "z2.h", "z4.h", "z0.h", "z16.h", "z30.h", "z31.h"])
     @operands_ptn.store("<Zd>.S", ["z8.s", "z1.s", "z2.s", "z4.s", "z0.s", "z16.s", "z30.s", "z31.s"])
     @operands_ptn.store("<Zd>.D", ["z8.d", "z1.d", "z2.d", "z4.d", "z0.d", "z16.d", "z30.d", "z31.d"])
+    @operands_ptn.store("<Zd>.Q", ["z8.q", "z1.q", "z2.q", "z4.q", "z0.q", "z16.q", "z30.q", "z31.q"])
 
     @operands_ptn.store("<Zda>.B", ["z8.b", "z1.b", "z2.b", "z4.b", "z0.b", "z16.b", "z30.b", "z31.b"])
     @operands_ptn.store("<Zda>.H", ["z8.h", "z1.h", "z2.h", "z4.h", "z0.h", "z16.h", "z30.h", "z31.h"])

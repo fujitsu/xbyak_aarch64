@@ -5020,6 +5020,54 @@ sve = {
     ]
   },
 
+  "Sve2WideIntArithGroup" => {
+    :cmt => ["SVE2 integer add/subtract long",
+             "SVE2 integer add/subtract wide",
+             "SVE2 integer multiply long"
+            ],
+    :arg => [
+      [ {"zd" => "ZRegH"}, {"zn" => "ZRegB"}, {"zm" => "ZRegB"}], #0
+      [ {"zd" => "ZRegS"}, {"zn" => "ZRegH"}, {"zm" => "ZRegH"}], #1
+      [ {"zd" => "ZRegD"}, {"zn" => "ZRegS"}, {"zm" => "ZRegS"}], #2
+      [ {"zd" => "ZRegQ"}, {"zn" => "ZRegD"}, {"zm" => "ZRegD"}], #3
+
+      [ {"zd" => "ZRegH"}, {"zn" => "ZRegH"}, {"zm" => "ZRegB"}], #4
+      [ {"zd" => "ZRegS"}, {"zn" => "ZRegS"}, {"zm" => "ZRegH"}], #5
+      [ {"zd" => "ZRegD"}, {"zn" => "ZRegD"}, {"zm" => "ZRegS"}]  #6
+    ],
+    :prm => ["bit15_10", "zd", "zn", "zm"],
+    :grp => [
+      {"SADDLB"   => {"bit15_10" => 0x0},  :cmt => [0], :arg => 0..2},
+      {"SADDLT"   => {"bit15_10" => 0x1},  :cmt => [0], :arg => 0..2},
+      {"UADDLB"   => {"bit15_10" => 0x2},  :cmt => [0], :arg => 0..2},
+      {"UADDLT"   => {"bit15_10" => 0x3},  :cmt => [0], :arg => 0..2},
+      {"SSUBLB"   => {"bit15_10" => 0x4},  :cmt => [0], :arg => 0..2},
+      {"SSUBLT"   => {"bit15_10" => 0x5},  :cmt => [0], :arg => 0..2},
+      {"USUBLB"   => {"bit15_10" => 0x6},  :cmt => [0], :arg => 0..2},
+      {"USUBLT"   => {"bit15_10" => 0x7},  :cmt => [0], :arg => 0..2},
+      {"SABDLB"   => {"bit15_10" => 0xc},  :cmt => [0], :arg => 0..2},
+      {"SABDLT"   => {"bit15_10" => 0xd},  :cmt => [0], :arg => 0..2},
+      {"UABDLB"   => {"bit15_10" => 0xe},  :cmt => [0], :arg => 0..2},
+      {"UABDLT"   => {"bit15_10" => 0xf},  :cmt => [0], :arg => 0..2},
+      {"SADDWB"   => {"bit15_10" => 0x10},  :cmt => [1], :arg => 4..6},
+      {"SADDWT"   => {"bit15_10" => 0x11},  :cmt => [1], :arg => 4..6},
+      {"UADDWB"   => {"bit15_10" => 0x12},  :cmt => [1], :arg => 4..6},
+      {"UADDWT"   => {"bit15_10" => 0x13},  :cmt => [1], :arg => 4..6},
+      {"SSUBWB"   => {"bit15_10" => 0x14},  :cmt => [1], :arg => 4..6},
+      {"SSUBWT"   => {"bit15_10" => 0x15},  :cmt => [1], :arg => 4..6},
+      {"USUBWB"   => {"bit15_10" => 0x16},  :cmt => [1], :arg => 4..6},
+      {"USUBWT"   => {"bit15_10" => 0x17},  :cmt => [1], :arg => 4..6},
+      {"SQDMULLB" => {"bit15_10" => 0x18},  :cmt => [2], :arg => 0..2},
+      {"SQDMULLT" => {"bit15_10" => 0x19},  :cmt => [2], :arg => 0..2},
+      {"PMULLB"   => {"bit15_10" => 0x1a},  :cmt => [2], :arg => [3, 0, 2]},
+      {"PMULLT"   => {"bit15_10" => 0x1b},  :cmt => [2], :arg => [3, 0, 2]},
+      {"SMULLB"   => {"bit15_10" => 0x1c},  :cmt => [2], :arg => 0..2},
+      {"SMULLT"   => {"bit15_10" => 0x1d},  :cmt => [2], :arg => 0..2},
+      {"UMULLB"   => {"bit15_10" => 0x1e},  :cmt => [2], :arg => 0..2},
+      {"UMULLT"   => {"bit15_10" => 0x1f},  :cmt => [2], :arg => 0..2}
+    ]
+  },
+
   "SveFpComplexAddPred" => {
     :cmt => "SVE floating-point complex add (predicated)",
     :arg => ext_args(zreg_set_pred(2 ,"HSD"), [{"ct" => "uint32_t"}], {"zd"=>"zdn","zn"=>"zm"}),

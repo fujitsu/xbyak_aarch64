@@ -223,6 +223,9 @@ uint32_t genSize(const Reg &Reg) {
   case 64:
     size = 3;
     break;
+  case 128:
+    size = 4;
+    break;
   default:
     size = 0;
   }
@@ -3212,6 +3215,19 @@ void CodeGenerator::SveMultIndexedGroup(uint32_t bit20_10, const _ZReg &zda, con
   verifyIncRange(zm_idx, 0, max_zm_idx, ERR_ILLEGAL_REG_IDX);
 
   uint32_t code = concat({F(0x44, 24), F(size, 22), F(1, 21), F((bit20_10 | i | (rot / 90)), 10), F(zm_idx, 16), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
+  dd(code);
+}
+
+// SVE2 Widening Integer Arithmetic
+void CodeGenerator::Sve2WideIntArithGroup(uint32_t bit15_10, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
+  uint32_t size = genSize(zd);
+
+  if (bit15_10 == 0x1a /* PMULLB */ || bit15_10 == 0x1b /* PMULLT */) {
+    verifyIncList(size, {1, 3, 4}, ERR_ILLEGAL_TYPE);
+    size = (size == 4) ? 0 : size;
+  }
+
+  uint32_t code = concat({F(0x45, 24), F(size, 22), F(zm.getIdx(), 16), F(bit15_10, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
   dd(code);
 }
 
