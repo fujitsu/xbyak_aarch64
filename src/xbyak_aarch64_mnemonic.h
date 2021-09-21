@@ -4864,6 +4864,9 @@ void CodeGenerator::fcvtzs(const ZRegD &zd, const _PReg &pg, const ZRegS &zn) { 
 void CodeGenerator::fcvtzu(const ZRegD &zd, const _PReg &pg, const ZRegS &zn) { SveFpCvtToInt(3, 2, 1, zd, pg, zn); }
 void CodeGenerator::fcvtzs(const ZRegD &zd, const _PReg &pg, const ZRegD &zn) { SveFpCvtToInt(3, 3, 0, zd, pg, zn); }
 void CodeGenerator::fcvtzu(const ZRegD &zd, const _PReg &pg, const ZRegD &zn) { SveFpCvtToInt(3, 3, 1, zd, pg, zn); }
+void CodeGenerator::flogb(const ZRegH &zd, const _PReg &pg, const ZRegH &zn) { SveFpCvtToInt(0, 1, 0, zd, pg, zn); }
+void CodeGenerator::flogb(const ZRegS &zd, const _PReg &pg, const ZRegS &zn) { SveFpCvtToInt(0, 2, 0, zd, pg, zn); }
+void CodeGenerator::flogb(const ZRegD &zd, const _PReg &pg, const ZRegD &zn) { SveFpCvtToInt(0, 3, 0, zd, pg, zn); }
 void CodeGenerator::frintn(const ZRegH &zd, const _PReg &pg, const ZRegH &zn) { SveFpRoundToIntegral(0, zd, pg, zn); }
 void CodeGenerator::frintn(const ZRegS &zd, const _PReg &pg, const ZRegS &zn) { SveFpRoundToIntegral(0, zd, pg, zn); }
 void CodeGenerator::frintn(const ZRegD &zd, const _PReg &pg, const ZRegD &zn) { SveFpRoundToIntegral(0, zd, pg, zn); }
