@@ -6246,6 +6246,38 @@ sve = {
     ]
   },
 
+  "Sve2_64GatherNTLdSc64" => {
+    :cmt => "SVE2 64-bit gather non-temporal load (scalar plus unpacked 32-bit unscaled offsets) : 64-bit element",
+    :arg => [
+      [ { "zt" => "ZRegD"}, {"pg" => "_PReg"}, {"adr" => "AdrVecSc64"}]
+    ],
+    :prm => ["msz", "U", "zt", "pg", "adr"],
+    :grp => [
+      {"LDNT1SB" => {"msz" => 0, "U" => 0}},
+      {"LDNT1B"  => {"msz" => 0, "U" => 1}},
+      {"LDNT1SH" => {"msz" => 1, "U" => 0}},
+      {"LDNT1H"  => {"msz" => 1, "U" => 1}},
+      {"LDNT1SW" => {"msz" => 2, "U" => 0}},
+      {"LDNT1W"  => {"msz" => 2, "U" => 1}},
+      {"LDNT1D"  => {"msz" => 3, "U" => 1}}
+    ],
+  },
+
+  "Sve2_64GatherNTLdSc32" => {
+    :cmt => "SVE2 64-bit gather non-temporal load (scalar plus unpacked 32-bit unscaled offsets) : 32-bit element",
+    :arg => [
+      [ { "zt" => "ZRegS"}, {"pg" => "_PReg"}, {"adr" => "AdrVecSc32"}]
+    ],
+    :prm => ["msz", "U", "zt", "pg", "adr"],
+    :grp => [
+      {"LDNT1SB" => {"msz" => 0, "U" => 0}},
+      {"LDNT1B"  => {"msz" => 0, "U" => 1}},
+      {"LDNT1SH" => {"msz" => 1, "U" => 0}},
+      {"LDNT1H"  => {"msz" => 1, "U" => 1}},
+      {"LDNT1W"  => {"msz" => 2, "U" => 1}},
+    ],
+  },
+
   "Sve64GatherLdVecImm" => {
     :cmt => "SVE 64-bit gather load (vector plus immeidate)",
     :arg => [[ {"zt" => "ZRegD"}, {"pg" => "_PReg"}, {"adr" => "AdrVecImm64"}]],

@@ -625,6 +625,8 @@ class CodeGenerator : public CodeArray {
   void Sve64GatherLdSc64S(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrSc64S &adr);
   void Sve64GatherLdSc64U(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrSc64U &adr);
   void Sve64GatherLdSc32UU(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrSc32UU &adr);
+  void Sve2_64GatherNTLdSc64(uint32_t msz, uint32_t U, const _ZReg &zt, const _PReg &pg, const AdrVecSc64 &adr);
+  void Sve2_64GatherNTLdSc32(uint32_t msz, uint32_t U, const _ZReg &zt, const _PReg &pg, const AdrVecSc32 &adr);
   void Sve64GatherLdVecImm(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrVecImm64 &adr);
   void Sve64GatherPfSc64S(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrSc64S &adr);
   void Sve64GatherPfSc32US(PrfopSve prfop_sve, uint32_t msz, const _PReg &pg, const AdrSc32US &adr);

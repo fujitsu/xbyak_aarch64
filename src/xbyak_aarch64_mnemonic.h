@@ -5331,6 +5331,18 @@ void CodeGenerator::ld1w(const ZRegD &zt, const _PReg &pg, const AdrSc32UU &adr)
 void CodeGenerator::ldff1w(const ZRegD &zt, const _PReg &pg, const AdrSc32UU &adr) { Sve64GatherLdSc32UU(2, 1, 1, zt, pg, adr); }
 void CodeGenerator::ld1d(const ZRegD &zt, const _PReg &pg, const AdrSc32UU &adr) { Sve64GatherLdSc32UU(3, 1, 0, zt, pg, adr); }
 void CodeGenerator::ldff1d(const ZRegD &zt, const _PReg &pg, const AdrSc32UU &adr) { Sve64GatherLdSc32UU(3, 1, 1, zt, pg, adr); }
+void CodeGenerator::ldnt1sb(const ZRegD &zt, const _PReg &pg, const AdrVecSc64 &adr) { Sve2_64GatherNTLdSc64(0, 0, zt, pg, adr); }
+void CodeGenerator::ldnt1b(const ZRegD &zt, const _PReg &pg, const AdrVecSc64 &adr) { Sve2_64GatherNTLdSc64(0, 1, zt, pg, adr); }
+void CodeGenerator::ldnt1sh(const ZRegD &zt, const _PReg &pg, const AdrVecSc64 &adr) { Sve2_64GatherNTLdSc64(1, 0, zt, pg, adr); }
+void CodeGenerator::ldnt1h(const ZRegD &zt, const _PReg &pg, const AdrVecSc64 &adr) { Sve2_64GatherNTLdSc64(1, 1, zt, pg, adr); }
+void CodeGenerator::ldnt1sw(const ZRegD &zt, const _PReg &pg, const AdrVecSc64 &adr) { Sve2_64GatherNTLdSc64(2, 0, zt, pg, adr); }
+void CodeGenerator::ldnt1w(const ZRegD &zt, const _PReg &pg, const AdrVecSc64 &adr) { Sve2_64GatherNTLdSc64(2, 1, zt, pg, adr); }
+void CodeGenerator::ldnt1d(const ZRegD &zt, const _PReg &pg, const AdrVecSc64 &adr) { Sve2_64GatherNTLdSc64(3, 1, zt, pg, adr); }
+void CodeGenerator::ldnt1sb(const ZRegS &zt, const _PReg &pg, const AdrVecSc32 &adr) { Sve2_64GatherNTLdSc32(0, 0, zt, pg, adr); }
+void CodeGenerator::ldnt1b(const ZRegS &zt, const _PReg &pg, const AdrVecSc32 &adr) { Sve2_64GatherNTLdSc32(0, 1, zt, pg, adr); }
+void CodeGenerator::ldnt1sh(const ZRegS &zt, const _PReg &pg, const AdrVecSc32 &adr) { Sve2_64GatherNTLdSc32(1, 0, zt, pg, adr); }
+void CodeGenerator::ldnt1h(const ZRegS &zt, const _PReg &pg, const AdrVecSc32 &adr) { Sve2_64GatherNTLdSc32(1, 1, zt, pg, adr); }
+void CodeGenerator::ldnt1w(const ZRegS &zt, const _PReg &pg, const AdrVecSc32 &adr) { Sve2_64GatherNTLdSc32(2, 1, zt, pg, adr); }
 void CodeGenerator::ld1sb(const ZRegD &zt, const _PReg &pg, const AdrVecImm64 &adr) { Sve64GatherLdVecImm(0, 0, 0, zt, pg, adr); }
 void CodeGenerator::ldff1sb(const ZRegD &zt, const _PReg &pg, const AdrVecImm64 &adr) { Sve64GatherLdVecImm(0, 0, 1, zt, pg, adr); }
 void CodeGenerator::ld1b(const ZRegD &zt, const _PReg &pg, const AdrVecImm64 &adr) { Sve64GatherLdVecImm(0, 1, 0, zt, pg, adr); }

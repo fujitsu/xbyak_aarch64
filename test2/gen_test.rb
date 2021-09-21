@@ -80,6 +80,7 @@ class TestPatternGenerator
     ptn_line.gsub!(/<Wt:even>,<W\(t\+1\)>/, "WT_PAIR")
     ptn_line.gsub!(/<Xs:even>,<X\(s\+1\)>/, "XS_PAIR")
     ptn_line.gsub!(/<Xt:even>,<X\(t\+1\)>/, "XT_PAIR")
+    ptn_line.gsub!(/\[<Zn>\.S%<Xm>\}\]/, "ADR_ZN_S_XM")
     ptn_line.gsub!(/{<Zn1>.B,<Zn2>.B}/, "ZN_B_LIST")
     ptn_line.gsub!(/{<Zn1>.H,<Zn2>.H}/, "ZN_H_LIST")
     ptn_line.gsub!(/{<Zn1>.S,<Zn2>.S}/, "ZN_S_LIST")
@@ -110,6 +111,7 @@ class TestPatternGenerator
       tmp[i].gsub!(/WT_PAIR/, "<Wt:even>,<W(t+1)>")
       tmp[i].gsub!(/XS_PAIR/, "<Xs:even>,<X(s+1)>")
       tmp[i].gsub!(/XT_PAIR/, "<Xt:even>,<X(t+1)>")
+      tmp[i].gsub!(/ADR_ZN_S_XM/, "[<Zn>.S{,<Xm>}]")
       tmp[i].gsub!(/ZN_B_LIST/, "{<Zn1>.B,<Zn2>.B}")
       tmp[i].gsub!(/ZN_H_LIST/, "{<Zn1>.H,<Zn2>.H}")
       tmp[i].gsub!(/ZN_S_LIST/, "{<Zn1>.S,<Zn2>.S}")
@@ -274,14 +276,6 @@ class TestPatternGenerator
 
     inst += "); dump();"
     inst.sub!(/and\(/, "and_(")
-
-    # Replace ",[" -> ",ptr["
-    #inst.sub!(/,\[/, ",ptr(")
-
-    # Replace "]" -> ")"
-    #inst.sub!(/ptr\(([^\]]+)\]/} { "ptr(" + $1 + ")" }
-    #inst.sub!(/ptr\(([^\]]+)\]/, hoge
-
     return inst
   end
   
@@ -369,6 +363,9 @@ class TestPatternGenerator
     @operands_ptn.store("<Zk>.S", ["z8.s", "z1.s", "z2.s", "z4.s", "z0.s", "z16.s", "z30.s", "z31.s"])
     @operands_ptn.store("<Zk>.D", ["z8.d", "z1.d", "z2.d", "z4.d", "z0.d", "z16.d", "z30.d", "z31.d"])
 
+    @operands_ptn.store("{<Zt>.S}", ["{z8.s}", "{z1.s}", "{z2.s}", "{z4.s}", "{z0.s}", "{z16.s}", "{z30.s}", "{z31.s}"])
+    @operands_ptn.store("{<Zt>.D}", ["{z8.d}", "{z1.d}", "{z2.d}", "{z4.d}", "{z0.d}", "{z16.d}", "{z30.d}", "{z31.d}"])
+
     @operands_ptn.store("<Zm:3>.B[<imm:2>]", ["z7.b[3]", "z1.b[1]", "z2.b[0]", "z4.b[2]"])
 
     @operands_ptn.store("<Zm:3>.H[<imm:2>]", ["z7.h[3]", "z1.h[1]", "z0.h[0]", "z4.h[2]"])
@@ -415,6 +412,13 @@ class TestPatternGenerator
     @operands_ptn.store("{<Zn1>.D,<Zn2>.D}", ["<{z8.d,z9.d}|(z8.d-z9.d)>", "<{z1.d,z2.d}|(z1.d-z2.d)>", "<{z2.d,z3.d}|(z2.d-z3.d)>",
                                               "<{z4.d,z5.d}|(z4.d-z5.d)>", "<{z0.d,z1.d}|(z0.d-z1.d)>", "<{z16.d,z17.d}|(z16.d-z17.d)>",
                                               "<{z30.d,z31.d}|(z30.d-z31.d)>", "<{z31.d,z0.d}|(z31.d-z0.d)>"])
+
+    @operands_ptn.store("[<Zn>.S{,<Xm>}]", ["<[z7.s]|ptr(z7.s, xzr)>", "<[z7.s, x30]|ptr(z7.s, x30)>", "<[z7.s, x0]|ptr(z7.s, x0)>",
+                                            "<[z31.s]|ptr(z31.s, xzr)>", "<[z31.s, x30]|ptr(z31.s, x30)>", "<[z31.s, x0]|ptr(z31.s, x0)>",
+                                            "<[z0.s]|ptr(z0.s, xzr)>", "<[z0.s, x30]|ptr(z0.s, x30)>", "<[z0.s, x0]|ptr(z0.s, x0)>"])
+    @operands_ptn.store("[<Zn>.D{,<Xm>}]", ["<[z7.d]|ptr(z7.d, xzr)>", "<[z7.d, x30]|ptr(z7.d, x30)>", "<[z7.d, x0]|ptr(z7.d, x0)>",
+                                            "<[z31.d]|ptr(z31.d, xzr)>", "<[z31.d, x30]|ptr(z31.d, x30)>", "<[z31.d, x0]|ptr(z31.d, x0)>",
+                                            "<[z0.d]|ptr(z0.d, xzr)>", "<[z0.d, x30]|ptr(z0.d, x30)>", "<[z0.d, x0]|ptr(z0.d, x0)>"])
 
     @operands_ptn.store("<Pd>.B", ["p7.b", "p1.b", "p2.b", "p4.b", "p0.b"])
     @operands_ptn.store("<Pd>.H", ["p7.h", "p1.h", "p2.h", "p4.h", "p0.h"])

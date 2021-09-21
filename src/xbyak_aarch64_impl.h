@@ -3986,6 +3986,24 @@ void CodeGenerator::Sve64GatherLdSc32UU(uint32_t msz, uint32_t U, uint32_t ff, c
   dd(code);
 }
 
+// SVE2 64-bit gather non-temporal load (scalar plus unpacked 32-bit unscaled offsets) : 64-bit element
+void CodeGenerator::Sve2_64GatherNTLdSc64(uint32_t msz, uint32_t U, const _ZReg &zt, const _PReg &pg, const AdrVecSc64 &adr) {
+  verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
+  // Sve2_64GatherNTLdSc64: U = bit14
+  // Sve2_64GatherNTLdSc32: U = bit13
+  uint32_t code = concat({F(0x62, 25), F(msz, 23), F(adr.getXm().getIdx(), 16), F(1, 15), F(U, 14), F(pg.getIdx(), 10), F(adr.getZn().getIdx(), 5), F(zt.getIdx(), 0)});
+  dd(code);
+}
+
+// SVE2 64-bit gather non-temporal load (scalar plus unpacked 32-bit unscaled offsets) : 32-bit element
+void CodeGenerator::Sve2_64GatherNTLdSc32(uint32_t msz, uint32_t U, const _ZReg &zt, const _PReg &pg, const AdrVecSc32 &adr) {
+  verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
+  // Sve2_64GatherNTLdSc64: U = bit14
+  // Sve2_64GatherNTLdSc32: U = bit13
+  uint32_t code = concat({F(0x42, 25), F(msz, 23), F(adr.getXm().getIdx(), 16), F(1, 15), F(U, 13), F(pg.getIdx(), 10), F(adr.getZn().getIdx(), 5), F(zt.getIdx(), 0)});
+  dd(code);
+}
+
 // SVE 64-bit gather load (vector plus immeidate)
 void CodeGenerator::Sve64GatherLdVecImm(uint32_t msz, uint32_t U, uint32_t ff, const _ZReg &zt, const _PReg &pg, const AdrVecImm64 &adr) {
   uint32_t imm = adr.getImm();
