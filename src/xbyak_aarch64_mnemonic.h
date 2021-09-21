@@ -4015,10 +4015,6 @@ void CodeGenerator::uqdecp(const ZRegS &zdn, const _PReg &pg) { SveSatuIncDecVec
 void CodeGenerator::uqdecp(const ZRegD &zdn, const _PReg &pg) { SveSatuIncDecVecByPredCount(1, 1, 0, zdn, pg); }
 void CodeGenerator::setffr() { SveFFRInit(0); }
 void CodeGenerator::wrffr(const PRegB &pn) { SveFFRWritePred(0, pn); }
-void CodeGenerator::ctermeq(const WReg &rn, const WReg &rm) { SveCondTermScalars(1, 0, rn, rm); }
-void CodeGenerator::ctermeq(const XReg &rn, const XReg &rm) { SveCondTermScalars(1, 0, rn, rm); }
-void CodeGenerator::ctermne(const WReg &rn, const WReg &rm) { SveCondTermScalars(1, 1, rn, rm); }
-void CodeGenerator::ctermne(const XReg &rn, const XReg &rm) { SveCondTermScalars(1, 1, rn, rm); }
 void CodeGenerator::whilege(const PRegB &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 0, pd, rn, rm); }
 void CodeGenerator::whilege(const PRegH &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 0, pd, rn, rm); }
 void CodeGenerator::whilege(const PRegS &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 0, pd, rn, rm); }
@@ -4083,6 +4079,12 @@ void CodeGenerator::whilels(const PRegB &pd, const XReg &rn, const XReg &rm) { S
 void CodeGenerator::whilels(const PRegH &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(1, 1, 1, pd, rn, rm); }
 void CodeGenerator::whilels(const PRegS &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(1, 1, 1, pd, rn, rm); }
 void CodeGenerator::whilels(const PRegD &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(1, 1, 1, pd, rn, rm); }
+void CodeGenerator::ctermeq(const WReg &rn, const WReg &rm) { SveCondTermScalars(1, 0, rn, rm); }
+void CodeGenerator::ctermeq(const XReg &rn, const XReg &rm) { SveCondTermScalars(1, 0, rn, rm); }
+void CodeGenerator::ctermne(const WReg &rn, const WReg &rm) { SveCondTermScalars(1, 1, rn, rm); }
+void CodeGenerator::ctermne(const XReg &rn, const XReg &rm) { SveCondTermScalars(1, 1, rn, rm); }
+void CodeGenerator::whilewr(const _PReg &pd, const XReg &xn, const XReg &xm) { SvePointConfCmp(0, pd, xn, xm); }
+void CodeGenerator::whilerw(const _PReg &pd, const XReg &xn, const XReg &xm) { SvePointConfCmp(1, pd, xn, xm); }
 void CodeGenerator::fdup(const ZRegH &zd, const double imm) { SveBcFpImmUnpred(0, 0, zd, imm); }
 void CodeGenerator::fdup(const ZRegS &zd, const double imm) { SveBcFpImmUnpred(0, 0, zd, imm); }
 void CodeGenerator::fdup(const ZRegD &zd, const double imm) { SveBcFpImmUnpred(0, 0, zd, imm); }

@@ -4760,19 +4760,6 @@ sve = {
     ]
   },
 
-  "SveCondTermScalars" => {
-    :cmt => "SVE conditionally terminate scalars",
-    :arg => [
-      [ {"rn" => "WReg"}, {"rm" => "WReg"}], #0
-      [ {"rn" => "XReg"}, {"rm" => "XReg"}]  #1
-    ],
-    :prm => ["op", "ne", "rn", "rm"],
-    :grp => [
-      {"CTERMEQ"  => {"op" => 1, "ne" => 0}},
-      {"CTERMNE"  => {"op" => 1, "ne" => 1}}
-    ]
-  },
-
   "SveIntCompScalarCountAndLimit" => {
     :cmt => "SVE integer compare scalar count and limit",
     :arg => [
@@ -4795,6 +4782,31 @@ sve = {
       {"WHILEHI"  => {"U" => 1, "lt" => 0, "eq" => 1}},
       {"WHILELO"  => {"U" => 1, "lt" => 1, "eq" => 0}},
       {"WHILELS"  => {"U" => 1, "lt" => 1, "eq" => 1}}
+    ]
+  },
+
+  "SveCondTermScalars" => {
+    :cmt => "SVE conditionally terminate scalars",
+    :arg => [
+      [ {"rn" => "WReg"}, {"rm" => "WReg"}], #0
+      [ {"rn" => "XReg"}, {"rm" => "XReg"}]  #1
+    ],
+    :prm => ["op", "ne", "rn", "rm"],
+    :grp => [
+      {"CTERMEQ"  => {"op" => 1, "ne" => 0}},
+      {"CTERMNE"  => {"op" => 1, "ne" => 1}}
+    ]
+  },
+
+  "SvePointConfCmp" => {
+    :cmt => "SVE pointer conflict compare",
+    :arg => [
+      [ {"pd" => "_PReg"}, {"xn" => "XReg"}, {"xm" => "XReg"}] #0
+    ],
+    :prm => ["rw", "pd", "xn", "xm"],
+    :grp => [
+      {"WHILEWR"  => {"rw" => 0}},
+      {"WHILERW"  => {"rw" => 1}}
     ]
   },
 

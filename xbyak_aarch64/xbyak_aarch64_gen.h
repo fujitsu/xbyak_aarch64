@@ -545,8 +545,9 @@ class CodeGenerator : public CodeArray {
   void SveSatuIncDecVecByPredCount(uint32_t D, uint32_t U, uint32_t opc, const _ZReg &zdn, const _PReg &pg);
   void SveFFRInit(uint32_t opc);
   void SveFFRWritePred(uint32_t opc, const _PReg &pn);
-  void SveCondTermScalars(uint32_t op, uint32_t ne, const RReg &rn, const RReg &rm);
   void SveIntCompScalarCountAndLimit(uint32_t U, uint32_t lt, uint32_t eq, const _PReg &pd, const RReg &rn, const RReg &rm);
+  void SveCondTermScalars(uint32_t op, uint32_t ne, const RReg &rn, const RReg &rm);
+  void SvePointConfCmp(uint32_t rw, const _PReg pd, const XReg &xn, const XReg &xm);
   void SveBcFpImmUnpred(uint32_t opc, uint32_t o2, const _ZReg &zd, double imm);
   void SveBcIntImmUnpred(uint32_t opc, const _ZReg &zd, int32_t imm, ShMod mod, uint32_t sh);
   void SveIntAddSubImmUnpred(uint32_t opc, const _ZReg &zdn, uint32_t imm, ShMod mod, uint32_t sh);

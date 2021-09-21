@@ -2987,6 +2987,14 @@ void CodeGenerator::SveFFRWritePred(uint32_t opc, const _PReg &pn) {
   dd(code);
 }
 
+// SVE integer compare scalar count and limit
+void CodeGenerator::SveIntCompScalarCountAndLimit(uint32_t U, uint32_t lt, uint32_t eq, const _PReg &pd, const RReg &rn, const RReg &rm) {
+  uint32_t size = genSize(pd);
+  uint32_t sf = genSf(rn);
+  uint32_t code = concat({F(0x25, 24), F(size, 22), F(1, 21), F(rm.getIdx(), 16), F(sf, 12), F(U, 11), F(lt, 10), F(rn.getIdx(), 5), F(eq, 4), F(pd.getIdx(), 0)});
+  dd(code);
+}
+
 // SVE conditionally terminate scalars
 void CodeGenerator::SveCondTermScalars(uint32_t op, uint32_t ne, const RReg &rn, const RReg &rm) {
   uint32_t sz = genSf(rn);
@@ -2994,11 +3002,10 @@ void CodeGenerator::SveCondTermScalars(uint32_t op, uint32_t ne, const RReg &rn,
   dd(code);
 }
 
-// SVE integer compare scalar count and limit
-void CodeGenerator::SveIntCompScalarCountAndLimit(uint32_t U, uint32_t lt, uint32_t eq, const _PReg &pd, const RReg &rn, const RReg &rm) {
+// SVE pointer conflict compare
+void CodeGenerator::SvePointConfCmp(uint32_t rw, const _PReg pd, const XReg &xn, const XReg &xm) {
   uint32_t size = genSize(pd);
-  uint32_t sf = genSf(rn);
-  uint32_t code = concat({F(0x25, 24), F(size, 22), F(1, 21), F(rm.getIdx(), 16), F(sf, 12), F(U, 11), F(lt, 10), F(rn.getIdx(), 5), F(eq, 4), F(pd.getIdx(), 0)});
+  uint32_t code = concat({F(0x25, 24), F(size, 22), F(1, 21), F(xm.getIdx(), 16), F(0xc, 10), F(xn.getIdx(), 5), F(rw, 4), F(pd.getIdx(), 0)});
   dd(code);
 }
 
