@@ -4654,6 +4654,8 @@ void CodeGenerator::match(const PRegH &pd, const _PReg &pg, const ZRegH &zn, con
 void CodeGenerator::nmatch(const PRegB &pd, const _PReg &pg, const ZRegB &zn, const ZRegB &zm) { Sve2CharMatch(133121, pd, pg, zn, zm); }
 void CodeGenerator::nmatch(const PRegH &pd, const _PReg &pg, const ZRegH &zn, const ZRegH &zm) { Sve2CharMatch(133121, pd, pg, zn, zm); }
 void CodeGenerator::histseg(const ZRegB &zd, const ZRegB &zn, const ZRegB &zm) { Sve2HistCompSeg(2088, zd, zn, zm); }
+void CodeGenerator::histcnt(const ZRegS &zd, const _PReg &pg, const ZRegS &zn, const ZRegS &zm) { SveHistCnt(2096, zd, pg, zn, zm); }
+void CodeGenerator::histcnt(const ZRegD &zd, const _PReg &pg, const ZRegD &zn, const ZRegD &zm) { SveHistCnt(2096, zd, pg, zn, zm); }
 void CodeGenerator::aesmc(const ZRegB &zdn) { Sve2CryptoExtGroup(2104, ZReg(0), zdn, ZReg(0), ZReg(0)); }
 void CodeGenerator::aesimc(const ZRegB &zdn) { Sve2CryptoExtGroup(2105, ZReg(0), zdn, ZReg(0), ZReg(0)); }
 void CodeGenerator::aese(const ZRegB &zdn, const ZRegB &zm) { Sve2CryptoExtGroup(2232, ZReg(0), zdn, ZReg(0), zm); }

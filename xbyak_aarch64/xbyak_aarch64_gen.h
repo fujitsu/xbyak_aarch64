@@ -561,6 +561,7 @@ class CodeGenerator : public CodeArray {
   void Sve2NarrGroup(uint32_t bit23_10, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm, uint32_t amount);
   void Sve2CharMatch(uint32_t bit21_4, const _PReg &pd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm);
   void Sve2HistCompSeg(uint32_t bit23_10, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm);
+  void SveHistCnt(uint32_t bit23_10, const _ZReg &zd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm);
   void Sve2CryptoExtGroup(uint32_t bit23_10, const _ZReg &zd, const _ZReg &zdn, const _ZReg &zn, const _ZReg &zm);
   void SveFpConvPrecOddElem(uint32_t bit23_13, const _ZReg &zd, const _PReg &pg, const _ZReg &zn);
   void Sve2FpPairOp(uint32_t bit23_13, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm);

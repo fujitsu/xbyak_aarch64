@@ -3394,6 +3394,14 @@ void CodeGenerator::Sve2HistCompSeg(uint32_t bit23_10, const _ZReg &zd, const _Z
   dd(code);
 }
 
+// Count matching elements in vector
+void CodeGenerator::SveHistCnt(uint32_t bit23_10, const _ZReg &zd, const _PReg &pg, const _ZReg &zn, const _ZReg &zm) {
+  uint32_t size = genSize(zd);
+  verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
+  uint32_t code = concat({F(0x45, 24), F(size, 22), F(zm.getIdx(), 16), F((bit23_10 | pg.getIdx()), 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});
+  dd(code);
+}
+
 // SVE2 Crypto Extensions
 void CodeGenerator::Sve2CryptoExtGroup(uint32_t bit23_10, const _ZReg &zd, const _ZReg &zdn, const _ZReg &zn, const _ZReg &zm) {
   uint32_t size = genSize(zd);

@@ -4654,6 +4654,8 @@ void match(const PRegH &pd, const _PReg &pg, const ZRegH &zn, const ZRegH &zm);
 void nmatch(const PRegB &pd, const _PReg &pg, const ZRegB &zn, const ZRegB &zm);
 void nmatch(const PRegH &pd, const _PReg &pg, const ZRegH &zn, const ZRegH &zm);
 void histseg(const ZRegB &zd, const ZRegB &zn, const ZRegB &zm);
+void histcnt(const ZRegS &zd, const _PReg &pg, const ZRegS &zn, const ZRegS &zm);
+void histcnt(const ZRegD &zd, const _PReg &pg, const ZRegD &zn, const ZRegD &zm);
 void aesmc(const ZRegB &zdn);
 void aesimc(const ZRegB &zdn);
 void aese(const ZRegB &zdn, const ZRegB &zm);

@@ -5239,6 +5239,18 @@ sve = {
     ]
   },
 
+  "SveHistCnt" => {
+    :cmt => "Count matching elements in vector",
+    :arg => [
+      [ {"zd" => "ZRegS", "pg" => "_PReg", "zn" => "ZRegS", "zm" => "ZRegS"}], #0
+      [ {"zd" => "ZRegD", "pg" => "_PReg", "zn" => "ZRegD", "zm" => "ZRegD"}]  #1
+    ],
+    :prm => ["bit23_10", "zd", "pg", "zn", "zm"],
+    :grp => [
+      {"HISTCNT"   => {"bit23_10" => 0x0830}}
+    ]
+  },
+
   "Sve2CryptoExtGroup" => {
     :cmt => ["SVE2 crypto unary operations",
              "SVE2 crypto destructive binary operations",
