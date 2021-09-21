@@ -4848,6 +4848,8 @@ void CodeGenerator::fcvt(const ZRegH &zd, const _PReg &pg, const ZRegD &zn) { Sv
 void CodeGenerator::fcvt(const ZRegD &zd, const _PReg &pg, const ZRegH &zn) { SveFpCvtPrecision(3, 1, zd, pg, zn); }
 void CodeGenerator::fcvt(const ZRegS &zd, const _PReg &pg, const ZRegD &zn) { SveFpCvtPrecision(3, 2, zd, pg, zn); }
 void CodeGenerator::fcvt(const ZRegD &zd, const _PReg &pg, const ZRegS &zn) { SveFpCvtPrecision(3, 3, zd, pg, zn); }
+void CodeGenerator::fcvtx(const ZRegS &zd, const _PReg &pg, const ZRegD &zn) { SveFpCvtPrecision(0, 2, zd, pg, zn); }
+void CodeGenerator::bfcvt(const ZRegH &zd, const _PReg &pg, const ZRegS &zn) { SveFpCvtPrecision(2, 2, zd, pg, zn); }
 void CodeGenerator::fcvtzs(const ZRegH &zd, const _PReg &pg, const ZRegH &zn) { SveFpCvtToInt(1, 1, 0, zd, pg, zn); }
 void CodeGenerator::fcvtzu(const ZRegH &zd, const _PReg &pg, const ZRegH &zn) { SveFpCvtToInt(1, 1, 1, zd, pg, zn); }
 void CodeGenerator::fcvtzs(const ZRegS &zd, const _PReg &pg, const ZRegH &zn) { SveFpCvtToInt(1, 2, 0, zd, pg, zn); }

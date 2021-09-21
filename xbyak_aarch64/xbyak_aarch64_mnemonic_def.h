@@ -4848,6 +4848,8 @@ void fcvt(const ZRegH &zd, const _PReg &pg, const ZRegD &zn);
 void fcvt(const ZRegD &zd, const _PReg &pg, const ZRegH &zn);
 void fcvt(const ZRegS &zd, const _PReg &pg, const ZRegD &zn);
 void fcvt(const ZRegD &zd, const _PReg &pg, const ZRegS &zn);
+void fcvtx(const ZRegS &zd, const _PReg &pg, const ZRegD &zn);
+void bfcvt(const ZRegH &zd, const _PReg &pg, const ZRegS &zn);
 void fcvtzs(const ZRegH &zd, const _PReg &pg, const ZRegH &zn);
 void fcvtzu(const ZRegH &zd, const _PReg &pg, const ZRegH &zn);
 void fcvtzs(const ZRegS &zd, const _PReg &pg, const ZRegH &zn);

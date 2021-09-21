@@ -5548,7 +5548,9 @@ sve = {
       {"FCVT"   => {"opc" => 3, "opc2" => 0}, :arg => [2]},
       {"FCVT"   => {"opc" => 3, "opc2" => 1}, :arg => [3]},
       {"FCVT"   => {"opc" => 3, "opc2" => 2}, :arg => [4]},
-      {"FCVT"   => {"opc" => 3, "opc2" => 3}, :arg => [5]}
+      {"FCVT"   => {"opc" => 3, "opc2" => 3}, :arg => [5]},
+      {"FCVTX"  => {"opc" => 0, "opc2" => 2}, :arg => [4]},
+      {"BFCVT"  => {"opc" => 2, "opc2" => 2}, :arg => [0]}
     ]
   },
 
