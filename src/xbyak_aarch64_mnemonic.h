@@ -3634,10 +3634,18 @@ void CodeGenerator::rev(const ZRegB &zd, const ZRegB &zn) { SveRevVecElem(zd, zn
 void CodeGenerator::rev(const ZRegH &zd, const ZRegH &zn) { SveRevVecElem(zd, zn); }
 void CodeGenerator::rev(const ZRegS &zd, const ZRegS &zn) { SveRevVecElem(zd, zn); }
 void CodeGenerator::rev(const ZRegD &zd, const ZRegD &zn) { SveRevVecElem(zd, zn); }
-void CodeGenerator::tbl(const ZRegB &zd, const ZRegB &zn, const ZRegB &zm) { SveTableLookup(zd, zn, zm); }
-void CodeGenerator::tbl(const ZRegH &zd, const ZRegH &zn, const ZRegH &zm) { SveTableLookup(zd, zn, zm); }
-void CodeGenerator::tbl(const ZRegS &zd, const ZRegS &zn, const ZRegS &zm) { SveTableLookup(zd, zn, zm); }
-void CodeGenerator::tbl(const ZRegD &zd, const ZRegD &zn, const ZRegD &zm) { SveTableLookup(zd, zn, zm); }
+void CodeGenerator::tbl(const ZRegB &zd, const ZRegB &zn, const ZRegB &zm) { SveTableLookup(12, zd, zn, (ZRegB(0) - ZRegB(1)), zm); }
+void CodeGenerator::tbl(const ZRegH &zd, const ZRegH &zn, const ZRegH &zm) { SveTableLookup(12, zd, zn, (ZRegH(0) - ZRegH(1)), zm); }
+void CodeGenerator::tbl(const ZRegS &zd, const ZRegS &zn, const ZRegS &zm) { SveTableLookup(12, zd, zn, (ZRegS(0) - ZRegS(1)), zm); }
+void CodeGenerator::tbl(const ZRegD &zd, const ZRegD &zn, const ZRegD &zm) { SveTableLookup(12, zd, zn, (ZRegD(0) - ZRegD(1)), zm); }
+void CodeGenerator::tbl(const ZRegB &zd, const ZRegBList &zn_list, const ZRegB &zm) { SveTableLookup(10, zd, ZReg(0), zn_list, zm); }
+void CodeGenerator::tbl(const ZRegH &zd, const ZRegHList &zn_list, const ZRegH &zm) { SveTableLookup(10, zd, ZReg(0), zn_list, zm); }
+void CodeGenerator::tbl(const ZRegS &zd, const ZRegSList &zn_list, const ZRegS &zm) { SveTableLookup(10, zd, ZReg(0), zn_list, zm); }
+void CodeGenerator::tbl(const ZRegD &zd, const ZRegDList &zn_list, const ZRegD &zm) { SveTableLookup(10, zd, ZReg(0), zn_list, zm); }
+void CodeGenerator::tbx(const ZRegB &zd, const ZRegB &zn, const ZRegB &zm) { SveTableLookup(11, zd, zn, (ZRegB(0) - ZRegB(1)), zm); }
+void CodeGenerator::tbx(const ZRegH &zd, const ZRegH &zn, const ZRegH &zm) { SveTableLookup(11, zd, zn, (ZRegH(0) - ZRegH(1)), zm); }
+void CodeGenerator::tbx(const ZRegS &zd, const ZRegS &zn, const ZRegS &zm) { SveTableLookup(11, zd, zn, (ZRegS(0) - ZRegS(1)), zm); }
+void CodeGenerator::tbx(const ZRegD &zd, const ZRegD &zn, const ZRegD &zm) { SveTableLookup(11, zd, zn, (ZRegD(0) - ZRegD(1)), zm); }
 void CodeGenerator::sunpklo(const ZRegH &zd, const ZRegB &zn) { SveUnpackVecElem(0, 0, zd, zn); }
 void CodeGenerator::sunpklo(const ZRegS &zd, const ZRegH &zn) { SveUnpackVecElem(0, 0, zd, zn); }
 void CodeGenerator::sunpklo(const ZRegD &zd, const ZRegS &zn) { SveUnpackVecElem(0, 0, zd, zn); }

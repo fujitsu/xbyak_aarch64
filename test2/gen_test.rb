@@ -56,7 +56,10 @@ class TestPatternGenerator
 
     # Replace first space into comma
     # Example "ST64B x0, x0, [x0]" -> "ST64B,x0, x0, [x0]"
-    ptn_line.sub!(/ /, ",")
+    ptn_line.sub!(/( |\t)+/, ",")
+
+    # Remove all white space
+    ptn_line.gsub!(/( |\t)+/, "")
 
     # Combine multiple whitespace into one, and replace all delimiters into comma
     ptn_line.gsub!(/( |\t)+/, " ")
@@ -77,6 +80,10 @@ class TestPatternGenerator
     ptn_line.gsub!(/<Wt:even>,<W\(t\+1\)>/, "WT_PAIR")
     ptn_line.gsub!(/<Xs:even>,<X\(s\+1\)>/, "XS_PAIR")
     ptn_line.gsub!(/<Xt:even>,<X\(t\+1\)>/, "XT_PAIR")
+    ptn_line.gsub!(/{<Zn1>.B,<Zn2>.B}/, "ZN_B_LIST")
+    ptn_line.gsub!(/{<Zn1>.H,<Zn2>.H}/, "ZN_H_LIST")
+    ptn_line.gsub!(/{<Zn1>.S,<Zn2>.S}/, "ZN_S_LIST")
+    ptn_line.gsub!(/{<Zn1>.D,<Zn2>.D}/, "ZN_D_LIST")
     ptn_line.gsub!(/<Zdn>.B,<Pg>\/M,<Zdn>.B/, "ZDN_B_PAIR_WITH_P_M")
     ptn_line.gsub!(/<Zdn>.H,<Pg>\/M,<Zdn>.H/, "ZDN_H_PAIR_WITH_P_M")
     ptn_line.gsub!(/<Zdn>.S,<Pg>\/M,<Zdn>.S/, "ZDN_S_PAIR_WITH_P_M")
@@ -94,6 +101,7 @@ class TestPatternGenerator
     # Recover "WT_PAIR" -> "<Wt:even>,<W(t+1)"
     # Recover "XS_PAIR" -> "<Xs:even>,<X(s+1)"
     # Recover "XT_PAIR" -> "<Xt:even>,<X(t+1)"
+    # Recover "ZN_(B|H|S|D)" -> "{<Zn1>.(B|H|S|D),<Zn2>.(B|H|S|D)}"
     # Recover "ZDN_(B|H|S|D)_PAIR" -> "<Zdn>.(B|H|S|D),<Zdn>.(B|H|S|D)"
     # Recover "ZDN_(B|H|S|D)_PAIR_WITH_P_M" -> "<Zdn>.(B|H|S|D),<Pg>/m<Zdn>.(B|H|S|D)"
     # Recover "%" into "{,"
@@ -102,6 +110,10 @@ class TestPatternGenerator
       tmp[i].gsub!(/WT_PAIR/, "<Wt:even>,<W(t+1)>")
       tmp[i].gsub!(/XS_PAIR/, "<Xs:even>,<X(s+1)>")
       tmp[i].gsub!(/XT_PAIR/, "<Xt:even>,<X(t+1)>")
+      tmp[i].gsub!(/ZN_B_LIST/, "{<Zn1>.B,<Zn2>.B}")
+      tmp[i].gsub!(/ZN_H_LIST/, "{<Zn1>.H,<Zn2>.H}")
+      tmp[i].gsub!(/ZN_S_LIST/, "{<Zn1>.S,<Zn2>.S}")
+      tmp[i].gsub!(/ZN_D_LIST/, "{<Zn1>.D,<Zn2>.D}")
       tmp[i].gsub!(/ZDN_B_PAIR_WITH_P_M/, "<Zdn>.B,<Pg>/m,<Zdn>.B")
       tmp[i].gsub!(/ZDN_H_PAIR_WITH_P_M/, "<Zdn>.H,<Pg>/m,<Zdn>.H")
       tmp[i].gsub!(/ZDN_S_PAIR_WITH_P_M/, "<Zdn>.S,<Pg>/m,<Zdn>.S")
@@ -219,6 +231,12 @@ class TestPatternGenerator
   end
 
   def convert_for_asm(inst)
+    # Select operands for ASM
+    # Example: "<{z8.b}|z8.b>" -> "{z8.b}"
+    if(inst.index(/<([^\|]*)\|([^>]*)>/))
+      inst.gsub!(/<([^\|]*)\|([^>]*)>/, $1)
+    end
+
     # Remove register pair
     # Example ",w1/*cpp*/" -> ""
     inst.gsub!(/,[^,]+\/\*cpp\*\//, "")
@@ -227,6 +245,12 @@ class TestPatternGenerator
 
   def convert_for_cpp(inst)
     inst.downcase!
+
+    # Select operands for ASM
+    # Example: "<{z8.b}|z8.b>" -> "z8.b"
+    if(inst.index(/<([^\|]*)\|([^>]*)>/))
+      inst.gsub!(/<([^\|]*)\|([^>]*)>/, $2)
+    end
 
     # Remove address operands for ASM
     # Example ",[x8]/*asm*/,ptr(x8)/*cpp*/" -> "ptr(x8)/*cpp*/"
@@ -356,6 +380,7 @@ class TestPatternGenerator
     @operands_ptn.store("<Zm:3>.D[<imm:1>]", ["z7.d[1]", "z1.d[0]", "z0.d[1]", "z4.d[0]"])
     @operands_ptn.store("<Zm:4>.D[<imm:1>]", ["z15.d[1]", "z1.d[0]", "z0.d[1]", "z8.d[0]"])
 
+    # ",z8.b/*asm*/" is removed for CPP by "convert_for_cpp() function".
     @operands_ptn.store("<Zdn>.B,<Zdn>.B", ["z8.b,z8.b/*asm*/", "z1.b,z1.b/*asm*/", "z2.b,z2.b/*asm*/", "z4.b,z4.b/*asm*/",
                                             "z0.b,z0.b/*asm*/", "z16.b,z16.b/*asm*/", "z30.b,z30.b/*asm*/", "z31.b,z31.b/*asm*/"])
     @operands_ptn.store("<Zdn>.H,<Zdn>.H", ["z8.h,z8.h/*asm*/", "z1.h,z1.h/*asm*/", "z2.h,z2.h/*asm*/", "z4.h,z4.h/*asm*/",
@@ -364,6 +389,28 @@ class TestPatternGenerator
                                             "z0.s,z0.s/*asm*/", "z16.s,z16.s/*asm*/", "z30.s,z30.s/*asm*/", "z31.s,z31.s/*asm*/"])
     @operands_ptn.store("<Zdn>.D,<Zdn>.D", ["z8.d,z8.d/*asm*/", "z1.d,z1.d/*asm*/", "z2.d,z2.d/*asm*/", "z4.d,z4.d/*asm*/",
                                             "z0.d,z0.d/*asm*/", "z16.d,z16.d/*asm*/", "z30.d,z30.d/*asm*/", "z31.d,z31.d/*asm*/"])
+
+    @operands_ptn.store("{<Zn>.B}", ["<{z8.b}|z8.b>", "<{z1.b}|z1.b>", "<{z2.b}|z2.b>", "<{z4.b}|z4.b>",
+                                     "<{z0.b}|z0.b>", "<{z16.b}|z16.b>", "<{z30.b}|z30.b>", "<{z31.b}|z31.b>"])
+    @operands_ptn.store("{<Zn>.H}", ["<{z8.h}|z8.h>", "<{z1.h}|z1.h>", "<{z2.h}|z2.h>", "<{z4.h}|z4.h>",
+                                     "<{z0.h}|z0.h>", "<{z16.h}|z16.h>", "<{z30.h}|z30.h>", "<{z31.h}|z31.h>"])
+    @operands_ptn.store("{<Zn>.S}", ["<{z8.s}|z8.s>", "<{z1.s}|z1.s>", "<{z2.s}|z2.s>", "<{z4.s}|z4.s>",
+                                     "<{z0.s}|z0.s>", "<{z16.s}|z16.s>", "<{z30.s}|z30.s>", "<{z31.s}|z31.s>"])
+    @operands_ptn.store("{<Zn>.D}", ["<{z8.d}|z8.d>", "<{z1.d}|z1.d>", "<{z2.d}|z2.d>", "<{z4.d}|z4.d>",
+                                     "<{z0.d}|z0.d>", "<{z16.d}|z16.d>", "<{z30.d}|z30.d>", "<{z31.d}|z31.d>"])
+
+    @operands_ptn.store("{<Zn1>.B,<Zn2>.B}", ["<{z8.b,z9.b}|(z8.b-z9.b)>", "<{z1.b,z2.b}|(z1.b-z2.b)>", "<{z2.b,z3.b}|(z2.b-z3.b)>",
+                                              "<{z4.b,z5.b}|(z4.b-z5.b)>", "<{z0.b,z1.b}|(z0.b-z1.b)>", "<{z16.b,z17.b}|(z16.b-z17.b)>",
+                                              "<{z30.b,z31.b}|(z30.b-z31.b)>", "<{z31.b,z0.b}|(z31.b-z0.b)>"])
+    @operands_ptn.store("{<Zn1>.H,<Zn2>.H}", ["<{z8.h,z9.h}|(z8.h-z9.h)>", "<{z1.h,z2.h}|(z1.h-z2.h)>", "<{z2.h,z3.h}|(z2.h-z3.h)>",
+                                              "<{z4.h,z5.h}|(z4.h-z5.h)>", "<{z0.h,z1.h}|(z0.h-z1.h)>", "<{z16.h,z17.h}|(z16.h-z17.h)>",
+                                              "<{z30.h,z31.h}|(z30.h-z31.h)>", "<{z31.h,z0.h}|(z31.h-z0.h)>"])
+    @operands_ptn.store("{<Zn1>.S,<Zn2>.S}", ["<{z8.s,z9.s}|(z8.s-z9.s)>", "<{z1.s,z2.s}|(z1.s-z2.s)>", "<{z2.s,z3.s}|(z2.s-z3.s)>",
+                                              "<{z4.s,z5.s}|(z4.s-z5.s)>", "<{z0.s,z1.s}|(z0.s-z1.s)>", "<{z16.s,z17.s}|(z16.s-z17.s)>",
+                                              "<{z30.s,z31.s}|(z30.s-z31.s)>", "<{z31.s,z0.s}|(z31.s-z0.s)>"])
+    @operands_ptn.store("{<Zn1>.D,<Zn2>.D}", ["<{z8.d,z9.d}|(z8.d-z9.d)>", "<{z1.d,z2.d}|(z1.d-z2.d)>", "<{z2.d,z3.d}|(z2.d-z3.d)>",
+                                              "<{z4.d,z5.d}|(z4.d-z5.d)>", "<{z0.d,z1.d}|(z0.d-z1.d)>", "<{z16.d,z17.d}|(z16.d-z17.d)>",
+                                              "<{z30.d,z31.d}|(z30.d-z31.d)>", "<{z31.d,z0.d}|(z31.d-z0.d)>"])
 
     @operands_ptn.store("<Pg>/M", ["p7/m", "p1/m", "p2/m", "p4/m", "p0/m"])
     @operands_ptn.store("<Pg>/Z", ["p7/z", "p1/z", "p2/z", "p4/z", "p0/z"])

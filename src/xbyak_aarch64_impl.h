@@ -2702,9 +2702,12 @@ void CodeGenerator::SveRevVecElem(const _ZReg &zd, const _ZReg &zn) {
 }
 
 // SVE table lookup
-void CodeGenerator::SveTableLookup(const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
+void CodeGenerator::SveTableLookup(uint32_t bit15_10, const _ZReg &zd, const _ZReg &zn, const ZRegList &zn_list, const _ZReg &zm) {
   uint32_t size = genSize(zd);
-  SvePerVecUnpred(size, zm.getIdx(), 0xc, zd, zn);
+  uint32_t zn_idx = zn.getIdx() | zn_list.getIdx();
+
+  uint32_t code = concat({F(0x5, 24), F(size, 22), F(0x1, 21), F(zm.getIdx(), 16), F(bit15_10, 10), F(zn_idx, 5), F(zd.getIdx(), 0)});
+  dd(code);
 }
 
 // SVE unpack vector elements

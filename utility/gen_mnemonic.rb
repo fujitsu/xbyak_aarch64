@@ -4199,11 +4199,27 @@ sve = {
 
   "SveTableLookup" => {
     :cmt => "SVE table lookup",
-    :arg => zreg_set(3, "BHSD"),
-    # :arg => [[ {"zd" => "ZReg"}, {"zn" => "ZReg"}, {"zm" => "ZReg"}]],
-    :prm => ["zd", "zn", "zm"],
+    :arg => [
+      [ {"zd" => "ZRegB"}, {"zn" => "ZRegB"}, {"zm" => "ZRegB"}], #0
+      [ {"zd" => "ZRegH"}, {"zn" => "ZRegH"}, {"zm" => "ZRegH"}], #1
+      [ {"zd" => "ZRegS"}, {"zn" => "ZRegS"}, {"zm" => "ZRegS"}], #2
+      [ {"zd" => "ZRegD"}, {"zn" => "ZRegD"}, {"zm" => "ZRegD"}], #3
+      [ {"zd" => "ZRegB"}, {"zn_list" => "ZRegBList"}, {"zm" => "ZRegB"}], #4
+      [ {"zd" => "ZRegH"}, {"zn_list" => "ZRegHList"}, {"zm" => "ZRegH"}], #5
+      [ {"zd" => "ZRegS"}, {"zn_list" => "ZRegSList"}, {"zm" => "ZRegS"}], #6
+      [ {"zd" => "ZRegD"}, {"zn_list" => "ZRegDList"}, {"zm" => "ZRegD"}], #7
+    ],
+    :prm => ["bit15_10", "zd", "zn", "zn_list", "zm"],
     :grp => [
-      {"TBL" => {}},
+      {"TBL" => {"bit15_10" => 0xc, "zn_list" => "(ZRegB(0) - ZRegB(1))"}, :arg => [0]},
+      {"TBL" => {"bit15_10" => 0xc, "zn_list" => "(ZRegH(0) - ZRegH(1))"}, :arg => [1]},
+      {"TBL" => {"bit15_10" => 0xc, "zn_list" => "(ZRegS(0) - ZRegS(1))"}, :arg => [2]},
+      {"TBL" => {"bit15_10" => 0xc, "zn_list" => "(ZRegD(0) - ZRegD(1))"}, :arg => [3]},
+      {"TBL" => {"bit15_10" => 0xa, "zn"      => "ZReg(0)"},               :arg => 4..7}, # SVE2
+      {"TBX" => {"bit15_10" => 0xb, "zn_list" => "(ZRegB(0) - ZRegB(1))"}, :arg => [0]},
+      {"TBX" => {"bit15_10" => 0xb, "zn_list" => "(ZRegH(0) - ZRegH(1))"}, :arg => [1]},
+      {"TBX" => {"bit15_10" => 0xb, "zn_list" => "(ZRegS(0) - ZRegS(1))"}, :arg => [2]},
+      {"TBX" => {"bit15_10" => 0xb, "zn_list" => "(ZRegD(0) - ZRegD(1))"}, :arg => [3]},
     ]
   },
 

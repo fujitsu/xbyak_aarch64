@@ -504,7 +504,7 @@ class CodeGenerator : public CodeArray {
   void SveInsSimdFpSclarReg(const _ZReg &zdn, const VRegSc &vm);
   void SveInsGeneralReg(const _ZReg &zdn, const RReg &rm);
   void SveRevVecElem(const _ZReg &zd, const _ZReg &zn);
-  void SveTableLookup(const _ZReg &zd, const _ZReg &zn, const _ZReg &zm);
+  void SveTableLookup(uint32_t bit15_10, const _ZReg &zd, const _ZReg &zn, const ZRegList &zn_list, const _ZReg &zm);
   void SveUnpackVecElem(uint32_t U, uint32_t H, const _ZReg &zd, const _ZReg &zn);
   void SvePermutePredElem(uint32_t opc, uint32_t H, const _PReg &pd, const _PReg &pn, const _PReg &pm);
   void SveRevPredElem(const _PReg &pd, const _PReg &pn);
