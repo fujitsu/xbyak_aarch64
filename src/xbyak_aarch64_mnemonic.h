@@ -4696,6 +4696,9 @@ void CodeGenerator::fmlslb(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) {
 void CodeGenerator::fmlslt(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveFpWideMultAddGroup(10281, zda, zn, zm); }
 void CodeGenerator::bfmlalb(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveFpWideMultAddGroup(14368, zda, zn, zm); }
 void CodeGenerator::bfmlalt(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveFpWideMultAddGroup(14369, zda, zn, zm); }
+void CodeGenerator::bfmmla(const ZRegS &zda, const ZRegH &zn, const ZRegH &zm) { SveFpMatMulAcc(6201, zda, zn, zm); }
+void CodeGenerator::fmmla(const ZRegS &zda, const ZRegS &zn, const ZRegS &zm) { SveFpMatMulAcc(10297, zda, zn, zm); }
+void CodeGenerator::fmmla(const ZRegD &zda, const ZRegD &zn, const ZRegD &zm) { SveFpMatMulAcc(10297, zda, zn, zm); }
 void CodeGenerator::fcadd(const ZRegH &zdn, const _PReg &pg, const ZRegH &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }
 void CodeGenerator::fcadd(const ZRegS &zdn, const _PReg &pg, const ZRegS &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }
 void CodeGenerator::fcadd(const ZRegD &zdn, const _PReg &pg, const ZRegD &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }

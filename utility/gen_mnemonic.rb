@@ -5335,6 +5335,20 @@ sve = {
     ]
   },
 
+  "SveFpMatMulAcc" => {
+    :cmt => "SVE floating point matrix multiply accumulate",
+    :arg => [
+        [{"zda" => "ZRegS", "zn" => "ZRegH", "zm" => "ZRegH"}], #0
+        [{"zda" => "ZRegS", "zn" => "ZRegS", "zm" => "ZRegS"}], #1
+        [{"zda" => "ZRegD", "zn" => "ZRegD", "zm" => "ZRegD"}]  #2
+    ],
+    :prm => ["bit23_10", "zda", "zn", "zm"],
+    :grp => [
+      {"BFMMLA" => {"bit23_10" => 0x1839}, :arg => [0]},
+      {"FMMLA"  => {"bit23_10" => 0x2839}, :arg => 1..2}
+    ]
+  },
+
   "SveFpComplexAddPred" => {
     :cmt => "SVE floating-point complex add (predicated)",
     :arg => ext_args(zreg_set_pred(2 ,"HSD"), [{"ct" => "uint32_t"}], {"zd"=>"zdn","zn"=>"zm"}),

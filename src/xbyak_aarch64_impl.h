@@ -3461,6 +3461,18 @@ void CodeGenerator::SveFpWideMultAddGroup(uint32_t bit23_10, const _ZReg &zda, c
   dd(code);
 }
 
+// SVE floating point matrix multiply accumulate
+void CodeGenerator::SveFpMatMulAcc(uint32_t bit23_10, const _ZReg &zda, const _ZReg &zn, const _ZReg &zm) {
+  uint32_t _bit22 = 0;
+
+  if (bit23_10 == 0x2839 /* FMMLA */)
+    if (genSize(zda) == 3 /* <Zda>.D */)
+      _bit22 = 0x1;
+
+  uint32_t code = concat({F(0x64, 24), F(_bit22, 22), F(zm.getIdx(), 16), F(bit23_10, 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
+  dd(code);
+}
+
 // SVE floating-point complex add (predicated)
 void CodeGenerator::SveFpComplexAddPred(const _ZReg &zdn, const _PReg &pg, const _ZReg &zm, uint32_t ct) {
   uint32_t size = genSize(zdn);
