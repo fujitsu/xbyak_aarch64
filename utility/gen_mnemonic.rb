@@ -4787,8 +4787,12 @@ sve = {
     ],
     :prm => ["U", "lt", "eq", "pd", "rn", "rm"],
     :grp => [
+      {"WHILEGE"  => {"U" => 0, "lt" => 0, "eq" => 0}},
+      {"WHILEGT"  => {"U" => 0, "lt" => 0, "eq" => 1}},
       {"WHILELT"  => {"U" => 0, "lt" => 1, "eq" => 0}},
       {"WHILELE"  => {"U" => 0, "lt" => 1, "eq" => 1}},
+      {"WHILEHS"  => {"U" => 1, "lt" => 0, "eq" => 0}},
+      {"WHILEHI"  => {"U" => 1, "lt" => 0, "eq" => 1}},
       {"WHILELO"  => {"U" => 1, "lt" => 1, "eq" => 0}},
       {"WHILELS"  => {"U" => 1, "lt" => 1, "eq" => 1}}
     ]

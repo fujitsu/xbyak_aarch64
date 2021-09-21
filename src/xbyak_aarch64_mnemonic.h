@@ -4019,6 +4019,22 @@ void CodeGenerator::ctermeq(const WReg &rn, const WReg &rm) { SveCondTermScalars
 void CodeGenerator::ctermeq(const XReg &rn, const XReg &rm) { SveCondTermScalars(1, 0, rn, rm); }
 void CodeGenerator::ctermne(const WReg &rn, const WReg &rm) { SveCondTermScalars(1, 1, rn, rm); }
 void CodeGenerator::ctermne(const XReg &rn, const XReg &rm) { SveCondTermScalars(1, 1, rn, rm); }
+void CodeGenerator::whilege(const PRegB &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 0, pd, rn, rm); }
+void CodeGenerator::whilege(const PRegH &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 0, pd, rn, rm); }
+void CodeGenerator::whilege(const PRegS &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 0, pd, rn, rm); }
+void CodeGenerator::whilege(const PRegD &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 0, pd, rn, rm); }
+void CodeGenerator::whilege(const PRegB &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 0, pd, rn, rm); }
+void CodeGenerator::whilege(const PRegH &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 0, pd, rn, rm); }
+void CodeGenerator::whilege(const PRegS &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 0, pd, rn, rm); }
+void CodeGenerator::whilege(const PRegD &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 0, pd, rn, rm); }
+void CodeGenerator::whilegt(const PRegB &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 1, pd, rn, rm); }
+void CodeGenerator::whilegt(const PRegH &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 1, pd, rn, rm); }
+void CodeGenerator::whilegt(const PRegS &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 1, pd, rn, rm); }
+void CodeGenerator::whilegt(const PRegD &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 1, pd, rn, rm); }
+void CodeGenerator::whilegt(const PRegB &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 1, pd, rn, rm); }
+void CodeGenerator::whilegt(const PRegH &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 1, pd, rn, rm); }
+void CodeGenerator::whilegt(const PRegS &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 1, pd, rn, rm); }
+void CodeGenerator::whilegt(const PRegD &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(0, 0, 1, pd, rn, rm); }
 void CodeGenerator::whilelt(const PRegB &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(0, 1, 0, pd, rn, rm); }
 void CodeGenerator::whilelt(const PRegH &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(0, 1, 0, pd, rn, rm); }
 void CodeGenerator::whilelt(const PRegS &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(0, 1, 0, pd, rn, rm); }
@@ -4035,6 +4051,22 @@ void CodeGenerator::whilele(const PRegB &pd, const XReg &rn, const XReg &rm) { S
 void CodeGenerator::whilele(const PRegH &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(0, 1, 1, pd, rn, rm); }
 void CodeGenerator::whilele(const PRegS &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(0, 1, 1, pd, rn, rm); }
 void CodeGenerator::whilele(const PRegD &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(0, 1, 1, pd, rn, rm); }
+void CodeGenerator::whilehs(const PRegB &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(1, 0, 0, pd, rn, rm); }
+void CodeGenerator::whilehs(const PRegH &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(1, 0, 0, pd, rn, rm); }
+void CodeGenerator::whilehs(const PRegS &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(1, 0, 0, pd, rn, rm); }
+void CodeGenerator::whilehs(const PRegD &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(1, 0, 0, pd, rn, rm); }
+void CodeGenerator::whilehs(const PRegB &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(1, 0, 0, pd, rn, rm); }
+void CodeGenerator::whilehs(const PRegH &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(1, 0, 0, pd, rn, rm); }
+void CodeGenerator::whilehs(const PRegS &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(1, 0, 0, pd, rn, rm); }
+void CodeGenerator::whilehs(const PRegD &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(1, 0, 0, pd, rn, rm); }
+void CodeGenerator::whilehi(const PRegB &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(1, 0, 1, pd, rn, rm); }
+void CodeGenerator::whilehi(const PRegH &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(1, 0, 1, pd, rn, rm); }
+void CodeGenerator::whilehi(const PRegS &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(1, 0, 1, pd, rn, rm); }
+void CodeGenerator::whilehi(const PRegD &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(1, 0, 1, pd, rn, rm); }
+void CodeGenerator::whilehi(const PRegB &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(1, 0, 1, pd, rn, rm); }
+void CodeGenerator::whilehi(const PRegH &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(1, 0, 1, pd, rn, rm); }
+void CodeGenerator::whilehi(const PRegS &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(1, 0, 1, pd, rn, rm); }
+void CodeGenerator::whilehi(const PRegD &pd, const XReg &rn, const XReg &rm) { SveIntCompScalarCountAndLimit(1, 0, 1, pd, rn, rm); }
 void CodeGenerator::whilelo(const PRegB &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(1, 1, 0, pd, rn, rm); }
 void CodeGenerator::whilelo(const PRegH &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(1, 1, 0, pd, rn, rm); }
 void CodeGenerator::whilelo(const PRegS &pd, const WReg &rn, const WReg &rm) { SveIntCompScalarCountAndLimit(1, 1, 0, pd, rn, rm); }

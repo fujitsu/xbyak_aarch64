@@ -286,8 +286,12 @@ class TestPatternGenerator
   end
   
   def operands_ptn_init
+    @operands_ptn.store("<Wm>", ["w8", "w1", "w2", "w4", "w0", "w16", "w30", "wzr"])
+    @operands_ptn.store("<Wn>", ["w8", "w1", "w2", "w4", "w0", "w16", "w30", "wzr"])
     @operands_ptn.store("<Ws>", ["w8", "w1", "w2", "w4", "w0", "w16", "w30", "wzr"])
     @operands_ptn.store("<Wt>", ["w8", "w1", "w2", "w4", "w0", "w16", "w30", "wzr"])
+    @operands_ptn.store("<Xm>", ["x8", "x1", "x2", "x4", "x0", "x16", "x30", "xzr"])
+    @operands_ptn.store("<Xn>", ["x8", "x1", "x2", "x4", "x0", "x16", "x30", "xzr"])
     @operands_ptn.store("<Xs>", ["x8", "x1", "x2", "x4", "x0", "x16", "x30", "xzr"])
     @operands_ptn.store("<Xt>", ["x8", "x1", "x2", "x4", "x0", "x16", "x30", "xzr"])
     @operands_ptn.store("<Ws:even>,<W(s+1)>", ["w8,w9/*asm*/", "w2,w3/*asm*/", "w4,w5/*asm*/", "w0,w1/*asm*/", "w16,w17/*asm*/", "w30,wzr/*asm*/"])
@@ -411,6 +415,11 @@ class TestPatternGenerator
     @operands_ptn.store("{<Zn1>.D,<Zn2>.D}", ["<{z8.d,z9.d}|(z8.d-z9.d)>", "<{z1.d,z2.d}|(z1.d-z2.d)>", "<{z2.d,z3.d}|(z2.d-z3.d)>",
                                               "<{z4.d,z5.d}|(z4.d-z5.d)>", "<{z0.d,z1.d}|(z0.d-z1.d)>", "<{z16.d,z17.d}|(z16.d-z17.d)>",
                                               "<{z30.d,z31.d}|(z30.d-z31.d)>", "<{z31.d,z0.d}|(z31.d-z0.d)>"])
+
+    @operands_ptn.store("<Pd>.B", ["p7.b", "p1.b", "p2.b", "p4.b", "p0.b"])
+    @operands_ptn.store("<Pd>.H", ["p7.h", "p1.h", "p2.h", "p4.h", "p0.h"])
+    @operands_ptn.store("<Pd>.S", ["p7.s", "p1.s", "p2.s", "p4.s", "p0.s"])
+    @operands_ptn.store("<Pd>.D", ["p7.d", "p1.d", "p2.d", "p4.d", "p0.d"])
 
     @operands_ptn.store("<Pg>/M", ["p7/m", "p1/m", "p2/m", "p4/m", "p0/m"])
     @operands_ptn.store("<Pg>/Z", ["p7/z", "p1/z", "p2/z", "p4/z", "p0/z"])
