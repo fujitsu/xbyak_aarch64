@@ -72,16 +72,20 @@ class TestPatternGenerator
     # Replace "<Wt:even>,<W(t+1)" -> "WT_PAIR"
     # Replace "<Xs:even>,<X(s+1)" -> "XS_PAIR"
     # Replace "<Xt:even>,<X(t+1)" -> "XT_PAIR"
-    # Replace "<Zdn>.D,<Zdn>.d" -? ZDN_D_PAIR"
+    # Replace "<Zdn>.D,<Zdn>.d"   -> ZDN_D_PAIR"
     ptn_line.gsub!(/<Ws:even>,<W\(s\+1\)>/, "WS_PAIR")
     ptn_line.gsub!(/<Wt:even>,<W\(t\+1\)>/, "WT_PAIR")
     ptn_line.gsub!(/<Xs:even>,<X\(s\+1\)>/, "XS_PAIR")
     ptn_line.gsub!(/<Xt:even>,<X\(t\+1\)>/, "XT_PAIR")
+    ptn_line.gsub!(/<Zdn>.B,<Pg>\/M,<Zdn>.B/, "ZDN_B_PAIR_WITH_P_M")
+    ptn_line.gsub!(/<Zdn>.H,<Pg>\/M,<Zdn>.H/, "ZDN_H_PAIR_WITH_P_M")
+    ptn_line.gsub!(/<Zdn>.S,<Pg>\/M,<Zdn>.S/, "ZDN_S_PAIR_WITH_P_M")
+    ptn_line.gsub!(/<Zdn>.D,<Pg>\/M,<Zdn>.D/, "ZDN_D_PAIR_WITH_P_M")
     ptn_line.gsub!(/<Zdn>.B,<Zdn>.B/, "ZDN_B_PAIR")
     ptn_line.gsub!(/<Zdn>.H,<Zdn>.H/, "ZDN_H_PAIR")
     ptn_line.gsub!(/<Zdn>.S,<Zdn>.S/, "ZDN_S_PAIR")
     ptn_line.gsub!(/<Zdn>.D,<Zdn>.D/, "ZDN_D_PAIR")
-    
+
     # Split mnemonic and operands
     STDOUT.flush
     tmp = ptn_line.split(",")
@@ -90,13 +94,18 @@ class TestPatternGenerator
     # Recover "WT_PAIR" -> "<Wt:even>,<W(t+1)"
     # Recover "XS_PAIR" -> "<Xs:even>,<X(s+1)"
     # Recover "XT_PAIR" -> "<Xt:even>,<X(t+1)"
-    # Recover "ZDN_D_PAIR" -> "<Zdn>.D,<Zdn>.D"
+    # Recover "ZDN_(B|H|S|D)_PAIR" -> "<Zdn>.(B|H|S|D),<Zdn>.(B|H|S|D)"
+    # Recover "ZDN_(B|H|S|D)_PAIR_WITH_P_M" -> "<Zdn>.(B|H|S|D),<Pg>/m<Zdn>.(B|H|S|D)"
     # Recover "%" into "{,"
     for i in 0..tmp.size-1 do
       tmp[i].gsub!(/WS_PAIR/, "<Ws:even>,<W(s+1)>")
       tmp[i].gsub!(/WT_PAIR/, "<Wt:even>,<W(t+1)>")
       tmp[i].gsub!(/XS_PAIR/, "<Xs:even>,<X(s+1)>")
       tmp[i].gsub!(/XT_PAIR/, "<Xt:even>,<X(t+1)>")
+      tmp[i].gsub!(/ZDN_B_PAIR_WITH_P_M/, "<Zdn>.B,<Pg>/m,<Zdn>.B")
+      tmp[i].gsub!(/ZDN_H_PAIR_WITH_P_M/, "<Zdn>.H,<Pg>/m,<Zdn>.H")
+      tmp[i].gsub!(/ZDN_S_PAIR_WITH_P_M/, "<Zdn>.S,<Pg>/m,<Zdn>.S")
+      tmp[i].gsub!(/ZDN_D_PAIR_WITH_P_M/, "<Zdn>.D,<Pg>/m,<Zdn>.D")
       tmp[i].gsub!(/ZDN_B_PAIR/, "<Zdn>.B,<Zdn>.B")
       tmp[i].gsub!(/ZDN_H_PAIR/, "<Zdn>.H,<Zdn>.H")
       tmp[i].gsub!(/ZDN_S_PAIR/, "<Zdn>.S,<Zdn>.S")
@@ -287,6 +296,37 @@ class TestPatternGenerator
     @operands_ptn.store("<Zdn>.H", ["z8.h", "z1.h", "z2.h", "z4.h", "z0.h", "z16.h", "z30.h", "z31.h"])
     @operands_ptn.store("<Zdn>.S", ["z8.s", "z1.s", "z2.s", "z4.s", "z0.s", "z16.s", "z30.s", "z31.s"])
     @operands_ptn.store("<Zdn>.D", ["z8.d", "z1.d", "z2.d", "z4.d", "z0.d", "z16.d", "z30.d", "z31.d"])
+
+    # Generate "<Zdn>.(B|H|S|D), <Pg>/m, <Zdn>.(B|H|S|D)"
+    for t in ["B", "H", "S", "D"] do
+      list = []
+      for i in [8, 1, 2, 4, 0, 16, 30, 31] do
+        for j in [7] do
+          str_i = i.to_s
+          str_j = j.to_s
+          list.push("z" + str_i + "." + t.downcase + ",p" + str_j + "/m,z" + str_i + "." + t.downcase + "/*asm*/")
+        end
+      end
+      for i in [8] do
+        for j in [7, 1, 2, 4, 0] do
+          str_i = i.to_s
+          str_j = j.to_s
+          list.push("z" + str_i + "." + t.downcase + ",p" + str_j + "/m,z" + str_i + "." + t.downcase + "/*asm*/")
+        end
+      end
+      key = "<Zdn>." + t + ",<Pg>/m,<Zdn>." + t
+      @operands_ptn.store(key, list)
+    end
+
+    # <Zdn:asm>.? are remoed for CPP.
+    @operands_ptn.store("<Zdn:asm>.B", ["z8.b/*asm*/", "z1.b/*asm*/", "z2.b/*asm*/", "z4.b/*asm*/",
+                                        "z0.b/*asm*/", "z16.b/*asm*/", "z30.b/*asm*/", "z31.b"])
+    @operands_ptn.store("<Zdn:asm>.H", ["z8.h/*asm*/", "z1.h/*asm*/", "z2.h/*asm*/", "z4.h/*asm*/",
+                                        "z0.h/*asm*/", "z16.h/*asm*/", "z30.h/*asm*/", "z31.h"])
+    @operands_ptn.store("<Zdn:asm>.S", ["z8.s/*asm*/", "z1.s/*asm*/", "z2.s/*asm*/", "z4.s/*asm*/",
+                                        "z0.s/*asm*/", "z16.s/*asm*/", "z30.s/*asm*/", "z31.s"])
+    @operands_ptn.store("<Zdn:asm>.D", ["z8.d/*asm*/", "z1.d/*asm*/", "z2.d/*asm*/", "z4.d/*asm*/",
+                                        "z0.d/*asm*/", "z16.d/*asm*/", "z30.d/*asm*/", "z31.d"])
 
     @operands_ptn.store("<Zn>.B", ["z8.b", "z1.b", "z2.b", "z4.b", "z0.b", "z16.b", "z30.b", "z31.b"])
     @operands_ptn.store("<Zn>.H", ["z8.h", "z1.h", "z2.h", "z4.h", "z0.h", "z16.h", "z30.h", "z31.h"])

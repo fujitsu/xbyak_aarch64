@@ -5280,6 +5280,23 @@ sve = {
     ]
   },
 
+  "Sve2FpPairOp" => {
+    :cmt => "SVE2 floating-point pairwise operations",
+    :arg => [
+        [{"zdn" => "ZRegH", "pg" => "_PReg", "zm" => "ZRegH"}], #0
+        [{"zdn" => "ZRegS", "pg" => "_PReg", "zm" => "ZRegS"}], #1
+        [{"zdn" => "ZRegD", "pg" => "_PReg", "zm" => "ZRegD"}], #2
+    ],
+    :prm => ["bit23_13", "zdn", "pg", "zm"],
+    :grp => [
+      {"FADDP"   => {"bit23_13" => 0x84}},
+      {"FMAXNMP" => {"bit23_13" => 0xa4}},
+      {"FMINNMP" => {"bit23_13" => 0xac}},
+      {"FMAXP"   => {"bit23_13" => 0xb4}},
+      {"FMINP"   => {"bit23_13" => 0xbc}},
+    ]
+  },
+
   "SveFpComplexAddPred" => {
     :cmt => "SVE floating-point complex add (predicated)",
     :arg => ext_args(zreg_set_pred(2 ,"HSD"), [{"ct" => "uint32_t"}], {"zd"=>"zdn","zn"=>"zm"}),

@@ -3424,6 +3424,15 @@ void CodeGenerator::SveFpConvPrecOddElem(uint32_t bit23_13, const _ZReg &zd, con
   dd(code);
 }
 
+// SVE2 floating-point pairwise operations
+void CodeGenerator::Sve2FpPairOp(uint32_t bit23_13, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm) {
+  uint32_t size = genSize(zdn);
+  verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
+
+  uint32_t code = concat({F(0x64, 24), F(size, 22), F(bit23_13, 13), F(pg.getIdx(), 10), F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
+  dd(code);
+}
+
 // SVE floating-point complex add (predicated)
 void CodeGenerator::SveFpComplexAddPred(const _ZReg &zdn, const _PReg &pg, const _ZReg &zm, uint32_t ct) {
   uint32_t size = genSize(zdn);
