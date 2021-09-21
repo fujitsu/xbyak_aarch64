@@ -3433,7 +3433,7 @@ void CodeGenerator::Sve2FpPairOp(uint32_t bit23_13, const _ZReg &zdn, const _PRe
   dd(code);
 }
 
-// SVE Floating Point Widening Multiply-Add
+// SVE Floating Point Widening Multiply-Add - Indexed
 void CodeGenerator::SveFpWideMultAddIndexedGroup(uint32_t bit23_10, const _ZReg &zda, const _ZReg &zn, const ZRegElem &zm) {
   uint32_t zm_eidx = zm.getElemIdx();
   uint32_t i2 = 0;
@@ -3452,6 +3452,12 @@ void CodeGenerator::SveFpWideMultAddIndexedGroup(uint32_t bit23_10, const _ZReg 
   }
 
   uint32_t code = concat({F(0x64, 24), F((i2 | i3h), 19), F(zm.getIdx(), 16), F(i3l, 11), F(bit23_10, 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
+  dd(code);
+}
+
+// SVE Floating Point Widening Multiply-Add
+void CodeGenerator::SveFpWideMultAddGroup(uint32_t bit23_10, const _ZReg &zda, const _ZReg &zn, const _ZReg &zm) {
+  uint32_t code = concat({F(0x64, 24), F(zm.getIdx(), 16), F(bit23_10, 10), F(zn.getIdx(), 5), F(zda.getIdx(), 0)});
   dd(code);
 }
 

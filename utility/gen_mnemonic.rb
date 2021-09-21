@@ -5316,6 +5316,24 @@ sve = {
     ]
   },
 
+  "SveFpWideMultAddGroup" => {
+    :cmt => ["SVE BFloat16 floating-point dot product",
+             "SVE floating-point multiply-add long"
+            ],
+    :arg => [
+        [{"zda" => "ZRegS", "zn" => "ZRegH", "zm" => "ZRegH"}] #0
+    ],
+    :prm => ["bit23_10", "zda", "zn", "zm"],
+    :grp => [
+      {"BFDOT"   => {"bit23_10" => 0x1820}, :cmt => [0]},
+      {"FMLALB"  => {"bit23_10" => 0x2820}, :cmt => [1]},
+      {"FMLALT"  => {"bit23_10" => 0x2821}, :cmt => [1]},
+      {"FMLSLB"  => {"bit23_10" => 0x2828}, :cmt => [1]},
+      {"FMLSLT"  => {"bit23_10" => 0x2829}, :cmt => [1]},
+      {"BFMLALB" => {"bit23_10" => 0x3820}, :cmt => [1]},
+      {"BFMLALT" => {"bit23_10" => 0x3821}, :cmt => [1]}
+    ]
+  },
 
   "SveFpComplexAddPred" => {
     :cmt => "SVE floating-point complex add (predicated)",
