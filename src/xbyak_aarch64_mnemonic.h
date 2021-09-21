@@ -4682,6 +4682,13 @@ void CodeGenerator::fmaxp(const ZRegD &zdn, const _PReg &pg, const ZRegD &zm) { 
 void CodeGenerator::fminp(const ZRegH &zdn, const _PReg &pg, const ZRegH &zm) { Sve2FpPairOp(188, zdn, pg, zm); }
 void CodeGenerator::fminp(const ZRegS &zdn, const _PReg &pg, const ZRegS &zm) { Sve2FpPairOp(188, zdn, pg, zm); }
 void CodeGenerator::fminp(const ZRegD &zdn, const _PReg &pg, const ZRegD &zm) { Sve2FpPairOp(188, zdn, pg, zm); }
+void CodeGenerator::bfdot(const ZRegS &zda, const ZRegH &zn, const ZRegHElem &zm) { SveFpWideMultAddIndexedGroup(6160, zda, zn, zm); }
+void CodeGenerator::fmlalb(const ZRegS &zda, const ZRegH &zn, const ZRegHElem &zm) { SveFpWideMultAddIndexedGroup(10256, zda, zn, zm); }
+void CodeGenerator::fmlalt(const ZRegS &zda, const ZRegH &zn, const ZRegHElem &zm) { SveFpWideMultAddIndexedGroup(10257, zda, zn, zm); }
+void CodeGenerator::fmlslb(const ZRegS &zda, const ZRegH &zn, const ZRegHElem &zm) { SveFpWideMultAddIndexedGroup(10264, zda, zn, zm); }
+void CodeGenerator::fmlslt(const ZRegS &zda, const ZRegH &zn, const ZRegHElem &zm) { SveFpWideMultAddIndexedGroup(10265, zda, zn, zm); }
+void CodeGenerator::bfmlalb(const ZRegS &zda, const ZRegH &zn, const ZRegHElem &zm) { SveFpWideMultAddIndexedGroup(14352, zda, zn, zm); }
+void CodeGenerator::bfmlalt(const ZRegS &zda, const ZRegH &zn, const ZRegHElem &zm) { SveFpWideMultAddIndexedGroup(14353, zda, zn, zm); }
 void CodeGenerator::fcadd(const ZRegH &zdn, const _PReg &pg, const ZRegH &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }
 void CodeGenerator::fcadd(const ZRegS &zdn, const _PReg &pg, const ZRegS &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }
 void CodeGenerator::fcadd(const ZRegD &zdn, const _PReg &pg, const ZRegD &zm, const uint32_t ct) { SveFpComplexAddPred(zdn, pg, zm, ct); }
