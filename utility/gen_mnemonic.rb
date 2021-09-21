@@ -3664,12 +3664,17 @@ sve = {
     :cmt => "SVE bitwise shift by immediate (predicated)",
     :arg => ext_args(zreg_set_pred(1,"BHSD"),[{"amount"  => "uint32_t"}],{"zd" => "zdn"}), #0-3 (0:B, 1:H, 2:S, 3:D)
     # :arg => [[ {"zdn" => "ZReg"}, {"pg"  => "_PReg"}, {"amount"  => "uint32_t"}]],
-    :prm => ["opc", "zdn", "pg", "amount"],
+    :prm => ["opc", "L", "U", "zdn", "pg", "amount"],
     :grp => [
-      {"ASR"   => {"opc" => 0x0}},
-      {"LSR"   => {"opc" => 0x1}},
-      {"LSL"   => {"opc" => 0x3}},
-      {"ASRD"  => {"opc" => 0x4}}
+      {"ASR"    => {"opc" => "0x0", "L" => 0x0, "U" => 0x0}},
+      {"LSR"    => {"opc" => "0x0", "L" => 0x0, "U" => 0x1}},
+      {"LSL"    => {"opc" => "0x0", "L" => 0x1, "U" => 0x1}},
+      {"ASRD"   => {"opc" => "0x1", "L" => 0x0, "U" => 0x0}},
+      {"SQSHL"  => {"opc" => "0x1", "L" => 0x1, "U" => 0x0}},
+      {"UQSHL"  => {"opc" => "0x1", "L" => 0x1, "U" => 0x1}},
+      {"SRSHR"  => {"opc" => "0x3", "L" => 0x0, "U" => 0x0}},
+      {"URSHR"  => {"opc" => "0x3", "L" => 0x0, "U" => 0x1}},
+      {"SQSHLU" => {"opc" => "0x3", "L" => 0x1, "U" => 0x1}}
     ]
   },
 

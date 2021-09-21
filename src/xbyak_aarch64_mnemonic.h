@@ -3247,22 +3247,42 @@ void CodeGenerator::uminv(const BReg &vd, const _PReg &pg, const ZRegB &zn) { Sv
 void CodeGenerator::uminv(const HReg &vd, const _PReg &pg, const ZRegH &zn) { SveIntMinMaxReductPred(1, 1, vd, pg, zn); }
 void CodeGenerator::uminv(const SReg &vd, const _PReg &pg, const ZRegS &zn) { SveIntMinMaxReductPred(1, 1, vd, pg, zn); }
 void CodeGenerator::uminv(const DReg &vd, const _PReg &pg, const ZRegD &zn) { SveIntMinMaxReductPred(1, 1, vd, pg, zn); }
-void CodeGenerator::asr(const ZRegB &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0, zdn, pg, amount); }
-void CodeGenerator::asr(const ZRegH &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0, zdn, pg, amount); }
-void CodeGenerator::asr(const ZRegS &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0, zdn, pg, amount); }
-void CodeGenerator::asr(const ZRegD &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0, zdn, pg, amount); }
-void CodeGenerator::lsr(const ZRegB &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(1, zdn, pg, amount); }
-void CodeGenerator::lsr(const ZRegH &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(1, zdn, pg, amount); }
-void CodeGenerator::lsr(const ZRegS &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(1, zdn, pg, amount); }
-void CodeGenerator::lsr(const ZRegD &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(1, zdn, pg, amount); }
-void CodeGenerator::lsl(const ZRegB &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(3, zdn, pg, amount); }
-void CodeGenerator::lsl(const ZRegH &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(3, zdn, pg, amount); }
-void CodeGenerator::lsl(const ZRegS &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(3, zdn, pg, amount); }
-void CodeGenerator::lsl(const ZRegD &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(3, zdn, pg, amount); }
-void CodeGenerator::asrd(const ZRegB &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(4, zdn, pg, amount); }
-void CodeGenerator::asrd(const ZRegH &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(4, zdn, pg, amount); }
-void CodeGenerator::asrd(const ZRegS &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(4, zdn, pg, amount); }
-void CodeGenerator::asrd(const ZRegD &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(4, zdn, pg, amount); }
+void CodeGenerator::asr(const ZRegB &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x0, 0, 0, zdn, pg, amount); }
+void CodeGenerator::asr(const ZRegH &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x0, 0, 0, zdn, pg, amount); }
+void CodeGenerator::asr(const ZRegS &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x0, 0, 0, zdn, pg, amount); }
+void CodeGenerator::asr(const ZRegD &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x0, 0, 0, zdn, pg, amount); }
+void CodeGenerator::lsr(const ZRegB &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x0, 0, 1, zdn, pg, amount); }
+void CodeGenerator::lsr(const ZRegH &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x0, 0, 1, zdn, pg, amount); }
+void CodeGenerator::lsr(const ZRegS &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x0, 0, 1, zdn, pg, amount); }
+void CodeGenerator::lsr(const ZRegD &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x0, 0, 1, zdn, pg, amount); }
+void CodeGenerator::lsl(const ZRegB &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x0, 1, 1, zdn, pg, amount); }
+void CodeGenerator::lsl(const ZRegH &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x0, 1, 1, zdn, pg, amount); }
+void CodeGenerator::lsl(const ZRegS &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x0, 1, 1, zdn, pg, amount); }
+void CodeGenerator::lsl(const ZRegD &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x0, 1, 1, zdn, pg, amount); }
+void CodeGenerator::asrd(const ZRegB &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x1, 0, 0, zdn, pg, amount); }
+void CodeGenerator::asrd(const ZRegH &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x1, 0, 0, zdn, pg, amount); }
+void CodeGenerator::asrd(const ZRegS &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x1, 0, 0, zdn, pg, amount); }
+void CodeGenerator::asrd(const ZRegD &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x1, 0, 0, zdn, pg, amount); }
+void CodeGenerator::sqshl(const ZRegB &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x1, 1, 0, zdn, pg, amount); }
+void CodeGenerator::sqshl(const ZRegH &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x1, 1, 0, zdn, pg, amount); }
+void CodeGenerator::sqshl(const ZRegS &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x1, 1, 0, zdn, pg, amount); }
+void CodeGenerator::sqshl(const ZRegD &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x1, 1, 0, zdn, pg, amount); }
+void CodeGenerator::uqshl(const ZRegB &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x1, 1, 1, zdn, pg, amount); }
+void CodeGenerator::uqshl(const ZRegH &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x1, 1, 1, zdn, pg, amount); }
+void CodeGenerator::uqshl(const ZRegS &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x1, 1, 1, zdn, pg, amount); }
+void CodeGenerator::uqshl(const ZRegD &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x1, 1, 1, zdn, pg, amount); }
+void CodeGenerator::srshr(const ZRegB &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x3, 0, 0, zdn, pg, amount); }
+void CodeGenerator::srshr(const ZRegH &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x3, 0, 0, zdn, pg, amount); }
+void CodeGenerator::srshr(const ZRegS &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x3, 0, 0, zdn, pg, amount); }
+void CodeGenerator::srshr(const ZRegD &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x3, 0, 0, zdn, pg, amount); }
+void CodeGenerator::urshr(const ZRegB &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x3, 0, 1, zdn, pg, amount); }
+void CodeGenerator::urshr(const ZRegH &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x3, 0, 1, zdn, pg, amount); }
+void CodeGenerator::urshr(const ZRegS &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x3, 0, 1, zdn, pg, amount); }
+void CodeGenerator::urshr(const ZRegD &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x3, 0, 1, zdn, pg, amount); }
+void CodeGenerator::sqshlu(const ZRegB &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x3, 1, 1, zdn, pg, amount); }
+void CodeGenerator::sqshlu(const ZRegH &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x3, 1, 1, zdn, pg, amount); }
+void CodeGenerator::sqshlu(const ZRegS &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x3, 1, 1, zdn, pg, amount); }
+void CodeGenerator::sqshlu(const ZRegD &zdn, const _PReg &pg, const uint32_t amount) { SveBitwiseShByImmPred(0x3, 1, 1, zdn, pg, amount); }
 void CodeGenerator::asr(const ZRegB &zdn, const _PReg &pg, const ZRegB &zm) { SveBitwiseShVecPred(0, zdn, pg, zm); }
 void CodeGenerator::asr(const ZRegH &zdn, const _PReg &pg, const ZRegH &zm) { SveBitwiseShVecPred(0, zdn, pg, zm); }
 void CodeGenerator::asr(const ZRegS &zdn, const _PReg &pg, const ZRegS &zm) { SveBitwiseShVecPred(0, zdn, pg, zm); }

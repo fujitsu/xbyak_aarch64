@@ -2364,8 +2364,8 @@ void CodeGenerator::SveBitShPred(uint32_t opc, uint32_t type, const _ZReg &zdn, 
 }
 
 // SVE bitwise shift by immediate (predicated)
-void CodeGenerator::SveBitwiseShByImmPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, uint32_t amount) {
-  bool lsl = (opc == 3);
+void CodeGenerator::SveBitwiseShByImmPred(uint32_t opc, uint32_t L, uint32_t U, const _ZReg &zdn, const _PReg &pg, uint32_t amount) {
+  bool lsl = (L == 1);
   uint32_t size = genSize(zdn);
   uint32_t imm = (lsl) ? (amount + zdn.getBit()) : (2 * zdn.getBit() - amount);
   uint32_t imm3 = imm & ones(3);
@@ -2376,7 +2376,7 @@ void CodeGenerator::SveBitwiseShByImmPred(uint32_t opc, const _ZReg &zdn, const 
   verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
   verifyIncRange(amount, (1 - lsl), (zdn.getBit() - lsl), ERR_ILLEGAL_CONST_RANGE);
 
-  uint32_t code = concat({F(0x4, 24), F(tszh, 22), F(0, 19), F(opc, 16), F(4, 13), F(pg.getIdx(), 10), F(tszl, 8), F(imm3, 5), F(zdn.getIdx(), 0)});
+  uint32_t code = concat({F(0x4, 24), F(tszh, 22), F(opc, 18), F(L, 17), F(U, 16), F(4, 13), F(pg.getIdx(), 10), F(tszl, 8), F(imm3, 5), F(zdn.getIdx(), 0)});
   dd(code);
 }
 
