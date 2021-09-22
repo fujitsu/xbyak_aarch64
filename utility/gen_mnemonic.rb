@@ -3774,6 +3774,20 @@ sve = {
     ]
   },
 
+  "SveBitwiseExOrRotRightImm" => {
+    :cmt => "Bitwise exclusive OR and rotate right by immediate",
+    :arg => [
+      [{"zdn" => "ZRegB"}, {"zm"  => "ZRegB"}, {"amount"  => "uint32_t"}], #0
+      [{"zdn" => "ZRegH"}, {"zm"  => "ZRegH"}, {"amount"  => "uint32_t"}], #1
+      [{"zdn" => "ZRegS"}, {"zm"  => "ZRegS"}, {"amount"  => "uint32_t"}], #2
+      [{"zdn" => "ZRegD"}, {"zm"  => "ZRegD"}, {"amount"  => "uint32_t"}]  #3
+    ],
+    :prm => ["zdn", "zm", "amount"],
+    :grp => [
+      {"XAR" => {}}
+    ]
+  },
+
   "SveBitwiseLOpUnpred" => {
     :cmt => "SVE bitwise logical operations (unpredicated)",
     :arg => [

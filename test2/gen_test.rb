@@ -425,6 +425,7 @@ class TestPatternGenerator
     @operands_ptn.store("<Pd>.S", ["p7.s", "p1.s", "p2.s", "p4.s", "p0.s"])
     @operands_ptn.store("<Pd>.D", ["p7.d", "p1.d", "p2.d", "p4.d", "p0.d"])
 
+    @operands_ptn.store("<Pg>", ["p7", "p1", "p2", "p4", "p0"])
     @operands_ptn.store("<Pg>/M", ["p7/m", "p1/m", "p2/m", "p4/m", "p0/m"])
     @operands_ptn.store("<Pg>/Z", ["p7/z", "p1/z", "p2/z", "p4/z", "p0/z"])
     @operands_ptn.store("<Pd:all>.B", ["p15.b", "p1.b", "p0.b", "p8.b"])

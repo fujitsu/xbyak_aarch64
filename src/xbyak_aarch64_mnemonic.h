@@ -3402,6 +3402,10 @@ void CodeGenerator::uqsub(const ZRegB &zd, const ZRegB &zn, const ZRegB &zm) { S
 void CodeGenerator::uqsub(const ZRegH &zd, const ZRegH &zn, const ZRegH &zm) { SveIntAddSubUnpred(7, zd, zn, zm); }
 void CodeGenerator::uqsub(const ZRegS &zd, const ZRegS &zn, const ZRegS &zm) { SveIntAddSubUnpred(7, zd, zn, zm); }
 void CodeGenerator::uqsub(const ZRegD &zd, const ZRegD &zn, const ZRegD &zm) { SveIntAddSubUnpred(7, zd, zn, zm); }
+void CodeGenerator::xar(const ZRegB &zdn, const ZRegB &zm, const uint32_t amount) { SveBitwiseExOrRotRightImm(zdn, zm, amount); }
+void CodeGenerator::xar(const ZRegH &zdn, const ZRegH &zm, const uint32_t amount) { SveBitwiseExOrRotRightImm(zdn, zm, amount); }
+void CodeGenerator::xar(const ZRegS &zdn, const ZRegS &zm, const uint32_t amount) { SveBitwiseExOrRotRightImm(zdn, zm, amount); }
+void CodeGenerator::xar(const ZRegD &zdn, const ZRegD &zm, const uint32_t amount) { SveBitwiseExOrRotRightImm(zdn, zm, amount); }
 void CodeGenerator::and_(const ZRegD &zd, const ZRegD &zn, const ZRegD &zm) { SveBitwiseLOpUnpred(0, zd, zn, zm); }
 void CodeGenerator::orr(const ZRegD &zd, const ZRegD &zn, const ZRegD &zm) { SveBitwiseLOpUnpred(1, zd, zn, zm); }
 void CodeGenerator::mov(const ZRegD &zd, const ZRegD &zn) { SveBitwiseLOpUnpred(1, zd, zn, zn); }

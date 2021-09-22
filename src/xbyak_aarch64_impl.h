@@ -2423,6 +2423,20 @@ void CodeGenerator::SveIntAddSubUnpred(uint32_t opc, const _ZReg &zd, const _ZRe
   dd(code);
 }
 
+// Bitwise exclusive OR and rotate right by immediate",
+void CodeGenerator::SveBitwiseExOrRotRightImm(const _ZReg &zdn, const _ZReg &zm, uint32_t amount) {
+  uint32_t size = zdn.getBit();
+  verifyIncRange(amount, 1, size, ERR_ILLEGAL_IMM_RANGE);
+
+  uint32_t imm = size * 2 - amount;
+  uint32_t tszh = field(imm, 6, 5);
+  uint32_t tszl = field(imm, 4, 3);
+  uint32_t imm3 = imm & ones(3);
+
+  uint32_t code = concat({F(0x4, 24), F(tszh, 22), F(1, 21), F(tszl, 19), F(imm3, 16), F(0xd, 10), F(zm.getIdx(), 5), F(zdn.getIdx(), 0)});
+  dd(code);
+}
+
 // SVE bitwise logical operations (unpredicated)
 void CodeGenerator::SveBitwiseLOpUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm) {
   uint32_t code = concat({F(0x4, 24), F(opc, 22), F(1, 21), F(zm.getIdx(), 16), F(0xc, 10), F(zn.getIdx(), 5), F(zd.getIdx(), 0)});

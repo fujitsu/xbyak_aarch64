@@ -467,6 +467,7 @@ class CodeGenerator : public CodeArray {
   void SveIntMultAccumPred(uint32_t opc, const _ZReg &zda, const _PReg &pg, const _ZReg &zn, const _ZReg &zm);
   void SveIntMultAddPred(uint32_t opc, const _ZReg &zdn, const _PReg &pg, const _ZReg &zm, const _ZReg &za);
   void SveIntAddSubUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm);
+  void SveBitwiseExOrRotRightImm(const _ZReg &zdn, const _ZReg &znm, uint32_t amount);
   void SveBitwiseLOpUnpred(uint32_t opc, const _ZReg &zd, const _ZReg &zn, const _ZReg &zm);
   void SveIndexGenImmImmInc(const _ZReg &zd, int32_t imm1, int32_t imm2);
   void Sve2BitwiseTernalyOp(uint32_t opc, uint32_t o2, const _ZReg &zdn, const _ZReg &zm, const _ZReg &zk);
