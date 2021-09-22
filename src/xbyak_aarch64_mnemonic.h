@@ -5395,6 +5395,13 @@ void CodeGenerator::st1b(const ZRegD &zt, const _PReg &pg, const AdrVecImm64 &ad
 void CodeGenerator::st1h(const ZRegD &zt, const _PReg &pg, const AdrVecImm64 &adr) { Sve64ScatterStVecImm(1, zt, pg, adr); }
 void CodeGenerator::st1w(const ZRegD &zt, const _PReg &pg, const AdrVecImm64 &adr) { Sve64ScatterStVecImm(2, zt, pg, adr); }
 void CodeGenerator::st1d(const ZRegD &zt, const _PReg &pg, const AdrVecImm64 &adr) { Sve64ScatterStVecImm(3, zt, pg, adr); }
+void CodeGenerator::stnt1b(const ZRegD &zt, const _PReg &pg, const AdrVecSc64 &adr) { Sve2_64ScatterNTStr(0, zt, pg, adr); }
+void CodeGenerator::stnt1h(const ZRegD &zt, const _PReg &pg, const AdrVecSc64 &adr) { Sve2_64ScatterNTStr(1, zt, pg, adr); }
+void CodeGenerator::stnt1w(const ZRegD &zt, const _PReg &pg, const AdrVecSc64 &adr) { Sve2_64ScatterNTStr(2, zt, pg, adr); }
+void CodeGenerator::stnt1d(const ZRegD &zt, const _PReg &pg, const AdrVecSc64 &adr) { Sve2_64ScatterNTStr(3, zt, pg, adr); }
+void CodeGenerator::stnt1b(const ZRegS &zt, const _PReg &pg, const AdrVecSc32 &adr) { Sve2_32ScatterNTStr(0, zt, pg, adr); }
+void CodeGenerator::stnt1h(const ZRegS &zt, const _PReg &pg, const AdrVecSc32 &adr) { Sve2_32ScatterNTStr(1, zt, pg, adr); }
+void CodeGenerator::stnt1w(const ZRegS &zt, const _PReg &pg, const AdrVecSc32 &adr) { Sve2_32ScatterNTStr(2, zt, pg, adr); }
 void CodeGenerator::stnt1b(const ZRegB &zt, const _PReg &pg, const AdrScImm &adr) { SveContiNTStScImm(0, zt, pg, adr); }
 void CodeGenerator::stnt1b(const ZRegB &zt, const _PReg &pg, const AdrNoOfs &adr) { SveContiNTStScImm(0, zt, pg, adr); }
 void CodeGenerator::stnt1h(const ZRegH &zt, const _PReg &pg, const AdrScImm &adr) { SveContiNTStScImm(1, zt, pg, adr); }

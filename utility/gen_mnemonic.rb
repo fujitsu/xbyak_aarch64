@@ -6426,6 +6426,32 @@ sve = {
     ]
   },
 
+  "Sve2_64ScatterNTStr" => {
+    :cmt => "SVE2 64-bit scatter non-temporal store (vector plus scalar)",
+    :arg => [[ { "zt" => "ZRegD"}, {"pg" => "_PReg"}, {"adr" => "AdrVecSc64"}]],
+    :prm => ["msz", "zt", "pg", "adr"],
+    :grp => [
+      {"STNT1B"  => {"msz" => 0}},
+      {"STNT1H"  => {"msz" => 1}},
+      {"STNT1W"  => {"msz" => 2}},
+      {"STNT1D"  => {"msz" => 3}}
+    ],
+  },
+
+  "Sve2_32ScatterNTStr" => {
+    :cmt => "SVE2 32-bit scatter non-temporal store (vector plus scalar)",
+    :arg => [
+      [ { "zt" => "ZRegS"}, {"pg" => "_PReg"}, {"adr" => "AdrVecSc32"}]
+    ],
+    :prm => ["msz", "zt", "pg", "adr"],
+    :grp => [
+      {"STNT1B"  => {"msz" => 0}},
+      {"STNT1H"  => {"msz" => 1}},
+      {"STNT1W"  => {"msz" => 2}}
+      #{"STNT1D"  => {"msz" => 3}} # No exist
+    ],
+  },
+
   "SveContiNTStScImm" => {
     :cmt => "SVE contiguous non-temporal store (scalar plus immediate)",
     :arg => [

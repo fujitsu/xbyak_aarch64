@@ -4126,6 +4126,20 @@ void CodeGenerator::Sve64ScatterStVecImm(uint32_t msz, const _ZReg &zt, const _P
   dd(code);
 }
 
+// SVE2 64-bit scatter non-temporal store (vector plus scalar)
+void CodeGenerator::Sve2_64ScatterNTStr(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrVecSc64 &adr) {
+  verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
+  uint32_t code = concat({F(0x72, 25), F(msz, 23), F(adr.getXm().getIdx(), 16), F(1, 13), F(pg.getIdx(), 10), F(adr.getZn().getIdx(), 5), F(zt.getIdx(), 0)});
+  dd(code);
+}
+
+// SVE2 32-bit scatter non-temporal store (vector plus scalar)
+void CodeGenerator::Sve2_32ScatterNTStr(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrVecSc32 &adr) {
+  verifyIncRange(pg.getIdx(), 0, 7, ERR_ILLEGAL_REG_IDX);
+  uint32_t code = concat({F(0x72, 25), F(msz, 23), F(2, 21), F(adr.getXm().getIdx(), 16), F(1, 13), F(pg.getIdx(), 10), F(adr.getZn().getIdx(), 5), F(zt.getIdx(), 0)});
+  dd(code);
+}
+
 // SVE contiguous non-temporal store (scalar plus immediate)
 void CodeGenerator::SveContiNTStScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr) {
   int32_t imm = adr.getSimm();

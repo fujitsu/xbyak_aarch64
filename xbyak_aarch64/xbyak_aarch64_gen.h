@@ -639,6 +639,8 @@ class CodeGenerator : public CodeArray {
   void Sve64ScatterStSc32US(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrSc32US &adr);
   void Sve64ScatterStSc32UU(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrSc32UU &adr);
   void Sve64ScatterStVecImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrVecImm64 &adr);
+  void Sve2_64ScatterNTStr(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrVecSc64 &adr);
+  void Sve2_32ScatterNTStr(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrVecSc32 &adr);
   void SveContiNTStScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrScImm &adr);
   void SveContiNTStScImm(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrNoOfs &adr);
   void SveContiNTStScSc(uint32_t msz, const _ZReg &zt, const _PReg &pg, const AdrScSc &adr);
