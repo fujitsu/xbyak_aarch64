@@ -14,6 +14,7 @@
  * limitations under the License.
  *******************************************************************************/
 #define XBYAK_AARCH64_MAKE_INSTANCE
+#include <memory.h>
 #include "xbyak_aarch64.h"
 
 namespace Xbyak_aarch64 {
