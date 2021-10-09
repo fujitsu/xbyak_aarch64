@@ -99,18 +99,17 @@ uint32_t countSeqOneBit(uint64_t v, uint32_t size) {
   return num;
 }
 
-inline uint64_t mask(int x) { return (uint64_t(1) << x) - 1; }
 // 8bitFloat = 1(sign) + 3(exponent) + 4(mantissa)
 inline uint32_t code8bitFloat(double x) {
   uint64_t u;
   memcpy(&u, &x, sizeof(u));
   uint32_t sign = (u >> 63) & 1;
-  int e = int((u >> 52) & mask(11)) - 1023;
+  int e = int((u >> 52) & ones(11)) - 1023;
   if (e < -3 || e > 4)
     throw Error(ERR_ILLEGAL_IMM_VALUE);
   e = (e + 7) & 7;
-  uint64_t m = u & mask(52);
-  if (m & mask(48))
+  uint64_t m = u & ones(52);
+  if (m & ones(48))
     throw Error(ERR_ILLEGAL_IMM_VALUE);
   return uint32_t((sign << 7) | (e << 4) | (m >> 48));
 }
