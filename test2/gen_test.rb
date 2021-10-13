@@ -444,6 +444,17 @@ class TestPatternGenerator
     @operands_ptn.store("#<const:5:no0>", ["(1<<5)-1", "1<<3", "1<<2"])
     @operands_ptn.store("#<const:6:no0>", ["(1<<6)-1", "1<<3", "1<<2"])
 
+    list = []
+    for n in 16..31 do
+      for r in -3..4 do
+        val = (n / 16.0) * (2**r)
+        list.push((-val).to_s)
+        list.push(val.to_s)
+      end
+    end
+    key = "#<const:fp8>"
+    @operands_ptn.store(key, list)
+
     @operands_ptn.store("OP:0", ["OP:0:/*asm*/"])
   end
 
