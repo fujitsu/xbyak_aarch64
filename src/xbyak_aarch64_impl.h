@@ -99,25 +99,19 @@ uint32_t countSeqOneBit(uint64_t v, uint32_t size) {
   return num;
 }
 
-uint32_t compactImm(double imm, uint32_t size) {
-  uint32_t sign = (imm < 0) ? 1 : 0;
-
-  imm = std::abs(imm);
-  int32_t max_digit = static_cast<int32_t>(std::floor(std::log2(imm)));
-
-  int32_t n = (size == 16) ? 7 : (size == 32) ? 10 : 13;
-  int32_t exp = (max_digit - 1) + (1 << n);
-
-  imm -= pow(2, max_digit);
-  uint32_t frac = 0;
-  for (int i = 0; i < 4; ++i) {
-    if (pow(2, max_digit - 1 - i) <= imm) {
-      frac |= 1 << (3 - i);
-      imm -= pow(2, max_digit - 1 - i);
-    }
-  }
-  uint32_t imm8 = concat({F(sign, 7), F(field(~exp, n, n), 6), F(field(exp, 1, 0), 4), F(frac, 0)});
-  return imm8;
+// 8bitFloat = 1(sign) + 3(exponent) + 4(mantissa)
+inline uint32_t code8bitFloat(double x) {
+  uint64_t u;
+  memcpy(&u, &x, sizeof(u));
+  uint32_t sign = (u >> 63) & 1;
+  int e = int((u >> 52) & ones(11)) - 1023;
+  if (e < -3 || e > 4)
+    throw Error(ERR_ILLEGAL_IMM_VALUE);
+  e = (e + 7) & 7;
+  uint64_t m = u & ones(52);
+  if (m & ones(48))
+    throw Error(ERR_ILLEGAL_IMM_VALUE);
+  return uint32_t((sign << 7) | (e << 4) | (m >> 48));
 }
 
 uint32_t compactImm(uint64_t imm) {
@@ -2085,7 +2079,7 @@ void CodeGenerator::AdvSimdModiImmOrrBic(uint32_t op, uint32_t o2, const VRegVec
 void CodeGenerator::AdvSimdModiImmFmov(uint32_t op, uint32_t o2, const VRegVec &vd, double imm) {
   uint32_t Q = genQ(vd);
   uint32_t crmode = 0xf;
-  uint32_t imm8 = compactImm(imm, vd.getBit());
+  uint32_t imm8 = code8bitFloat(imm);
   uint32_t abc = field(imm8, 7, 5);
   uint32_t defgh = field(imm8, 4, 0);
   uint32_t code = concat({F(Q, 30), F(op, 29), F(0xf, 24), F(abc, 16), F(crmode, 12), F(o2, 11), F(1, 10), F(defgh, 5), F(vd.getIdx(), 0)});
@@ -2257,7 +2251,7 @@ void CodeGenerator::FpComp(uint32_t M, uint32_t S, uint32_t type, uint32_t op, u
 
 // Floating-piont immediate
 void CodeGenerator::FpImm(uint32_t M, uint32_t S, uint32_t type, const VRegSc &vd, double imm) {
-  uint32_t imm8 = compactImm(imm, vd.getBit());
+  uint32_t imm8 = code8bitFloat(imm);
   uint32_t code = concat({F(M, 31), F(S, 29), F(0xf, 25), F(type, 22), F(1, 21), F(imm8, 13), F(1, 12), F(vd.getIdx(), 0)});
   dd(code);
 }
@@ -2638,7 +2632,7 @@ void CodeGenerator::SveBcBitmaskImm(const _ZReg &zdn, uint64_t imm) { SveBitwise
 // SVE copy floating-point immediate (predicated)
 void CodeGenerator::SveCopyFpImmPred(const _ZReg &zd, const _PReg &pg, double imm) {
   uint32_t size = genSize(zd);
-  uint32_t imm8 = compactImm(imm, zd.getBit());
+  uint32_t imm8 = code8bitFloat(imm);
   uint32_t code = concat({F(0x5, 24), F(size, 22), F(1, 20), F(pg.getIdx(), 16), F(6, 13), F(imm8, 5), F(zd.getIdx(), 0)});
   dd(code);
 }
@@ -3026,7 +3020,7 @@ void CodeGenerator::SvePointConfCmp(uint32_t rw, const _PReg pd, const XReg &xn,
 // SVE broadcast floating-point immediate (unpredicated)
 void CodeGenerator::SveBcFpImmUnpred(uint32_t opc, uint32_t o2, const _ZReg &zd, double imm) {
   uint32_t size = genSize(zd);
-  uint32_t imm8 = compactImm(imm, zd.getBit());
+  uint32_t imm8 = code8bitFloat(imm);
   uint32_t code = concat({F(0x25, 24), F(size, 22), F(7, 19), F(opc, 17), F(7, 14), F(o2, 13), F(imm8, 5), F(zd.getIdx(), 0)});
   dd(code);
 }
