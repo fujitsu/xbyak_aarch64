@@ -657,7 +657,6 @@ c.setProtectModeRE();
 
 
 Call `readyRE()` instead of `ready()` when using `AutoGrow` mode.
-See [protect-re.cpp](sample/protect-re.cpp).
 
 ## How to pass arguments to JIT generated function
 To be written...
