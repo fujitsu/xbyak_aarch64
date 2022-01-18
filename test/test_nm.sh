@@ -1,6 +1,6 @@
 #!/bin/sh
 #*******************************************************************************
-# Copyright 2019 FUJITSU LIMITED 
+# Copyright 2019-2021 FUJITSU LIMITED
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@ TOOL_PREFIX=""
 if [ ${ARCH} != aarch64 ] ; then
   TOOL_PREFIX=aarch64-linux-gnu-
 fi
-if [ ${ARCH} == arm64 ] ; then
+if [ ${ARCH} = arm64 ] ; then
   TOOL_PREFIX=aarch64-unknown-linux-gnu-
 fi
 AS=${TOOL_PREFIX}as
@@ -31,7 +31,7 @@ AWK=awk
 SED=sed
 TEST_FILE=${1}
 AARCH64_TYPE="armv8.4-a"
-if [ ${ARCH} == arm64 ] ; then
+if [ ${ARCH} = arm64 ] ; then
   AARCH64_TYPE="all"
 fi
 CXX_FLAGS1="-std=c++11 -fomit-frame-pointer -Wall -fno-operator-names -I../xbyak_aarch64 -I./ -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith -Wno-ignored-qualifiers"

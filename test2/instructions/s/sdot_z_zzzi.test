@@ -1,0 +1,5 @@
+#DDI0584B_a_SVE/SVE_xml/xhtml/sdot_z_zzzi.html
+# Zm:bit18..bit16
+SDOT <Zda>.S, <Zn>.B, <Zm:3>.B[<imm:2>]
+# Zm:bit19..bit16
+SDOT <Zda>.D, <Zn>.H, <Zm:4>.H[<imm:1>]

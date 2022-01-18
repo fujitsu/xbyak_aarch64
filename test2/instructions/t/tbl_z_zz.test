@@ -1,0 +1,9 @@
+#DDI0584B_a_SVE/SVE_xml/xhtml/tbl_z_zz.html
+TBL <Zd>.B, { <Zn>.B }, <Zm>.B
+TBL <Zd>.H, { <Zn>.H }, <Zm>.H
+TBL <Zd>.S, { <Zn>.S }, <Zm>.S
+TBL <Zd>.D, { <Zn>.D }, <Zm>.D
+TBL <Zd>.B, { <Zn1>.B, <Zn2>.B }, <Zm>.B
+TBL <Zd>.H, { <Zn1>.H, <Zn2>.H }, <Zm>.H
+TBL <Zd>.S, { <Zn1>.S, <Zn2>.S }, <Zm>.S
+TBL <Zd>.D, { <Zn1>.D, <Zn2>.D }, <Zm>.D

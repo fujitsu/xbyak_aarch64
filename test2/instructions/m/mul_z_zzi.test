@@ -1,0 +1,4 @@
+#DDI0584B_a_SVE/SVE_xml/xhtml/mul_z_zzi.html
+MUL <Zd>.H, <Zn>.H, <Zm:3>.H[<imm:3>]
+MUL <Zd>.S, <Zn>.S, <Zm:3>.S[<imm:2>]
+MUL <Zd>.D, <Zn>.D, <Zm:4>.D[<imm:1>]
