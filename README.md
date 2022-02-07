@@ -692,6 +692,11 @@ limitations under the License.
 - Chapter C6:A64 Base Instruction Descriptions and C7:A64 Advanced SIMD and Floating-point Instruction Descriptions of "ARM(R) Architecture Reference Manual ARMv8, for ARMv8-A architecture profile", ARM DDI 0487D.b (ID042519)".
 - "ARM(R) Architecture Reference Manual Supplement, The Scalable Vector Extension (SVE), for ARMv8-A", ARM DDI0584.
 - "Procedure Call Standard for the ARM 64-bit Architecture (AArch64)",  ARM IHI 0055B".
+- [Xbyak_aarch64; Just-In-Time Assembler for Armv8-A and Scalable Vector Extension](https://connect.linaro.org/resources/lvc21/lvc21-203/)
+- [Development of Deep Learning Library for AArch64 CPU](https://connect.linaro.org/resources/lvc21f/lvc21f-212/)
+- [A Binary Translator to Accelerate Development of Deep Learning Processing Library for AArch64 CPU](https://search.ieice.org/bin/pdf_advpub.php?category=C&lang=E&fname=2021LHP0001&abst=)
+
+
 
 ## Notice
 
