@@ -23,4 +23,11 @@ int main() {
     printf("atomic ");
   }
   printf("\n");
+  printf("# of CPU cores: %d\n", cpu.getNumCores(CoreLevel));
+  printf("Data cache level: %d\n", cpu.getDataCacheLevels());
+  printf("L1D cache size: %d\n", cpu.getDataCacheSize(0));
+  printf("L2D cache size: %d\n", cpu.getDataCacheSize(1));
+  printf("L1D cache sharing cores: %d\n", cpu.getCoresSharingDataCache(0));
+  printf("L2 cache sharing cores: %d\n", cpu.getCoresSharingDataCache(1));
+  printf("\n");
 }
