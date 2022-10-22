@@ -14,7 +14,11 @@
 # See the License for the specific language governing permissions and
 # imitations under the License.
 # *******************************************************************************/
-make
+.github/automation/env/qemu.sh
+
+# Build Xbyak_aarch64
+source .github/automation/env/setenv
+make -j`grep -c processor /proc/cpuinfo`
 cd test
 ./test_all.sh -g
 

@@ -10,13 +10,13 @@ before_script:
 
 ClangFormatCheck:
   stage: test
-  image: bce7edfda510
+  image: ci:v5
   script:
   - ./.github/automation/clang-format.sh
 
 job_1:
   stage: test
-  image: bce7edfda510
+  image: ci:v5
   script:
     - make
     - cd test

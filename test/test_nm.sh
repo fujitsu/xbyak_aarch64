@@ -17,18 +17,6 @@
 #*******************************************************************************
 # Default compiler is g++
 #*******************************************************************************
-ARCH=$(uname -m)
-GPP=g++
-TOOL_PREFIX=""
-if [ ${ARCH} != aarch64 ] ; then
-  TOOL_PREFIX=aarch64-linux-gnu-
-fi
-if [ ${ARCH} = arm64 ] ; then
-  TOOL_PREFIX=aarch64-unknown-linux-gnu-
-fi
-AS=${TOOL_PREFIX}as
-AWK=awk
-SED=sed
 TEST_FILE=${1}
 AARCH64_TYPE="armv8.4-a"
 if [ ${ARCH} = arm64 ] ; then
@@ -63,7 +51,7 @@ dumpNG () {
 set_variables() {
 
   case $ENV_SELECT in
-    f) GPP=FCC;
+    f) CXX=FCC;
        CXX_FLAGS1="-std=c++11 -fomit-frame-pointer -Wall -fno-operator-names -I../xbyak_aarch64 -I./ -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith -Nclang -Knolargepage -Wno-ignored-qualifiers";
        CXX_FLAGS2="-Wall -I../xbyak_aarch64 -DXBYAK_TEST -DXBYAK_USE_MMAP_ALLOCATOR -Nclang -Knolargepage";
        echo "compiler is FCC"
@@ -97,7 +85,7 @@ done
 set_variables
 
 # Make binary
-${GPP} ${CXX_FLAGS1} -o ${TEST_FILE} ${TEST_FILE}.cpp
+${CXX} ${CXX_FLAGS1} -o ${TEST_FILE} ${TEST_FILE}.cpp
 
 if [ $? != 0 ] ; then
     dumpNG "Compiling binary for generating test source file."
@@ -106,7 +94,7 @@ fi
 
 
 # Output 
-./${TEST_FILE} > a.asm
+${EMULATOR} ./${TEST_FILE} > a.asm
 if [ $? != 0 ] ;then
     dumpNG "Running binary to generate test source file."
     exit 1
@@ -133,19 +121,19 @@ if [ $? != 0 ] ;then
 fi
 
 # Generate source file, which uses Xbyak mnemonic functions.
-./${TEST_FILE} jit > nm.cpp
+${EMULATOR} ./${TEST_FILE} jit > nm.cpp
 if [ $? != 0 ] ;then
     dumpNG "Generating source file using xbyak"
     exit 1
 fi
-${GPP} ${CXX_FLAGS2} -o nm_frame nm_frame.cpp ../lib/libxbyak_aarch64.a
+${CXX} ${CXX_FLAGS2} -o nm_frame nm_frame.cpp ../lib/libxbyak_aarch64.a
 if [ $? != 0 ] ;then
     dumpNG "Compiling source file using xbyak"
     exit 1
 fi
 
 # Generate Xbyak JIT code output as text.
-./nm_frame  > x.lst
+${EMULATOR} ./nm_frame  > x.lst
 if [ $? != 0 ] ;then
     dumpNG "Xbyak JIT compile"
     exit 1
