@@ -275,14 +275,14 @@ Register index can be cyclic.
 |v0.s4 - v3.s4|VReg4SList|SIMD/Floating point register list containing 32-bit elements x 4 x 4|
 |v0.d2 - v3.d2|VReg2DList|SIMD/Floating point register list containing 64-bit elements x 2 x 4|
 
-You can also use your original instance as mnemonic functions argumetns.
+You can also use your original instance as mnemonic functions arguments.
 Please refer constructor of "C++ class name" in Xbyak_aarch64 files.
 
 ```
 VReg16BList dstList(v0.b16, v3.b16);
 VReg16BList hoge(VReg16B(0), VReg16B(3));
 
-ld4((v0 - v3), ptr(x0)); <--- (1)
+ld4((v0.b16 - v3.b16), ptr(x0)); <--- (1)
 ld4(dstLsit, ptr(x0));   <--- Output is same JIT code of (1)
 ld4(hoge, ptr(x0));      <--- Output is same JIT code of (1)
 
@@ -309,7 +309,7 @@ Please refer constructor of "C++ class name" in Xbyak_aarch64 files.
 VRegBElem dstReg(0, 3, 16);
 VRegBElem hoge((VReg16B(0) - VReg16B(3))[3]);
 
-ld4((v0 - v3)[3], ptr(x0)); <--- (1)
+ld4((v0.b16 - v3.b16)[3], ptr(x0)); <--- (1)
 ld4(dstReg, ptr(x0));       <--- Output is same JIT code of (1)
 ld4(hoge, ptr(x0));         <--- Output is same JIT code of (1)
 
