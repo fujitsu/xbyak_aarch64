@@ -15,6 +15,7 @@
 # imitations under the License.
 # *******************************************************************************/
 nm_list="make_nm make_nm_branch make_nm_fp make_nm_load_store make_nm_simd make_nm_simd_fp_load_store make_nm_sve make_nm_sve_addr"
+integrated_list="mov mov_imm add_sub_adds_subs_imm"
 
 do_all_test() {
     echo "########################################################"
@@ -35,6 +36,21 @@ do_all_test() {
 	echo "Finish test senario=${i}"
 	echo "########################################################"
 	echo ""
+    done
+    for i in ${integrated_list} ;
+    do
+        echo "########################################################"
+
+        echo "Start test senario=${i}"
+        ./test_integrated.sh ${TEST_OPT} ${i}
+        if [ $? != 0 ] ;then
+            echo "err"
+            exit 1
+        fi
+
+        echo "Finish test senario=${i}"
+        echo "########################################################"
+        echo ""
     done
 }
 
