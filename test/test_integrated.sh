@@ -1,6 +1,6 @@
 #!/bin/sh
 #*******************************************************************************
-# Copyright 2019-2021 FUJITSU LIMITED
+# Copyright 2019-2022 FUJITSU LIMITED
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ fi
 
 
 # Output 
-./${TEST_FILE} > a.asm
+${EMULATOR} ./${TEST_FILE} > ${TEST_FILE}.log 2>&1
 if [ $? != 0 ] ;then
     dumpNG "Running binary test."
     exit 1
