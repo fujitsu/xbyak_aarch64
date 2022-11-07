@@ -19,7 +19,6 @@
 #define _XBYAK_AARCH64_LABEL_
 
 #include "xbyak_aarch64_code_array.h"
-#include "xbyak_aarch64_err.h"
 #include "xbyak_aarch64_inner.h"
 
 struct JmpLabel {

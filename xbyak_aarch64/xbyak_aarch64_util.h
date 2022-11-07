@@ -17,36 +17,7 @@
 #ifndef XBYAK_AARCH64_UTIL_H_
 #define XBYAK_AARCH64_UTIL_H_
 
-#include <dirent.h>
-#include <regex.h>
 #include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#ifdef __linux__
-#include <sys/auxv.h>
-#include <sys/prctl.h>
-#include <unistd.h>
-
-/* In old Linux such as Ubuntu 16.04, HWCAP_ATOMICS, HWCAP_FP, HWCAP_ASIMD
-   can not be found in <bits/hwcap.h> which is included from <sys/auxv.h>.
-   Xbyak_aarch64 uses <asm/hwcap.h> as an alternative.
- */
-#ifndef HWCAP_FP
-#include <asm/hwcap.h>
-#endif
-
-#elif defined(__APPLE__)
-#include <sys/sysctl.h>
-#endif
-
-#include "xbyak_aarch64_err.h"
-
-#define XBYAK_AARCH64_MIDR_EL1(I, V, A, P, R) ((I << 24) | (V << 20) | (A << 16) | (P << 4) | (R << 0))
-#define XBYAK_AARCH64_PATH_NODES "/sys/devices/system/node/node"
-#define XBYAK_AARCH64_PATH_CORES "/sys/devices/system/node/node0/cpu"
-#define XBYAK_AARCH64_READ_SYSREG(var, ID) asm("mrs %0, " #ID : "=r"(var));
 
 namespace Xbyak_aarch64 {
 namespace util {
@@ -90,27 +61,6 @@ struct cacheInfo_t {
   uint32_t dataCacheSize[maxNumberCacheLevel];
 };
 
-#ifdef __APPLE__
-constexpr char hw_opt_atomics[] = "hw.optional.armv8_1_atomics";
-constexpr char hw_opt_fp[] = "hw.optional.floatingpoint";
-constexpr char hw_opt_neon[] = "hw.optional.neon";
-#endif
-
-const struct implementer_t implementers[] = {{0x00, "Reserved for software use"},
-                                             {0xC0, "Ampere Computing"},
-                                             {0x41, "Arm Limited"},
-                                             {0x42, "Broadcom Corporation"},
-                                             {0x43, "Cavium Inc."},
-                                             {0x44, "Digital Equipment Corporation"},
-                                             {0x46, "Fujitsu Ltd."},
-                                             {0x49, "Infineon Technologies AG"},
-                                             {0x4D, "Motorola or Freescale Semiconductor Inc."},
-                                             {0x4E, "NVIDIA Corporation"},
-                                             {0x50, "Applied Micro Circuits Corporation"},
-                                             {0x51, "Qualcomm Inc."},
-                                             {0x56, "Marvell International Ltd."},
-                                             {0x69, "Intel Corporation"}};
-
 /**
    CPU detection class
 */
@@ -119,11 +69,6 @@ class Cpu {
   sveLen_t sveLen_;
 
 private:
-  const struct cacheInfo_t cacheInfoDict[2] = {
-      {/* A64FX */ XBYAK_AARCH64_MIDR_EL1(0x46, 0x1, 0xf, 0x1, 0x0), 2, 1, {1024 * 64, 1024 * 1024 * 8 * 4, 0, 0}},
-      {/* A64FX */ XBYAK_AARCH64_MIDR_EL1(0x46, 0x2, 0xf, 0x1, 0x0), 2, 1, {1024 * 64, 1024 * 1024 * 8 * 4, 0, 0}},
-  };
-
   uint32_t coresSharingDataCache_[maxNumberCacheLevel];
   uint32_t dataCacheSize_[maxNumberCacheLevel];
   uint32_t dataCacheLevel_;

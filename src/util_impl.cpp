@@ -13,10 +13,71 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
+#include "xbyak_aarch64_err.h"
 #include "xbyak_aarch64_util.h"
+
+#include <dirent.h>
+#include <regex.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifdef __linux__
+#include <sys/auxv.h>
+#include <sys/prctl.h>
+#include <unistd.h>
+
+#define XBYAK_AARCH64_PATH_NODES "/sys/devices/system/node/node"
+#define XBYAK_AARCH64_PATH_CORES "/sys/devices/system/node/node0/cpu"
+#define XBYAK_AARCH64_READ_SYSREG(var, ID) asm("mrs %0, " #ID : "=r"(var));
+
+/* In old Linux such as Ubuntu 16.04, HWCAP_ATOMICS, HWCAP_FP, HWCAP_ASIMD
+   can not be found in <bits/hwcap.h> which is included from <sys/auxv.h>.
+   Xbyak_aarch64 uses <asm/hwcap.h> as an alternative.
+ */
+#ifndef HWCAP_FP
+#include <asm/hwcap.h>
+#endif
+
+#elif defined(__APPLE__)
+#include <sys/sysctl.h>
+#include <unistd.h>
+
+constexpr char hw_opt_atomics[] = "hw.optional.armv8_1_atomics";
+constexpr char hw_opt_fp[] = "hw.optional.floatingpoint";
+constexpr char hw_opt_neon[] = "hw.optional.neon";
+
+#endif
 
 namespace Xbyak_aarch64 {
 namespace util {
+
+const struct implementer_t implementers[] = {{0x00, "Reserved for software use"},
+                                             {0xC0, "Ampere Computing"},
+                                             {0x41, "Arm Limited"},
+                                             {0x42, "Broadcom Corporation"},
+                                             {0x43, "Cavium Inc."},
+                                             {0x44, "Digital Equipment Corporation"},
+                                             {0x46, "Fujitsu Ltd."},
+                                             {0x49, "Infineon Technologies AG"},
+                                             {0x4D, "Motorola or Freescale Semiconductor Inc."},
+                                             {0x4E, "NVIDIA Corporation"},
+                                             {0x50, "Applied Micro Circuits Corporation"},
+                                             {0x51, "Qualcomm Inc."},
+                                             {0x56, "Marvell International Ltd."},
+                                             {0x69, "Intel Corporation"}};
+
+#define XBYAK_AARCH64_MIDR_EL1(I, V, A, P, R) ((I << 24) | (V << 20) | (A << 16) | (P << 4) | (R << 0))
+const struct cacheInfo_t cacheInfoDict[2] = {
+    {/* A64FX */ XBYAK_AARCH64_MIDR_EL1(0x46, 0x1, 0xf, 0x1, 0x0), 2, 1, {1024 * 64, 1024 * 1024 * 8 * 4, 0, 0}},
+    {/* A64FX */ XBYAK_AARCH64_MIDR_EL1(0x46, 0x2, 0xf, 0x1, 0x0), 2, 1, {1024 * 64, 1024 * 1024 * 8 * 4, 0, 0}},
+};
+
+static uint32_t getCacheSize(uint32_t id, uint32_t defaultSize, uint32_t cores) {
+  uint32_t v = sysconf(id);
+  return (v ? v : defaultSize) / cores;
+}
 
 void Cpu::setCacheHierarchy() {
   /* Cache size of AArch64 CPUs are described in the system registers,
@@ -55,24 +116,29 @@ void Cpu::setCacheHierarchy() {
      * @ToDo Get chache information by `sysconf`
      * for the case thd dictionary is unavailable.
      */
-#define XBYAK_AARCH64_CACHE_SIZE(LEVEL, SIZE, ID, CORES, VAL)                                                                                                                                                                                                                                              \
-  cache_size = sysconf(ID);                                                                                                                                                                                                                                                                                \
-  VAL[LEVEL] = cache_size ? (cache_size / (CORES)) : ((SIZE) / (CORES));
-
-    uint32_t cache_size;
-
     /* If `sysconf` returns zero as cache sizes, 32KiB, 1MiB, 0 and 0 is set as
        1st, 2nd, 3rd and 4th level cache sizes. 2nd cahce is assumed as sharing cache. */
-    XBYAK_AARCH64_CACHE_SIZE(0, 1024 * 32, _SC_LEVEL1_DCACHE_SIZE, 1, coresSharingDataCache_);
-    XBYAK_AARCH64_CACHE_SIZE(1, 1024 * 1024, _SC_LEVEL2_CACHE_SIZE, 1, coresSharingDataCache_);
-    XBYAK_AARCH64_CACHE_SIZE(2, 0, _SC_LEVEL3_CACHE_SIZE, 1, coresSharingDataCache_);
-    XBYAK_AARCH64_CACHE_SIZE(3, 0, _SC_LEVEL4_CACHE_SIZE, 1, coresSharingDataCache_);
+#ifdef __linux__
+    coresSharingDataCache_[0] = getCacheSize(_SC_LEVEL1_DCACHE_SIZE, 1024 * 32, 1);
+    coresSharingDataCache_[1] = getCacheSize(_SC_LEVEL2_CACHE_SIZE, 1024 * 1024, 1);
+    coresSharingDataCache_[2] = getCacheSize(_SC_LEVEL3_CACHE_SIZE, 0, 1);
+    coresSharingDataCache_[3] = getCacheSize(_SC_LEVEL4_CACHE_SIZE, 0, 1);
 
-    XBYAK_AARCH64_CACHE_SIZE(0, 1024 * 32, _SC_LEVEL1_DCACHE_SIZE, 1, dataCacheSize_);
-    XBYAK_AARCH64_CACHE_SIZE(1, 1024 * 1024, _SC_LEVEL2_CACHE_SIZE, 8, dataCacheSize_);
-    XBYAK_AARCH64_CACHE_SIZE(2, 0, _SC_LEVEL3_CACHE_SIZE, 1, dataCacheSize_);
-    XBYAK_AARCH64_CACHE_SIZE(3, 0, _SC_LEVEL4_CACHE_SIZE, 1, dataCacheSize_);
-#undef XBYAK_AARCH64_CACHE_SIZE
+    dataCacheSize_[0] = getCacheSize(_SC_LEVEL1_DCACHE_SIZE, 1024 * 32, 1);
+    dataCacheSize_[1] = getCacheSize(_SC_LEVEL2_CACHE_SIZE, 1024 * 1024, 8);
+    dataCacheSize_[2] = getCacheSize(_SC_LEVEL3_CACHE_SIZE, 0, 1);
+    dataCacheSize_[3] = getCacheSize(_SC_LEVEL4_CACHE_SIZE, 0, 1);
+#elif defined(__APPLE__)
+    coresSharingDataCache_[0] = getCacheSize(HW_L1DCACHESIZE, 1024 * 32, 1);
+    coresSharingDataCache_[1] = getCacheSize(HW_L2CACHESIZE, 1024 * 1024, 1);
+    coresSharingDataCache_[2] = getCacheSize(HW_L3CACHESIZE, 0, 1);
+    coresSharingDataCache_[3] = 0;
+
+    dataCacheSize_[0] = getCacheSize(HW_L1DCACHESIZE, 1024 * 32, 1);
+    dataCacheSize_[1] = getCacheSize(HW_L2CACHESIZE, 1024 * 1024, 8);
+    dataCacheSize_[2] = getCacheSize(HW_L3CACHESIZE, 0, 1);
+    dataCacheSize_[3] = 0;
+#endif
   }
 }
 
@@ -176,6 +242,7 @@ int Cpu::getFilePathMaxTailNumPlus1(const char *path) {
 
   return retVal;
 #else
+  (void)path;
   return 0;
 #endif
 }

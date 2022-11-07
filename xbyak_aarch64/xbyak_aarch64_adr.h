@@ -14,8 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *******************************************************************************/
-
-#include "xbyak_aarch64_err.h"
 #include "xbyak_aarch64_reg.h"
 
 enum ShMod { LSL = 0, LSR = 1, ASR = 2, ROR = 3, MSL = 4, NONE = 5 };
