@@ -16,6 +16,8 @@
  *******************************************************************************/
 #include <exception>
 
+namespace Xbyak_aarch64 {
+
 enum {
   ERR_NONE = 0,
   ERR_CODE_IS_TOO_BIG,           // use at CodeArray
@@ -60,3 +62,5 @@ public:
 };
 
 inline const char *ConvertErrorToString(const Error &err) { return err.what(); }
+
+} // namespace Xbyak_aarch64

@@ -66,6 +66,8 @@
 #endif
 #endif
 
+#include "xbyak_aarch64_err.h"
+
 namespace Xbyak_aarch64 {
 const uint64_t SP_IDX = 31;
 const uint64_t NUM_VREG_BYTES = 16;

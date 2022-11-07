@@ -20,7 +20,6 @@
 
 #include "xbyak_aarch64_adr.h"
 #include "xbyak_aarch64_code_array.h"
-#include "xbyak_aarch64_err.h"
 #include "xbyak_aarch64_label.h"
 #include "xbyak_aarch64_reg.h"
 

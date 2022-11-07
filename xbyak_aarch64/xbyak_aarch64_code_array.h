@@ -15,7 +15,6 @@
  * limitations under the License.
  *******************************************************************************/
 
-#include "xbyak_aarch64_err.h"
 #include "xbyak_aarch64_inner.h"
 
 static const size_t CSIZE = sizeof(uint32_t);
