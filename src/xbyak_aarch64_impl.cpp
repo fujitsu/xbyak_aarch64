@@ -16,9 +16,11 @@
 #define XBYAK_AARCH64_MAKE_INSTANCE
 #include "xbyak_aarch64.h"
 #include <memory.h>
+#include <stdio.h>
 
 namespace Xbyak_aarch64 {
 
+#include "err_impl.h"
 #include "xbyak_aarch64_impl.h"
 #include "xbyak_aarch64_mnemonic.h"
 
