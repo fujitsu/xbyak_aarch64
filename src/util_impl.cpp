@@ -73,6 +73,11 @@ const struct cacheInfo_t cacheInfoDict[2] = {
     {/* A64FX */ XBYAK_AARCH64_MIDR_EL1(0x46, 0x2, 0xf, 0x1, 0x0), 2, 1, {1024 * 64, 1024 * 1024 * 8 * 4, 0, 0}},
 };
 
+static uint32_t getCacheSize(uint32_t id, uint32_t defaultSize, uint32_t cores) {
+  uint32_t v = sysconf(id);
+  return (v ? v : defaultSize) / cores;
+}
+
 void Cpu::setCacheHierarchy() {
   /* Cache size of AArch64 CPUs are described in the system registers,
      which can't be read from user-space applications.
@@ -110,24 +115,17 @@ void Cpu::setCacheHierarchy() {
      * @ToDo Get chache information by `sysconf`
      * for the case thd dictionary is unavailable.
      */
-#define XBYAK_AARCH64_CACHE_SIZE(LEVEL, SIZE, ID, CORES, VAL)                                                                                                                                                                                                                                              \
-  cache_size = sysconf(ID);                                                                                                                                                                                                                                                                                \
-  VAL[LEVEL] = cache_size ? (cache_size / (CORES)) : ((SIZE) / (CORES));
-
-    uint32_t cache_size;
-
     /* If `sysconf` returns zero as cache sizes, 32KiB, 1MiB, 0 and 0 is set as
        1st, 2nd, 3rd and 4th level cache sizes. 2nd cahce is assumed as sharing cache. */
-    XBYAK_AARCH64_CACHE_SIZE(0, 1024 * 32, _SC_LEVEL1_DCACHE_SIZE, 1, coresSharingDataCache_);
-    XBYAK_AARCH64_CACHE_SIZE(1, 1024 * 1024, _SC_LEVEL2_CACHE_SIZE, 1, coresSharingDataCache_);
-    XBYAK_AARCH64_CACHE_SIZE(2, 0, _SC_LEVEL3_CACHE_SIZE, 1, coresSharingDataCache_);
-    XBYAK_AARCH64_CACHE_SIZE(3, 0, _SC_LEVEL4_CACHE_SIZE, 1, coresSharingDataCache_);
+    coresSharingDataCache_[0] = getCacheSize(_SC_LEVEL1_DCACHE_SIZE, 1024 * 32, 1);
+    coresSharingDataCache_[1] = getCacheSize(_SC_LEVEL2_CACHE_SIZE, 1024 * 1024, 1);
+    coresSharingDataCache_[2] = getCacheSize(_SC_LEVEL3_CACHE_SIZE, 0, 1);
+    coresSharingDataCache_[3] = getCacheSize(_SC_LEVEL4_CACHE_SIZE, 0, 1);
 
-    XBYAK_AARCH64_CACHE_SIZE(0, 1024 * 32, _SC_LEVEL1_DCACHE_SIZE, 1, dataCacheSize_);
-    XBYAK_AARCH64_CACHE_SIZE(1, 1024 * 1024, _SC_LEVEL2_CACHE_SIZE, 8, dataCacheSize_);
-    XBYAK_AARCH64_CACHE_SIZE(2, 0, _SC_LEVEL3_CACHE_SIZE, 1, dataCacheSize_);
-    XBYAK_AARCH64_CACHE_SIZE(3, 0, _SC_LEVEL4_CACHE_SIZE, 1, dataCacheSize_);
-#undef XBYAK_AARCH64_CACHE_SIZE
+    dataCacheSize_[0] = getCacheSize(_SC_LEVEL1_DCACHE_SIZE, 1024 * 32, 1);
+    dataCacheSize_[1] = getCacheSize(_SC_LEVEL2_CACHE_SIZE, 1024 * 1024, 8);
+    dataCacheSize_[2] = getCacheSize(_SC_LEVEL3_CACHE_SIZE, 0, 1);
+    dataCacheSize_[3] = getCacheSize(_SC_LEVEL4_CACHE_SIZE, 0, 1);
   }
 }
 
