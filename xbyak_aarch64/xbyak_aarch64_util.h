@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 
+
 namespace Xbyak_aarch64 {
 namespace util {
 typedef uint64_t Type;
