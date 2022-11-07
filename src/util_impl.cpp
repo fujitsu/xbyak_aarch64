@@ -15,6 +15,31 @@
  *******************************************************************************/
 #include "xbyak_aarch64_util.h"
 
+#include <dirent.h>
+#include <regex.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#ifdef __linux__
+#include <sys/auxv.h>
+#include <sys/prctl.h>
+#include <unistd.h>
+
+/* In old Linux such as Ubuntu 16.04, HWCAP_ATOMICS, HWCAP_FP, HWCAP_ASIMD
+   can not be found in <bits/hwcap.h> which is included from <sys/auxv.h>.
+   Xbyak_aarch64 uses <asm/hwcap.h> as an alternative.
+ */
+#ifndef HWCAP_FP
+#include <asm/hwcap.h>
+#endif
+
+#elif defined(__APPLE__)
+#include <sys/sysctl.h>
+#endif
+
+
 namespace Xbyak_aarch64 {
 namespace util {
 
