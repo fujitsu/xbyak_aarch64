@@ -42,6 +42,7 @@
 
 #elif defined(__APPLE__)
 #include <sys/sysctl.h>
+#include <unistd.h>
 
 constexpr char hw_opt_atomics[] = "hw.optional.armv8_1_atomics";
 constexpr char hw_opt_fp[] = "hw.optional.floatingpoint";
@@ -117,6 +118,7 @@ void Cpu::setCacheHierarchy() {
      */
     /* If `sysconf` returns zero as cache sizes, 32KiB, 1MiB, 0 and 0 is set as
        1st, 2nd, 3rd and 4th level cache sizes. 2nd cahce is assumed as sharing cache. */
+#ifdef __linux__
     coresSharingDataCache_[0] = getCacheSize(_SC_LEVEL1_DCACHE_SIZE, 1024 * 32, 1);
     coresSharingDataCache_[1] = getCacheSize(_SC_LEVEL2_CACHE_SIZE, 1024 * 1024, 1);
     coresSharingDataCache_[2] = getCacheSize(_SC_LEVEL3_CACHE_SIZE, 0, 1);
@@ -126,6 +128,17 @@ void Cpu::setCacheHierarchy() {
     dataCacheSize_[1] = getCacheSize(_SC_LEVEL2_CACHE_SIZE, 1024 * 1024, 8);
     dataCacheSize_[2] = getCacheSize(_SC_LEVEL3_CACHE_SIZE, 0, 1);
     dataCacheSize_[3] = getCacheSize(_SC_LEVEL4_CACHE_SIZE, 0, 1);
+#elif defined(__APPLE__)
+    coresSharingDataCache_[0] = getCacheSize(HW_L1DCACHESIZE, 1024 * 32, 1);
+    coresSharingDataCache_[1] = getCacheSize(HW_L2CACHESIZE, 1024 * 1024, 1);
+    coresSharingDataCache_[2] = getCacheSize(HW_L3CACHESIZE, 0, 1);
+    coresSharingDataCache_[3] = 0;
+
+    dataCacheSize_[0] = getCacheSize(HW_L1DCACHESIZE, 1024 * 32, 1);
+    dataCacheSize_[1] = getCacheSize(HW_L2CACHESIZE, 1024 * 1024, 8);
+    dataCacheSize_[2] = getCacheSize(HW_L3CACHESIZE, 0, 1);
+    dataCacheSize_[3] = 0;
+#endif
   }
 }
 
@@ -229,6 +242,7 @@ int Cpu::getFilePathMaxTailNumPlus1(const char *path) {
 
   return retVal;
 #else
+  (void)path;
   return 0;
 #endif
 }
