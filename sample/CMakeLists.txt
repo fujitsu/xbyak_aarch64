@@ -1,5 +1,5 @@
 # Samples
-set(TARGET add add2 bf label)
+set(TARGET add add2 bf label cpuinfo)
 foreach(src IN ITEMS ${TARGET})
 	add_executable(${src} ${src}.cpp)
 	target_link_libraries(${src} PRIVATE xbyak_aarch64)
