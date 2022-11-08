@@ -4260,3 +4260,15 @@ void CodeGenerator::SveStorePredVec(const _ZReg &zt, const AdrNoOfs &adr) {
   uint32_t code = concat({F(0x72, 25), F(3, 23), F(0, 16), F(2, 13), F(0, 10), F(adr.getXn().getIdx(), 5), F(zt.getIdx(), 0)});
   dd(code);
 }
+
+void CodeGenerator::clearCache(void *begin, void *end) {
+#ifdef _WIN32
+  (void)begin;
+  (void)end;
+  __isb(_ARM64_BARRIER_SY);
+#elif defined(__APPLE__)
+  sys_icache_invalidate(begin, ((char *)end) - ((char *)begin));
+#else
+  __builtin___clear_cache((char *)begin, (char *)end);
+#endif
+}

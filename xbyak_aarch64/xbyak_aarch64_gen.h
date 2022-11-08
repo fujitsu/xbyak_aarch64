@@ -770,16 +770,7 @@ public:
     labelMgr_.set(this);
   }
   bool hasUndefinedLabel() const { return labelMgr_.hasUndefClabel(); }
-  void clearCache(void *begin, void *end) {
-#ifdef _WIN32
-    (void)begin;
-    (void)end;
-#elif defined(__APPLE__)
-    sys_icache_invalidate(begin, ((char *)end) - ((char *)begin));
-#else
-    __builtin___clear_cache((char *)begin, (char *)end);
-#endif
-  }
+  void clearCache(void *begin, void *end);
   /*
           MUST call ready() to complete generating code if you use AutoGrow
      mode.
