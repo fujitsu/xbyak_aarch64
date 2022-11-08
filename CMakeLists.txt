@@ -9,11 +9,11 @@ option(
 	"Build xbyak_aarch64 samples"
 	OFF
 )
-option(
-	TEST
-	"Build xbyak_aarch64 tests"
-	OFF
-)
+#option(
+#	TEST
+#	"Build xbyak_aarch64 tests"
+#	OFF
+#)
 
 if(NOT DEFINED CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "Release")
