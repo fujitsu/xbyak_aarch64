@@ -17,6 +17,9 @@
 #include "xbyak_aarch64.h"
 #include <memory.h>
 #include <stdio.h>
+#ifdef _WIN32
+#include <intrin.h>
+#endif
 
 namespace Xbyak_aarch64 {
 

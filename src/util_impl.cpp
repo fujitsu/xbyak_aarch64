@@ -16,14 +16,75 @@
 #include "xbyak_aarch64_err.h"
 #include "xbyak_aarch64_util.h"
 
-#include <dirent.h>
-#include <regex.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#ifdef __linux__
+#if defined(_M_ARM64)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <malloc.h>
+#include <windows.h>
+
+struct CpuInfo {
+  int coreNum;
+  enum Type { Unified = 0, Code = 1, Data = 2 };
+  int cacheSize[3][3];
+  CpuInfo() : coreNum(0), cacheSize{} {}
+  int getCacheSize(Type type, uint32_t level) const {
+    if (1 <= level && level <= 3)
+      return cacheSize[type][level - 1];
+    return 0;
+  }
+  int getCoreNum() const { return coreNum; }
+  int getUnifiedCacheSize(int level) const { return getCacheSize(Unified, level); }
+  int getCodeCacheSize(int level) const { return getCacheSize(Code, level); }
+  int getDataCacheSize(int level) const { return getCacheSize(Data, level); }
+  void put() const {
+    printf("coreNum=%d\n", coreNum);
+    for (int level = 1; level <= 3; level++) {
+      printf("L%d unified size = %d\n", level, getUnifiedCacheSize(level));
+      printf("L%d code size = %d\n", level, getCodeCacheSize(level));
+      printf("L%d data size = %d\n", level, getDataCacheSize(level));
+    }
+  }
+  void init() {
+    DWORD bufSize = 0;
+    GetLogicalProcessorInformation(NULL, &bufSize);
+    auto *ptr = (PSYSTEM_LOGICAL_PROCESSOR_INFORMATION)_alloca(bufSize);
+    if (GetLogicalProcessorInformation(ptr, &bufSize) == FALSE)
+      return;
+
+    DWORD offset = 0;
+    while (offset + sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) <= bufSize) {
+      switch (ptr->Relationship) {
+      case RelationProcessorCore:
+        coreNum++;
+        break;
+
+      case RelationCache: {
+        const auto cache = &ptr->Cache;
+        if (1 <= cache->Level && cache->Level <= 3) {
+          cacheSize[cache->Type][cache->Level - 1] += cache->Size;
+        }
+      } break;
+      default:
+        break;
+      }
+      offset += sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION);
+      ptr++;
+    }
+  }
+};
+
+#elif defined(__linux__)
+#include <dirent.h>
+#include <regex.h>
 #include <sys/auxv.h>
 #include <sys/prctl.h>
 #include <unistd.h>
@@ -41,6 +102,8 @@
 #endif
 
 #elif defined(__APPLE__)
+#include <dirent.h>
+#include <regex.h>
 #include <sys/sysctl.h>
 #include <unistd.h>
 
@@ -74,12 +137,15 @@ const struct cacheInfo_t cacheInfoDict[2] = {
     {/* A64FX */ XBYAK_AARCH64_MIDR_EL1(0x46, 0x2, 0xf, 0x1, 0x0), 2, 1, {1024 * 64, 1024 * 1024 * 8 * 4, 0, 0}},
 };
 
+#ifndef _M_ARM64
 static uint32_t getCacheSize(uint32_t id, uint32_t defaultSize, uint32_t cores) {
   uint32_t v = sysconf(id);
   return (v ? v : defaultSize) / cores;
 }
+#endif
 
 void Cpu::setCacheHierarchy() {
+#ifndef _M_ARM64
   /* Cache size of AArch64 CPUs are described in the system registers,
      which can't be read from user-space applications.
      Linux provides `sysconf` API and `/sys/devices/system/cpu/`
@@ -140,9 +206,13 @@ void Cpu::setCacheHierarchy() {
     dataCacheSize_[3] = 0;
 #endif
   }
+#endif
 }
 
 void Cpu::setNumCores() {
+#ifdef _M_ARM64
+  return;
+#endif
 #ifdef __linux__
   /**
    * @ToDo There are some methods to get # of cores.
@@ -188,6 +258,12 @@ void Cpu::setSysRegVal() {
  * @param[out] buf ex. /sys/devices/system/node
  */
 int Cpu::getRegEx(char *buf, const char *path, const char *regex) {
+#ifdef _M_ARM64
+  (void)buf;
+  (void)path;
+  (void)regex;
+  return -1;
+#else
   regex_t regexBuf;
   regmatch_t match[1];
 
@@ -211,10 +287,12 @@ int Cpu::getRegEx(char *buf, const char *path, const char *regex) {
   buf[endIdx - startIdx] = '\0';
 
   return 0;
+#endif
 }
 
 int Cpu::getFilePathMaxTailNumPlus1(const char *path) {
 #ifdef __linux__
+  const uint32_t max_path_len = 1024;
   char dir_path[max_path_len];
   char file_pattern[max_path_len];
   int retVal = 0;
@@ -248,6 +326,19 @@ int Cpu::getFilePathMaxTailNumPlus1(const char *path) {
 }
 
 Cpu::Cpu() : type_(tNONE), sveLen_(SVE_NONE) {
+#ifdef _M_ARM64
+  CpuInfo info;
+  info.init();
+  numCores_[0] = numCores_[1] = info.getCoreNum();
+  dataCacheLevel_ = 3;
+  for (int i = 0; i < 3; i++) {
+    coresSharingDataCache_[i] = info.getUnifiedCacheSize(i + 1) + info.getCodeCacheSize(i + 1) + info.getDataCacheSize(i + 1);
+    dataCacheSize_[i] = info.getDataCacheSize(i + 1);
+  }
+  coresSharingDataCache_[3] = 0;
+  dataCacheSize_[3] = 0;
+  return;
+#endif
 #ifdef __linux__
   unsigned long hwcap = getauxval(AT_HWCAP);
   if (hwcap & HWCAP_ATOMICS) {

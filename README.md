@@ -82,6 +82,16 @@ make
 ```
 makes `lib/libxbyak_aarch64.a`.
 
+## How to use cmake
+
+on Windows ARM64
+```
+mkdir build
+cd build
+cmake .. -A arm64
+msbuild xbyak_aarch64.sln /p:Configuration=Release
+```
+
 ## How to use Xbyak_aarch64
 
 Inherit `Xbyak::CodeGenerator` class and make the class method.
@@ -179,7 +189,7 @@ add(w0, w1, w2);                <--- Output is same JIT code of (1)
 
 ##### SIMD/Floating point registers as scalar registers
 
-As SIMD/Floating point registers with scalar use, 
+As SIMD/Floating point registers with scalar use,
 the following table shows example of mnemonic functions' arguments ("Instance name" column).
 
 |Instance name|C++ class name|Remarks|
@@ -203,7 +213,7 @@ mov(dstReg, v0.b[5]);   <--- Output is same JIT code of (1)
 
 #### SIMD/Floating point registers as vector registers
 
-As SIMD/Floating point registers with vector use, 
+As SIMD/Floating point registers with vector use,
 the following table shows example of mnemonic functions' arguments ("Instance name" column).
 
 |Instance name|C++ class name|Remarks|
@@ -230,7 +240,7 @@ mov(dstReg, srcReg);   <--- Output is same JIT code of (1)
 
 #### Element of SIMD/Floating point registers
 
-As SIMD/Floating point registers with element-wise use, 
+As SIMD/Floating point registers with element-wise use,
 the following table shows example of mnemonic functions' arguments ("Instance name" column).
 
 |Instance name|C++ class name|Remarks|
@@ -316,7 +326,7 @@ ld4(hoge, ptr(x0));         <--- Output is same JIT code of (1)
 ```
 
 ### SVE registers as vector registers
-AS SVE registers, 
+AS SVE registers,
 the following table shows example of mnemonic functions' arguments ("Instance name" column).
 
 
@@ -342,7 +352,7 @@ add(dstReg, z1.b, z2.b);    <--- Output is same JIT code of (1)
 
 ### Element of SVE registers
 
-As SVE registers with element-wise use, 
+As SVE registers with element-wise use,
 the following table shows example of mnemonic functions' arguments ("Instance name" column).
 
 |Instance name|C++ class name|Remarks|
@@ -473,7 +483,7 @@ such as, "10", "-128", "0xFF", "1<<32", "3.5", etc.
 Please care for range of values.
 For example, "ADD (immediate)" instruction can receive signed 12-bit value
 so that you have to ensure that the value passed to mnemonic function is inside the range.
-Mnemonic functions of Xbyak_aarch64 checks immediate values at runtime, 
+Mnemonic functions of Xbyak_aarch64 checks immediate values at runtime,
 and throws exception if it detects range over.
 
 ```
@@ -500,7 +510,7 @@ void gen_Summation_From_One_To_Parameter_Func(unsigned int N) {
         printf("This function supports less than 2048.\n");
     }
 }
-```    
+```
 
 #### Symbols
 Some instructions of the AArch64 instruction set are used with sybols such as **"UXTW", "LSL", "SXTW", "SXTX", "MUL VL"**, etc.
@@ -515,7 +525,7 @@ grep LSL sample/mnemonic_syntax/*
 #### Addressing
 The AArch64 instruction set has various addressing modes such as "No offset", "Post-index", "Pre-index", "Signed offset", "Unsigned offset".
 Please use "ptr()", "pre_ptr()", "post_ptr()" functions to specify which addressing mode you want to use.
-Please "grep" the functions, for example 
+Please "grep" the functions, for example
 ```
 grep -w ptr sample/mnemonic_syntax/*
 ```
@@ -524,7 +534,7 @@ grep -w ptr sample/mnemonic_syntax/*
 
 |Use example|corresponding assembler syntax|Remarks|
 |----|----|----|
-|ldr(x0, ptr(x1, x7))|ldr x0, [x1, x7]|Register offset| 
+|ldr(x0, ptr(x1, x7))|ldr x0, [x1, x7]|Register offset|
 |str(w0, ptr(x7, w8, UXTW, 2))|str w0, [x7, w8, UXTW 2]|Register offset with shift amount|
 |ldr(w0, post_ptr(x5, -16))|ldr w0, [x5], -16|Post-index|
 |ldrb(w16, pre_ptr(x5, 127))|ldrb w16, [x5, 127]!|Pre-index|
@@ -537,15 +547,15 @@ The following example shows how to use "Label".
 
 ```
 Label L1;           // (1), instance of Label class
- 
-mov(w4, w0); 
-mov(w3, 0); 
-mov(w0, 0); 
+
+mov(w4, w0);
+mov(w3, 0);
+mov(w0, 0);
 L(L1);              // (2), "L" function registers JIT code address of this position to label L1.
-add(w0, w0, w4); 
-add(w3, w3, 1); 
-cmp(w2, w3); 
-ccmp(w1, w3, 4, NE); 
+add(w0, w0, w4);
+add(w3, w3, 1);
+cmp(w2, w3);
+ccmp(w1, w3, 4, NE);
 bgt(L1);            // (3), set destination of branch instruction to the address stored in L1.
 ```
 
@@ -556,17 +566,17 @@ bgt(L1);            // (3), set destination of branch instruction to the address
 You can copy the address stored in "Label" instance by using `assignL` function.
 
 ```
-Label L1,L2,L3; 
+Label L1,L2,L3;
 ....
 L(L1);               // JIT code address of this position is stored to L1.
 ....
 L(L2);               // JIT code address of this position is stored to L1.
 ....
-if (flag) { 
+if (flag) {
 assignL(L3,L1);      // The address stored in L1 is copied to L3.
-} else { 
+} else {
 assignL(L3,L2);      // The address stored in L1 is copied to L3.
-} 
+}
 b(L3);               // If flag == true, branch destination is L1, otherwise L2.
 ```
 
