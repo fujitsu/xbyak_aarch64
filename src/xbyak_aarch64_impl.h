@@ -4263,9 +4263,7 @@ void CodeGenerator::SveStorePredVec(const _ZReg &zt, const AdrNoOfs &adr) {
 
 void CodeGenerator::clearCache(void *begin, void *end) {
 #ifdef _WIN32
-  (void)begin;
-  (void)end;
-  __isb(_ARM64_BARRIER_SY);
+  FlushInstructionCache(GetCurrentProcess(), begin, ((char *)end) - ((char *)begin));
 #elif defined(__APPLE__)
   sys_icache_invalidate(begin, ((char *)end) - ((char *)begin));
 #else
