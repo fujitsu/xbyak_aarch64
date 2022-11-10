@@ -19,6 +19,7 @@
 #include <stdio.h>
 #ifdef _WIN32
 #include <intrin.h>
+#include <processthreadsapi.h> // FlushInstructionCache
 #endif
 
 namespace Xbyak_aarch64 {
