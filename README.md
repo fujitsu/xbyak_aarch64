@@ -71,6 +71,16 @@ aarch64-linux-gnu-g++ add.cpp
 env QEMU_LD_PREFIX=/usr/aarch64-linux-gnu qemu-aarch64 ./a.out
 ```
 
+On Fedora linux use
+```
+sudo dnf install qemu qemu-user qemu-system-aarch64 qemu-user-static-aarch64
+make clean
+CXX=aarch64-redhat-linux-g++ make
+cd sample
+CXX=aarch64-redhat-linux-g++ make
+aarch64-redhat-linux-g++ add.cpp -I ../ -L../lib/libxbyak_aarch64.a
+```
+
 ## M1 mac
 For test, aarch64-gas is necessary.
 Make the binary from [GNU-A Downloads](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-a/downloads) or use [aarch64-unknown-linux-gnu](https://github.com/thinkski/osx-arm-linux-toolchains).
