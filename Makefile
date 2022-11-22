@@ -14,29 +14,40 @@
 # limitations under the License.
 #*******************************************************************************
 ARCH?=$(shell uname -m)
-TARGET=lib/libxbyak_aarch64.a
-all: $(TARGET)
+LIBNAME=libxbyak_aarch64
+STATICTARGET=lib/$(LIBNAME).a
+DYNAMICTARGET=lib/$(LIBNAME).so
+# Use release version as soname
+SONAME=1.0.0
+DYNAMICTARGETSOM=DYNAMICTARGET.$(SONAME)
+all: $(STATICTARGET) $(DYNAMICTARGET)
 
-CFLAGS=-std=c++11 -DNDEBUG -g -I ./xbyak_aarch64 -Wall -Wextra -fPIC
+CXXFLAGS=-std=c++11 -DNDEBUG -g -I ./xbyak_aarch64 -Wall -Wextra -fPIC
 ifneq ($(DEBUG),1)
-CFLAGS+=-O2
+CXXFLAGS+=-O2
 endif
 
 LIB_OBJ=obj/xbyak_aarch64_impl.o obj/util_impl.o
 
 obj/%.o: src/%.cpp
-	$(CXX) $(CFLAGS) -c $< -o $@ -MMD -MP -MF $(@:.o=.d)
+	$(CXX) $(CXXFLAGS) -c $< -o $@ -MMD -MP -MF $(@:.o=.d)
 
 -include obj/xbyak_aarch64_impl.d
 
-$(TARGET): $(LIB_OBJ)
+$(DYNAMICTARGET): $(DYNAMICTARGETSOM)
+	ln -s $(DYNAMICTARGETSOM) $(DYNAMICTARGET)
+     
+$(DYNAMICTARGETSOM): $(LIB_OBJ)
+	$(CXX) $(CXXFLAGS) -shared -Wl,-soname,$(LIBNAME).so.$(SONAME) -o $(DYNAMICTARGETSOM)
+
+$(STATICTARGET): $(LIB_OBJ)
 	ar r $@ $^
 
-test: $(TARGET)
+test: $(STATICTARGET)
 	$(MAKE) -C test
 
 clean:
-	rm -rf obj/*.o obj/*.d $(TARGET)
+	rm -rf obj/*.o obj/*.d $(STATICTARGET) $(DYNAMICTARGET) $(DYNAMICTARGETSOM)
 
 MKDIR=mkdir -p
 PREFIX?=/usr/local
@@ -45,10 +56,12 @@ includedir?=$(prefix)/include
 libdir?=$(prefix)/lib
 INSTALL?=install
 INSTALL_DATA?=$(INSTALL) -m 644
-install: $(TARGET)
+install: $(STATICTARGET) $(DYNAMICTARGETSOM) $(DYNAMICTARGET)
 	$(MKDIR) $(DESTDIR)$(includedir)/xbyak_aarch64 $(DESTDIR)$(libdir)
 	$(INSTALL_DATA) xbyak_aarch64/*.h $(DESTDIR)$(includedir)/xbyak_aarch64
-	$(INSTALL_DATA) $(TARGET) $(DESTDIR)$(libdir)
+	$(INSTALL_DATA) $(STATICTARGET) $(DESTDIR)$(libdir)
+	$(INSTALL_DATA) $(DYNAMICTARGETSOM) $(DESTDIR)$(libdir)
+	$(INSTALL_DATA) $(DYNAMICTARGET) $(DESTDIR)$(libdir)
 
 .PHONY: clean test
 
