@@ -38,6 +38,17 @@ test: $(TARGET)
 clean:
 	rm -rf obj/*.o obj/*.d $(TARGET)
 
+VERSION_FILE="xbyak_aarch64/xbyak_aarch64_version.h"
+MAJOR=1
+MINOR=0
+PATCH=0
+update_version:
+	echo 'static const int majorVersion = $(MAJOR);' > $(VERSION_FILE)
+	echo 'static const int minorVersion = $(MINOR);' >> $(VERSION_FILE)
+	echo 'static const int patchVersion = $(PATCH);' >> $(VERSION_FILE)
+	echo 'static int getVersion() { return (majorVersion << 16) + (minorVersion << 8) + patchVersion; }' >> $(VERSION_FILE)
+	echo 'static const char *getVersionString() { return "$(MAJOR).$(MINOR).$(PATCH)"; }' >> $(VERSION_FILE)
+
 MKDIR=mkdir -p
 PREFIX?=/usr/local
 prefix?=$(PREFIX)

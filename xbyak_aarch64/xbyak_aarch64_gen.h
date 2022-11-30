@@ -739,8 +739,6 @@ public:
     labelMgr_.set(this);
   }
 
-  unsigned int getVersion() const { return VERSION; }
-
   void L(Label &label) { labelMgr_.defineClabel(label); }
   Label L() {
     Label label;
@@ -832,6 +830,7 @@ public:
 
 #include "xbyak_aarch64_meta_mnemonic.h"
 #include "xbyak_aarch64_mnemonic_def.h"
+#include "xbyak_aarch64_version.h"
 
   void align(size_t x) {
     if (x == 4)
