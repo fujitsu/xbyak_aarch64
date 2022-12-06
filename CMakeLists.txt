@@ -27,9 +27,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 file(READ xbyak_aarch64/xbyak_aarch64_version.h VERSION_FILE)
 string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" VERSION ${VERSION_FILE})
-string(REGEX MATCH [0-9]+ VERSION_MAJOR ${VERSION})
+string(REGEX MATCH [0-9]+\.[0-9]+ VERSION_SUB ${VERSION})
 message("VERSION ${VERSION}")
-message("VERSION_MAJOR ${VERSION_MAJOR}")
+message("VERSION_SUB ${VERSION_SUB}")
 
 add_library(xbyak_aarch64 STATIC src/xbyak_aarch64_impl.cpp src/util_impl.cpp)
 add_library(xbyak_aarch64::xbyak_aarch64 ALIAS xbyak_aarch64)
@@ -53,7 +53,7 @@ set_target_properties(xbyak_aarch64_sh PROPERTIES
 set_target_properties(xbyak_aarch64_sh PROPERTIES
 	OUTPUT_NAME xbyak_aarch64
 	VERSION ${VERSION}
-	SOVERSION ${VERSION_MAJOR})
+	SOVERSION ${VERSION_SUB})
 
 if(MSVC)
 	if(MCL_MSVC_RUNTIME_DLL)
