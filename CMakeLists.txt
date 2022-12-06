@@ -9,6 +9,11 @@ option(
 	"Build xbyak_aarch64 samples"
 	OFF
 )
+option(
+	SHARED
+	"Build shared library"
+	OFF
+)
 #option(
 #	TEST
 #	"Build xbyak_aarch64 tests"
@@ -28,8 +33,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 file(READ xbyak_aarch64/xbyak_aarch64_version.h VERSION_FILE)
 string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" VERSION ${VERSION_FILE})
 string(REGEX MATCH [0-9]+\.[0-9]+ VERSION_SUB ${VERSION})
-message("VERSION ${VERSION}")
-message("VERSION_SUB ${VERSION_SUB}")
+#message("VERSION ${VERSION}")
+#message("VERSION_SUB ${VERSION_SUB}")
 
 add_library(xbyak_aarch64 STATIC src/xbyak_aarch64_impl.cpp src/util_impl.cpp)
 add_library(xbyak_aarch64::xbyak_aarch64 ALIAS xbyak_aarch64)
@@ -41,6 +46,7 @@ target_include_directories(xbyak_aarch64 PUBLIC
 set_target_properties(xbyak_aarch64 PROPERTIES
 	POSITION_INDEPENDENT_CODE ON)
 
+if(SHARED)
 add_library(xbyak_aarch64_sh SHARED src/xbyak_aarch64_impl.cpp src/util_impl.cpp)
 add_library(xbyak_aarch64::xbyak_aarch64_sh ALIAS xbyak_aarch64_sh)
 target_include_directories(xbyak_aarch64_sh PUBLIC
@@ -54,6 +60,7 @@ set_target_properties(xbyak_aarch64_sh PROPERTIES
 	OUTPUT_NAME xbyak_aarch64
 	VERSION ${VERSION}
 	SOVERSION ${VERSION_SUB})
+endif()
 
 if(MSVC)
 	if(MCL_MSVC_RUNTIME_DLL)
@@ -68,8 +75,10 @@ if(MSVC)
 	set(MCL_COMPILE_OPTIONS /W4)
 	target_compile_options(xbyak_aarch64 PRIVATE ${MCL_COMPILE_OPTIONS})
 
+if(SHARED)
 	target_compile_definitions(xbyak_aarch64_sh PUBLIC NOMINMAX)
 	target_compile_options(xbyak_aarch64_sh PRIVATE ${MCL_COMPILE_OPTIONS})
+endif()
 else()
 	# Set compiler flags for warnings
 	set(MCL_COMPILE_OPTIONS -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align
@@ -82,6 +91,7 @@ else()
 		CXX_EXTENSIONS NO)
 	target_compile_features(xbyak_aarch64 PUBLIC cxx_std_11)
 
+if(SHARED)
 	target_compile_options(xbyak_aarch64_sh PRIVATE ${MCL_COMPILE_OPTIONS})
 	set_target_properties(xbyak_aarch64_sh PROPERTIES
 		CXX_STANDARD 11
@@ -89,12 +99,20 @@ else()
 		CXX_EXTENSIONS NO)
 	target_compile_features(xbyak_aarch64_sh PUBLIC cxx_std_11)
 endif()
+endif()
 
-install(TARGETS xbyak_aarch64 xbyak_aarch64_sh
+install(TARGETS xbyak_aarch64
 	EXPORT xbyak_aarch64Targets
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
 )
+if(SHARED)
+install(TARGETS xbyak_aarch64_sh
+	EXPORT xbyak_aarch64Targets
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib
+)
+endif()
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/xbyak_aarch64
 	DESTINATION include
