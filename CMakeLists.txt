@@ -32,6 +32,7 @@ message("VERSION ${VERSION}")
 message("VERSION_MAJOR ${VERSION_MAJOR}")
 
 add_library(xbyak_aarch64 STATIC src/xbyak_aarch64_impl.cpp src/util_impl.cpp)
+add_library(xbyak_aarch64::xbyak_aarch64 ALIAS xbyak_aarch64)
 target_include_directories(xbyak_aarch64 PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
@@ -41,6 +42,7 @@ set_target_properties(xbyak_aarch64 PROPERTIES
 	POSITION_INDEPENDENT_CODE ON)
 
 add_library(xbyak_aarch64_sh SHARED src/xbyak_aarch64_impl.cpp src/util_impl.cpp)
+add_library(xbyak_aarch64::xbyak_aarch64_sh ALIAS xbyak_aarch64_sh)
 target_include_directories(xbyak_aarch64_sh PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
@@ -94,7 +96,7 @@ install(TARGETS xbyak_aarch64 xbyak_aarch64_sh
 	ARCHIVE DESTINATION lib
 )
 
-install(DIRECTORY include/xbyak_aarch64
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/xbyak_aarch64
 	DESTINATION include
 	FILES_MATCHING PATTERN "*.h"
 )
