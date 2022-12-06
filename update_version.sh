@@ -1,11 +1,17 @@
 #!/usr/bin/bash
 
-# How to use : update_version.h [<version>]
+# How to use : update_version.sh [-v][<version>]
+# if -v then show the version else update version file
 # the format <version> is v<major>.<minor>.<patch>
 # use the latest git tag unless the argument exists.
 # use v0.0.0 if something is wrong.
 
 VERSION_FILE="xbyak_aarch64/xbyak_aarch64_version.h"
+
+if [[ ${1} == '-v' ]]; then
+	sed -n 's@.*"\([0-9.]*\)".*@\1@p' < ${VERSION_FILE}
+fi
+
 version=${1:-`git describe --abbrev=0 2>/dev/null`}
 split=(${version//[v.]/ })
 MAJOR=${split[0]-0}
