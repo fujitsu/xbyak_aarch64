@@ -25,6 +25,12 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+file(READ xbyak_aarch64/xbyak_aarch64_version.h VERSION_FILE)
+string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" VERSION ${VERSION_FILE})
+string(REGEX MATCH [0-9]+ VERSION_MAJOR ${VERSION})
+message("VERSION ${VERSION}")
+message("VERSION_MAJOR ${VERSION_MAJOR}")
+
 add_library(xbyak_aarch64 STATIC src/xbyak_aarch64_impl.cpp src/util_impl.cpp)
 target_include_directories(xbyak_aarch64 PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -33,6 +39,19 @@ target_include_directories(xbyak_aarch64 PUBLIC
 	$<INSTALL_INTERFACE:$CMAKE_INSTALL_DIR/include>)
 set_target_properties(xbyak_aarch64 PROPERTIES
 	POSITION_INDEPENDENT_CODE ON)
+
+add_library(xbyak_aarch64_sh SHARED src/xbyak_aarch64_impl.cpp src/util_impl.cpp)
+target_include_directories(xbyak_aarch64_sh PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/xbyak_aarch64/>
+	$<INSTALL_INTERFACE:$CMAKE_INSTALL_DIR/include>)
+set_target_properties(xbyak_aarch64_sh PROPERTIES
+	POSITION_INDEPENDENT_CODE ON)
+set_target_properties(xbyak_aarch64_sh PROPERTIES
+	OUTPUT_NAME xbyak_aarch64
+	VERSION ${VERSION}
+	SOVERSION ${VERSION_MAJOR})
 
 if(MSVC)
 	if(MCL_MSVC_RUNTIME_DLL)
@@ -46,6 +65,9 @@ if(MSVC)
 	target_compile_definitions(xbyak_aarch64 PUBLIC NOMINMAX)
 	set(MCL_COMPILE_OPTIONS /W4)
 	target_compile_options(xbyak_aarch64 PRIVATE ${MCL_COMPILE_OPTIONS})
+
+	target_compile_definitions(xbyak_aarch64_sh PUBLIC NOMINMAX)
+	target_compile_options(xbyak_aarch64_sh PRIVATE ${MCL_COMPILE_OPTIONS})
 else()
 	# Set compiler flags for warnings
 	set(MCL_COMPILE_OPTIONS -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align
@@ -57,9 +79,16 @@ else()
 		CXX_STANDARD_REQUIRED YES
 		CXX_EXTENSIONS NO)
 	target_compile_features(xbyak_aarch64 PUBLIC cxx_std_11)
+
+	target_compile_options(xbyak_aarch64_sh PRIVATE ${MCL_COMPILE_OPTIONS})
+	set_target_properties(xbyak_aarch64_sh PROPERTIES
+		CXX_STANDARD 11
+		CXX_STANDARD_REQUIRED YES
+		CXX_EXTENSIONS NO)
+	target_compile_features(xbyak_aarch64_sh PUBLIC cxx_std_11)
 endif()
 
-install(TARGETS xbyak_aarch64
+install(TARGETS xbyak_aarch64 xbyak_aarch64_sh
 	EXPORT xbyak_aarch64Targets
 	LIBRARY DESTINATION lib
 	ARCHIVE DESTINATION lib
