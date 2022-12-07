@@ -38,6 +38,9 @@ test: $(TARGET)
 clean:
 	rm -rf obj/*.o obj/*.d $(TARGET)
 
+update_version:
+	./update_version.sh
+
 MKDIR=mkdir -p
 PREFIX?=/usr/local
 prefix?=$(PREFIX)

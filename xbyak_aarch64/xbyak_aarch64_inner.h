@@ -15,10 +15,7 @@
  * limitations under the License.
  *******************************************************************************/
 
-enum {
-  DEFAULT_MAX_CODE_SIZE = 4096,
-  VERSION = 0x5800 /* 0xABCD = A.BC(D) */
-};
+enum { DEFAULT_MAX_CODE_SIZE = 4096 };
 
 namespace inner {
 
