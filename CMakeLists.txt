@@ -1,7 +1,13 @@
 cmake_minimum_required (VERSION 3.8)
 
+file(READ xbyak_aarch64/xbyak_aarch64_version.h VERSION_FILE)
+string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" VERSION ${VERSION_FILE})
+string(REGEX MATCH [0-9]+\.[0-9]+ VERSION_SUB ${VERSION})
+#message("VERSION ${VERSION}")
+#message("VERSION_SUB ${VERSION_SUB}")
+
 project(xbyak_aarch64
-	VERSION 1.0.0
+	VERSION ${VERSION}
 	LANGUAGES CXX)
 
 option(
@@ -29,12 +35,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-file(READ xbyak_aarch64/xbyak_aarch64_version.h VERSION_FILE)
-string(REGEX MATCH "[0-9]+\.[0-9]+\.[0-9]+" VERSION ${VERSION_FILE})
-string(REGEX MATCH [0-9]+\.[0-9]+ VERSION_SUB ${VERSION})
-#message("VERSION ${VERSION}")
-#message("VERSION_SUB ${VERSION_SUB}")
 
 add_library(xbyak_aarch64 STATIC src/xbyak_aarch64_impl.cpp src/util_impl.cpp)
 add_library(xbyak_aarch64::xbyak_aarch64 ALIAS xbyak_aarch64)
