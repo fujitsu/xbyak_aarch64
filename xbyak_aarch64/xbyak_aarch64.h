@@ -55,7 +55,8 @@
 
 #include <iomanip>
 #include <sstream>
-
+#include <cstdint>
+  
 #ifndef NDEBUG
 #include <iostream>
 #endif
