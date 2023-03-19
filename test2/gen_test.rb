@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 #*******************************************************************************
-# Copyright 2021 FUJITSU LIMITED
+# Copyright 2021-2023 FUJITSU LIMITED
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #*******************************************************************************/
-require 'byebug'
+#require 'byebug'
 
 class TestPatternGenerator
   def initialize
@@ -28,7 +28,7 @@ class TestPatternGenerator
   public
   def parseTest(dirname)
     # Handle all *.test files inside "dirname" directory
-    Dir.glob(dirname+'/**/*.test').each{|item|
+    Dir.glob(dirname+'/**/*.test').sort.each{|item|
       puts item
       parseTestEach(item)
     }
