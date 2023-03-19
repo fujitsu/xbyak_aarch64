@@ -248,13 +248,13 @@ class TestPatternGenerator
   def convert_for_cpp(inst)
     inst.downcase!
 
-    # Select operands for ASM
+    # Select operands for CPP
     # Example: "<{z8.b}|z8.b>" -> "z8.b"
     if(inst.index(/<([^\|]*)\|([^>]*)>/))
       inst.gsub!(/<([^\|]*)\|([^>]*)>/, $2)
     end
 
-    # Remove address operands for ASM
+    # Remove address operands for CPP
     # Example ",[x8]/*asm*/,ptr(x8)/*cpp*/" -> "ptr(x8)/*cpp*/"
     inst.gsub!(/,\[[^\[]+\/\*asm\*\//, "")
 
@@ -266,6 +266,16 @@ class TestPatternGenerator
     # Replace "z" -> "T_z"
     inst.sub!(/\/m/, "/T_m")
     inst.sub!(/\/z/, "/T_z")
+
+    # Replace ".8b" -> ".b8"
+    inst.sub!(/\.8b/, "\.b8")
+    inst.sub!(/\.16b/, "\.b16")
+    inst.sub!(/\.4h/, "\.h4")
+    inst.sub!(/\.8h/, "\.h8")
+    inst.sub!(/\.2s/, "\.s2")
+    inst.sub!(/\.4s/, "\.s4")
+    inst.sub!(/\.1d/, "\.d1")
+    inst.sub!(/\.2d/, "\.d2")
 
     tmp = inst.split(/\s+/)
     if tmp.size == 1 # no operands
@@ -302,6 +312,32 @@ class TestPatternGenerator
                                           "[x0, #0]/*asm*/,ptr(x0)/*cpp*/",
                                           "[x16,#0]/*asm*/,ptr(x16)/*cpp*/",
                                           "[sp,#0]/*asm*/,ptr(sp)/*cpp*/"])
+
+    # Generate "<Bd>", "<Hd>", "<Sd>", "<Dd>", "<Qd>", "<Bn>", "<Hn>", "<Sn>", "<Dn>", "<Qn>"
+    for s in ["d", "n"] do
+      for t in ["B", "H", "S", "D", "Q"] do
+        list = []
+        for i in [8, 1, 2, 4, 0, 16, 30, 31] do
+          list.push(t.downcase + i.to_s)
+        end
+        key = "<" + t + s + ">"
+        @operands_ptn.store(key, list)
+      end
+    end
+
+    # Generate "<Vd.8B>", "<Vd.16B>", "<Vd.4H>", "<Vd.8H>", "<Vd.2S>", "<Vd.4S>", "<Vd.1D>", "<Vd.2D>",
+    #          "<Vn.8B>", "<Vn.16B>", "<Vn.4H>", "<Vn.8H>", "<Vn.2S>", "<Vn.4S>", "<Vn.1D>", "<Vn.2D>",
+    for s in ["d", "n"] do
+      for t in ["8B", "16B", "4H", "8H", "2S", "4S", "1D", "2D"] do
+        list = []
+        for i in [8, 1, 2, 4, 0, 16, 30, 31] do
+          ptn = "v" + i.to_s + "." + t.downcase
+          list.push("v" + i.to_s + "." + t.downcase)
+        end
+        key = "<V" + s + ">." + t
+        @operands_ptn.store(key, list)
+      end
+    end
 
     @operands_ptn.store("<Zd>.B", ["z8.b", "z1.b", "z2.b", "z4.b", "z0.b", "z16.b", "z30.b", "z31.b"])
     @operands_ptn.store("<Zd>.H", ["z8.h", "z1.h", "z2.h", "z4.h", "z0.h", "z16.h", "z30.h", "z31.h"])
