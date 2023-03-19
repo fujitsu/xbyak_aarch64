@@ -303,6 +303,31 @@ class TestPatternGenerator
                                           "[x16,#0]/*asm*/,ptr(x16)/*cpp*/",
                                           "[sp,#0]/*asm*/,ptr(sp)/*cpp*/"])
 
+    # Generate "<Bd>", "<Hd>", "<Sd>", "<Dd>", "<Qd>", "<Bn>", "<Hn>", "<Sn>", "<Dn>", "<Qn>"
+    for s in ["d", "n"] do
+      for t in ["B", "H", "S", "D", "Q"] do
+        list = []
+        for i in [8, 1, 2, 4, 0, 16, 30, 31] do
+          list.push(t.downcase + i.to_s)
+        end
+        key = "<" + t + s + ">"
+        @operands_ptn.store(key, list)
+      end
+    end
+
+    # Generate "<Vd.8B>", "<Vd.16B>", "<Vd.4H>", "<Vd.8H>", "<Vd.2S>", "<Vd.4S>", "<Vd.1D>", "<Vd.2D>",
+    #          "<Vn.8B>", "<Vn.16B>", "<Vn.4H>", "<Vn.8H>", "<Vn.2S>", "<Vn.4S>", "<Vn.1D>", "<Vn.2D>",
+    for s in ["d", "n"] do
+      for t in ["8B", "16B", "4H", "8H", "2S", "4S", "1D", "2D"] do
+        list = []
+        for i in [8, 1, 2, 4, 0, 16, 30, 31] do
+          list.push("v" + i.to_s + "." + t.downcase)
+        end
+        key = "<V" + s + ">." + t
+        @operands_ptn.store(key, list)
+      end
+    end
+
     @operands_ptn.store("<Zd>.B", ["z8.b", "z1.b", "z2.b", "z4.b", "z0.b", "z16.b", "z30.b", "z31.b"])
     @operands_ptn.store("<Zd>.H", ["z8.h", "z1.h", "z2.h", "z4.h", "z0.h", "z16.h", "z30.h", "z31.h"])
     @operands_ptn.store("<Zd>.S", ["z8.s", "z1.s", "z2.s", "z4.s", "z0.s", "z16.s", "z30.s", "z31.s"])

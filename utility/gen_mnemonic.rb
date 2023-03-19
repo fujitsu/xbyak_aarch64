@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 #*******************************************************************************
-# Copyright 2019-2021 FUJITSU LIMITED
+# Copyright 2019-2023 FUJITSU LIMITED
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -2467,7 +2467,8 @@ v8 = {
             ],
     :prm => [
       ["U", "opcode", "vd", "vn"],       #0
-      ["U", "opcode", "vd", "vn", "sh"]  #1
+      ["U", "opcode", "vd", "vn", "sh"], #1
+      ["Q", "U", "opcode", "vd", "vn"]   #2
     ],
     :grp => [
       {"REV64"  => {"U" => 0, "opcode" => 0x0}, :arg => 0..5,   :prm => 0},
@@ -2483,6 +2484,8 @@ v8 = {
       {"XTN2"   => {"U" => 0, "opcode" => 0x12},:arg => 16..18, :prm => 0},
       {"SQXTN"  => {"U" => 0, "opcode" => 0x14},:arg => 13..15, :prm => 0},
       {"SQXTN2" => {"U" => 0, "opcode" => 0x14},:arg => 16..18, :prm => 0},
+      {"BFCVTN" => {"Q" => 0, "U" => 1, "opcode" => 0x16},:arg => [14],:prm => 2},
+      {"BFCVTN2"=> {"Q" => 1, "U" => 1, "opcode" => 0x16},:arg => [17],:prm => 2},
       {"REV32"  => {"U" => 1, "opcode" => 0x0}, :arg => [0,1,3,4], :prm => 0},
       {"UADDLP" => {"U" => 1, "opcode" => 0x2}, :arg => 7..12,  :prm => 0},
       {"USQADD" => {"U" => 1, "opcode" => 0x3}, :arg => 0..6,   :prm => 0},
@@ -3339,6 +3342,7 @@ v8 = {
       {"FABS"   => {"M" => 0, "S" => 0, "type" => 1, "opcode" => 0x1}, :arg => [3]},
       {"FNEG"   => {"M" => 0, "S" => 0, "type" => 1, "opcode" => 0x2}, :arg => [3]},
       {"FSQRT"  => {"M" => 0, "S" => 0, "type" => 1, "opcode" => 0x3}, :arg => [3]},
+      {"BFCVT"  => {"M" => 0, "S" => 0, "type" => 1, "opcode" => 0x6}, :arg => [2]},
       {"FRINTN" => {"M" => 0, "S" => 0, "type" => 1, "opcode" => 0x8}, :arg => [3]},
       {"FRINTP" => {"M" => 0, "S" => 0, "type" => 1, "opcode" => 0x9}, :arg => [3]},
       {"FRINTM" => {"M" => 0, "S" => 0, "type" => 1, "opcode" => 0xa}, :arg => [3]},
@@ -6650,7 +6654,7 @@ class MnemonicGenerator
 
   def output_copyright(f)
     f.puts "/*******************************************************************************"
-    f.puts " * Copyright 2019-2021 FUJITSU LIMITED"
+    f.puts " * Copyright 2019-2023 FUJITSU LIMITED"
     f.puts " *"
     f.puts " * Licensed under the Apache License, Version 2.0 (the \"License\");"
     f.puts " * you may not use this file except in compliance with the License."
