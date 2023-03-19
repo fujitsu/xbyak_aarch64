@@ -28,18 +28,16 @@ int main() {
   printf("Implementer: %s\n", cpu.getImplementer());
   printf("CPU type: %016lx\n", (long)cpu.getType());
   printf("HW_CAP: ");
-  if (cpu.has(Cpu::tADVSIMD)) {
+  if (cpu.has(XBYAK_AARCH64_HWCAP_ADVSIMD))
     printf("advsimd ");
-  }
-  if (cpu.has(Cpu::tFP)) {
+  if (cpu.has(XBYAK_AARCH64_HWCAP_FP))
     printf("fp ");
-  }
-  if (cpu.has(Cpu::tSVE)) {
+  if (cpu.has(XBYAK_AARCH64_HWCAP_SVE))
     printf("sve(%d) ", (int)cpu.getSveLen());
-  }
-  if (cpu.has(Cpu::tATOMIC)) {
+  if (cpu.has(XBYAK_AARCH64_HWCAP_ATOMIC))
     printf("atomic ");
-  }
+  if (cpu.has(XBYAK_AARCH64_HWCAP_BF16))
+    printf("bf16 ");
   printf("\n");
   printf("# of CPU cores: %d\n", cpu.getNumCores(CoreLevel));
 
