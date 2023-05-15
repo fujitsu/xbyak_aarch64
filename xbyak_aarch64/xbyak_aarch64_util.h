@@ -70,19 +70,6 @@ struct implementer_t {
   const char *implementer;
 };
 
-/* 2023.02.11
-   cacheInfo_t does not need to be disclosed. */
-#if defined(__GNUC__) || defined(__clang_version__)
-struct __attribute__((deprecated)) cacheInfo_t {
-#elif defined(_MSC_VER)
-struct __declspec(deprecated) cacheInfo_t {
-#endif
-  uint64_t midr_el1;
-  uint32_t dataCacheLevel;
-  uint32_t highestInnerCacheLevel;
-  uint32_t dataCacheSize[maxCacheLevel];
-};
-
 /**
    CPU detection class
 */
@@ -92,30 +79,11 @@ private:
   CpuInfo *info;
 
 public:
-  /* 2023.02.11 */
-#if defined(__GNUC__) || defined(__clang_version__)
-  __attribute__((deperecated)) static const Type tNONE = (Type)XBYAK_AARCH64_HWCAP_NONE;
-  __attribute__((deperecated)) static const Type tADVSIMD = (Type)XBYAK_AARCH64_HWCAP_ADVSIMD;
-  __attribute__((deperecated)) static const Type tFP = (Type)XBYAK_AARCH64_HWCAP_FP;
-  __attribute__((deperecated)) static const Type tSVE = (Type)XBYAK_AARCH64_HWCAP_SVE;
-  __attribute__((deperecated)) static const Type tATOMIC = (Type)XBYAK_AARCH64_HWCAP_ATOMIC;
-#elif defined(_MSC_VER)
-  __declspec(deprecated) static const Type tNONE = (Type)XBYAK_AARCH64_HWCAP_NONE;
-  __declspec(deprecated) static const Type tADVSIMD = (Type)XBYAK_AARCH64_HWCAP_ADVSIMD;
-  __declspec(deprecated) static const Type tFP = (Type)XBYAK_AARCH64_HWCAP_FP;
-  __declspec(deprecated) static const Type tSVE = (Type)XBYAK_AARCH64_HWCAP_SVE;
-  __declspec(deprecated) static const Type tATOMIC = (Type)XBYAK_AARCH64_HWCAP_ATOMIC;
-#endif
-
   Cpu();
 
   void dumpCacheInfo() const;
   Arm64CacheType getCacheType(const Arm64CacheLevel i) const;
   uint32_t getCoresSharingDataCache(const Arm64CacheLevel i) const;
-  /* 2023.02.11 */
-#if defined(__GNUC__) || defined(__clang_version__)
-  uint32_t __attribute__((deprecated("Please use getLastDataCacheLevel()"))) getDataCacheLevels() const;
-#endif
   uint32_t getDataCacheSize(const Arm64CacheLevel i) const;
   const char *getImplementer() const;
   uint32_t getLastDataCacheLevel() const;
