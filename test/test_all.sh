@@ -1,6 +1,6 @@
 #!/bin/bash
 #*******************************************************************************
-# Copyright 2019-2022 FUJITSU LIMITED
+# Copyright 2019-2023 FUJITSU LIMITED
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -54,20 +54,22 @@ do_all_test() {
     done
 }
 
-while getopts gf OPT
+while getopts fgq OPT
 do
     case $OPT in
-        g) COMPILER=GCC
-           TEST_OPT=""
-           ;;
         f) COMPILER=FCC
            TEST_OPT="-f"
            ;;
+        g) COMPILER=GCC
+           TEST_OPT="-g"
+           ;;
+        q) COMPILER=GCC
+           TEST_OPT="-q"
+           ;;
         *) COMPILER=GCC
-           TEST_OPT=""
+           TEST_OPT="-g"
            ;;
     esac
 done
-shift $((OPTIND - 1))
 
 do_all_test
