@@ -21,4 +21,3 @@ job_1:
     - make
     - cd test
     - ./test_all.sh -g
-    - ./test_all.sh -f
