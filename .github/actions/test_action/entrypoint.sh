@@ -14,10 +14,12 @@
 # See the License for the specific language governing permissions and
 # imitations under the License.
 # *******************************************************************************/
-.github/automation/env/qemu.sh
 
-# Build Xbyak_aarch64
-source .github/automation/env/setenv
+# BecauseUbuntu 20.04 has qemu packages,
+#.github/automation/env/qemu.sh
+
+# Build Xbyak_aarch64 with cross compiler
+source .github/automation/env/setenv-qemu
 make -j`grep -c processor /proc/cpuinfo`
 cd test
 ./test_all.sh -q
