@@ -1,6 +1,6 @@
 #!/bin/sh
 #*******************************************************************************
-# Copyright 2019-2022 FUJITSU LIMITED
+# Copyright 2019-2023 FUJITSU LIMITED
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,16 +14,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #******************************************************************************/
+
 #*******************************************************************************
-# Default compiler is g++
+# This script is used for the following combination.
+#
+# |      | CI framework                 | Architecture        | Compiler |
+# | ---- | ----                         | ----                | ----     |
+# | 1    | github actions               | qemu-aarch64 on x64 | GCC      |
+# | 2    | gitlab CI (Fujitsu in-house) | AArch64             | GCC      |
+# | 3    | gitlab CI (Fujitsu in-house) | AArch64             | FCC      |
 #*******************************************************************************
 TEST_FILE=${1}
-AARCH64_TYPE="armv8.4-a"
-if [ ${ARCH} = arm64 ] ; then
-  AARCH64_TYPE="all"
-fi
-CXX_FLAGS1="-std=c++11 -fomit-frame-pointer -Wall -fno-operator-names -I../xbyak_aarch64 -I./ -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith -Wno-ignored-qualifiers"
-CXX_FLAGS2="-std=c++11 -Wall -I../xbyak_aarch64 -DXBYAK_TEST -DXBYAK_USE_MMAP_ALLOCATOR"
+SETENV_PATH=`dirname ${0}`/../.github/automation/env
 
 #*******************************************************************************
 # Function definition
@@ -31,6 +33,7 @@ CXX_FLAGS2="-std=c++11 -Wall -I../xbyak_aarch64 -DXBYAK_TEST -DXBYAK_USE_MMAP_AL
 usage_exit() {
     echo "Usage: $0 [-f|-q] TEST_FILE"
     echo "  [-f] Fujitsu Compiler"
+    echo "  [-g] GCC"
     echo "  [-q] GCC + QEMU"
     exit 1
 }
@@ -49,30 +52,28 @@ dumpNG () {
 }    
 
 set_variables() {
-
   case $ENV_SELECT in
-    f) CXX=FCC;
-       CXX_FLAGS1="-std=c++11 -fomit-frame-pointer -Wall -fno-operator-names -I../xbyak_aarch64 -I./ -Wall -Wextra -Wformat=2 -Wcast-qual -Wcast-align -Wwrite-strings -Wfloat-equal -Wpointer-arith -Nclang -Knolargepage -Wno-ignored-qualifiers";
-       CXX_FLAGS2="-Wall -I../xbyak_aarch64 -DXBYAK_TEST -DXBYAK_USE_MMAP_ALLOCATOR -Nclang -Knolargepage";
-       echo "compiler is FCC"
+    f) . ${SETENV_PATH}/setenv-fcc
       ;;
-
-    q) source setenv-qemu
-      ;;
-    g) source setenv-gcc
+    g) . ${SETENV_PATH}/setenv-gcc
        ;;
+    q) . ${SETENV_PATH}/setenv-qemu
+      ;;
     *)
        ;;
   esac
+  echo "Compiler is ${CXX:-gcc}."
 }
 
 #*******************************************************************************
 # Main routine
 #*******************************************************************************
-while getopts f: OPT
+while getopts f:g:q: OPT
 do
   case $OPT in
     f) ENV_SELECT=f; TEST_FILE=$OPTARG
+      ;;
+    g) ENV_SELECT=g; TEST_FILE=$OPTARG
       ;;
     q) ENV_SELECT=q; TEST_FILE=$OPTARG
       ;;
@@ -80,7 +81,6 @@ do
       ;;
     esac
 done
-#shift $((OPTIND - 1))
 
 set_variables
 
