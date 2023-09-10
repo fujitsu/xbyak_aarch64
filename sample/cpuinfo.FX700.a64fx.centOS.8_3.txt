@@ -1,0 +1,18 @@
+Implementer: Fujitsu Ltd.
+CPU type: 000000000000001e
+HW_CAP: advsimd fp sve(64) atomic 
+# of CPU cores: 48
+Data cache level: 2
+L1D cache size: 65536
+L2 cache size: 8388608
+L1D cache sharing cores: 1
+L2 cache sharing cores: 12
+
+numCores=48
+L1, 3, 65536, 65536, 0, 1, 1, 0
+L2, 4, 0, 0, 8388608, 0, 0, 12
+L3, 0, 0, 0, 0, 0, 0, 0
+L4, 0, 0, 0, 0, 0, 0, 0
+L5, 0, 0, 0, 0, 0, 0, 0
+L6, 0, 0, 0, 0, 0, 0, 0
+L7, 0, 0, 0, 0, 0, 0, 0

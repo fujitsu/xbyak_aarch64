@@ -1,0 +1,18 @@
+Implementer: Arm Limited
+CPU type: 0000000000000006
+HW_CAP: advsimd fp
+# of CPU cores: 4
+Data cache level: 2
+L1D cache size: 32768
+L2 cache size: 2097152
+L1D cache sharing cores: 1
+L2 cache sharing cores: 4
+
+numCores=4
+L1, 3, 49152, 32768, 0, 1, 1, 0
+L2, 4, 0, 0, 2097152, 0, 0, 4
+L3, 0, 0, 0, 0, 0, 0, 0
+L4, 0, 0, 0, 0, 0, 0, 0
+L5, 0, 0, 0, 0, 0, 0, 0
+L6, 0, 0, 0, 0, 0, 0, 0
+L7, 0, 0, 0, 0, 0, 0, 0
