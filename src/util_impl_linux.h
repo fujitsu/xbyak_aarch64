@@ -104,7 +104,7 @@ private:
 
     DIR *dir = opendir(dir_path);
     if (dir == NULL)
-       return retVal;
+      return retVal;
     struct dirent *dp;
 
     dp = readdir(dir);
