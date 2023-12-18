@@ -440,14 +440,14 @@ private:
 
     FILE *file = fopen(path_midr_el1, "r");
     if (file == nullptr) {
-       // sysfs is unaccessible for AWS Lambdas
-       fprintf(stderr, "%s, %d: Can't open MIDR_EL1 sysfs entry\n", __FILE__, __LINE__);
+      // sysfs is unaccessible for AWS Lambdas
+      fprintf(stderr, "%s, %d: Can't open MIDR_EL1 sysfs entry\n", __FILE__, __LINE__);
       cacheInfo_.midr_el1 = 0xFF << 24;
       return;
     }
 
     if (fread(buf, sizeof(char), 64, file) == 0) {
-      // File can be empty if invoked inside docker container 
+      // File can be empty if invoked inside docker container
       fprintf(stderr, "%s, %d: Can't read MIDR_EL1 sysfs entry\n", __FILE__, __LINE__);
       cacheInfo_.midr_el1 = 0xFF << 24;
       return;
