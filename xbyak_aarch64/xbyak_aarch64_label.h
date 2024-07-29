@@ -22,11 +22,26 @@
 #include "xbyak_aarch64_inner.h"
 
 struct JmpLabel {
+  // Support jump distances
+  enum MaxDistance { J32KB, J1MB, J128MB };
   // type of partially applied function for encoding
   typedef std::function<uint32_t(int64_t)> EncFunc;
   size_t endOfJmp; /* offset from top to the end address of jmp */
+  MaxDistance maxDistance;
   EncFunc encFunc;
-  explicit JmpLabel(const EncFunc &encFunc, size_t endOfJmp = 0) : endOfJmp(endOfJmp), encFunc(encFunc) {}
+  // Double linked list of pending jumps with the same max distance
+  JmpLabel *prevInClass = nullptr, *nextInClass = nullptr;
+  explicit JmpLabel(const EncFunc &encFunc, size_t endOfJmp, MaxDistance maxDistance) : endOfJmp(endOfJmp), maxDistance(maxDistance), encFunc(encFunc) {}
+
+  // Get the maximum gap (in instructions) supported by this jump
+  int64_t getMaximumGapInInstructions() const { return (maxDistance == MaxDistance::J1MB) ? (1 << 20) / 4 : (maxDistance == MaxDistance::J32KB) ? (1 << 15) / 4 : (1 << 27) / 4; }
+  // Get the deadline position
+  size_t getDeadline() const { return endOfJmp + getMaximumGapInInstructions() - 1; }
+  // Is a target reachable by this jump type?
+  bool isInRange(int64_t offset) const {
+    int64_t maxGap = getMaximumGapInInstructions() * 4;
+    return (offset >= (-maxGap)) && (offset < maxGap);
+  }
 };
 
 class LabelManager;
@@ -57,9 +72,16 @@ class LabelManager {
     size_t offset;
     int refCount;
   };
+  // For maintaining the queue of undefined labels
+  struct LabelUndefQueue {
+    JmpLabel *first = nullptr, *last = nullptr;
+  };
   typedef std::unordered_map<int, ClabelVal> ClabelDefList;
-  typedef std::unordered_multimap<int, const JmpLabel> ClabelUndefList;
+  typedef std::unordered_multimap<int, JmpLabel> ClabelUndefList;
   typedef std::unordered_set<Label *> LabelPtrList;
+
+  // No deadline
+  static constexpr size_t noDeadline = std::numeric_limits<size_t>::max();
 
   CodeArray *base_;
   // global : stateList_.front(), local : stateList_.back()
@@ -67,6 +89,10 @@ class LabelManager {
   ClabelDefList clabelDefList_;
   ClabelUndefList clabelUndefList_;
   LabelPtrList labelPtrList_;
+  std::vector<std::pair<size_t, JmpLabel>> outOfReachList_;
+  LabelUndefQueue labelUndefQueue_[3];
+  size_t flushDeadlineOutOfReach_ = noDeadline;
+  size_t flushDeadline_ = noDeadline;
 
   int getId(const Label &label) const {
     if (label.id == 0)
@@ -87,8 +113,30 @@ class LabelManager {
       const JmpLabel *jmp = &itr->second;
       const size_t offset = jmp->endOfJmp;
       int64_t labelOffset = (addrOffset - offset) * CSIZE;
-      uint32_t disp = jmp->encFunc(labelOffset);
-      base_->rewrite(offset, disp);
+      // Remove jump from pending queue
+      if (jmp->prevInClass) {
+        jmp->prevInClass->nextInClass = jmp->nextInClass;
+      } else {
+        labelUndefQueue_[unsigned(jmp->maxDistance)].first = jmp->nextInClass;
+        flushDeadline_ = flushDeadlineOutOfReach_;
+        for (unsigned index = 0; index != 3; ++index)
+          if (labelUndefQueue_[index].first)
+            flushDeadline_ = std::min<std::size_t>(flushDeadline_, labelUndefQueue_[index].first->getDeadline());
+      }
+      if (jmp->nextInClass) {
+        jmp->nextInClass->prevInClass = jmp->prevInClass;
+      } else {
+        labelUndefQueue_[unsigned(jmp->maxDistance)].last = jmp->prevInClass;
+      }
+      // Update jump
+      if (jmp->isInRange(labelOffset)) {
+        uint32_t disp = jmp->encFunc(labelOffset);
+        base_->rewrite(offset, disp);
+      } else {
+        flushDeadlineOutOfReach_ = std::min<std::size_t>(flushDeadlineOutOfReach_, offset + jmp->getMaximumGapInInstructions());
+        flushDeadline_ = std::min<std::size_t>(flushDeadline_, flushDeadlineOutOfReach_);
+        outOfReachList_.push_back({addrOffset, *jmp});
+      }
       undefList.erase(itr);
     }
   }
@@ -140,6 +188,10 @@ public:
     clabelDefList_.clear();
     clabelUndefList_.clear();
     resetLabelPtrList();
+    outOfReachList_.clear();
+    for (unsigned index = 0; index != 3; ++index)
+      labelUndefQueue_[index].first = labelUndefQueue_[index].last = nullptr;
+    flushDeadline_ = flushDeadlineOutOfReach_ = noDeadline;
   }
 
   void set(CodeArray *base) { base_ = base; }
@@ -158,10 +210,39 @@ public:
     labelPtrList_.insert(&dst);
   }
   bool getOffset(size_t *offset, const Label &label) const { return getOffset_inner(clabelDefList_, offset, getId(label)); }
-  void addUndefinedLabel(const Label &label, const JmpLabel &jmp) { clabelUndefList_.insert(ClabelUndefList::value_type(label.id, jmp)); }
+  void addUndefinedLabel(const Label &label, const JmpLabel &jmp) {
+    auto iter = clabelUndefList_.insert(ClabelUndefList::value_type(label.id, jmp));
+
+    // Update queue of unplaced labels
+    auto &j = iter->second;
+    unsigned gapClass = unsigned(j.maxDistance);
+    if (labelUndefQueue_[gapClass].first) {
+      j.prevInClass = labelUndefQueue_[gapClass].last;
+      j.prevInClass->nextInClass = &j;
+    } else {
+      j.prevInClass = nullptr;
+      labelUndefQueue_[gapClass].first = &j;
+      flushDeadline_ = flushDeadlineOutOfReach_;
+      for (unsigned index = 0; index != 3; ++index)
+        if (labelUndefQueue_[index].first)
+          flushDeadline_ = std::min<std::size_t>(flushDeadline_, labelUndefQueue_[index].first->getDeadline());
+    }
+    j.nextInClass = nullptr;
+    labelUndefQueue_[gapClass].last = &j;
+  }
+  void addOutOfReachLabel(const Label &label, const JmpLabel &jmp) {
+    flushDeadlineOutOfReach_ = std::min<std::size_t>(flushDeadlineOutOfReach_, jmp.getDeadline());
+    flushDeadline_ = std::min<std::size_t>(flushDeadline_, flushDeadlineOutOfReach_);
+    outOfReachList_.push_back({clabelDefList_.find(label.id)->second.offset, jmp});
+  }
   bool hasUndefClabel() const { return hasUndefinedLabel_inner(clabelUndefList_); }
   const uint8_t *getCode() const { return base_->getCode(); }
   bool isReady() const { return !base_->isAutoGrow() || base_->isCalledCalcJmpAddress(); }
+
+  // Do we have to flush jump thunks?
+  bool needsFlush() const { return base_->size_ + 4 + outOfReachList_.size() >= flushDeadline_; }
+  // Flush jump thunks as needed
+  void flushJumpThunks(bool afterUnconditionalBr);
 };
 
 inline Label::Label(const Label &rhs) {

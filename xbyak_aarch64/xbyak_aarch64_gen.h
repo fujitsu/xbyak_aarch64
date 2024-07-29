@@ -242,6 +242,10 @@ class CodeGenerator : public CodeArray {
     int64_t labelOffset = 0;
     if (labelMgr_.getOffset(&offset, label)) {
       labelOffset = (offset - size_) * CSIZE;
+      if (!jmpL.isInRange(labelOffset)) {
+        labelMgr_.addOutOfReachLabel(label, jmpL);
+        labelOffset = 0;
+      }
     } else {
       labelMgr_.addUndefinedLabel(label, jmpL);
     }
@@ -763,6 +767,13 @@ public:
   */
   void putL(const Label &label) { putL_inner(label); }
 
+  // write an instruction and insert jump thunks if needed
+  void ddCode(uint32_t code) {
+    dd(code);
+    if (labelMgr_.needsFlush())
+      labelMgr_.flushJumpThunks(false);
+  }
+
   void reset() {
     resetSize();
     labelMgr_.reset();
@@ -776,6 +787,7 @@ public:
           It is not necessary for the other mode if hasUndefinedLabel() is true.
   */
   void ready(ProtectMode mode = PROTECT_RE) {
+    labelMgr_.flushJumpThunks(false);
     if (hasUndefinedLabel())
       throw Error(ERR_LABEL_IS_NOT_FOUND);
     if (isAutoGrow()) {
