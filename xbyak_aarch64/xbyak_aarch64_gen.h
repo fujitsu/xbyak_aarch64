@@ -746,10 +746,8 @@ public:
     L(label);
     return label;
   }
-  void inLocalLabel() { /*assert(NULL);*/
-  }
-  void outLocalLabel() { /*assert(NULL);*/
-  }
+  void inLocalLabel() { /*assert(NULL);*/ }
+  void outLocalLabel() { /*assert(NULL);*/ }
   /*
           assign src to dst
           require
@@ -846,6 +844,9 @@ public:
     if (remain % 4)
       throw Error(ERR_BAD_ALIGN);
     remain = x - (remain % x);
+
+    if (remain == x)
+      return;
 
     while (remain) {
       nop();
