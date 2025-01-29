@@ -1,6 +1,8 @@
 lib/libxbyak_aarch64.a
 obj/xbyak_aarch64_impl.d
 obj/xbyak_aarch64_impl.o
+obj/util_impl.d
+obj/util_impl.o
 sample/*.d
 sample/*.o
 sample/*.exe
