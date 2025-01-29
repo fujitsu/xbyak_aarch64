@@ -762,6 +762,7 @@ public:
   void putL(const Label &label) { putL_inner(label); }
 
   void reset() {
+    setProtectModeRW();
     resetSize();
     labelMgr_.reset();
     labelMgr_.set(this);
