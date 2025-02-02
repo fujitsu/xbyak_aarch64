@@ -504,6 +504,9 @@ void and_imm(const WReg &dst, const WReg &src, uint32_t imm, const WReg &tmp) {
   if (isValidLogicalImm(imm, 32)) {
     and_(dst, src, imm);
   } else {
+    if (dst.getIdx() == tmp.getIdx() || src.getIdx() == tmp.getIdx()) {
+      throw Error(ERR_ILLEGAL_REG_IDX);
+    }
     mov(tmp, imm);
     and_(dst, src, tmp);
   }
@@ -513,6 +516,9 @@ void ands_imm(const WReg &dst, const WReg &src, uint32_t imm, const WReg &tmp) {
   if (isValidLogicalImm(imm, 32)) {
     ands(dst, src, imm);
   } else {
+    if (dst.getIdx() == tmp.getIdx() || src.getIdx() == tmp.getIdx()) {
+      throw Error(ERR_ILLEGAL_REG_IDX);
+    }
     mov(tmp, imm);
     ands(dst, src, tmp);
   }
@@ -522,6 +528,9 @@ void orr_imm(const WReg &dst, const WReg &src, uint32_t imm, const WReg &tmp) {
   if (isValidLogicalImm(imm, 32)) {
     orr(dst, src, imm);
   } else {
+    if (dst.getIdx() == tmp.getIdx() || src.getIdx() == tmp.getIdx()) {
+      throw Error(ERR_ILLEGAL_REG_IDX);
+    }
     mov(tmp, imm);
     orr(dst, src, tmp);
   }
@@ -531,6 +540,9 @@ void eor_imm(const WReg &dst, const WReg &src, uint32_t imm, const WReg &tmp) {
   if (isValidLogicalImm(imm, 32)) {
     eor(dst, src, imm);
   } else {
+    if (dst.getIdx() == tmp.getIdx() || src.getIdx() == tmp.getIdx()) {
+      throw Error(ERR_ILLEGAL_REG_IDX);
+    }
     mov(tmp, imm);
     eor(dst, src, tmp);
   }
