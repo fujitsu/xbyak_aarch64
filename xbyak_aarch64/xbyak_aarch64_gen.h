@@ -747,8 +747,10 @@ public:
     L(label);
     return label;
   }
-  void inLocalLabel() { /*assert(NULL);*/ }
-  void outLocalLabel() { /*assert(NULL);*/ }
+  void inLocalLabel() { /*assert(NULL);*/
+  }
+  void outLocalLabel() { /*assert(NULL);*/
+  }
   /*
           assign src to dst
           require
