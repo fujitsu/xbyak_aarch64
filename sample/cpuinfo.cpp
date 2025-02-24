@@ -38,6 +38,8 @@ int main() {
     printf("atomic ");
   if (cpu.has(XBYAK_AARCH64_HWCAP_BF16))
     printf("bf16 ");
+  if (cpu.has(XBYAK_AARCH64_HWCAP_CRC))
+    printf("crc ");
   printf("\n");
   printf("# of CPU cores: %d\n", cpu.getNumCores(CoreLevel));
 

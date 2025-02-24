@@ -63,6 +63,7 @@ enum hwCap_t {
   XBYAK_AARCH64_HWCAP_SVE = 1 << 3,
   XBYAK_AARCH64_HWCAP_ATOMIC = 1 << 4,
   XBYAK_AARCH64_HWCAP_BF16 = 1 << 5,
+  XBYAK_AARCH64_HWCAP_CRC = 1 << 6,
 };
 
 struct implementer_t {

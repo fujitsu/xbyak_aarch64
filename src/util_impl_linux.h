@@ -401,6 +401,8 @@ private:
       type_ |= (Type)XBYAK_AARCH64_HWCAP_FP;
     if (hwcap & HWCAP_ASIMD)
       type_ |= (Type)XBYAK_AARCH64_HWCAP_ADVSIMD;
+    if (hwcap & HWCAP_CRC32)
+      type_ |= (Type)XBYAK_AARCH64_HWCAP_CRC;
 
 #ifdef AT_HWCAP2
     const unsigned long hwcap2 = getauxval(AT_HWCAP2);
