@@ -107,6 +107,8 @@ private:
       type_ |= (Type)XBYAK_AARCH64_HWCAP_ATOMIC;
     if (IsProcessorFeaturePresent(PF_ARM_V8_CRC32_INSTRUCTIONS_AVAILABLE))
       type_ |= (Type)XBYAK_AARCH64_HWCAP_CRC;
+    if (IsProcessorFeaturePresent(PF_ARM_V83_JSCVT_INSTRUCTIONS_AVAILABLE))
+      type_ |= (Type)XBYAK_AARCH64_HWCAP_JSCVT;
   }
 };
 

@@ -40,6 +40,8 @@ int main() {
     printf("bf16 ");
   if (cpu.has(XBYAK_AARCH64_HWCAP_CRC))
     printf("crc ");
+  if (cpu.has(XBYAK_AARCH64_HWCAP_JSCVT))
+    printf("jscvt ");
   printf("\n");
   printf("# of CPU cores: %d\n", cpu.getNumCores(CoreLevel));
 
