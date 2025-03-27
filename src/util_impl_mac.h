@@ -39,7 +39,7 @@ constexpr char hw_opt_atomics[] = "hw.optional.armv8_1_atomics";
 constexpr char hw_opt_fp[] = "hw.optional.floatingpoint";
 constexpr char hw_opt_neon[] = "hw.optional.neon";
 constexpr char hw_opt_crc[] = "hw.optional.armv8_crc32";
-constexpr char hw_opt_jscvt[] = "hw.optional.FEAT_JSCVT";
+constexpr char hw_opt_jscvt[] = "hw.optional.arm.FEAT_JSCVT";
 constexpr char hw_perflevel1_logicalcpu[] = "hw.perflevel1.logicalcpu";
 
 class CpuInfoMac : public CpuInfo {
