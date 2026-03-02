@@ -143,7 +143,7 @@ int main() {
 ```
 
 ## Syntax
-Synatx is similar to "AS" (GNU assembler).
+Syntax is similar to "AS" (GNU assembler).
 Each AArch64 instruction is correspond to each function written in "xbyak_aarch64_mnemonic.h", we call it a **mnemonic function**.
 Please refer files in sample/mnemonic_syntax directory for usage of mnemonic functions.
 The below example shows correspondence between "AS" syntax and Xbyak_aarch64 mnemonic functions.
@@ -160,10 +160,10 @@ ret             --> ret();
 ### Mnemonic functions
 Each **mnemonic function** corresponds to one AArch64 instruction.
 Function name represents corresponding mnemonic of instruction.
-Because **"and", "or", "not"** are reserved keywords C++ and **"."** can't be used in C++ function name,
-the following special cases are exist.
+Because **"and", "or", "not"** are reserved keywords in C++ and **"."** can't be used in C++ function name,
+the following special cases exist.
 
-|Mnemonic of instruction|Name of **mnemonic funciton**|
+|Mnemonic of instruction|Name of **mnemonic function**|
 |----|----|
 |and|and_|
 |or|or_|
@@ -187,7 +187,7 @@ the following table shows example of mnemonic functions' arguments ("Instance na
 |wsp|WReg|32-bit stack pointer|
 |sp|zXReg|64-bit stack pointer|
 
-You can also use your original instance as mnemonic functions argumetns.
+You can also use your original instance as mnemonic functions arguments.
 Please refer constructor of "C++ class name" in Xbyak_aarch64 files.
 
 ```
@@ -212,7 +212,7 @@ the following table shows example of mnemonic functions' arguments ("Instance na
 |d0, d1, ..., d31|DReg|64-bit scalar registers|
 |q0, q1, ..., q31|QReg|128-bit scalar registers|
 
-You can also use your original instance as mnemonic functions argumetns.
+You can also use your original instance as mnemonic functions arguments.
 Please refer constructor of "C++ class name" in Xbyak_aarch64 files.
 
 ```
@@ -239,7 +239,7 @@ the following table shows example of mnemonic functions' arguments ("Instance na
 |v0.d1, v1.d1, ..., v31.d1|VReg1D|64-bit x1 elements vector registers|
 |v0.d2, v1.d2, ..., v31.d2|VReg2D|64-bit x2 elements vector registers|
 
-You can also use your original instance as mnemonic functions argumetns.
+You can also use your original instance as mnemonic functions arguments.
 Please refer constructor of "C++ class name" in Xbyak_aarch64 files.
 
 ```
@@ -266,7 +266,7 @@ the following table shows example of mnemonic functions' arguments ("Instance na
 |v0.d[0], v0.d[1], ..., v0.d[15]|VRegDElem|64-bit element of vector register #0|
 |vN.d[0], vN.d[1], ..., vN.d[15]|VRegDElem|64-bit element of vector register #N|
 
-You can also use your original instance as mnemonic functions argumetns.
+You can also use your original instance as mnemonic functions arguments.
 Please refer constructor of "C++ class name" in Xbyak_aarch64 files.
 
 ```
@@ -305,7 +305,7 @@ VReg16BList dstList(v0.b16, v3.b16);
 VReg16BList hoge(VReg16B(0), VReg16B(3));
 
 ld4((v0.b16 - v3.b16), ptr(x0)); <--- (1)
-ld4(dstLsit, ptr(x0));   <--- Output is same JIT code of (1)
+ld4(dstList, ptr(x0));   <--- Output is same JIT code of (1)
 ld4(hoge, ptr(x0));      <--- Output is same JIT code of (1)
 
 ```
@@ -324,7 +324,7 @@ the following table shows example of mnemonic functions' arguments ("Instance na
 |(v0.s4 - v3.s4)[N]|VRegSElem|N-th 32-bit element of four-vector-register list|
 |(v0.d2 - v3.d2)[N]|VRegDElem|N-th 64-bit element of four-vector-register list|
 
-You can also use your original instance as mnemonic functions argumetns.
+You can also use your original instance as mnemonic functions arguments.
 Please refer constructor of "C++ class name" in Xbyak_aarch64 files.
 
 ```
@@ -350,7 +350,7 @@ the following table shows example of mnemonic functions' arguments ("Instance na
 |Z0.d, z1.d, ..., z31.d|ZRegB|64-bit x 8 elements SVE registers.|
 |Z0.q, z1.q, ..., z31.q|ZRegB|128-bit x 4 elements SVE registers.|
 
-You can also use your original instance as mnemonic functions argumetns.
+You can also use your original instance as mnemonic functions arguments.
 Please refer constructor of "C++ class name" in Xbyak_aarch64 files.
 
 ```
@@ -380,7 +380,7 @@ the following table shows example of mnemonic functions' arguments ("Instance na
 |z0.q[0], z0.q[1], ..., z0.q[15]|ZRegDElem|128-bit element of SVE register #0|
 |vN.q[0], vN.q[1], ..., vN.q[15]|ZRegDElem|128-bit element of SVE register #N|
 
-You can also use your original instance as mnemonic functions argumetns.
+You can also use your original instance as mnemonic functions arguments.
 Please refer constructor of "C++ class name" in Xbyak_aarch64 files.
 
 ```
@@ -434,7 +434,7 @@ the following table shows example of mnemonic functions' arguments ("Instance na
 |(z0.s - z3.s)[N]|ZRegSElem|N-th 32-bit elements of four-SVE-register list|
 |(z0.d - z3.d)[N]|ZRegDElem|N-th 64-bit elements of four-SVE-register list|
 
-You can also use your original instance as mnemonic functions argumetns analogous with the element of vector register lists.
+You can also use your original instance as mnemonic functions arguments analogous with the element of vector register lists.
 
 
 ### Predicate registers
@@ -452,11 +452,11 @@ the following table shows example of mnemonic functions' arguments ("Instance na
 
 Though Xbyak_aarch64 defines PRegB, PRegH, PRegS, PRegD classes,
 you can use PReg class instances where mnemonic functions take predicate register operands.
-The AArch64 instructin set has two predication types, "merging" and "zeroing" predicate.
-You can use "T_m" or "T_z" to inform mnemonic functions which type you choses ((1), (2)).
+The AArch64 instruction set has two predication types, "merging" and "zeroing" predicate.
+You can use "T_m" or "T_z" to inform mnemonic functions which type you choose ((1), (2)).
 
-You can ommit "T_m" and "T_z" for mnemonic functions whose correspond predicate instructions
-can take either one. For example, "CLS" instruction in the AARch64 instruction set is only defined for merging predicate,
+You can omit "T_m" and "T_z" for mnemonic functions whose correspond predicate instructions
+can take either one. For example, "CLS" instruction in the AArch64 instruction set is only defined for merging predicate,
 both (3) and (4) are OK.
 
 Some instructions are defined for both predicated and unpredicated.
@@ -475,7 +475,7 @@ add(z0.b, p0, z1.b, z2.b);         <--- (6), output is same JIT code of (5)
 add(z0.b, z1.b, z2.b);             <--- (7), unpredicated add, output is NOT same JIT code of (5)
 ```
 
-You can also use your original instance as mnemonic functions argumetns.
+You can also use your original instance as mnemonic functions arguments.
 Please refer constructor of "C++ class name" in Xbyak_aarch64 files.
 
 ```
