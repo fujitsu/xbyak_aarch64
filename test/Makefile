@@ -20,5 +20,5 @@ test:
 	./test_all.sh
 
 clean:
-	rm -rf *.o $(TARGET) nm.cpp nm_frame
+	rm -rf *.d *.o a.* *.log *.lst nm.make_nm* $(TARGET) nm.cpp nm_frame make_nm make_nm_branch add_sub_adds_subs_imm make_nm_fp make_nm_load_store make_nm_simd make_nm_simd_fp_load_store mov mov_imm make_nm_sve make_nm_sve_addr
 

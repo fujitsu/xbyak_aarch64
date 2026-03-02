@@ -21,6 +21,9 @@ CFLAGS=-std=c++11 -DNDEBUG -g -I ./xbyak_aarch64 -Wall -Wextra -fPIC
 ifneq ($(DEBUG),1)
 CFLAGS+=-O2
 endif
+ifeq ($(STRICT_CONCAT),1) # allows to check collisions during test comparison
+CFLAGS+=-DSTRICT_CONCAT
+endif
 
 LIB_OBJ=obj/xbyak_aarch64_impl.o obj/util_impl.o
 
