@@ -1,0 +1,44 @@
+void gen() {
+  bool err;
+  TEST(usmopa(za4.s,p7/T_m,p7/T_m,z8.b,z8.b));
+  TEST(usmopa(za3.s,p8/T_m,p7/T_m,z8.b,z8.b));
+  TEST(usmopa(za3.s,p7/T_m,p8/T_m,z8.b,z8.b));
+  TEST(usmopa(za3.s,p7/T_z,p7/T_m,z8.b,z8.b));
+  TEST(usmopa(za3.s,p7/T_m,p7/T_z,z8.b,z8.b));
+  TEST(usmops(za4.s,p7/T_m,p7/T_m,z8.b,z8.b));
+  TEST(usmops(za3.s,p8/T_m,p7/T_m,z8.b,z8.b));
+  TEST(usmops(za3.s,p7/T_m,p8/T_m,z8.b,z8.b));
+  TEST(usmops(za3.s,p7/T_z,p7/T_m,z8.b,z8.b));
+  TEST(usmops(za3.s,p7/T_m,p7/T_z,z8.b,z8.b));
+  // TEST(usmopa(za8.d,p7/T_m,p7/T_m,z8.h,z8.h));
+  TEST(usmopa(za3.d,p8/T_m,p7/T_m,z8.h,z8.h));
+  TEST(usmopa(za7.d,p7/T_m,p8/T_m,z8.h,z8.h));
+  TEST(usmopa(za7.d,p7/T_m,p7/T_z,z8.h,z8.h));
+  TEST(usmopa(za7.d,p7/T_z,p7/T_m,z8.h,z8.h));
+  // TEST(usmops(za8.d,p7/T_m,p7/T_m,z8.h,z8.h));
+  TEST(usmops(za3.d,p8/T_m,p7/T_m,z8.h,z8.h));
+  TEST(usmops(za7.d,p7/T_m,p8/T_m,z8.h,z8.h));
+  TEST(usmops(za7.d,p7/T_z,p7/T_m,z8.h,z8.h));
+  TEST(usmops(za7.d,p7/T_m,p7/T_z,z8.h,z8.h));
+  
+  TEST(umopa(za4.s,p7/T_m,p7/T_m,z8.b,z8.b));
+  TEST(umopa(za3.s,p8/T_m,p7/T_m,z8.b,z8.b));
+  TEST(umopa(za3.s,p7/T_m,p8/T_m,z8.b,z8.b));
+  TEST(umopa(za3.s,p7/T_z,p7/T_m,z8.b,z8.b));
+  TEST(umopa(za3.s,p7/T_m,p7/T_z,z8.b,z8.b));
+  TEST(umops(za4.s,p7/T_m,p7/T_m,z8.b,z8.b));
+  TEST(umops(za3.s,p8/T_m,p7/T_m,z8.b,z8.b));
+  TEST(umops(za3.s,p7/T_m,p8/T_m,z8.b,z8.b));
+  TEST(umops(za3.s,p7/T_z,p7/T_m,z8.b,z8.b));
+  TEST(umops(za3.s,p7/T_m,p7/T_z,z8.b,z8.b));
+  // TEST(umopa(za8.d,p7/T_m,p7/T_m,z8.h,z8.h));
+  TEST(umopa(za3.d,p8/T_m,p7/T_m,z8.h,z8.h));
+  TEST(umopa(za7.d,p7/T_m,p8/T_m,z8.h,z8.h));
+  TEST(umopa(za7.d,p7/T_z,p7/T_m,z8.h,z8.h));
+  TEST(umopa(za7.d,p7/T_m,p7/T_z,z8.h,z8.h));
+  // TEST(umops(za8.d,p7/T_m,p7/T_m,z8.h,z8.h));
+  TEST(umops(za3.d,p8/T_m,p7/T_m,z8.h,z8.h));
+  TEST(umops(za7.d,p7/T_m,p8/T_m,z8.h,z8.h));
+  TEST(umops(za7.d,p7/T_z,p7/T_m,z8.h,z8.h));
+  TEST(umops(za7.d,p7/T_m,p7/T_z,z8.h,z8.h));
+}
