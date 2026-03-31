@@ -468,10 +468,6 @@ public:
             if (!rm_ || generation_ != rm_->generation_) throw Error(ERR_RM_BAD_SCOPE);
             return reg_;
         }
-        // checks that the manager pointer matches the current generation
-        bool valid() const noexcept {
-            return rm_ && generation_ == rm_->generation_;
-        }
 
     private:
         RegPoolManager *rm_
