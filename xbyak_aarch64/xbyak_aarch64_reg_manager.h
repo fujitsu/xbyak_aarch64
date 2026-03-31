@@ -16,130 +16,132 @@
 #ifndef CPU_AARCH64_XBYAK_AARCH64_REG_MANAGER_HPP
 #define CPU_AARCH64_XBYAK_AARCH64_REG_MANAGER_HPP
 
+#include <cstddef>
 #include <cstdint>
 #include <set>
 #include <stdexcept>
 #include <vector>
 #include "xbyak_aarch64_reg.h"
-#include <type_traits>
+
+// Please see the Procedure Call Standard https://github.com/ARM-software/abi-aa/blob/main/aapcs64/aapcs64.rst for more details.
 
 namespace Xbyak_aarch64 {
 
 // Static definitions for different types of registers in relation to which family they belong to.
-enum class RegFamily { GP, FP, Pred };
+enum class RegFamily { gp, vec, pred };
 
 template <class RegT>
 struct reg_family;
 
 template <>
 struct reg_family<WReg> {
-    static constexpr RegFamily value = RegFamily::GP;
+    static constexpr RegFamily value = RegFamily::gp;
 };
 template <>
 struct reg_family<XReg> {
-    static constexpr RegFamily value = RegFamily::GP;
+    static constexpr RegFamily value = RegFamily::gp;
 };
 
 template <>
 struct reg_family<BReg> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<HReg> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<SReg> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<DReg> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<QReg> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<VReg> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<VReg8B> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<VReg16B> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<VReg4H> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<VReg8H> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<VReg2S> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<VReg4S> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<VReg1D> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<VReg2D> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<ZReg> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<ZRegB> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<ZRegH> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<ZRegS> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<ZRegD> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 template <>
 struct reg_family<ZRegQ> {
-    static constexpr RegFamily value = RegFamily::FP;
+    static constexpr RegFamily value = RegFamily::vec;
 };
 
 template <>
 struct reg_family<PReg> {
-    static constexpr RegFamily value = RegFamily::Pred;
+    static constexpr RegFamily value = RegFamily::pred;
 };
 template <>
 struct reg_family<PRegB> {
-    static constexpr RegFamily value = RegFamily::Pred;
+    static constexpr RegFamily value = RegFamily::pred;
 };
 template <>
 struct reg_family<PRegH> {
-    static constexpr RegFamily value = RegFamily::Pred;
+    static constexpr RegFamily value = RegFamily::pred;
 };
 template <>
 struct reg_family<PRegS> {
-    static constexpr RegFamily value = RegFamily::Pred;
+    static constexpr RegFamily value = RegFamily::pred;
 };
 template <>
 struct reg_family<PRegD> {
-    static constexpr RegFamily value = RegFamily::Pred;
+    static constexpr RegFamily value = RegFamily::pred;
 };
 
 class RegPoolManager {
@@ -152,31 +154,31 @@ public:
     template <class RegT>
     RegT alloc() {
         switch (reg_family<RegT>::value) {
-            case RegFamily::GP: {
+            case RegFamily::gp: {
                 const int idx = next_gp_idx();
                 gp_reg(idx);
                 return RegT(idx);
             }
-            case RegFamily::FP: {
-                const int idx = next_fp_idx();
-                fp_reg(idx);
+            case RegFamily::vec: {
+                const int idx = next_vec_idx();
+                vec_reg(idx);
                 return RegT(idx);
             }
-            case RegFamily::Pred: {
+            case RegFamily::pred: {
                 const int idx = next_pred_idx();
                 pred_reg(idx);
                 return RegT(idx);
             }
-            default: throw std::runtime_error("Unknown register family");
+            default: throw Error(ERR_RM_ILLEGAL_REG_FAMILY);
         }
     }
     template <class RegT>
     RegT alloc(int idx) {
         switch (reg_family<RegT>::value) {
-            case RegFamily::GP: gp_reg(idx); return RegT(idx);
-            case RegFamily::FP: fp_reg(idx); return RegT(idx);
-            case RegFamily::Pred: pred_reg(idx); return RegT(idx);
-            default: throw std::runtime_error("Unknown register family");
+            case RegFamily::gp: gp_reg(idx); return RegT(idx);
+            case RegFamily::vec: vec_reg(idx); return RegT(idx);
+            case RegFamily::pred: pred_reg(idx); return RegT(idx);
+            default: throw Error(ERR_RM_ILLEGAL_REG_FAMILY);
         }
     }
 
@@ -185,77 +187,244 @@ public:
     void free(RegT reg) {
         const int idx = reg.getIdx();
         switch (reg_family<RegT>::value) {
-            case RegFamily::GP: release_gp(idx); break;
-            case RegFamily::FP: release_fp(idx); break;
-            case RegFamily::Pred: release_pred(idx); break;
-            default: throw std::runtime_error("Unknown register family");
+            case RegFamily::gp: release_gp(idx); break;
+            case RegFamily::vec: release_vec(idx); break;
+            case RegFamily::pred: release_pred(idx); break;
+            default: throw Error(ERR_RM_ILLEGAL_REG_FAMILY);
         }
     }
 
     // getter methods - return vectors of register indices representing a set
-    std::vector<int> get_free_gps() const {
+    // NOTE: the "used" sets track any register index that the manager has allocated at any point; the "in use" sets track registers that are currently allocated by the manager.
+    // The format for the getter methods are as follows:
+    //
+    //  get_{register type}_{register set}_{register family}
+    //  get_<all/volatile/non-volatile>_<live/free/preserved/used>_<gp/vec/pred>
+    //
+    // E.g. get_volatile_live_gp() returns a vector of indices of general purpose registers that are currently in use and are volatile (call clobbered) as per the AArch64 calling convention.
+
+    std::vector<int> get_all_live_gp() const {
+        return make_index_vector(live_gp);
+    }
+    std::vector<int> get_all_live_vec() const {
+        return make_index_vector(live_vec);
+    }
+    std::vector<int> get_all_live_pred() const {
+        return make_index_vector(live_pred);
+    }
+    std::vector<int> get_all_free_gp() const {
         return make_index_vector(free_gp_regs);
     }
-    std::vector<int> get_in_use_gps() const {
-        return make_index_vector(in_use_gp);
+    std::vector<int> get_all_free_vec() const {
+        return make_index_vector(free_vec_regs);
     }
-    std::vector<int> get_preserved_gps() const {
-        return make_index_vector(preserved_gp);
-    }
-    std::vector<int> get_used_gps() const { return make_index_vector(used_gp); }
-
-    std::vector<int> get_free_fps() const {
-        return make_index_vector(free_fp_regs);
-    }
-    std::vector<int> get_in_use_fps() const {
-        return make_index_vector(in_use_fp);
-    }
-    std::vector<int> get_preserved_fps() const {
-        return make_index_vector(preserved_fp);
-    }
-    std::vector<int> get_used_fps() const { return make_index_vector(used_fp); }
-
-    std::vector<int> get_free_preds() const {
+    std::vector<int> get_all_free_pred() const {
         return make_index_vector(free_pred_regs);
     }
-    std::vector<int> get_in_use_preds() const {
-        return make_index_vector(in_use_pred);
+    std::vector<int> get_all_preserved_gp() const {
+        return make_index_vector(preserved_gp);
     }
-    std::vector<int> get_preserved_preds() const {
+    std::vector<int> get_all_preserved_vec() const {
+        return make_index_vector(preserved_vec);
+    }
+    std::vector<int> get_all_preserved_pred() const {
         return make_index_vector(preserved_pred);
     }
-    std::vector<int> get_used_preds() const {
+    std::vector<int> get_all_used_gp() const {
+        return make_index_vector(used_gp);
+    }
+    std::vector<int> get_all_used_vec() const {
+        return make_index_vector(used_vec);
+    }
+    std::vector<int> get_all_used_pred() const {
         return make_index_vector(used_pred);
     }
+    std::vector<int> get_volatile_live_gp() const {
+        return cond_index_vector(live_gp, base_free_gp());
+    }
+    std::vector<int> get_volatile_live_vec() const {
+        return cond_index_vector(live_vec, base_free_vec());
+    }
+    std::vector<int> get_volatile_live_pred() const {
+        return cond_index_vector(live_pred, base_free_pred());
+    }
+    std::vector<int> get_volatile_free_gp() const {
+        return cond_index_vector(free_gp_regs, base_free_gp());
+    }
+    std::vector<int> get_volatile_free_vec() const {
+        return cond_index_vector(free_vec_regs, base_free_vec());
+    }
+    std::vector<int> get_volatile_free_pred() const {
+        return cond_index_vector(free_pred_regs, base_free_pred());
+    }
+    std::vector<int> get_volatile_preserved_gp() const {
+        return cond_index_vector(preserved_gp, base_free_gp());
+    }
+    std::vector<int> get_volatile_preserved_vec() const {
+        return cond_index_vector(preserved_vec, base_free_vec());
+    }
+    std::vector<int> get_volatile_preserved_pred() const {
+        return cond_index_vector(preserved_pred, base_free_pred());
+    }
+    std::vector<int> get_volatile_used_gp() const {
+        return cond_index_vector(used_gp, base_free_gp());
+    }
+    std::vector<int> get_volatile_used_vec() const {
+        return cond_index_vector(used_vec, base_free_vec());
+    }
+    std::vector<int> get_volatile_used_pred() const {
+        return cond_index_vector(used_pred, base_free_pred());
+    }
+    std::vector<int> get_non_volatile_live_gp() const {
+        return cond_index_vector(live_gp, base_preserved_gp());
+    }
+    std::vector<int> get_non_volatile_live_vec() const {
+        return cond_index_vector(live_vec, base_preserved_vec());
+    }
+    std::vector<int> get_non_volatile_live_pred() const {
+        return cond_index_vector(live_pred, base_preserved_pred());
+    }
+    std::vector<int> get_non_volatile_free_gp() const {
+        return cond_index_vector(free_gp_regs, base_preserved_gp());
+    }
+    std::vector<int> get_non_volatile_free_vec() const {
+        return cond_index_vector(free_vec_regs, base_preserved_vec());
+    }
+    std::vector<int> get_non_volatile_free_pred() const {
+        return cond_index_vector(free_pred_regs, base_preserved_pred());
+    }
+    std::vector<int> get_non_volatile_preserved_gp() const {
+        return cond_index_vector(preserved_gp, base_preserved_gp());
+    }
+    std::vector<int> get_non_volatile_preserved_vec() const {
+        return cond_index_vector(preserved_vec, base_preserved_vec());
+    }
+    std::vector<int> get_non_volatile_preserved_pred() const {
+        return cond_index_vector(preserved_pred, base_preserved_pred());
+    }
+    std::vector<int> get_non_volatile_used_gp() const {
+        return cond_index_vector(used_gp, base_preserved_gp());
+    }
+    std::vector<int> get_non_volatile_used_vec() const {
+        return cond_index_vector(used_vec, base_preserved_vec());
+    }
+    std::vector<int> get_non_volatile_used_pred() const {
+        return cond_index_vector(used_pred, base_preserved_pred());
+    }
 
-    // member function - add a special register to the free pool of general registers
+    // clear methods - remove indices from sets for a given family
+    // The format for the clear methods are as follows:
+    //
+    //  clear_{register set}_{register family}
+    //  clear_<live/free/preserved/used>_<gp/vec/pred>
+    //
+    // E.g. clear_free_vec() would remove any indices for vector registers that are currently in the free_vec_regs set.
+    // NOTE: clear is not a safe operation to call unless you are sure that the indices being cleared are not currently in use by the manager.
+    void clear_live_gp() { live_gp.clear(); }
+    void clear_live_vec() { live_vec.clear(); }
+    void clear_live_pred() { live_pred.clear(); }
+    void clear_free_gp() { free_gp_regs.clear(); }
+    void clear_free_vec() { free_vec_regs.clear(); }
+    void clear_free_pred() { free_pred_regs.clear(); }
+    void clear_preserved_gp() { preserved_gp.clear(); }
+    void clear_preserved_vec() { preserved_vec.clear(); }
+    void clear_preserved_pred() { preserved_pred.clear(); }
+    void clear_used_gp() { used_gp.clear(); }
+    void clear_used_vec() { used_vec.clear(); }
+    void clear_used_pred() { used_pred.clear(); }
+
+    // member function - add a special or reserved register to the free pool of registers
     void add_to_gp_pool(const XReg &reg) { add_to_gp_pool(reg.getIdx()); }
     void add_to_gp_pool(int idx) {
         if ((idx < 0 || idx > 31))
-            throw std::runtime_error("Register index out of range");
+            throw Error(ERR_ILLEGAL_REG_IDX);
         const bool in_free = free_gp_regs.count(idx) != 0;
         const bool in_preserved = preserved_gp.count(idx) != 0;
-        const bool in_use = in_use_gp.count(idx) != 0;
+        const bool in_use = live_gp.count(idx) != 0;
         if (in_free || in_preserved || in_use)
-            throw std::runtime_error("Register already tracked");
+            throw Error(ERR_RM_REG_ALREADY_TRACKED);
         free_gp_regs.insert(idx);
     }
-
+    void add_to_vec_pool(int idx) {
+        if ((idx < 0 || idx > 31))
+            throw Error(ERR_ILLEGAL_REG_IDX);
+        const bool in_free = free_vec_regs.count(idx) != 0;
+        const bool in_preserved = preserved_vec.count(idx) != 0;
+        const bool in_use = live_vec.count(idx) != 0;
+        if (in_free || in_preserved || in_use)
+            throw Error(ERR_RM_REG_ALREADY_TRACKED);
+        free_vec_regs.insert(idx);
+    }
+    void add_to_pred_pool(int idx) {
+        if ((idx < 0 || idx > 15))
+            throw Error(ERR_ILLEGAL_REG_IDX);
+        const bool in_free = free_pred_regs.count(idx) != 0;
+        const bool in_preserved = preserved_pred.count(idx) != 0;
+        const bool in_use = live_pred.count(idx) != 0;
+        if (in_free || in_preserved || in_use)
+            throw Error(ERR_RM_REG_ALREADY_TRACKED);
+        free_pred_regs.insert(idx);
+    }
     // helper function - returns true if a register object is currently in the used set of registers
     template <class RegT>
     bool reg_in_use(const RegT &reg) const {
         return reg_in_use_idx(reg.getIdx(), reg_family<RegT>::value);
     }
 
+    // Reserve a register object to prevent it from being touched by the register manager. Use add_to_*_pool to re-add a reserved register.
+    template <class RegT>
+    void reserve(const RegT &reg) {
+        const RegFamily family = reg_family<RegT>::value;
+        const int idx = reg.getIdx();
+        switch (family) {
+            case RegFamily::gp: 
+                if (live_gp.count(idx) != 0) {
+                    throw Error(ERR_RM_REG_IN_USE);
+                } else if (free_gp_regs.count(idx) != 0){
+                    free_gp_regs.erase(idx);
+                    return;
+                } else if (preserved_gp.count(idx) != 0){
+                    preserved_gp.erase(idx);
+                    return;
+                } else {
+                    throw Error(ERR_RM_REG_NOT_TRACKED);
+                }
+            case RegFamily::vec: 
+                if (live_vec.count(idx) != 0) {
+                    throw Error(ERR_RM_REG_IN_USE);
+                } else if (free_vec_regs.count(idx) != 0){
+                    free_vec_regs.erase(idx);
+                    return;
+                } else if (preserved_vec.count(idx) != 0){
+                    preserved_vec.erase(idx);
+                    return;
+                } else {
+                    throw Error(ERR_RM_REG_NOT_TRACKED); 
+                }
+            case RegFamily::pred: 
+                if (live_pred.count(idx) != 0) {
+                    throw Error(ERR_RM_REG_IN_USE);
+                } else if (free_pred_regs.count(idx) != 0){
+                    free_pred_regs.erase(idx);
+                    return;
+                } else if (preserved_pred.count(idx) != 0){
+                    preserved_pred.erase(idx);
+                    return;
+                } else {
+                    throw Error(ERR_RM_REG_NOT_TRACKED);
+                }
+            default: throw Error(ERR_RM_ILLEGAL_REG_FAMILY);
+        }
+    }
     // helper functions - returns true if an index in a given family is in use
     bool gp_idx_in_use(int reg_idx) const {
-        return reg_in_use_idx(reg_idx, RegFamily::GP);
+        return reg_in_use_idx(reg_idx, RegFamily::gp);
     }
-    bool fp_idx_in_use(int reg_idx) const {
-        return reg_in_use_idx(reg_idx, RegFamily::FP);
+    bool vec_idx_in_use(int reg_idx) const {
+        return reg_in_use_idx(reg_idx, RegFamily::vec);
     }
     bool pred_idx_in_use(int reg_idx) const {
-        return reg_in_use_idx(reg_idx, RegFamily::Pred);
+        return reg_in_use_idx(reg_idx, RegFamily::pred);
     }
 
     // scoped register handling with RAII
@@ -269,13 +438,15 @@ public:
     public:
         explicit Scoped(RegPoolManager &rm, Reg r)
             // pointer to allocator, allocate scoped reg at construction & track, unowned = nullptr
-            : rm_(&rm), reg_(r) {
+            : rm_(&rm), reg_(r), generation_(rm.generation_) {
             validate_scoped_reg(rm_, reg_);
         }
 
         // if object is owner of scoped reg and goes out of scope, deallocate
+        // if object is not owner (e.g. moved from), or manager has been reset (generation mismatch), do not deallocate
         ~Scoped() {
             if (!rm_) return;
+            if (generation_ != rm_->generation_) return;
             rm_->free(reg_);
         }
 
@@ -284,18 +455,29 @@ public:
         Scoped &operator=(const Scoped &) = delete;
 
         // move constructor - used when scoped regs initialised from rvalue (incl. std::move)
-        Scoped(Scoped &&other) noexcept : rm_(other.rm_), reg_(other.reg_) {
+        Scoped(Scoped &&other) noexcept : rm_(other.rm_), reg_(other.reg_), generation_(other.generation_) {
             other.rm_ = nullptr; // set previous owner to no longer own
         }
 
         // expose underlying register for implicit use in JIT helpers
-        operator const Reg &() const noexcept { return reg_; }
-        const Reg &get() const noexcept { return reg_; }
+        operator const Reg &() const { 
+            if (!rm_ || generation_ != rm_->generation_) throw Error(ERR_RM_BAD_SCOPE);
+            return reg_; 
+        }
+        const Reg &get() const { 
+            if (!rm_ || generation_ != rm_->generation_) throw Error(ERR_RM_BAD_SCOPE);
+            return reg_;
+        }
+        // checks that the manager pointer matches the current generation
+        bool valid() const noexcept {
+            return rm_ && generation_ == rm_->generation_;
+        }
 
     private:
         RegPoolManager *rm_
                 = nullptr; // pointer to allocator, initialised as nullptr
         Reg reg_ {};
+        std::size_t generation_ = 0;
     };
 
     // helper factory - calls Scoped ctor
@@ -307,33 +489,49 @@ public:
     // helper methods to return special registers as per AArch64 calling convention
     // NOTE: indirect results register (x8) has been added to the call clobbered general pool
     // intra-procedure-call register 0 : x16
-    inline XReg _ipc_reg_0() {
+    inline XReg ipc_reg_0() {
         used_gp.insert(16);
         return XReg(16);
     }
     // intra-procedure-call register 1 : x17
-    inline XReg _ipc_reg_1() {
+    inline XReg ipc_reg_1() {
         used_gp.insert(17);
         return XReg(17);
     }
     // platform register : x18
-    inline XReg _platform_reg() {
+    inline XReg platform_reg() {
         used_gp.insert(18);
         return XReg(18);
     }
     // frame pointer : x29
-    inline XReg _frame_pointer() {
+    inline XReg frame_pointer() {
         used_gp.insert(29);
         return XReg(29);
     }
     // link register : x30
-    inline XReg _link_reg() {
+    inline XReg link_reg() {
         used_gp.insert(30);
         return XReg(30);
     }
 
+    // hard reset
+    void reset_manager() {
+        ++generation_;
+        live_gp.clear();
+        live_vec.clear();
+        live_pred.clear();
+        free_gp_regs = base_free_gp();
+        free_vec_regs = base_free_vec();
+        free_pred_regs = base_free_pred();
+        preserved_gp = base_preserved_gp();
+        preserved_vec = base_preserved_vec();
+        preserved_pred = base_preserved_pred();
+        used_gp.clear();
+        used_vec.clear();
+        used_pred.clear();
+    }
 private:
-    // helper method - converts members of set to vector
+    // helper method - converts members of set to vector of indices
     static inline std::vector<int> make_index_vector(const std::set<int> &set) {
         std::vector<int> indices;
         indices.reserve(set.size());
@@ -342,50 +540,42 @@ private:
         return indices;
     }
 
+    // helper method - returns a vector of indices for an intersection of two sets
+    static inline std::vector<int> cond_index_vector(const std::set<int> &set, const std::set<int> &condition_set) {
+        std::vector<int> indices;
+        indices.reserve(set.size());
+        for (int idx : set)
+            if (condition_set.count(idx))
+                indices.emplace_back(idx);
+        return indices;
+    }
+
     // helper method - checks reg in use before scoping
     template <class RegT>
     static void validate_scoped_reg(RegPoolManager *rm, RegT reg) {
-        const RegFamily family = reg_family<RegT>::value;
         if (!rm->reg_in_use(reg))
-            throw std::runtime_error(scoped_reg_error(family));
-    }
-
-    // helper switch case for error messages
-    static const char *scoped_reg_error(RegFamily family) noexcept {
-        switch (family) {
-            case RegFamily::GP:
-                return "Cannot create GP scoped reg for a register that is not "
-                       "in use";
-            case RegFamily::FP:
-                return "Cannot create FP scoped reg for a register that is not "
-                       "in use";
-            case RegFamily::Pred:
-                return "Cannot create predicate scoped reg for a register that "
-                       "is not in use";
-            default: return "Cannot create scoped reg for unknown family";
-        }
+            throw Error(ERR_RM_REG_NOT_IN_USE);
     }
 
     // helper method - checks if a register index for a given family is currently in use
     bool reg_in_use_idx(int idx, RegFamily family) const {
         switch (family) {
-            case RegFamily::GP:
+            case RegFamily::gp:
                 if (idx < 0 || idx > 31) {
-                    throw std::runtime_error("GP register index out of range");
+                    throw Error(ERR_ILLEGAL_REG_IDX);
                 }
-                return in_use_gp.find(idx) != in_use_gp.end();
-            case RegFamily::FP:
+                return live_gp.count(idx);
+            case RegFamily::vec:
                 if (idx < 0 || idx > 31) {
-                    throw std::runtime_error("FP register index out of range");
+                    throw Error(ERR_ILLEGAL_REG_IDX);
                 }
-                return in_use_fp.find(idx) != in_use_fp.end();
-            case RegFamily::Pred:
+                return live_vec.count(idx);
+            case RegFamily::pred:
                 if (idx < 0 || idx > 15) {
-                    throw std::runtime_error(
-                            "Predicate register index out of range");
+                    throw Error(ERR_ILLEGAL_REG_IDX);
                 }
-                return in_use_pred.find(idx) != in_use_pred.end();
-            default: throw std::runtime_error("Unknown register family");
+                return live_pred.count(idx);
+            default: throw Error(ERR_RM_ILLEGAL_REG_FAMILY);
         }
     }
 
@@ -393,106 +583,104 @@ private:
     int next_gp_idx() const {
         if (!free_gp_regs.empty()) return *free_gp_regs.begin();
         if (!preserved_gp.empty()) return *preserved_gp.begin();
-        throw std::runtime_error("No free GP registers available");
+        throw Error(ERR_RM_NO_FREE_REG);
     }
-    int next_fp_idx() const {
-        if (!free_fp_regs.empty()) return *free_fp_regs.begin();
-        if (!preserved_fp.empty()) return *preserved_fp.begin();
-        throw std::runtime_error("No free FP registers available");
+    int next_vec_idx() const {
+        if (!free_vec_regs.empty()) return *free_vec_regs.begin();
+        if (!preserved_vec.empty()) return *preserved_vec.begin();
+        throw Error(ERR_RM_NO_FREE_REG);
     }
     int next_pred_idx() const {
         if (!free_pred_regs.empty()) return *free_pred_regs.begin();
         if (!preserved_pred.empty()) return *preserved_pred.begin();
-        throw std::runtime_error("No free predicate registers available");
+        throw Error(ERR_RM_NO_FREE_REG);
     }
 
-    // tracking for in-use indices for a given register family
+    // tracking method for in-use indices for a given register family
     void gp_reg(int idx) {
-        if (reg_in_use_idx(idx, RegFamily::GP))
-            throw std::runtime_error("Specified GP register currently in use");
+        if (reg_in_use_idx(idx, RegFamily::gp))
+            throw Error(ERR_RM_REG_IN_USE);
         auto it = free_gp_regs.find(idx);
         auto pres_it = preserved_gp.find(idx);
         if (it != free_gp_regs.end()) {
-            in_use_gp.insert(idx);
+            live_gp.insert(idx);
             free_gp_regs.erase(it);
             used_gp.insert(idx);
         } else if (pres_it != preserved_gp.end()) {
-            in_use_gp.insert(idx);
+            live_gp.insert(idx);
             preserved_gp.erase(pres_it);
             used_gp.insert(idx);
         } else {
-            throw std::runtime_error(
-                    "Requested register not in free/preserved pools.");
+            throw Error(ERR_RM_REG_NOT_TRACKED);
         }
     }
-    void fp_reg(int idx) {
-        if (reg_in_use_idx(idx, RegFamily::FP))
-            throw std::runtime_error("Specified FP register currently in use");
-        auto it = free_fp_regs.find(idx);
-        auto pres_it = preserved_fp.find(idx);
-        if (it != free_fp_regs.end()) {
-            in_use_fp.insert(idx);
-            free_fp_regs.erase(it);
-            used_fp.insert(idx);
-        } else if (pres_it != preserved_fp.end()) {
-            in_use_fp.insert(idx);
-            preserved_fp.erase(pres_it);
-            used_fp.insert(idx);
+    void vec_reg(int idx) {
+        if (reg_in_use_idx(idx, RegFamily::vec))
+            throw Error(ERR_RM_REG_IN_USE);
+        auto it = free_vec_regs.find(idx);
+        auto pres_it = preserved_vec.find(idx);
+        if (it != free_vec_regs.end()) {
+            live_vec.insert(idx);
+            free_vec_regs.erase(it);
+            used_vec.insert(idx);
+        } else if (pres_it != preserved_vec.end()) {
+            live_vec.insert(idx);
+            preserved_vec.erase(pres_it);
+            used_vec.insert(idx);
         } else {
-            throw std::runtime_error(
-                    "Requested register not in free/preserved/in-use sets.");
+            throw Error(ERR_RM_REG_NOT_TRACKED);
         }
     }
     void pred_reg(int idx) {
-        if (reg_in_use_idx(idx, RegFamily::Pred))
-            throw std::runtime_error(
-                    "Specified Pred register currently in use");
+        if (reg_in_use_idx(idx, RegFamily::pred))
+            throw Error(ERR_RM_REG_IN_USE);
         auto it = free_pred_regs.find(idx);
         auto pres_it = preserved_pred.find(idx);
         if (it != free_pred_regs.end()) {
-            in_use_pred.insert(idx);
+            live_pred.insert(idx);
             free_pred_regs.erase(it);
             used_pred.insert(idx);
         } else if (pres_it != preserved_pred.end()) {
-            in_use_pred.insert(idx);
+            live_pred.insert(idx);
             preserved_pred.erase(pres_it);
             used_pred.insert(idx);
         } else {
-            throw std::runtime_error(
-                    "Requested predicate register not in free/preserved "
-                    "pools.");
+            throw Error(ERR_RM_REG_NOT_TRACKED);
         }
     }
 
     // member function - moves given index from in-use set to free set for given family
     void release_gp(int idx) {
         if ((idx < 0 || idx > 31))
-            throw std::runtime_error("Register index out of range");
-        auto it = in_use_gp.find(idx);
-        if (it == in_use_gp.end())
-            throw std::runtime_error("GP register not in use");
-        in_use_gp.erase(it);
+            throw Error(ERR_ILLEGAL_REG_IDX);
+        auto it = live_gp.find(idx);
+        if (it == live_gp.end())
+            throw Error(ERR_RM_REG_NOT_IN_USE);
+        live_gp.erase(it);
         free_gp_regs.insert(idx);
     }
-    void release_fp(int idx) {
+   void release_vec(int idx) {
         if ((idx < 0 || idx > 31))
-            throw std::runtime_error("Register index out of range");
-        auto it = in_use_fp.find(idx);
-        if (it == in_use_fp.end())
-            throw std::runtime_error("FP register not in use");
-        in_use_fp.erase(it);
-        free_fp_regs.insert(idx);
+            throw Error(ERR_ILLEGAL_REG_IDX);
+        auto it = live_vec.find(idx);
+        if (it == live_vec.end())
+            throw Error(ERR_RM_REG_NOT_IN_USE);
+        live_vec.erase(it);
+        free_vec_regs.insert(idx);
     }
     void release_pred(int idx) {
         if ((idx < 0 || idx > 15))
-            throw std::runtime_error("Predicate register index out of range");
-        auto it = in_use_pred.find(idx);
-        if (it == in_use_pred.end())
-            throw std::runtime_error("Predicate register not in use");
-        in_use_pred.erase(it);
+            throw Error(ERR_ILLEGAL_REG_IDX);
+        auto it = live_pred.find(idx);
+        if (it == live_pred.end())
+            throw Error(ERR_RM_REG_NOT_IN_USE);
+        live_pred.erase(it);
         free_pred_regs.insert(idx);
     }
-
+    
+    // Please see the Procedure Call Standard https://github.com/ARM-software/abi-aa/blob/main/aapcs64/aapcs64.rst for more details on calling conventions.
+    // Each register family (gp, vec, pred) has 4 tracking sets (used, whether the the register manager has allocated the register at any point; live, for the registers currently allocated by the manager; free_*_regs, which tracks untracked call clobbered registers, 
+    // as well as call preserved registers that have been allocated previously; preserved_*, which tracks call preserved registers that have not been allocated by the manager) and two ground truth sets (base_free/call clobbered; base_preserved/call preserved).
     // set of call clobbered registers: 0 - 15
     static const std::set<int> &base_free_gp() {
         static const std::set<int> s {
@@ -506,26 +694,26 @@ private:
     }
 
     std::set<int> used_gp;
-    std::set<int> in_use_gp;
+    std::set<int> live_gp;
     std::set<int> free_gp_regs = base_free_gp();
     std::set<int> preserved_gp = base_preserved_gp();
 
-    // set of call clobbered FP registers: 0 - 7; 16 - 31
-    static const std::set<int> &base_free_fp() {
+    // set of call clobbered vec registers: 0 - 7; 16 - 31
+    static const std::set<int> &base_free_vec() {
         static const std::set<int> s {0, 1, 2, 3, 4, 5, 6, 7, 16, 17, 18, 19,
                 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31};
         return s;
     }
-    // set of call-preserved FP registers: 8 - 15
-    static const std::set<int> &base_preserved_fp() {
+    // set of call-preserved vec registers: 8 - 15
+    static const std::set<int> &base_preserved_vec() {
         static const std::set<int> s {8, 9, 10, 11, 12, 13, 14, 15};
         return s;
     }
 
-    std::set<int> used_fp;
-    std::set<int> in_use_fp;
-    std::set<int> free_fp_regs = base_free_fp();
-    std::set<int> preserved_fp = base_preserved_fp();
+    std::set<int> used_vec;
+    std::set<int> live_vec;
+    std::set<int> free_vec_regs = base_free_vec();
+    std::set<int> preserved_vec = base_preserved_vec();
 
     // set of call clobbered predicate registers: 0 - 3
     static const std::set<int> &base_free_pred() {
@@ -539,9 +727,11 @@ private:
     }
 
     std::set<int> used_pred;
-    std::set<int> in_use_pred;
+    std::set<int> live_pred;
     std::set<int> free_pred_regs = base_free_pred();
     std::set<int> preserved_pred = base_preserved_pred();
+
+    std::size_t generation_ = 0;
 };
 } // namespace Xbyak_aarch64
 
