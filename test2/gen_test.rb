@@ -93,6 +93,9 @@ class TestPatternGenerator
     ptn_line.gsub!(/<Zdn>.H,<Zdn>.H/, "ZDN_H_PAIR")
     ptn_line.gsub!(/<Zdn>.S,<Zdn>.S/, "ZDN_S_PAIR")
     ptn_line.gsub!(/<Zdn>.D,<Zdn>.D/, "ZDN_D_PAIR")
+    ptn_line.gsub!(/<Ws>,<offs>/, "WS_OFFS_PAIR")
+    ptn_line.gsub!(/,LSL#/, "TMP_LSL")
+    ptn_line.gsub!(/ZA\[<Wv>,<offs>\],\[<Xn\|SP>%#<offs>,MULVL\}\]/, "ZA_WV_OFFS_PAIR")
 
     # Split mnemonic and operands
     STDOUT.flush
@@ -124,6 +127,9 @@ class TestPatternGenerator
       tmp[i].gsub!(/ZDN_H_PAIR/, "<Zdn>.H,<Zdn>.H")
       tmp[i].gsub!(/ZDN_S_PAIR/, "<Zdn>.S,<Zdn>.S")
       tmp[i].gsub!(/ZDN_D_PAIR/, "<Zdn>.D,<Zdn>.D")
+      tmp[i].gsub!(/WS_OFFS_PAIR/, "<Ws>,<offs>")
+      tmp[i].gsub!(/TMP_LSL/, ",LSL #")
+      tmp[i].gsub!(/ZA_WV_OFFS_PAIR/, "ZA[<Wv>,<offs>],[<Xn|SP>{,#<offs>,MUL VL}]")
       tmp[i].gsub!(/%/, "{,")
     end
 
@@ -236,7 +242,7 @@ class TestPatternGenerator
     # Select operands for ASM
     # Example: "<{z8.b}|z8.b>" -> "{z8.b}"
     if(inst.index(/<([^\|]*)\|([^>]*)>/))
-      inst.gsub!(/<([^\|]*)\|([^>]*)>/, $1)
+      inst.gsub!(/<([^\|]*)\|([^>]*)>/) { $1 }
     end
 
     # Remove register pair
@@ -246,12 +252,10 @@ class TestPatternGenerator
   end
 
   def convert_for_cpp(inst)
-    inst.downcase!
-
     # Select operands for CPP
     # Example: "<{z8.b}|z8.b>" -> "z8.b"
     if(inst.index(/<([^\|]*)\|([^>]*)>/))
-      inst.gsub!(/<([^\|]*)\|([^>]*)>/, $2)
+      inst.gsub!(/<([^\|]*)\|([^>]*)>/) { $2 }
     end
 
     # Remove address operands for CPP
@@ -264,6 +268,7 @@ class TestPatternGenerator
 
     # Replace "m" -> "T_m"
     # Replace "z" -> "T_z"
+    inst.sub!(/\/m/, "/T_m")
     inst.sub!(/\/m/, "/T_m")
     inst.sub!(/\/z/, "/T_z")
 
@@ -298,6 +303,7 @@ class TestPatternGenerator
     @operands_ptn.store("<Xn>", ["x8", "x1", "x2", "x4", "x0", "x16", "x30", "xzr"])
     @operands_ptn.store("<Xs>", ["x8", "x1", "x2", "x4", "x0", "x16", "x30", "xzr"])
     @operands_ptn.store("<Xt>", ["x8", "x1", "x2", "x4", "x0", "x16", "x30", "xzr"])
+    @operands_ptn.store("<Xd>", ["x8", "x1", "x2", "x4", "x0", "x16", "x30", "xzr"])
     @operands_ptn.store("<Ws:even>,<W(s+1)>", ["w8,w9/*asm*/", "w2,w3/*asm*/", "w4,w5/*asm*/", "w0,w1/*asm*/", "w16,w17/*asm*/", "w30,wzr/*asm*/"])
     @operands_ptn.store("<Wt:even>,<W(t+1)>", ["w8,w9/*asm*/", "w2,w3/*asm*/", "w4,w5/*asm*/", "w0,w1/*asm*/", "w16,w17/*asm*/", "w30,wzr/*asm*/"])
     @operands_ptn.store("<Xs:even>,<X(s+1)>", ["x8,x9/*asm*/", "x2,x3/*asm*/", "x4,x5/*asm*/", "x0,x1/*asm*/", "x16,x17/*asm*/", "x30,xzr/*asm*/"])
@@ -390,6 +396,7 @@ class TestPatternGenerator
     @operands_ptn.store("<Zn>.H", ["z8.h", "z1.h", "z2.h", "z4.h", "z0.h", "z16.h", "z30.h", "z31.h"])
     @operands_ptn.store("<Zn>.S", ["z8.s", "z1.s", "z2.s", "z4.s", "z0.s", "z16.s", "z30.s", "z31.s"])
     @operands_ptn.store("<Zn>.D", ["z8.d", "z1.d", "z2.d", "z4.d", "z0.d", "z16.d", "z30.d", "z31.d"])
+    @operands_ptn.store("<Zn>.Q", ["z8.q", "z1.q", "z2.q", "z4.q", "z0.q", "z16.q", "z30.q", "z31.q"])
     @operands_ptn.store("<Zm>.B", ["z8.b", "z1.b", "z2.b", "z4.b", "z0.b", "z16.b", "z30.b", "z31.b"])
     @operands_ptn.store("<Zm>.H", ["z8.h", "z1.h", "z2.h", "z4.h", "z0.h", "z16.h", "z30.h", "z31.h"])
     @operands_ptn.store("<Zm>.S", ["z8.s", "z1.s", "z2.s", "z4.s", "z0.s", "z16.s", "z30.s", "z31.s"])
@@ -480,6 +487,64 @@ class TestPatternGenerator
     @operands_ptn.store("#<const:5:no0>", ["(1<<5)-1", "1<<3", "1<<2"])
     @operands_ptn.store("#<const:6:no0>", ["(1<<6)-1", "1<<3", "1<<2"])
 
+    # SME specific
+    @operands_ptn.store("<Pn>/M", ["p7/m", "p1/m", "p2/m", "p4/m", "p0/m"])
+    @operands_ptn.store("<Pm>/M", ["p7/m", "p1/m", "p2/m", "p4/m", "p0/m"])
+    @operands_ptn.store("<ZAda>.S", ["za3.s", "za0.s"])
+    @operands_ptn.store("<ZAda>.D", ["za3.d", "za0.d", "za7.d", "za5.d"])
+    @operands_ptn.store("<Xd|SP>", ["x8", "x1", "x2", "x4", "x0", "x16", "x30", "sp"])
+    @operands_ptn.store("<Xn|SP>", ["x8", "x1", "x2", "x4", "x0", "x16", "x30", "sp"])
+    @operands_ptn.store("#<imm>", ["-32", "-15", "-1", "0", "7", "16", "31"])
+    @operands_ptn.store("{ZA0<HV>.B[<Ws>,<offs>]}", ["<{za0h.b[w12,#0]}|za0h.b(w12,0)>", "<{za0v.b[w13,#15]}|za0v.b(w13,15)>", "<{za0v.b[w15,#8]}|za0v.b(w15,8)>"])
+    @operands_ptn.store("ZA0<HV>.B[<Ws>,<offs>]", ["<za0h.b[w12,#0]|za0h.b(w12,0)>", "<za0v.b[w13,#15]|za0v.b(w13,15)>", "<za0v.b[w15,#8]|za0v.b(w15,8)>"])
+    @operands_ptn.store("[<Xn|SP>{,<Xm>}]", ["<[x10]|ptr(x10)>",
+                                             "<[sp]|ptr(sp)>",
+                                             "<[x30,x0]|ptr(x30,x0)>",
+                                             "<[x0,x10]|ptr(x0,x10)>",
+                                             "<[sp,x30]|ptr(sp,x30)>"])
+    @operands_ptn.store("{<ZAt><HV>.H[<Ws>,<offs>]}", ["<{za0h.h[w12,#0]}|za0h.h(w12,0)>", "<{za1h.h[w12,#5]}|za1h.h(w12,5)>", "<{za0v.h[w13,#3]}|za0v.h(w13,3)>", "<{za1v.h[w15,#7]}|za1v.h(w15,7)>"])
+    @operands_ptn.store("<ZAn><HV>.H[<Ws>,<offs>]", ["<za0h.h[w12,#0]|za0h.h(w12,0)>", "<za1h.h[w12,#5]|za1h.h(w12,5)>", "<za0v.h[w13,#3]|za0v.h(w13,3)>", "<za1v.h[w15,#7]|za1v.h(w15,7)>"])
+    @operands_ptn.store("<ZAd><HV>.H[<Ws>,<offs>]", ["<za0h.h[w12,#0]|za0h.h(w12,0)>", "<za1h.h[w12,#5]|za1h.h(w12,5)>", "<za0v.h[w13,#3]|za0v.h(w13,3)>", "<za1v.h[w15,#7]|za1v.h(w15,7)>"])
+    @operands_ptn.store("[<Xn|SP>{,<Xm>,LSL #1}]", ["<[x10]|ptr(x10)>",
+                                                    "<[sp]|ptr(sp)>",
+                                                    "<[x30,x0,lsl #1]|ptr(x30,x0/*lsl #1*/)>",
+                                                    "<[x0,x10,lsl #1]|ptr(x0,x10/*lsl #1*/)>",
+                                                    "<[sp,x30,lsl #1]|ptr(sp,x30/*lsl #1*/)>"])
+    @operands_ptn.store("{<ZAt><HV>.S[<Ws>,<offs>]}", ["<{za0h.s[w12,#0]}|za0h.s(w12,0)>", "<{za1h.s[w14,#3]}|za1h.s(w14,3)>", "<{za0v.s[w13,#2]}|za0v.s(w13,2)>", "<{za3v.s[w15,#1]}|za3v.s(w15,1)>"])
+    @operands_ptn.store("<ZAn><HV>.S[<Ws>,<offs>]", ["<za0h.s[w12,#0]|za0h.s(w12,0)>", "<za1h.s[w14,#3]|za1h.s(w14,3)>", "<za0v.s[w13,#2]|za0v.s(w13,2)>", "<za3v.s[w15,#1]|za3v.s(w15,1)>"])
+    @operands_ptn.store("<ZAd><HV>.S[<Ws>,<offs>]", ["<za0h.s[w12,#0]|za0h.s(w12,0)>", "<za1h.s[w14,#3]|za1h.s(w14,3)>", "<za0v.s[w13,#2]|za0v.s(w13,2)>", "<za3v.s[w15,#1]|za3v.s(w15,1)>"])
+    @operands_ptn.store("[<Xn|SP>{,<Xm>,LSL #2}]", ["<[x10]|ptr(x10)>",
+                                                    "<[sp]|ptr(sp)>",
+                                                    "<[x30,x0,lsl #2]|ptr(x30,x0/*lsl #2*/)>",
+                                                    "<[x0,x10,lsl #2]|ptr(x0,x10/*lsl #2*/)>",
+                                                    "<[sp,x30,lsl #2]|ptr(sp,x30/*lsl #2*/)>"])
+    @operands_ptn.store("{<ZAt><HV>.D[<Ws>,<offs>]}", ["<{za0h.d[w12,#0]}|za0h.d(w12,0)>", "<{za3h.d[w14,#1]}|za3h.d(w14,1)>", "<{za7h.d[w14,#0]}|za7h.d(w14,0)>", 
+                                                       "<{za0v.d[w13,#0]}|za0v.d(w13,0)>", "<{za3v.d[w13,#0]}|za3v.d(w13,0)>", "<{za7v.d[w15,#1]}|za7v.d(w15,1)>"])
+    @operands_ptn.store("<ZAn><HV>.D[<Ws>,<offs>]", ["<za0h.d[w12,#0]|za0h.d(w12,0)>", "<za3h.d[w14,#1]|za3h.d(w14,1)>", "<za7h.d[w14,#0]|za7h.d(w14,0)>", 
+                                                     "<za0v.d[w13,#0]|za0v.d(w13,0)>", "<za3v.d[w13,#0]|za3v.d(w13,0)>", "<za7v.d[w15,#1]|za7v.d(w15,1)>"])
+    @operands_ptn.store("<ZAd><HV>.D[<Ws>,<offs>]", ["<za0h.d[w12,#0]|za0h.d(w12,0)>", "<za3h.d[w14,#1]|za3h.d(w14,1)>", "<za7h.d[w14,#0]|za7h.d(w14,0)>", 
+                                                     "<za0v.d[w13,#0]|za0v.d(w13,0)>", "<za3v.d[w13,#0]|za3v.d(w13,0)>", "<za7v.d[w15,#1]|za7v.d(w15,1)>"])
+    @operands_ptn.store("[<Xn|SP>{,<Xm>,LSL #3}]", ["<[x10]|ptr(x10)>",
+                                                    "<[sp]|ptr(sp)>",
+                                                    "<[x30,x0,lsl #3]|ptr(x30,x0/*lsl #3*/)>",
+                                                    "<[x0,x10,lsl #3]|ptr(x0,x10/*lsl #3*/)>",
+                                                    "<[sp,x30,lsl #3]|ptr(sp,x30/*lsl #3*/)>"])
+    @operands_ptn.store("{<ZAt><HV>.Q[<Ws>,<offs>]}", ["<{za0h.q[w12,#0]}|za0h.q(w12,0)>", "<{za8h.q[w14,#0]}|za8h.q(w14,0)>", "<{za15h.q[w14,#0]}|za15h.q(w14,0)>", 
+                                                       "<{za0v.q[w13,#0]}|za0v.q(w13,0)>", "<{za8v.q[w13,#0]}|za8v.q(w13,0)>", "<{za15v.q[w15,#0]}|za15v.q(w15,0)>"])
+    @operands_ptn.store("<ZAn><HV>.Q[<Ws>,<offs>]", ["<za0h.q[w12,#0]|za0h.q(w12,0)>", "<za8h.q[w14,#0]|za8h.q(w14,0)>", "<za15h.q[w14,#0]|za15h.q(w14,0)>", 
+                                                     "<za0v.q[w13,#0]|za0v.q(w13,0)>", "<za8v.q[w13,#0]|za8v.q(w13,0)>", "<za15v.q[w15,#0]|za15v.q(w15,0)>"])
+    @operands_ptn.store("<ZAd><HV>.Q[<Ws>,<offs>]", ["<za0h.q[w12,#0]|za0h.q(w12,0)>", "<za8h.q[w14,#0]|za8h.q(w14,0)>", "<za15h.q[w14,#0]|za15h.q(w14,0)>", 
+                                                     "<za0v.q[w13,#0]|za0v.q(w13,0)>", "<za8v.q[w13,#0]|za8v.q(w13,0)>", "<za15v.q[w15,#0]|za15v.q(w15,0)>"])
+    @operands_ptn.store("[<Xn|SP>{,<Xm>,LSL #4}]", ["<[x10]|ptr(x10)>",
+                                                    "<[sp]|ptr(sp)>",
+                                                    "<[x30,x0,lsl #4]|ptr(x30,x0/*lsl #4*/)>",
+                                                    "<[x0,x10,lsl #4]|ptr(x0,x10/*lsl #4*/)>",
+                                                    "<[sp,x30,lsl #4]|ptr(sp,x30/*lsl #4*/)>"])
+    @operands_ptn.store("ZA[<Wv>,<offs>],[<Xn|SP>{,#<offs>,MUL VL}]", ["<za[w12,#0],[x10]|za(w12,0),ptr(x10)>",
+                                                                       "<za[w13,#8],[sp,#8,mul vl]|za(w13,8),ptr(sp,8/*mul vl*/)>",
+                                                                       "<za[w15,#15],[x30,#15,mul vl]|za(w15,15),ptr(x30,15/*mul vl*/)>"])
+    @operands_ptn.store("{{<mask>}}", ["{}", "{za0.d,za1.d,za4.d,za5.d}", "<{za}|za>", "{za0.d,za2.d,za1.d,za6.d}"])
+    @operands_ptn.store("{<option>}", ["SM", "ZA", ""])
     list = []
     for n in 16..31 do
       for r in -3..4 do

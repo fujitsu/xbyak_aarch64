@@ -28,9 +28,13 @@ if [ ! -f ${CPP_FILE} ] ; then
     echo "${CPP_FILE} not found!"
     exit 1
 fi
-
+NEG_CPP="neg_cpp/empty.cpp"
 BASE_NAME=`basename ${CPP_FILE} .cpp`
 ASM_FILE=`echo ${CPP_FILE} | sed -e "s/test_ptn_cpp/test_ptn_asm/" | sed -e "s/\.cpp//"`.asm
+NEG_FILE=`echo ${CPP_FILE} | sed -e "s/test_ptn_cpp/neg_cpp/"`
+if [ -f ${NEG_FILE} ] ; then
+    NEG_CPP="${NEG_FILE}"
+fi
 echo ${ASM_FILE}
 EXP_FILE=tmp.${BASE_NAME}.exp
 ASM_O_FILE=tmp.${BASE_NAME}.asm.o
@@ -43,10 +47,12 @@ ${AS} -march=${ARCH_TYPE} -mcpu=${CPU_TYPE} -acdnl=tmp.${EXP_FILE} -o ${ASM_O_FI
 cat tmp.${EXP_FILE} | grep -v -e "^\*\*\*\*" | ${AWK} '{print substr($3, 7, 2) substr($3, 5, 2) substr($3, 3, 2) substr($3, 1, 2); }' | grep -v -e "^$" > ${EXP_FILE}
 
 # Generate dump file
-cat nm_frame.cpp | sed -e "s#TEST_PTN#${CPP_FILE}#" > tmp.nm_frame.${BASE_NAME}.cpp
+cat nm_frame.cpp | sed -e "s#TEST_PTN#${CPP_FILE}#" | sed -e "s#TEST_NEG#${NEG_CPP}#" > tmp.nm_frame.${BASE_NAME}.cpp
 ${CXX} ${CXX_FLAGS2} -o tmp.${BASE_NAME}.exe tmp.nm_frame.${BASE_NAME}.cpp${P_FILE} ../lib/libxbyak_aarch64.a
 ./tmp.${BASE_NAME}.exe > ${DUMP_FILE}
 
 # Check result
 # Compare exp and dump
-diff -y ${DUMP_FILE} ${EXP_FILE} > ${RESULT_FILE}
+if ! diff -y ${DUMP_FILE} ${EXP_FILE} > ${RESULT_FILE}; then
+    echo "error: ${BASE_NAME} has different content"
+fi

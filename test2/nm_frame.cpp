@@ -38,7 +38,7 @@ public:
   try {                                                                        \
     syntax;                                                                    \
     err = false;                                                               \
-  } catch (Xbyak::Error) {                                                     \
+  } catch (Error&) {                                                           \
   } catch (...) {                                                              \
   }                                                                            \
   if (!err)                                                                    \
@@ -48,19 +48,9 @@ class ErrorSample : public CodeGenerator {
   void operator=(const ErrorSample &);
 
 public:
-  void gen() {
-    // bool err;
-    //		TEST(mov(ptr[w0],1));
-    //		TEST(test(ptr[w0],1));
-    //		TEST(adc(ptr[w0],1));
-    //		TEST(setz(w0));
-  }
+#include "TEST_NEG"
 };
 int main() try {
-  // size_t size = sizeof(Xbyak_aarch64::Operand);
-  //	if (size != 4) {
-  //		printf("sizeof Operand %d\n", (int)size);
-  //	}
   try {
     Sample s;
     s.gen();
@@ -69,6 +59,7 @@ int main() try {
   } catch (...) {
     printf("unknown error\n");
   }
+  freopen("/dev/null", "w", stderr);
   ErrorSample es;
   es.gen();
 } catch (std::exception &e) {
