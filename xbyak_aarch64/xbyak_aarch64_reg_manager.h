@@ -182,7 +182,7 @@ public:
         }
     }
 
-    // takes register object and moves it from in use to free set
+    // takes register object and moves it from live to free set
     template <class RegT>
     void free(RegT reg) {
         const int idx = reg.getIdx();
@@ -195,7 +195,7 @@ public:
     }
 
     // getter methods - return vectors of register indices representing a set
-    // NOTE: the "used" sets track any register index that the manager has allocated at any point; the "in use" sets track registers that are currently allocated by the manager.
+    // NOTE: the "used" sets track any register index that the manager has allocated at any point; the "live" sets track registers that are currently allocated by the manager.
     // The format for the getter methods are as follows:
     //
     //  get_{register type}_{register set}_{register family}
@@ -371,49 +371,44 @@ public:
         return reg_in_use_idx(reg.getIdx(), reg_family<RegT>::value);
     }
 
-    // Reserve a register object to prevent it from being touched by the register manager. Use add_to_*_pool to re-add a reserved register.
-    template <class RegT>
-    void reserve(const RegT &reg) {
-        const RegFamily family = reg_family<RegT>::value;
-        const int idx = reg.getIdx();
-        switch (family) {
-            case RegFamily::gp: 
-                if (live_gp.count(idx) != 0) {
-                    throw Error(ERR_RM_REG_IN_USE);
-                } else if (free_gp_regs.count(idx) != 0){
-                    free_gp_regs.erase(idx);
-                    return;
-                } else if (preserved_gp.count(idx) != 0){
-                    preserved_gp.erase(idx);
-                    return;
-                } else {
-                    throw Error(ERR_RM_REG_NOT_TRACKED);
-                }
-            case RegFamily::vec: 
-                if (live_vec.count(idx) != 0) {
-                    throw Error(ERR_RM_REG_IN_USE);
-                } else if (free_vec_regs.count(idx) != 0){
-                    free_vec_regs.erase(idx);
-                    return;
-                } else if (preserved_vec.count(idx) != 0){
-                    preserved_vec.erase(idx);
-                    return;
-                } else {
-                    throw Error(ERR_RM_REG_NOT_TRACKED); 
-                }
-            case RegFamily::pred: 
-                if (live_pred.count(idx) != 0) {
-                    throw Error(ERR_RM_REG_IN_USE);
-                } else if (free_pred_regs.count(idx) != 0){
-                    free_pred_regs.erase(idx);
-                    return;
-                } else if (preserved_pred.count(idx) != 0){
-                    preserved_pred.erase(idx);
-                    return;
-                } else {
-                    throw Error(ERR_RM_REG_NOT_TRACKED);
-                }
-            default: throw Error(ERR_RM_ILLEGAL_REG_FAMILY);
+    // reserve an index for a regoster family to prevent it from being touched by the register manager. Use add_to_*_pool to re-add a reserved register.
+    void reserve_gp(const int idx) {
+        if (live_gp.count(idx) != 0) {
+            throw Error(ERR_RM_REG_IN_USE);
+        } else if (free_gp_regs.count(idx) != 0){
+            free_gp_regs.erase(idx);
+            return;
+        } else if (preserved_gp.count(idx) != 0){
+            preserved_gp.erase(idx);
+            return;
+        } else {
+            throw Error(ERR_RM_REG_NOT_TRACKED);
+        }
+    }
+    void reserve_vec(const int idx) {
+        if (live_vec.count(idx) != 0) {
+            throw Error(ERR_RM_REG_IN_USE);
+        } else if (free_vec_regs.count(idx) != 0){
+            free_vec_regs.erase(idx);
+            return;
+        } else if (preserved_vec.count(idx) != 0){
+            preserved_vec.erase(idx);
+            return;
+        } else {
+            throw Error(ERR_RM_REG_NOT_TRACKED);
+        }
+    }
+    void reserve_pred(const int idx) {
+        if (live_pred.count(idx) != 0) {
+            throw Error(ERR_RM_REG_IN_USE);
+        } else if (free_pred_regs.count(idx) != 0){
+            free_pred_regs.erase(idx);
+            return;
+        } else if (preserved_pred.count(idx) != 0){
+            preserved_pred.erase(idx);
+            return;
+        } else {
+            throw Error(ERR_RM_REG_NOT_TRACKED);
         }
     }
     // helper functions - returns true if an index in a given family is in use
@@ -546,7 +541,7 @@ private:
         return indices;
     }
 
-    // helper method - checks reg in use before scoping
+    // helper method - checks reg in live_* set before scoping
     template <class RegT>
     static void validate_scoped_reg(RegPoolManager *rm, RegT reg) {
         if (!rm->reg_in_use(reg))
@@ -579,17 +574,17 @@ private:
     int next_gp_idx() const {
         if (!free_gp_regs.empty()) return *free_gp_regs.begin();
         if (!preserved_gp.empty()) return *preserved_gp.begin();
-        throw Error(ERR_RM_NO_FREE_REG);
+        throw Error(ERR_RM_NO_UNALLOCATED_REG);
     }
     int next_vec_idx() const {
         if (!free_vec_regs.empty()) return *free_vec_regs.begin();
         if (!preserved_vec.empty()) return *preserved_vec.begin();
-        throw Error(ERR_RM_NO_FREE_REG);
+        throw Error(ERR_RM_NO_UNALLOCATED_REG);
     }
     int next_pred_idx() const {
         if (!free_pred_regs.empty()) return *free_pred_regs.begin();
         if (!preserved_pred.empty()) return *preserved_pred.begin();
-        throw Error(ERR_RM_NO_FREE_REG);
+        throw Error(ERR_RM_NO_UNALLOCATED_REG);
     }
 
     // tracking method for in-use indices for a given register family
