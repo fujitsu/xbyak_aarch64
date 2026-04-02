@@ -19,7 +19,7 @@ Error::Error(int err) : err_(err), msg_("") {
   if (err_ <= 0)
     return;
   fprintf(stderr, "bad err=%d in Xbyak::Error\n", err_);
-  static const char *tbl[32] = {
+  static const char *tbl[] = {
       "none",
       "code is too big",
       "label is redefined",
@@ -49,6 +49,14 @@ Error::Error(int err) : err_(err), msg_("") {
       "bad align",
       "bad addressing",
       "bad scale",
+      "munmap failed",
+      "register is not in use",
+      "register already in use",
+      "no unallocated register available",
+      "illegal register family",
+      "register is not tracked by manager",
+      "register is already tracked by manager",
+      "bad scoped register",
   };
   if ((size_t)err_ >= sizeof(tbl) / sizeof(tbl[0])) {
     msg_ = "bad err num";
