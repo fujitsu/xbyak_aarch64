@@ -16,6 +16,8 @@
 # *******************************************************************************/
 GPP=g++
 TEST_FILE=${1:-reg_manager_tests}
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 dumpOK () {
     echo "##########################################"
@@ -31,12 +33,14 @@ dumpNG () {
 }
 
 # Rebuild library
-make -s -C .. lib/libxbyak_aarch64.a
+make -s -C "${REPO_ROOT}" lib/libxbyak_aarch64.a
 
 if [ $? != 0 ] ; then
     dumpNG "Building libxbyak_aarch64."
     exit 1
 fi
+
+cd "${SCRIPT_DIR}" || exit 1
 
 # Make object file
 ${GPP} -c -g -fomit-frame-pointer -Wall -fno-operator-names -I../xbyak_aarch64 -I./ \
