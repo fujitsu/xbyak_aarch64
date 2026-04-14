@@ -34,15 +34,10 @@ using namespace Xbyak_aarch64;
 struct ExampleScopedSummationLoop : public CodeGenerator {
   void generate() {
     RegPoolManager rm;
-    rm.clear_free_gp();
-    rm.clear_preserved_gp();
-    rm.add_to_gp_pool(0);
-    rm.add_to_gp_pool(10);
-    rm.add_to_gp_pool(5);
 
     auto x_base = rm.allocScoped<XReg>(0);
     auto x_sum = rm.allocScoped<XReg>();
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 50; i++) {
       auto x_tmp = rm.allocScoped<XReg>();
 
       (void)x_tmp.getIdx();
@@ -124,10 +119,10 @@ struct ExampleSimdList : public CodeGenerator {
 
     auto x_ptr = rm.allocScoped<XReg>();
 
-    auto v0 = rm.allocScoped<VReg2D>();
-    auto v1 = rm.allocScoped<VReg2D>();
-    auto v2 = rm.allocScoped<VReg2D>();
-    auto v3 = rm.allocScoped<VReg2D>();
+    auto v0 = rm.allocScoped<VReg2D>(9);
+    auto v1 = rm.allocScoped<VReg2D>(10);
+    auto v2 = rm.allocScoped<VReg2D>(11);
+    auto v3 = rm.allocScoped<VReg2D>(12);
 
     ld4((v0 - VReg2D(v3.getIdx()))[0], post_ptr(x_ptr, 64));
     st4((VReg2D(v0.getIdx()) - v3)[0], post_ptr(x_ptr, 64));
@@ -153,8 +148,45 @@ struct ExampleSvePredicate : public CodeGenerator {
   }
 };
 
-// example demonstrating use of the manager alongside existing usage, and how a developer might leverage both
-struct ExampleHybridUsage : public CodeGenerator {
+// this and the example below aim to show how the manager can fit alongside or combined with existing usage of raw reg objects
+// example demonstrating use of the manager alongside existing usage, and how a developer might leverage both by reserving regs already used in a kernel
+struct ExampleHybridUsage1 : public CodeGenerator {
+  void generate() {
+    RegPoolManager rm;
+    XReg x_overflow(0);
+    VReg v_src(1);
+    VReg v_acc(2);
+    VReg v_tmp(3);
+
+    auto scp_x_overflow = rm.allocScoped<XReg>(x_overflow);
+    // reserving regs already in use in the kernel to ensure they are not touched by the manager
+    rm.reserve(v_src);
+    rm.reserve(v_acc);
+    rm.reserve(v_tmp);
+
+    Label no_overflow, done;
+
+    // same architectural register used through different typed views
+    fadd(v_tmp.s, v_src.s, v_acc.s);
+    fadd(v_acc.d, v_acc.d, v_src.d);
+
+    // runtime branch: v_overflow is only consumed if this path is taken
+    cmp(x_overflow, 0);
+    b(EQ, no_overflow);
+    {
+      auto v_overflow = rm.allocScoped<VReg>();
+      fmax(v_overflow.get().s, v_tmp.s, v_src.s);
+      fsub(v_acc.s, v_acc.s, v_overflow.get().s);
+      b(done);
+    }
+    L(no_overflow);
+    fadd(v_acc.s, v_acc.s, v_tmp.s);
+    L(done);
+  }
+};
+
+// example demonstrating use of the manager alongside existing usage, and how a developer might leverage both while scoping raw reg objects that already exist
+struct ExampleHybridUsage2 : public CodeGenerator {
   void generate() {
     RegPoolManager rm;
     XReg x_overflow(0);

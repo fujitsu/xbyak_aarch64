@@ -259,6 +259,21 @@ public:
       throw Error(ERR_RM_REG_NOT_TRACKED);
     }
   }
+  void reserve(const Reg &reg) {
+    switch (reg_family<Reg>::value) {
+    case RegFamily::gp:
+      reserve_gp(reg.getIdx());
+      break;
+    case RegFamily::vec:
+      reserve_vec(reg.getIdx());
+      break;
+    case RegFamily::pred:
+      reserve_pred(reg.getIdx());
+      break;
+    default:
+      throw Error(ERR_RM_ILLEGAL_REG_FAMILY);
+    }
+  }
   // helper functions - returns true if an index in a given family is in use
   bool gp_idx_in_use(int reg_idx) const { return reg_in_use_idx(reg_idx, RegFamily::gp); }
   bool vec_idx_in_use(int reg_idx) const { return reg_in_use_idx(reg_idx, RegFamily::vec); }
