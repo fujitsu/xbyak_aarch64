@@ -1,6 +1,7 @@
 #pragma once
 /*******************************************************************************
  * Copyright 2020-2023 FUJITSU LIMITED
+ * Copyright 2026 Arm Ltd. and affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +70,7 @@ enum hwCap_t {
   XBYAK_AARCH64_HWCAP_SME_I16I64 = 1 << 9,
   XBYAK_AARCH64_HWCAP_SME_F16F16 = 1 << 10,
   XBYAK_AARCH64_HWCAP_SME_F64F64 = 1 << 11,
-
+  XBYAK_AARCH64_HWCAP_FPHP = 1 << 12,
 };
 
 struct implementer_t {
@@ -101,6 +102,7 @@ public:
   bool has(Type type) const;
   bool isAtomicSupported() const;
   bool isBf16Supported() const;
+  bool isF16Supported() const;
 };
 
 } // namespace util
