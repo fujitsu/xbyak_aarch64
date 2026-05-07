@@ -153,13 +153,15 @@ void CpuInfo::setLastDataCacheLevel() {
 
 Cpu::Cpu() {
 #if defined(__linux__)
-  info = new CpuInfoLinux();
+  info.reset(new CpuInfoLinux());
 #elif defined(__APPLE__)
-  info = new CpuInfoMac();
+  info.reset(new CpuInfoMac());
 #elif defined(_M_ARM64)
-  info = new CpuInfoWindows();
+  info.reset(new CpuInfoWindows());
 #endif
 }
+
+Cpu::~Cpu() = default;
 
 struct GetSmeLenCode : public CodeGenerator {
   GetSmeLenCode() {
