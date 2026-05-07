@@ -22,6 +22,7 @@
 #endif
 
 #include <stdint.h>
+#include <memory>
 
 namespace Xbyak_aarch64 {
 namespace util {
@@ -83,10 +84,11 @@ struct implementer_t {
 class CpuInfo;
 class Cpu {
 private:
-  CpuInfo *info;
+  std::unique_ptr<CpuInfo> info;
 
 public:
   Cpu();
+  ~Cpu();
 
   void dumpCacheInfo() const;
   Arm64CacheType getCacheType(const Arm64CacheLevel i) const;
