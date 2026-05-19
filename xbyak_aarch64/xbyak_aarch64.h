@@ -70,6 +70,7 @@
 #endif
 
 #include "xbyak_aarch64_err.h"
+#include "xbyak_aarch64_reg_manager.h"
 
 namespace Xbyak_aarch64 {
 const uint64_t SP_IDX = 31;
