@@ -1,6 +1,7 @@
 #pragma once
 /*******************************************************************************
  * Copyright 2019-2023 FUJITSU LIMITED
+ * Copyright 2026 Arm Ltd. and affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
