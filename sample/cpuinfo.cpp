@@ -35,6 +35,8 @@ int main() {
     printf("fp ");
   if (cpu.has(XBYAK_AARCH64_HWCAP_FPHP))
     printf("fphp ");
+  if (cpu.has(XBYAK_AARCH64_HWCAP_FHM))
+    printf("fhm ");
   if (cpu.has(XBYAK_AARCH64_HWCAP_SVE))
     printf("sve(%d) ", (int)cpu.getSveLen());
   if (cpu.has(XBYAK_AARCH64_HWCAP_ATOMIC))
