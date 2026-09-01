@@ -15,7 +15,7 @@
 # imitations under the License.
 # *******************************************************************************/
 nm_list="make_nm make_nm_branch make_nm_fp make_nm_load_store make_nm_simd make_nm_simd_fp_load_store make_nm_sve make_nm_sve_addr"
-integrated_list="mov mov_imm add_sub_adds_subs_imm"
+integrated_list="mov mov_imm add_sub_adds_subs_imm assign_label"
 
 do_all_test() {
     echo "########################################################"
