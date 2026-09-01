@@ -49,7 +49,7 @@
 #define HWCAP2_SME (1UL << 23)
 #endif
 #ifndef HWCAP2_SME_I16I64
-#define HWCAP2_SME_I16I64	(1UL << 24)
+#define HWCAP2_SME_I16I64 (1UL << 24)
 #endif
 #ifndef HWCAP2_SME_F64F64
 #define HWCAP2_SME_F64F64 (1UL << 25)

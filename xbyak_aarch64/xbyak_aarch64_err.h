@@ -56,7 +56,7 @@ enum {
   ERR_RM_ILLEGAL_REG_FAMILY,
   ERR_RM_REG_NOT_TRACKED,
   ERR_RM_REG_ALREADY_TRACKED,
-  ERR_RM_BAD_SCOPE,  
+  ERR_RM_BAD_SCOPE,
 };
 
 class Error : public std::exception {

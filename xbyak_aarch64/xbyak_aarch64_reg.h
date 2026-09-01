@@ -634,14 +634,15 @@ public:
 };
 
 class ZARegD : public _ZAReg {
-  public:
-    explicit ZARegD(uint32_t index) : _ZAReg(index, 64) {}
-  };
+public:
+  explicit ZARegD(uint32_t index) : _ZAReg(index, 64) {}
+};
 
 // Matrix Register for SME
 class ZAReg : public _ZAReg {
   uint32_t _wvIdx;
   uint32_t _offs;
+
 public:
   explicit ZAReg(uint32_t index) : _ZAReg(index), _wvIdx(0), _offs(0), s(index), d(index) {}
   explicit ZAReg(uint32_t index, uint32_t bits, const WReg &wv, uint32_t offs) : _ZAReg(index, bits), _wvIdx(wv.getIdx()), _offs(offs), s(index), d(index) {}
@@ -656,6 +657,7 @@ class _ZAHVReg : public Reg {
   bool _isVertical;
   uint32_t _wsIdx;
   uint32_t _offs;
+
 public:
   explicit _ZAHVReg(uint32_t index, bool isVertical = false, uint32_t bits = 0) : Reg(index, ZAREG, bits), _isVertical(isVertical), _wsIdx(31), _offs(31) {}
   explicit _ZAHVReg(uint32_t index, bool isVertical, uint32_t bits, const WReg &ws, uint32_t offs) : Reg(index, ZAREG, bits), _isVertical(isVertical), _wsIdx(ws.getIdx()), _offs(offs) {}
@@ -724,7 +726,7 @@ class ZAVRegQ : public _ZAHVReg {
 public:
   explicit ZAVRegQ(uint32_t index) : _ZAHVReg(index, true, 128) {}
 };
-  
+
 class ZAVReg : public _ZAHVReg {
 public:
   explicit ZAVReg(uint32_t index) : _ZAHVReg(index, true), b(index), h(index), s(index), d(index), q(index) {}

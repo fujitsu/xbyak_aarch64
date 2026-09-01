@@ -5622,7 +5622,7 @@ void CodeGenerator::usmops(const ZARegS &zaS, const _PReg &pn, const _PReg &pm, 
 void CodeGenerator::usmops(const ZARegD &zaD, const _PReg &pn, const _PReg &pm, const ZRegH &zn, const ZRegH &zm) { Sme16bitTo64bitOuterProd(true, false, true, zaD, pn, pm, zn, zm); }
 void CodeGenerator::zero(std::initializer_list<ZARegD> list) { SmeZero(list); }
 void CodeGenerator::zero(const ZAReg &za) { SmeZero(za); }
-void CodeGenerator::smstart(SMod m) { PState(SVCRSMZA, 1 | (m<<1u)); }
+void CodeGenerator::smstart(SMod m) { PState(SVCRSMZA, 1 | (m << 1u)); }
 void CodeGenerator::smstart() { PState(SVCRSMZA, 0x7); }
-void CodeGenerator::smstop(SMod m) { PState(SVCRSMZA, m<<1u); }
+void CodeGenerator::smstop(SMod m) { PState(SVCRSMZA, m << 1u); }
 void CodeGenerator::smstop() { PState(SVCRSMZA, 0x6); }

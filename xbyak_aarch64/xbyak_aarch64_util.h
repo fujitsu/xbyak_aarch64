@@ -22,8 +22,8 @@
 #error "Unsupported OS"
 #endif
 
-#include <stdint.h>
 #include <memory>
+#include <stdint.h>
 
 namespace Xbyak_aarch64 {
 namespace util {

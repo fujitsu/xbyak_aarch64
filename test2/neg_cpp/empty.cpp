@@ -1,3 +1,2 @@
-void gen() {
-  /* Nothing */
+void gen() { /* Nothing */
 }

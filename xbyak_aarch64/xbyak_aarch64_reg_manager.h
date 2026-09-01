@@ -32,27 +32,21 @@ namespace Xbyak_aarch64 {
 // Static definitions for different types of registers in relation to which family they belong to.
 enum class RegFamily { gp, vec, pred, unsupported };
 
-template <class RegT> struct is_gp_reg {
-  static constexpr bool value = std::is_base_of<RReg, RegT>::value;
-};
+template <class RegT> struct is_gp_reg { static constexpr bool value = std::is_base_of<RReg, RegT>::value; };
 
 template <class RegT> struct is_vec_reg {
   static constexpr bool value =
       std::is_base_of<VRegSc, RegT>::value || (std::is_base_of<VRegVec, RegT>::value && !std::is_base_of<VRegElem, RegT>::value && !std::is_base_of<VRegList, RegT>::value) || (std::is_base_of<_ZReg, RegT>::value && !std::is_base_of<ZRegElem, RegT>::value && !std::is_base_of<ZRegList, RegT>::value);
 };
 
-template <class RegT> struct is_pred_reg {
-  static constexpr bool value = std::is_base_of<_PReg, RegT>::value;
-};
+template <class RegT> struct is_pred_reg { static constexpr bool value = std::is_base_of<_PReg, RegT>::value; };
 
 // helper trait determines if operator- is defined for a given register type
 template <class RegT> struct is_list_family_reg {
   static constexpr bool value = (std::is_base_of<VRegVec, RegT>::value && !std::is_base_of<VRegElem, RegT>::value && !std::is_base_of<VRegList, RegT>::value) || (std::is_base_of<_ZReg, RegT>::value && !std::is_base_of<ZRegElem, RegT>::value && !std::is_base_of<ZRegList, RegT>::value);
 };
 
-template <class RegT> struct reg_family {
-  static constexpr RegFamily value = is_gp_reg<RegT>::value ? RegFamily::gp : (is_vec_reg<RegT>::value ? RegFamily::vec : (is_pred_reg<RegT>::value ? RegFamily::pred : RegFamily::unsupported));
-};
+template <class RegT> struct reg_family { static constexpr RegFamily value = is_gp_reg<RegT>::value ? RegFamily::gp : (is_vec_reg<RegT>::value ? RegFamily::vec : (is_pred_reg<RegT>::value ? RegFamily::pred : RegFamily::unsupported)); };
 
 class RegPoolManager {
 public:
