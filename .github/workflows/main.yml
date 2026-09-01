@@ -2,19 +2,21 @@ on: [push]
 
 jobs:
   ClangFormatCheck:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     name: check clang format
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
+    - name: Install clang-format 9.0.0
+      run: pipx install clang-format==9.0.0
     - name: Check clang format
       run: ./.github/automation/clang-format.sh
       shell: bash
   ci_test_job:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     name: Test for xbyak_translator_aarch64
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
     - name: Test action step
       uses: ./.github/actions/test_action
