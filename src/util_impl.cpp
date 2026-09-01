@@ -19,9 +19,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "xbyak_aarch64.h"
 #include "xbyak_aarch64_err.h"
 #include "xbyak_aarch64_util.h"
-#include "xbyak_aarch64.h"
 
 #include "util_impl.h"
 
@@ -166,14 +166,13 @@ Cpu::~Cpu() = default;
 
 struct GetSmeLenCode : public CodeGenerator {
   GetSmeLenCode() {
-    rdsvl(x0,1);
+    rdsvl(x0, 1);
     ret();
   }
 };
 
 void CpuInfo::setSmeLen() {
-  if ((0 == smeLen_) && (type_ & XBYAK_AARCH64_HWCAP_SME))
-  {
+  if ((0 == smeLen_) && (type_ & XBYAK_AARCH64_HWCAP_SME)) {
     GetSmeLenCode code;
     code.ready();
     auto get_sme_length = code.getCode<uint64_t (*)()>();
