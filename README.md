@@ -734,7 +734,18 @@ We are grateful to MITSUNARI-san (Cybozu Labs, Inc.) for release Xbyak as an ope
 |----|----|----|
 |December 9, 2019|0.9.0|First public release version.|
 
+## Acknowledgement
+
+Xbyak_aarch64 is based on [Xbyak](https://github.com/herumi/xbyak), a JIT assembler
+for x86/x64 developed by MITSUNARI Shigeo (Cybozu Labs, Inc.).
+MITSUNARI-san also co-maintained Xbyak_aarch64 from its first release in 2019
+through 2026 and is one of its main authors (about 150 commits).
+We are grateful for his foundational work and long-term maintainership.
+
+## Authors / Maintainers
+- FUJITSU LIMITED (2019-)
+- MITSUNARI Shigeo, @herumi (co-maintainer, 2019-2026)
 
 ## Copyright
 
-Copyright FUJITSU LIMITED 2019-2020
+Copyright FUJITSU LIMITED 2019-2026
