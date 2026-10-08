@@ -38,7 +38,7 @@
 #include <unordered_set>
 #include <vector>
 
-#if defined(__GNUC__) || defined(__APPLE__)
+#if (defined(__GNUC__) && !defined(_WIN32)) || defined(__APPLE__)
 #ifndef XBYAK_USE_MMAP_ALLOCATOR
 #define XBYAK_USE_MMAP_ALLOCATOR
 #endif
@@ -47,7 +47,7 @@
 #include <cmath>
 #include <functional>
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(_WIN32)
 #include <cassert>
 #include <stdlib.h>
 #include <sys/mman.h>
