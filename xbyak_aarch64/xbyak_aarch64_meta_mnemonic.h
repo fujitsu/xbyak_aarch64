@@ -1,5 +1,6 @@
 /*******************************************************************************
  * Copyright 2019-2021 FUJITSU LIMITED
+ * Copyright 2026 Arm Ltd. and affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +18,11 @@ template <typename T, typename std::enable_if<std::is_unsigned<T>::value, std::n
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
+
+  if (imm == 0) {
+    mov(dst, src);
+    return;
+  }
 
   uint64_t bit_ptn = static_cast<uint64_t>(imm);
 
@@ -38,11 +44,16 @@ template <typename T, typename std::enable_if<std::is_signed<T>::value, std::nul
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
+  if (imm == 0) {
+    mov(dst, src);
+    return;
+  }
+
   /* Sign bit must be extended. */
   int64_t bit_ptn = static_cast<int64_t>(imm);
 
   /* ADD(immediate) supports unsigned imm12 */
-  if (imm >= 0) {
+  if (imm > 0) {
     const uint64_t IMM12_MASK = ~uint64_t(0xfff);
     if ((bit_ptn & IMM12_MASK) == 0) { // <= 4095
       add(dst, src, static_cast<uint32_t>(imm & 0xfff));
@@ -60,6 +71,11 @@ template <typename T, typename std::enable_if<std::is_unsigned<T>::value, std::n
   /* This add_imm function allows dst == src,
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
+
+  if (imm == 0) {
+    mov(dst, src);
+    return;
+  }
 
   uint32_t bit_ptn = static_cast<uint32_t>(imm);
 
@@ -81,11 +97,16 @@ template <typename T, typename std::enable_if<std::is_signed<T>::value, std::nul
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
+  if (imm == 0) {
+    mov(dst, src);
+    return;
+  }
+
   /* Sign bit must be extended. */
   int32_t bit_ptn = static_cast<int32_t>(imm);
 
   /* ADD(immediate) supports unsigned imm12 */
-  if (imm >= 0) {
+  if (imm > 0) {
     const uint32_t IMM12_MASK = ~uint32_t(0xfff);
     if ((bit_ptn & IMM12_MASK) == 0) { // <= 4095
       add(dst, src, static_cast<uint32_t>(imm & 0xfff));
@@ -104,9 +125,14 @@ template <typename T, typename std::enable_if<std::is_unsigned<T>::value, std::n
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
+  if (imm == 0) {
+    mov(dst, src);
+    return;
+  }
+
   uint64_t bit_ptn = static_cast<uint64_t>(imm);
 
-  /* ADD(immediate) supports unsigned imm12 */
+  /* SUB(immediate) supports unsigned imm12 */
   const uint64_t IMM12_MASK = ~uint64_t(0xfff);
   if ((bit_ptn & IMM12_MASK) == 0) { // <= 4095
     sub(dst, src, static_cast<uint32_t>(imm & 0xfff));
@@ -124,11 +150,16 @@ template <typename T, typename std::enable_if<std::is_signed<T>::value, std::nul
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
+  if (imm == 0) {
+    mov(dst, src);
+    return;
+  }
+
   /* Sign bit must be extended. */
   int64_t bit_ptn = static_cast<int64_t>(imm);
 
-  /* ADD(immediate) supports unsigned imm12 */
-  if (imm >= 0) {
+  /* SUB(immediate) supports unsigned imm12 */
+  if (imm > 0) {
     const uint64_t IMM12_MASK = ~uint64_t(0xfff);
     if ((bit_ptn & IMM12_MASK) == 0) { // <= 4095
       sub(dst, src, static_cast<uint32_t>(imm & 0xfff));
@@ -147,9 +178,14 @@ template <typename T, typename std::enable_if<std::is_unsigned<T>::value, std::n
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
+  if (imm == 0) {
+    mov(dst, src);
+    return;
+  }
+
   uint32_t bit_ptn = static_cast<uint32_t>(imm);
 
-  /* ADD(immediate) supports unsigned imm12 */
+  /* SUB(immediate) supports unsigned imm12 */
   const uint32_t IMM12_MASK = ~uint32_t(0xfff);
   if ((bit_ptn & IMM12_MASK) == 0) { // <= 4095
     sub(dst, src, static_cast<uint32_t>(imm & 0xfff));
@@ -167,11 +203,16 @@ template <typename T, typename std::enable_if<std::is_signed<T>::value, std::nul
      but tmp must be different from src */
   assert(src.getIdx() != tmp.getIdx());
 
+  if (imm == 0) {
+    mov(dst, src);
+    return;
+  }
+
   /* Sign bit must be extended. */
   int32_t bit_ptn = static_cast<int32_t>(imm);
 
-  /* ADD(immediate) supports unsigned imm12 */
-  if (imm >= 0) {
+  /* SUB(immediate) supports unsigned imm12 */
+  if (imm > 0) {
     const uint32_t IMM12_MASK = ~uint32_t(0xfff);
     if ((bit_ptn & IMM12_MASK) == 0) { // <= 4095
       sub(dst, src, static_cast<uint32_t>(imm & 0xfff));
